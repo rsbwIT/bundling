@@ -5,7 +5,8 @@
 @endpush
 @section('konten')
     <div class="d-flex justify-content-between align-items-center container-fluid mt-3">
-        <img src="/img/rs.png" width="140px" height="110px" alt="" srcset="">
+        <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                    alt="Girl in a jacket" width="120" height="120">
         <div class="pricing-header ">
             <h1 class="display-4 font-weight-bold">Antrian Sidik Jari BPJS</h1>
         </div>

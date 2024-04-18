@@ -33,6 +33,7 @@ use App\Http\Controllers\Keperawatan\LaporanLogBook2;
 use App\Http\Controllers\DetailTindakan\RalanParamedis;
 use App\Http\Controllers\DetailTindakan\RanapParamedis;
 use App\Http\Controllers\Farmasi\MinimalStokController;
+use App\Http\Controllers\Keperawatan\LaporanLogbokKaru;
 use App\Http\Controllers\Returobat\ReturObatController;
 use App\Http\Controllers\Farmasi\ViewSepResepController;
 use App\Http\Controllers\DetailTindakan\PeriksaRadiologi;
@@ -154,6 +155,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/laporan-logbook-keperawatan2', [LaporanLogBook2::class, 'getLookBook']);
     Route::get('/input-kegiatan-keperawatan-lain', [PengawasKeperawatan::class, 'InputKegiatanLain']);
     Route::get('/input-kegiatan-karu', [PengawasKeperawatan::class, 'InputKegiatankaru']);
+    Route::get('/laporan-kegiatan-karu', [LaporanLogbokKaru::class, 'LaporanLogbokKaru']);
 
     // BRIFING BPJS
     Route::get('/kirim-taskid-bpjs', [KirimTaskId::class, 'KirimTaskId']);

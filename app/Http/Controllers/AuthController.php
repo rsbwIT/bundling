@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\CacheService;
 use App\Services\DefaultService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +12,18 @@ use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
+    protected $cacheService;
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
     function Login(){
+        $getSetting = $this->cacheService->getSetting();
         // Session::flush();
         // DefaultService::authService();
-        return view('auth.login');
+        return view('auth.login',[
+            'getSetting' => $getSetting
+        ]);
     }
     function mesinLogin(Request $request){
         $data = [
@@ -45,14 +54,14 @@ class AuthController extends Controller
                 ->first();
             session(['user' => $userLogin]);
             session(['auth' => $data]);
-            return redirect()->intended('/')->with('sucsessLogin', 'Berhasil Login');
+            return redirect()->intended('/')->with('sucsessLogin', 'Berhasil Masuk');
         }
     }
 
     function Logout(Request $request){
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login')->with('sucsessLogout', 'Berhasil Logout');
+        return redirect('/login')->with('sucsessLogout', 'Keluar Aplikasi');
     }
 
     function Maintance() {

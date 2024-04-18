@@ -3,12 +3,18 @@
 namespace App\Http\Controllers\AntrianPendaftaran;
 
 use Illuminate\Http\Request;
+use App\Services\CacheService;
 use App\Services\DayListService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class AntrianPendaftaran extends Controller
 {
+    protected $cacheService;
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
     // LIST PENDAFTARAN
     function AntrianPendaftaran()  {
         $Pendaftaran = DB::table('pendaftaran')
@@ -27,7 +33,10 @@ class AntrianPendaftaran extends Controller
 
     // DISPLAY ANTRIAN
     function DisplayAntrian() {
-        return view('antrian.displayantrian');
+        $getSetting = $this->cacheService->getSetting();
+        return view('antrian.displayantrian',[
+            'getSetting' => $getSetting
+        ]);
     }
 
     // DISPLAY PETUGAS

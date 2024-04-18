@@ -85,7 +85,7 @@
                                     <div class="icon">
                                         <i class="nav-icon fas fa-receipt"></i>
                                     </div>
-                                    <a href="" class="small-box-footer">More info <i
+                                    <a href="{{url('laporan-kegiatan-karu')}}" class="small-box-footer">More info <i
                                             class="fas fa-arrow-circle-right"></i></a>
                                 </div>
                             </div>

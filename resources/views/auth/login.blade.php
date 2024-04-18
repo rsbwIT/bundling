@@ -5,7 +5,8 @@
     <div class="login-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="../../index2.html" class="h1"><b>Rsbw</b>LTE</a>
+                <a href="#" class="h1"><img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                    alt="Girl in a jacket" width="100" height="100"></a>
             </div>
             <div class="card-body">
                 @if (session('errorLogin'))
@@ -30,7 +31,7 @@
                         </button>
                     </div>
                 @else
-                    <p class="login-box-msg">Sign in to start your session</p>
+                    <p class="login-box-msg">Masuk untuk memulai sesi baru</p>
                 @endif
                 <form action="{{ url('/mesinlogin') }}" method="POST">
                     @csrf
@@ -65,12 +66,6 @@
                     </div>
                 </form>
                 <hr class="my-4">
-                <p class="mb-1">
-                    <a href="{{ url('/forgetpassword') }}">I forgot my password</a>
-                </p>
-                <p class="mb-0">
-                    <a href="{{ url('/register') }}" class="text-center">Register a new membership</a>
-                </p>
             </div>
         </div>
     </div>
