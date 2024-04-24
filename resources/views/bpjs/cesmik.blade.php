@@ -80,6 +80,9 @@
                         {{-- SURAT KEMATIAN ========================================================== --}}
                         @include('bpjs.component.surat-kematian')
 
+                        {{-- LAPORAN OPERASI ========================================================== --}}
+                        @include('bpjs.component.berkas-laporan-operasi')
+
                         {{-- ERROR HANDLING ============================================================= --}}
                     @else
                         <div class="card-body">

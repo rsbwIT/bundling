@@ -60,6 +60,10 @@
             page-break-after: always;
         }
 
+        .pb-4{
+            padding-bottom: 30px;
+        }
+
         .card-body:last-child {
             page-break-after: auto;
         }
@@ -83,7 +87,7 @@
                             </tr>
                             <tr>
                                 <th class="text-center">
-                                    <span class="h3">{{$getSetting->nama_instansi}}</span>
+                                    <span class="h3">{{ $getSetting->nama_instansi }}</span>
                                 </th>
                             </tr>
                             <tr>
@@ -125,7 +129,10 @@
                         </tr>
                         <tr>
                             @php
-                                $jnsKunjungan = $getSEP->tujuankunjungan == 0 ? '-Konsultasi dokter(Pertama)' : 'Kunjungan Kontrol(ulangan)';
+                                $jnsKunjungan =
+                                    $getSEP->tujuankunjungan == 0
+                                        ? '-Konsultasi dokter(Pertama)'
+                                        : 'Kunjungan Kontrol(ulangan)';
                             @endphp
                             <td>Tgl. Lahir</td>
                             <td>: {{ date('d/m/Y', strtotime($getSEP->tanggal_lahir)) }}
@@ -135,7 +142,12 @@
                         </tr>
                         <tr>
                             @php
-                                $Prosedur = $getSEP->flagprosedur == 0 ? '-Prosedur Tidak Berkelanjutan' : ($getSEP->flagprosedur == 1 ? '- Prosedur dan Terapi Tidak Berkelanjutan' : '');
+                                $Prosedur =
+                                    $getSEP->flagprosedur == 0
+                                        ? '-Prosedur Tidak Berkelanjutan'
+                                        : ($getSEP->flagprosedur == 1
+                                            ? '- Prosedur dan Terapi Tidak Berkelanjutan'
+                                            : '');
                             @endphp
                             <td style="vertical-align: top;">No. Telpon</td>
                             <td style="vertical-align: top;">: {{ $getSEP->notelep }}</td>
@@ -186,7 +198,7 @@
                             <td class="text-center" width="220px">
                                 <p>Pasien/Keluarga Pasien </p>
                                 <div class="barcode">
-                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSEP->nmppkpelayanan . ',' . ' Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $getSEP->nama_pasien . ' ID ' . $getSEP->no_kartu . ' ' . $getSEP->tglsep, 'QRCODE') }}"
+                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSEP->nmppkpelayanan . ',' . ' Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getSEP->nama_pasien . ' ID ' . $getSEP->no_kartu . ' ' . $getSEP->tglsep, 'QRCODE') }}"
                                         alt="barcode" width="55px" height="55px" />
                                 </div>
                                 <p><b>{{ $getSEP->nama_pasien }}</b></p>
@@ -207,20 +219,22 @@
                     <div class="card p-4 d-flex justify-content-center align-items-center">
                         <table width="700px">
                             <tr>
-                                <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" alt="Girl in a jacket"
-                                        width="80" height="80"></td>
+                                <td rowspan="3"> <img
+                                        src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                        alt="Girl in a jacket" width="80" height="80"></td>
                                 <td class="text-center">
-                                    <span class="h3">{{$getSetting->nama_instansi}}</span>
+                                    <span class="h3">{{ $getSetting->nama_instansi }}</span>
                                 </td>
                                 <td class="text-center" width="100px">
                                 </td>
                             </tr>
                             <tr class="text-center mr-5">
-                                <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                    {{$getSetting->kontak}}</td>
+                                <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                    {{ $getSetting->propinsi }}
+                                    {{ $getSetting->kontak }}</td>
                             </tr>
                             <tr class="text-center">
-                                <td> E-mail : {{$getSetting->email}}</td>
+                                <td> E-mail : {{ $getSetting->email }}</td>
                             </tr>
                         </table>
                         <hr width="700px" class="mt-0"
@@ -313,7 +327,7 @@
                                 <td width="250px" class="text-center">
                                     Dokter Penanggung Jawab
                                     <div class="barcode mt-1">
-                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh dr. Sanjoto Santibudi, Sp.KFR ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
+                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh dr. Sanjoto Santibudi, Sp.KFR ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
                                             alt="barcode" width="55px" height="55px" />
                                     </div>
                                     dr. Sanjoto Santibudi, Sp.KFR
@@ -329,18 +343,20 @@
                         <div class="">
                             <table width="700px">
                                 <tr>
-                                    <td rowspan="3" width="90"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                    <td rowspan="3" width="90"> <img
+                                            src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
                                             width="80" height="80"></td>
                                     <td class="text-center">
-                                        <h2>{{$getSetting->nama_instansi}} </h2>
+                                        <h2>{{ $getSetting->nama_instansi }} </h2>
                                     </td>
                                 </tr>
                                 <tr class="text-center">
-                                    <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                        {{$getSetting->kontak}}</td>
+                                    <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                        {{ $getSetting->propinsi }}
+                                        {{ $getSetting->kontak }}</td>
                                 </tr>
                                 <tr class="text-center">
-                                    <td> E-mail : {{$getSetting->email}}</td>
+                                    <td> E-mail : {{ $getSetting->email }}</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td colspan="2">
@@ -361,7 +377,10 @@
                                         $tanggal_lahir_obj = date_create($getResume->tgl_lahir);
                                         $today = date_create('today');
                                         $umur = date_diff($tanggal_lahir_obj, $today);
-                                        $umur_text = $umur->y == 0 ? $umur->m . ' Bulan' : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
+                                        $umur_text =
+                                            $umur->y == 0
+                                                ? $umur->m . ' Bulan'
+                                                : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
                                     @endphp
                                     <td>: {{ $umur_text }}</td>
                                     <td>Ruang</td>
@@ -646,7 +665,7 @@
                                     <td width="250px" class="text-center">
                                         Dokter Penanggung Jawab
                                         <div class="barcode mt-1">
-                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_keluar, 'QRCODE') }}"
+                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_keluar, 'QRCODE') }}"
                                                 alt="barcode" width="55px" height="55px" />
                                         </div>
                                         {{ $getResume->nm_dokter }}
@@ -655,7 +674,7 @@
                                     <td width="250px" class="text-center">
                                         Dokter Penanggung Jawab2
                                         <div class="barcode mt-1">
-                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_keluar, 'QRCODE') }}"
+                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_keluar, 'QRCODE') }}"
                                                 alt="barcode" width="60px" height="60px" />
                                         </div>
                                         {{ $getResume->nm_dokter }}
@@ -670,18 +689,20 @@
                         <div class=""">
                             <table width="700px">
                                 <tr>
-                                    <td rowspan="3" width="90"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                    <td rowspan="3" width="90"> <img
+                                            src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
                                             width="80" height="80"></td>
                                     <td class="text-center">
-                                        <h2>{{$getSetting->nama_instansi}}</h2>
+                                        <h2>{{ $getSetting->nama_instansi }}</h2>
                                     </td>
                                 </tr>
                                 <tr class="text-center">
-                                    <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                        {{$getSetting->kontak}}</td>
+                                    <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                        {{ $getSetting->propinsi }}
+                                        {{ $getSetting->kontak }}</td>
                                 </tr>
                                 <tr class="text-center">
-                                    <td> E-mail : {{$getSetting->email}}</td>
+                                    <td> E-mail : {{ $getSetting->email }}</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td colspan="2">
@@ -702,7 +723,10 @@
                                         $tanggal_lahir_obj = date_create($getResume->tgl_lahir);
                                         $today = date_create('today');
                                         $umur = date_diff($tanggal_lahir_obj, $today);
-                                        $umur_text = $umur->y == 0 ? $umur->m . ' Bulan' : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
+                                        $umur_text =
+                                            $umur->y == 0
+                                                ? $umur->m . ' Bulan'
+                                                : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
                                     @endphp
                                     <td>: {{ $umur_text }}</td>
                                     <td>Ruang</td>
@@ -901,7 +925,7 @@
                                     <td width="250px" class="text-center">
                                         Dokter Penanggung Jawab2
                                         <div class="barcode mt-1">
-                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
+                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
                                                 alt="barcode" width="60px" height="60px" />
                                         </div>
                                         {{ $getResume->nm_dokter }}
@@ -922,18 +946,20 @@
                 <div class="">
                     <table width="700px">
                         <tr>
-                            <td rowspan="4"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="80"
-                                    height="80"></td>
+                            <td rowspan="4"> <img
+                                    src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                    width="80" height="80"></td>
                             <td class="text-center">
-                                <h2>{{$getSetting->nama_instansi}}</h2>
+                                <h2>{{ $getSetting->nama_instansi }}</h2>
                             </td>
                         </tr>
                         <tr class="text-center">
-                            <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                {{$getSetting->kontak}}</td>
+                            <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                {{ $getSetting->propinsi }}
+                                {{ $getSetting->kontak }}</td>
                         </tr>
                         <tr class="text-center">
-                            <td> E-mail : {{$getSetting->email}}</td>
+                            <td> E-mail : {{ $getSetting->email }}</td>
                         </tr>
                         <tr class="text-center">
                             @php
@@ -1033,19 +1059,21 @@
                     <div class="">
                         <table width="700px">
                             <tr>
-                                <td rowspan="4"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="80"
-                                        height="80">
+                                <td rowspan="4"> <img
+                                        src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                        width="80" height="80">
                                 </td>
                                 <td class="text-center">
-                                    <h2>{{$getSetting->nama_instansi}} </h2>
+                                    <h2>{{ $getSetting->nama_instansi }} </h2>
                                 </td>
                             </tr>
                             <tr class="text-center">
-                                <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                    {{$getSetting->kontak}}</td>
+                                <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                    {{ $getSetting->propinsi }}
+                                    {{ $getSetting->kontak }}</td>
                             </tr>
                             <tr class="text-center">
-                                <td> {{$getSetting->email}}</td>
+                                <td> {{ $getSetting->email }}</td>
                             </tr>
                             <tr class="text-center">
                                 <td colspan="">
@@ -1141,7 +1169,7 @@
                                 <td width="250px" class="text-center">
                                     Penanggung Jawab
                                     <div class="barcode mt-1">
-                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $periksa->nm_dokter . ' ID ' . $periksa->kd_dokter . ' ' . $periksa->tgl_periksa, 'QRCODE') }}"
+                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $periksa->nm_dokter . ' ID ' . $periksa->kd_dokter . ' ' . $periksa->tgl_periksa, 'QRCODE') }}"
                                             alt="barcode" width="60px" height="60px" />
                                     </div>
                                     {{ $periksa->nm_dokter }}
@@ -1152,7 +1180,7 @@
                                     <br>
                                     Petugas Laboratorium
                                     <div class="barcode mt-1">
-                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $periksa->nama_petugas . ' ID ' . $periksa->nip . ' ' . $periksa->tgl_periksa, 'QRCODE') }}"
+                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $periksa->nama_petugas . ' ID ' . $periksa->nip . ' ' . $periksa->tgl_periksa, 'QRCODE') }}"
                                             alt="barcode" width="60px" height="60px" />
                                     </div>
                                     {{ $periksa->nama_petugas }}
@@ -1172,19 +1200,21 @@
                 <div class="card-body">
                     <table width="700px">
                         <tr>
-                            <td rowspan="4"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="80"
-                                    height="80">
+                            <td rowspan="4"> <img
+                                    src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                    width="80" height="80">
                             </td>
                             <td class="text-center">
-                                <h2>{{$getSetting->nama_instansi}}</h2>
+                                <h2>{{ $getSetting->nama_instansi }}</h2>
                             </td>
                         </tr>
                         <tr class="text-center">
-                            <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                                {{$getSetting->kontak}}</td>
+                            <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                {{ $getSetting->propinsi }}
+                                {{ $getSetting->kontak }}</td>
                         </tr>
                         <tr class="text-center">
-                            <td> E-mail : {{$getSetting->email}}</td>
+                            <td> E-mail : {{ $getSetting->email }}</td>
                         </tr>
                         <tr class="text-center">
                             <td colspan="">
@@ -1253,7 +1283,7 @@
                             <td width="250px" class="text-center">
                                 Penanggung Jawab
                                 <div class="barcode mt-1">
-                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $item->nm_dokter_pj . ' ID ' . $item->kd_dokter_pj . ' ' . $item->tgl_periksa, 'QRCODE') }}"
+                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->nm_dokter_pj . ' ID ' . $item->kd_dokter_pj . ' ' . $item->tgl_periksa, 'QRCODE') }}"
                                         alt="barcode" width="60px" height="60px" />
                                 </div>
                                 {{ $item->nm_dokter_pj }}
@@ -1263,7 +1293,7 @@
                                 Periksa : {{ date('d-m-Y', strtotime($item->tgl_periksa)) }} <br>
                                 Petugas Laboratorium
                                 <div class="barcode mt-1">
-                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $item->nama_pegawai . ' ID ' . $item->nip . ' ' . $item->tgl_periksa, 'QRCODE') }}"
+                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->nama_pegawai . ' ID ' . $item->nip . ' ' . $item->tgl_periksa, 'QRCODE') }}"
                                         alt="barcode" width="60px" height="60px" />
                                 </div>
                                 {{ $item->nama_pegawai }}
@@ -1281,20 +1311,21 @@
             <div class="card-body">
                 <table width="700px">
                     <tr>
-                        <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" alt="Girl in a jacket"
-                                width="80" height="80"></td>
+                        <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                alt="Girl in a jacket" width="80" height="80"></td>
                         <td class="text-center">
-                            <h3>{{$getSetting->nama_instansi}} </h3>
+                            <h3>{{ $getSetting->nama_instansi }} </h3>
                         </td>
                         <td width="150px"></td>
                     </tr>
                     <tr class="text-center">
-                        <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                            {{$getSetting->kontak}}</td>
+                        <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                            {{ $getSetting->propinsi }}
+                            {{ $getSetting->kontak }}</td>
                         <td width="150px"></td>
                     </tr>
                     <tr class="text-center">
-                        <td> E-mail : {{$getSetting->email}}</td>
+                        <td> E-mail : {{ $getSetting->email }}</td>
                         <td width="150px"></td>
                     </tr>
                 </table>
@@ -1476,7 +1507,7 @@
                         <tr class="text-center">
                             <td width="345px">{{ date('d/m/Y h:i:s', strtotime($awalMedis->tanggal)) }} WIB</td>
                             <td width="345px">
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $awalMedis->nm_dokter . ' ID ' . $awalMedis->kd_dokter . ' ', 'QRCODE') }}"
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $awalMedis->nm_dokter . ' ID ' . $awalMedis->kd_dokter . ' ', 'QRCODE') }}"
                                     alt="barcode" width="70px" height="60px" />
                                 <br>
                                 {{ $awalMedis->nm_dokter }}
@@ -1494,20 +1525,21 @@
             <div class="">
                 <table width="700px">
                     <tr>
-                        <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" alt="Girl in a jacket"
-                                width="80" height="80"></td>
+                        <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                alt="Girl in a jacket" width="80" height="80"></td>
                         <td class="text-center">
-                            <h2>{{$getSetting->nama_instansi}} </h2>
+                            <h2>{{ $getSetting->nama_instansi }} </h2>
                         </td>
                         <td width="50px"></td>
                     </tr>
                     <tr class="text-center">
-                        <td>{{$getSetting->alamat_instansi}} , {{$getSetting->kabupaten}}, {{$getSetting->propinsi}}
-                            {{$getSetting->kontak}}</td>
+                        <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                            {{ $getSetting->propinsi }}
+                            {{ $getSetting->kontak }}</td>
                         <td width="50px"></td>
                     </tr>
                     <tr class="text-center">
-                        <td> E-mail : {{$getSetting->email}}</td>
+                        <td> E-mail : {{ $getSetting->email }}</td>
                         <td width="50px"></td>
                     </tr>
                 </table>
@@ -1558,7 +1590,8 @@
                     <tr>
                         <td>Telah meninggal dunia pada &emsp;
                             <u>{{ date('d-m-Y', strtotime($getSudartKematian->tanggal)) }}</u> &emsp; Jam
-                            &emsp; <u>{{ $getSudartKematian->jam }}</u> di {{$getSetting->nama_instansi}} dikarenakan
+                            &emsp; <u>{{ $getSudartKematian->jam }}</u> di {{ $getSetting->nama_instansi }}
+                            dikarenakan
                             {{ $getSudartKematian->keterangan }}
                         </td>
                     </tr>
@@ -1575,10 +1608,11 @@
                         </td>
                         <td width="150px"></td>
                         <td class="text-center" width="250px">
-                            {{$getSetting->kabupaten}}, {{ date('d-m-Y', strtotime($getSudartKematian->tanggal)) }}<br>
+                            {{ $getSetting->kabupaten }},
+                            {{ date('d-m-Y', strtotime($getSudartKematian->tanggal)) }}<br>
                             Dokter Pemeriksa <br>
                             <div class="barcode mt-1">
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $getSudartKematian->nm_dokter . ' ID ' . $getSudartKematian->kd_dokter . ' ' . $getSudartKematian->tanggal, 'QRCODE') }}"
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getSudartKematian->nm_dokter . ' ID ' . $getSudartKematian->kd_dokter . ' ' . $getSudartKematian->tanggal, 'QRCODE') }}"
                                     alt="barcode" width="60px" height="60px" />
                             </div>
                             {{ $getSudartKematian->nm_dokter }}
@@ -1590,6 +1624,284 @@
             {{-- NULL --}}
         @endif
 
+        {{-- LAPORAN OPERASI ============================================================================== --}}
+        @if ($getLaporanOprasi)
+            @foreach ($getLaporanOprasi as $item)
+                <div class="">
+                    <table width="700px">
+                        <tr>
+                            <td rowspan="3"> <img
+                                    src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                    alt="Girl in a jacket" width="80" height="80"></td>
+                            <td class="text-center">
+                                <h2>{{ $getSetting->nama_instansi }} </h2>
+                            </td>
+                            <td width="50px"></td>
+                        </tr>
+                        <tr class="text-center">
+                            <td>{{ $getSetting->alamat_instansi }} , {{ $getSetting->kabupaten }},
+                                {{ $getSetting->propinsi }}
+                                {{ $getSetting->kontak }}</td>
+                            <td width="50px"></td>
+                        </tr>
+                        <tr class="text-center">
+                            <td> E-mail : {{ $getSetting->email }}</td>
+                            <td width="50px"></td>
+                        </tr>
+                    </table>
+                    <hr width="700px" class="mt-0"
+                            style=" height:2px; border-top:1px solid black; border-bottom:2px solid black;">
+                    <table width="700px" class="mt-0 mb-0">
+                        <tr class="text-center">
+                            <td colspan="0">
+                                <b>LAPORAN OPERASI</b>
+                            </td>
+                        </tr>
+                    </table>
+                    <hr width="700px" class="mt-0 mb-1" style="border:1px solid black;">
+                    <table width="700px">
+                        <tr style="vertical-align: top;">
+                            <td width="140px">Nama Pasien</td>
+                            <td width="250px">: {{ $item->nm_pasien }}</td>
+                            <td width="140px">No. Rekam Medis</td>
+                            <td width="180px">: {{ $item->no_rkm_medis }}</td>
+                        </tr>
+                        <tr style="vertical-align: top;">
+                            <td >Umur</td>
+                            <td>: {{ $item->umurdaftar }} {{ $item->sttsumur }}</td>
+                            <td >Ruangan</td>
+                            <td>: {{ $item->nm_bangsal }} </td>
+                        </tr>
+                        <tr style="vertical-align: top;">
+                            <td >Tanggl Lahir</td>
+                            <td>: {{ date('d-m-Y', strtotime($item->tgl_lahir)) }}</td>
+                            <td >Jenis Kelamin</td>
+                            <td>: {{ $item->jk }} </td>
+                        </tr>
+                    </table>
+                    <table width="700px" class="mt-1">
+                        <tr>
+                            <td class="text-center" style="background-color: rgb(192, 192, 192)">
+                                <b>PRE SURGICAL ASSESMENT</b>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="700px" class="mt-1">
+                        <tr style="vertical-align: top;">
+                            <td width="140px">Tanggal</td>
+                            <td width="250px">: {{ $item->pemeriksaanRanap->tgl_perawatan }}</td>
+                            <td width="140px" >Waktu</td>
+                            <td width="180px">: {{ $item->pemeriksaanRanap->jam_rawat }} </td>
+                        </tr>
+                        <tr style="vertical-align: top;">
+                            <td >Dokter Bedah</td>
+                            <td>: {{ $item->operator1 }}</td>
+                            <td >Alergi</td>
+                            <td>: {{ $item->pemeriksaanRanap->alergi }} </td>
+                        </tr>
+                    </table>
+                    <hr width="700px" class="mt-1 mb-1" style="border:1px solid black;">
+                    <table width="700px">
+                        <tr style="vertical-align: top;">
+                            <td width="400px" style="border-right: 1px solid black">
+                                <table  width="200px">
+                                    <tr>
+                                        <td width="200px">
+                                            <b>Keluhan : </b> {{ $item->pemeriksaanRanap->keluhan }}
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table width="200px">
+                                    <tr>
+                                        <td colspan="4"><b>Pemeriksaan :</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td width="61px">- Suhu Tubuh (C)</td>
+                                        <td width="35px">: <i>{{ $item->pemeriksaanRanap->suhu_tubuh }}</i></td>
+                                        <td width="61px">- Nadi (/Mnt)</td>
+                                        <td width="43px">: <i>{{ $item->pemeriksaanRanap->nadi }}</i></td>
+                                    </tr>
+                                    <tr>
+                                        <td>- Tensi </td>
+                                        <td>: <i>{{ $item->pemeriksaanRanap->tensi }}</i></td>
+                                        <td>- Respirasi (/Mnt)</td>
+                                        <td>: <i>{{ $item->pemeriksaanRanap->respirasi }}</i></td>
+                                    </tr>
+                                    <tr>
+                                        <td>- Tinggi</td>
+                                        <td>: <i>{{ $item->pemeriksaanRanap->tinggi }}</i></td>
+                                        <td>- GCS (E,V,M)</td>
+                                        <td>: <i>{{ $item->pemeriksaanRanap->gcs }}</i></td>
+                                    </tr>
+                                    <tr>
+                                        <td>- Berat (Kg)</td>
+                                        <td>: <i>{{ $item->pemeriksaanRanap->berat }}</i></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td width="300px">
+                                <table width="300px">
+                                    <tr>
+                                        <td>
+                                            <b>Penilaian : </b> {{ $item->pemeriksaanRanap->penilaian }}
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table width="300px">
+                                    <tr>
+                                        <td>
+                                            <b>Tindak Lanjut : </b>{{ $item->pemeriksaanRanap->rtl }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <table  width="700px" class="mt-1">
+                        <tr>
+                            <td class="text-center" style="background-color: rgb(192, 192, 192)">
+                                <b>POST SURGICAL REPORT</b>
+                            </td>
+                        </tr>
+                    </table>
+                    <table  width="700px" class="mt-1">
+                        <tr style="vertical-align: top;">
+                            <td width="500px" style="border-right: 1px solid black">
+                                <table width="500px">
+                                    <tr style="vertical-align: top;">
+                                        <td width="120px">Tanggal & Jam</td>
+                                        <td width="130px">: {{ $item->tgl_operasi }}</td>
+                                        <td width="130px"></td>
+                                        <td width="115px"></td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Dokter Bedah</td>
+                                        <td>: {{ $item->operator1 }}</td>
+                                        <td>Asisten Bedah</td>
+                                        <td>: {{ $item->asistenoperator1 }}</td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Dokter Bedah 2</td>
+                                        <td>: {{ $item->operator2 }}</td>
+                                        <td>Asisten Bedah 2</td>
+                                        <td>: {{ $item->asistenoperator2 }}</td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Perawat Resusitas</td>
+                                        <td>: {{ $item->perawatresusitas }}</td>
+                                        <td>Dokter Anastesi</td>
+                                        <td>: {{ $item->anastesi }}</td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Instrumen</td>
+                                        <td>: {{ $item->instrumen }}</td>
+                                        <td>Asisten Anastesi</td>
+                                        <td>: {{ $item->asistenanastesi }}</td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Dokter Anak</td>
+                                        <td>: {{ $item->pjanak }}</td>
+                                        <td>Bidan</td>
+                                        <td>: {{ $item->bidan1 }}</td>
+                                    </tr>
+                                    <tr style="vertical-align: top;">
+                                        <td>Dokter Umum</td>
+                                        <td>: {{ $item->dokumum }}</td>
+                                        <td>Onloop</td>
+                                        <td>: {{ $item->omloop }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa
+                                            Pre-Op / Pre Operation Diagnosis</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">&emsp; {{ $item->diagnosa_preop }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="background-color: rgb(192, 192, 192)">Jaringan
+                                            Yang di-Eksisi/-Insisi</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">&emsp; {{ $item->jaringan_dieksekusi }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa
+                                            Post-Op / Post Operation Diagnosis</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">&emsp; {{ $item->diagnosa_postop }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td width="196px">
+                                <table  width="194px" class="text-center">
+                                    <tr>
+                                        <td style="background-color: rgb(192, 192, 192)">Tipe/Jenis Anastesi :</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-4">{{ $item->jenis_anasthesi }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: rgb(192, 192, 192)">Dikirim ke Pemeriksaaan PA
+                                            :</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-4">{{ $item->permintaan_pa }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: rgb(192, 192, 192)">Tipe/Kategori Operasi :
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-4">{{ $item->kategori }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: rgb(192, 192, 192)">Selesai Operasi :</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-4">{{ $item->selesaioperasi }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="700px" class="mt-1">
+                        <tr>
+                            <td class="text-center" style="background-color: rgb(192, 192, 192)">
+                                <b>REPORT ( PROCEDURES, SPECIFIC FINDINGS AND COMPLICATIONS )</b>
+                            </td>
+                        </tr>
+                    </table>
+                    <table  width="700px" class="mt-1">
+                        <tr>
+                            <td class="pb-4">&emsp; {{ $item->laporan_operasi }}
+                        </tr>
+                    </table>
+                    <table  width="700px" class="mt-1">
+                        <tr>
+                            <td width="265px" class="text-center">
+
+                            </td>
+                            <td width="170px"></td>
+                            <td width="265px" class="text-center">
+                                {{ $getSetting->kabupaten }},
+                                {{ date('d/m/Y', strtotime($item->tgl_operasi)) }}<br>
+                                Dokter Bedah
+                                <div class="barcode mt-1">
+                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->operator1 . $item->kd_dokter1 . ' ' . $item->tgl_operasi, 'QRCODE') }}"
+                                        alt="barcode" width="80px" height="75px" />
+                                </div>
+                                {{ $item->operator1 }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            @endforeach
+        @else
+            {{-- NULL --}}
+        @endif
         {{-- ERROR HANDLING ============================================================= --}}
     @else
         <div class="card-body">
