@@ -81,7 +81,7 @@
                         @include('bpjs.component.surat-kematian')
 
                         {{-- LAPORAN OPERASI ========================================================== --}}
-                        @include('bpjs.component.berkas-laporan-operasi')
+                        {{-- @include('bpjs.component.berkas-laporan-operasi') --}}
 
                         {{-- ERROR HANDLING ============================================================= --}}
                     @else

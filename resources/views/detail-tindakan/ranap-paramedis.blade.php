@@ -55,12 +55,12 @@
                             <td>{{ $item->png_jawab }}</td>
                             <td>{{ $item->ruang ?? $item->nm_poli }}</td>
                             <!-- Tampilkan ruang jika ada, jika tidak, tampilkan nama poli -->
-                            <td>{{ $item->material }}</td>
-                            <td>{{ $item->bhp }}</td>
-                            <td>{{ $item->tarif_tindakanpr }}</td>
-                            <td>{{ $item->kso }}</td>
-                            <td>{{ $item->menejemen }}</td>
-                            <td>{{ $item->biaya_rawat }}</td>
+                            <td>{{ round($item->material) }}</td>
+                            <td>{{ round($item->bhp) }}</td>
+                            <td>{{ round($item->tarif_tindakanpr) }}</td>
+                            <td>{{ round($item->kso) }}</td>
+                            <td>{{ round($item->menejemen) }}</td>
+                            <td>{{ round($item->biaya_rawat) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

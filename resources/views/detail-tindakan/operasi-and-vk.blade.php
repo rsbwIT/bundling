@@ -94,56 +94,56 @@
                             <td>{{ $item->png_jawab }}</td>
                             <td>{{ $item->ruangan }}</td>
                             <td>{{ $item->operator1 }}</td>
-                            <td>{{ $item->biayaoperator1 }}</td>
+                            <td>{{ round($item->biayaoperator1) }}</td>
                             <td>{{ $item->operator2 }}</td>
-                            <td>{{ $item->biayaoperator2 }}</td>
+                            <td>{{ round($item->biayaoperator2) }}</td>
                             <td>{{ $item->operator3 }}</td>
-                            <td>{{ $item->biayaoperator3 }}</td>
+                            <td>{{ round($item->biayaoperator3) }}</td>
                             <td>{{ $item->asisten_operator1 }}</td>
-                            <td>{{ $item->biayaasisten_operator1 }}</td>
+                            <td>{{ round($item->biayaasisten_operator1) }}</td>
                             <td>{{ $item->asisten_operator2 }}</td>
-                            <td>{{ $item->biayaasisten_operator2 }}</td>
+                            <td>{{ round($item->biayaasisten_operator2) }}</td>
                             <td>{{ $item->asisten_operator3 }}</td>
-                            <td>{{ $item->biayaasisten_operator3 }}</td>
+                            <td>{{ round($item->biayaasisten_operator3) }}</td>
                             <td>{{ $item->instrumen }}</td>
-                            <td>{{ $item->biayainstrumen }}</td>
+                            <td>{{ round($item->biayainstrumen) }}</td>
                             <td>{{ $item->dokter_anak }}</td>
-                            <td>{{ $item->biayadokter_anak }}</td>
+                            <td>{{ round($item->biayadokter_anak) }}</td>
                             <td>{{ $item->perawaat_resusitas }}</td>
-                            <td>{{ $item->biayaperawaat_resusitas }}</td>
+                            <td>{{ round($item->biayaperawaat_resusitas) }}</td>
                             <td>{{ $item->dokter_anestesi }}</td>
-                            <td>{{ $item->biayadokter_anestesi }}</td>
+                            <td>{{ round($item->biayadokter_anestesi) }}</td>
                             <td>{{ $item->asisten_anestesi }}</td>
-                            <td>{{ $item->biayaasisten_anestesi }}</td>
+                            <td>{{ round($item->biayaasisten_anestesi) }}</td>
                             <td>{{ $item->asisten_anestesi2 }}</td>
-                            <td>{{ $item->biayaasisten_anestesi2 }}</td>
+                            <td>{{ round($item->biayaasisten_anestesi2) }}</td>
                             <td>{{ $item->bidan }}</td>
-                            <td>{{ $item->biayabidan }}</td>
+                            <td>{{ round($item->biayabidan) }}</td>
                             <td>{{ $item->bidan2 }}</td>
-                            <td>{{ $item->biayabidan2 }}</td>
+                            <td>{{ round($item->biayabidan2) }}</td>
                             <td>{{ $item->bidan3 }}</td>
-                            <td>{{ $item->biayabidan3 }}</td>
+                            <td>{{ round($item->biayabidan3) }}</td>
                             <td>{{ $item->perawat_luar }}</td>
-                            <td>{{ $item->biayaperawat_luar }}</td>
+                            <td>{{ round($item->biayaperawat_luar) }}</td>
                             <td>{{ $item->omloop }}</td>
-                            <td>{{ $item->biaya_omloop }}</td>
+                            <td>{{ round($item->biaya_omloop) }}</td>
                             <td>{{ $item->omloop2 }}</td>
-                            <td>{{ $item->biaya_omloop2 }}</td>
+                            <td>{{ round($item->biaya_omloop2) }}</td>
                             <td>{{ $item->omloop3 }}</td>
-                            <td>{{ $item->biaya_omloop3 }}</td>
+                            <td>{{ round($item->biaya_omloop3) }}</td>
                             <td>{{ $item->omloop4 }}</td>
-                            <td>{{ $item->biaya_omloop4 }}</td>
+                            <td>{{ round($item->biaya_omloop4) }}</td>
                             <td>{{ $item->omloop5 }}</td>
-                            <td>{{ $item->biaya_omloop5 }}</td>
+                            <td>{{ round($item->biaya_omloop5) }}</td>
                             <td>{{ $item->dokter_pjanak }}</td>
-                            <td>{{ $item->biaya_dokter_pjanak }}</td>
+                            <td>{{ round($item->biaya_dokter_pjanak) }}</td>
                             <td>{{ $item->dokter_umum }}</td>
-                            <td>{{ $item->biaya_dokter_umum }}</td>
-                            <td>{{ $item->biayaalat }}</td>
-                            <td>{{ $item->biayasewaok }}</td>
-                            <td>{{ $item->akomodasi }}</td>
-                            <td>{{ $item->bagian_rs }}</td>
-                            <td>{{ $item->biayasarpras }}</td>
+                            <td>{{ round($item->biaya_dokter_umum) }}</td>
+                            <td>{{ round($item->biayaalat) }}</td>
+                            <td>{{ round($item->biayasewaok) }}</td>
+                            <td>{{ round($item->akomodasi) }}</td>
+                            <td>{{ round($item->bagian_rs) }}</td>
+                            <td>{{ round($item->biayasarpras) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

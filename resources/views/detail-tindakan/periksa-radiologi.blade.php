@@ -63,14 +63,15 @@
                                 <td>{{ $item->jam }}</td>
                                 <td>{{ $item->png_jawab }}</td>
                                 <td>{{ $item->ruangan }}</td>
-                                <td>{{ $item->bagian_rs }}</td>
-                                <td>{{ $item->bhp }}</td>
-                                <td>{{ $item->tarif_tindakan_dokter }}</td>
-                                <td>{{ $item->tarif_tindakan_petugas }}</td>
-                                <td>{{ $item->tarif_perujuk }}</td>
-                                <td>{{ $item->kso }}</td>
-                                <td>{{ $item->menejemen }}</td>
-                                <td>{{ $item->biaya }}</td>
+                                <td>{{ round($item->bagian_rs) }}</td>
+                                <td>{{ round($item->bhp) }}</td>
+                                <td>{{ round($item->tarif_tindakan_dokter) }}</td>
+                                <td>{{ round($item->tarif_tindakan_petugas) }}</td>
+                                <td>{{ round($item->tarif_perujuk) }}</td>
+                                <td>{{ round($item->kso) }}</td>
+                                <td>{{ round($item->menejemen) }}</td>
+                                <td>{{ round($item->biaya) }}</td>
+
                             </tr>
                         @endforeach
                     </tbody>

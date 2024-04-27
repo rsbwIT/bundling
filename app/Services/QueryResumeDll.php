@@ -512,6 +512,10 @@ class QueryResumeDll
                 'petugas16.nama AS omloop5',
                 'dokter6.nm_dokter AS pjanak',
                 'dokter7.nm_dokter AS dokumum',
+                'penilaian_awal_keperawatan_kebidanan_ranap.riwayat_persalinan_g',
+                'penilaian_awal_keperawatan_kebidanan_ranap.riwayat_persalinan_p',
+                'penilaian_awal_keperawatan_kebidanan_ranap.riwayat_persalinan_a',
+                'penilaian_awal_keperawatan_kebidanan_ranap.riwayat_persalinan_hidup',
                 DB::raw("(SELECT nm_bangsal FROM bangsal
                     INNER JOIN kamar ON bangsal.kd_bangsal=kamar.kd_bangsal
                     INNER JOIN kamar_inap ON kamar.kd_kamar=kamar_inap.kd_kamar
@@ -519,6 +523,7 @@ class QueryResumeDll
                     ORDER BY tgl_masuk DESC LIMIT 1) AS nm_bangsal")
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('penilaian_awal_keperawatan_kebidanan_ranap', 'reg_periksa.no_rawat', '=', 'penilaian_awal_keperawatan_kebidanan_ranap.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('laporan_operasi', function ($join) {
                 $join->on('operasi.no_rawat', '=', 'laporan_operasi.no_rawat')

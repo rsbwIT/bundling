@@ -112,6 +112,19 @@
                                     <td></td>
                                 </tr>
                             </table>
+                            @if ($item->riwayat_persalinan_g || $item->riwayat_persalinan_p || $item->riwayat_persalinan_a)
+                                <table border="0px" width="500px">
+                                    <tr>
+                                        <td colspan="4"><b>Riwayat Persalinan & Nifas :</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>- G : {{ $item->riwayat_persalinan_g }}</td>
+                                        <td>- P : {{ $item->riwayat_persalinan_p }}</td>
+                                        <td>- A : {{ $item->riwayat_persalinan_a }}</td>
+                                        <td>- Anak yang hidup : {{ $item->riwayat_persalinan_hidup }}</td>
+                                    </tr>
+                                </table>
+                            @endif
                         </td>
                         <td width="500px">
                             <table border="0px" width="500px">
@@ -185,19 +198,22 @@
                                     <td>: {{ $item->omloop }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa Pre-Op / Pre Operation Diagnosis</td>
+                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa Pre-Op /
+                                        Pre Operation Diagnosis</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4">&emsp; {{ $item->diagnosa_preop }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Jaringan Yang di-Eksisi/-Insisi</td>
+                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Jaringan Yang
+                                        di-Eksisi/-Insisi</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4">&emsp; {{ $item->jaringan_dieksekusi }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa Post-Op / Post Operation Diagnosis</td>
+                                    <td colspan="4" style="background-color: rgb(192, 192, 192)">Diagnosa Post-Op /
+                                        Post Operation Diagnosis</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4">&emsp; {{ $item->diagnosa_postop }}</td>
@@ -243,7 +259,9 @@
                 </table>
                 <table border="0px" width="1000px" class="mt-1">
                     <tr>
-                        <td class="pb-5">&emsp; {{ $item->laporan_operasi }} </tr>
+                        <td class="pb-5">&emsp; {{ $item->laporan_operasi }}
+                        </td>
+                    </tr>
                 </table>
                 <table border="0px" width="1000px" class="mt-3" class="">
                     <tr>
@@ -252,13 +270,13 @@
                         </td>
                         <td width="150px"></td>
                         <td width="250px" class="text-center">
-                            {{$getSetting->kabupaten}}, {{ date('d/m/Y', strtotime($item->tgl_operasi)) }}<br>
+                            {{ $getSetting->kabupaten }}, {{ date('d/m/Y', strtotime($item->tgl_operasi)) }}<br>
                             Dokter Bedah
                             <div class="barcode mt-1">
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh '.$item->operator1.$item->kd_dokter1 . ' ' . $item->tgl_operasi, 'QRCODE') }}"
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->operator1 . $item->kd_dokter1 . ' ' . $item->tgl_operasi, 'QRCODE') }}"
                                     alt="barcode" width="80px" height="75px" />
                             </div>
-                            {{$item->operator1}}
+                            {{ $item->operator1 }}
                         </td>
                     </tr>
                 </table>
