@@ -1899,9 +1899,9 @@
                     </table>
                 </div>
             @endforeach
-        @else
+        @else --}}
             {{-- NULL --}}
-        @endif --}}
+        {{-- @endif --}}
         {{-- ERROR HANDLING ============================================================= --}}
     @else
         <div class="card-body">
