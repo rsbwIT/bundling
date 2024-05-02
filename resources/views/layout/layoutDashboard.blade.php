@@ -248,79 +248,81 @@
                             </ul>
                         </li>
                         {{-- DETAIL TINDAKAN UMUM --}}
-                        <li class="nav-item">{{-- menu-open --}}
-                            <a href="#" class="nav-link">{{-- active --}}
-                                <i class="nav-icon fas fa-hospital-user"></i>
-                                <p class="class="btn btn-app">
-                                    Detail Tindakan <span class="text-xs">(Umum)</span>
-                                </p>
-                                <i class="right fas fa-angle-left"></i>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{url('/ralan-dokter-umum')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ralan Dokter <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{url('/ralan-paramedis-umum')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ralan Paramedis <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter-paramedis-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ralan Dokter Paramedis <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/operasi-and-vk-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Operasi & VK <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ranap Dokter <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/ranap-paramedis-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ranap Paramedis <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-paramedis-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ranap Dokter Paramedis <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/periksa-radiologi-umum') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Periksa Radiologi <span class="text-xs">(um)</span></p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @if (session('edit_registrasi') === 'true')
+                            <li class="nav-item">{{-- menu-open --}}
+                                <a href="#" class="nav-link">{{-- active --}}
+                                    <i class="nav-icon fas fa-hospital-user"></i>
+                                    <p class="class="btn btn-app">
+                                        Detail Tindakan <span class="text-xs">(Umum)</span>
+                                    </p>
+                                    <i class="right fas fa-angle-left"></i>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ralan-dokter-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ralan Dokter <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ralan-paramedis-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ralan Paramedis <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ralan-dokter-paramedis-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ralan Dokter Paramedis <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/operasi-and-vk-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Operasi & VK <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ranap-dokter-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ranap Dokter <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ranap-paramedis-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ranap Paramedis <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/ranap-dokter-paramedis-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Ranap Dokter Paramedis <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/periksa-radiologi-umum') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Periksa Radiologi <span class="text-xs">(um)</span></p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
                         {{-- MENU CASEMIX --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Gabung Berkas - Tools</li>
@@ -411,7 +413,7 @@
                                 </ul>
                             @endif
                         </li>
-                        {{-- MENU BRIGING BPJS--}}
+                        {{-- MENU BRIGING BPJS --}}
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-file"></i>
@@ -462,16 +464,16 @@
                                     </a>
                                 </li>
                             </ul>
-                            @if (session('edit_registrasi') === 'true')
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ url('setting-antrian') }}" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Setting Antrian</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            @endif
+
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('setting-antrian') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Setting Antrian</p>
+                                    </a>
+                                </li>
+                            </ul>
+
                         </li>
                         {{-- ANTRIAN POLI --}}
                         <li class="nav-item">{{-- menu-open --}}

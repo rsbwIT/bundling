@@ -133,9 +133,9 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/periksa-radiologi-umum', [PeriksaRadiologiUm::class, 'PeriksaRadiologiUm']);
 
     // ANTRIAN PENDAFTARAN
-    Route::get('/antrian-pendaftaran', [AntrianPendaftaran::class, 'AntrianPendaftaran'])->middleware('permision-rsbw:registrasi');
-    Route::get('/cari-loket', [AntrianPendaftaran::class, 'DisplayAntrian'])->middleware('permision-rsbw:edit_registrasi');
-    Route::get('/setting-antrian', [AntrianPendaftaran::class, 'SetingAntrian'])->middleware('permision-rsbw:edit_registrasi');
+    Route::get('/antrian-pendaftaran', [AntrianPendaftaran::class, 'AntrianPendaftaran']);
+    Route::get('/cari-loket', [AntrianPendaftaran::class, 'DisplayAntrian']);
+    Route::get('/setting-antrian', [AntrianPendaftaran::class, 'SetingAntrian']);
 
     // ANTRIAN POLI
     Route::get('/antrian-poli', [AntrianPoli::class, 'AntrianPoli']);
