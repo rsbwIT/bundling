@@ -1625,7 +1625,7 @@
         @endif
 
         {{-- LAPORAN OPERASI ============================================================================== --}}
-        @if ($getLaporanOprasi)
+        {{-- @if ($getLaporanOprasi)
             @foreach ($getLaporanOprasi as $item)
                 <div class="">
                     <table width="700px">
@@ -1900,8 +1900,7 @@
                 </div>
             @endforeach
         @else
-            {{-- NULL --}}
-        @endif
+        @endif --}}
         {{-- ERROR HANDLING ============================================================= --}}
     @else
         <div class="card-body">
