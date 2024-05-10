@@ -435,6 +435,17 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('kirim-taskid-bpjs2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Kirim TaskID 2
+                                            <span class="badge badge-info right">dev</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('sep-vclaim') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>

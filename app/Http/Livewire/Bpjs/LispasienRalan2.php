@@ -64,13 +64,13 @@ class LispasienRalan2 extends Component
     public $upload_file_inacbg = [];
     public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
     {
+        try {
         $no_rawatSTR = str_replace('/', '', $no_rawat);
         $file_name = 'INACBG' . '-' . $no_rawatSTR . '.' . $this->upload_file_inacbg[$key]->getClientOriginalExtension();
 
         $this->upload_file_inacbg[$key]->storeAs('file_inacbg',  $file_name, 'public');
         $livewire_tmp_file = 'livewire-tmp/' . $this->upload_file_inacbg[$key]->getFileName();
         Storage::delete($livewire_tmp_file);
-        try {
             $cekBerkas = DB::table('bw_file_casemix_inacbg')->where('no_rawat', $no_rawat)
                 ->exists();
             if (!$cekBerkas) {
@@ -82,7 +82,7 @@ class LispasienRalan2 extends Component
             }
             session()->flash('successSaveINACBG', 'Berhasil Mengupload File Inacbg');
         } catch (\Throwable $th) {
-            //throw $th;
+            session()->flash('errorBundling', 'Gagal!! Upload File Inacbg');
         }
     }
     public $upload_file_scan = [];
@@ -106,7 +106,7 @@ class LispasienRalan2 extends Component
             }
             session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
         } catch (\Throwable $th) {
-            //throw $th;
+            session()->flash('errorBundling', 'Gagal!! Upload File Scan');
         }
     }
 
