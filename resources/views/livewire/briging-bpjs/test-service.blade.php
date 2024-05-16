@@ -22,7 +22,7 @@
                             <div class="form-group">
                                 <select class="form-control" wire:model.lazy="menit">
                                     <option selected>Jarak Pelayanan Pasien (Menit)</option>
-                                    @for ($i = 1; $i <= 60; $i++)
+                                    @for ($i = 1; $i <= 20; $i++)
                                         <option value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 </select>
@@ -87,5 +87,15 @@
         </div>
 
 
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <button type="button" class="btn btn-primary" wire:click='TestKoneksi'>CEK Koneksi Briging V-Claim
+                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" wire:loading
+                        wire:target='Cekin'></span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>

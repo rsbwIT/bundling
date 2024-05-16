@@ -48,15 +48,25 @@ class TestService extends Component
                 $response[] = [$data->metadata];
 
                 // DB::connection('db_con2')->table('bw_test_cekin')->insert([
-                //     'kode_booking' => $item,
-                //     'task_id' => $this->taskid,
-                //     'jam' => $this->waktu,
-                //     'timestamp_sec' => $jam,
-                // ]);
+                    //     'kode_booking' => $item,
+                    //     'task_id' => $this->taskid,
+                    //     'jam' => $this->waktu,
+                    //     'timestamp_sec' => $jam,
+                    // ]);
 
+                }
+                $this->getCekin = $response;
+            } catch (\Throwable $th) {
             }
-            $this->getCekin = $response;
-        } catch (\Throwable $th) {
+        }
+
+        public function TestKoneksi() {
+        $start = microtime(true);
+        $data = json_decode($this->ReferensiBpjs->getDiagnosa('a32.1'));
+        if($data->metaData->code == 200){
+            $end = microtime(true);
+            $executionTime = ($end - $start) * 1000;
+            dd($executionTime);
         }
     }
 }

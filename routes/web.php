@@ -9,6 +9,7 @@ use App\Http\Controllers\Bpjs\SettingBpjs;
 use App\Http\Controllers\Bpjs\GabungBerkas;
 use App\Http\Controllers\Laporan\BayarUmum;
 use App\Http\Controllers\Bpjs\BpjsController;
+use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
@@ -143,6 +144,10 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/panggil-poli', [AntrianPoli::class, 'panggilpoli']);
     Route::get('/setting-antrian-poli', [AntrianPoli::class, 'settingPoli']);
     Route::get('/jadwal-dokter', [BwJadwaldokter::class, 'BwJadwaldokter']);
+
+    //DISPLAY
+    Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
+
 
 
     // RM
