@@ -75,6 +75,16 @@ class ReferensiBPJS
         }
     }
 
+    public function updateJadwalHfisDokter($data)
+    {
+        try {
+            $endpoint = 'jadwaldokter/updatejadwaldokter';
+            return $this->antrol->postRequest($endpoint, $data, "POST");
+        } catch (\Throwable $th) {
+            return [] ;
+        }
+    }
+
     // 3 SEP ======================================================
     public function CariSepVclaim1($nomorsep) {
         try {

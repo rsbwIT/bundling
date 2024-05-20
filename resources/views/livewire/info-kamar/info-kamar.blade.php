@@ -1,10 +1,10 @@
 <div>
     <div class="row justify-content-center">
-        <div class="d-flex item-center mt-3">
-            <button class="p-3 mr-2 btn" style="background-color: rgb(0, 26, 109)"></button>
-            <h4 class="mr-4"> : Terisi</h4>
-            <button class="p-3 mr-2 btn" style="background-color: rgb(255, 255, 255); border: 1px solid"></button>
-            <h4 class="mr-4"> : Kosong</h4>
+        <div class="d-flex item-center mt-2">
+            <button class="mr-2 btn text-white"
+                style="background-color: rgb(0, 26, 109); width: 100px;"><b>Terisi</b></button>
+            <button class="mr-2 btn"
+                style="background-color: rgb(255, 255, 255); border: 1px solid;width: 100px"><b>Kosong</b></button>
         </div>
     </div>
     <div class="mt-4 container-fluid">
@@ -25,28 +25,22 @@
                                             <div class="row">
                                                 @php
                                                     $bed = count($kamar->getBed);
-                                                    if ($bed == 1) {
-                                                        $colom = '12';
-                                                    } elseif ($bed == 2) {
-                                                        $colom = '6';
-                                                    } else {
-                                                        $colom = '4';
-                                                    }
+                                                    $colom = $bed == 1 ? '12' : ($bed == 2 ? '6' : '4');
                                                 @endphp
+
                                                 @foreach ($kamar->getBed as $bed)
                                                     @php
-                                                        if ($bed->status == 1) {
-                                                            $baground = 'rgb(0, 26, 109)';
-                                                            $text = 'text-white';
-                                                        } else {
-                                                            $baground = 'rgb(255, 255, 255)';
-                                                            $text = 'text-black';
-                                                        }
+                                                        $baground =
+                                                            $bed->status == 1
+                                                                ? 'rgb(0, 26, 109)'
+                                                                : 'rgb(255, 255, 255)';
+                                                        $text = $bed->status == 1 ? 'text-white' : 'text-black';
                                                     @endphp
                                                     <div class="col-md-{{ $colom }}">
                                                         <div class="card m-1 justify-content-center"
                                                             style="background-color: {{ $baground }}; border:1px solid;">
-                                                            <button class="btn {{ $text }}">
+                                                            <button class="btn {{ $text }}"
+                                                                wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}')">
                                                                 <b>{{ substr($bed->bad, strlen($bed->bad) - 1, 1) }}</b>
                                                             </button>
                                                         </div>
