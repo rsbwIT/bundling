@@ -84,6 +84,15 @@ class ReferensiBPJS
             return [] ;
         }
     }
+    public function getJadwalHfisDokter($kdpoli, $tanggal)
+    {
+        try {
+            $endpoint = "jadwaldokter/kodepoli/{$kdpoli}/tanggal/{$tanggal}";
+            return $this->antrol->getRequest($endpoint);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+}
 
     // 3 SEP ======================================================
     public function CariSepVclaim1($nomorsep) {

@@ -62,21 +62,17 @@ class TestService extends Component
 
     public function TestKoneksi()
     {
+        $p =[
+            'hari' => '8',
+            'buka' => "09:00",
+            'tutup' => "13:00"
+        ];
         $jayParsedAry = [
-            'kodepoli' => "ANA",
-            'kodesubspesialis' => "ANA",
-            'kodedokter' => 21345,
+            'kodepoli' => "JAN",
+            'kodesubspesialis' => "JAN",
+            'kodedokter' => 415168,
             'jadwal' => [
-                [
-                    'hari' => '1',
-                    'buka' => "08:00",
-                    'tutup' => "10:00"
-                ],
-                [
-                    'hari' => '2',
-                    'buka' => "08:00",
-                    'tutup' => "10:00"
-                ]
+                $p
             ]
         ];
         $data = json_decode($this->ReferensiBpjs->updateJadwalHfisDokter(json_encode($jayParsedAry)));

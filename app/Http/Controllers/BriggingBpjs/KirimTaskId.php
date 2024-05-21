@@ -20,5 +20,8 @@ class KirimTaskId extends Controller
     function CariSepVclaim() {
         return view('briging-bpjs.cari-sep-vclaim');
     }
+    function UpdateJadwalHfis() {
+        return view('briging-bpjs.update-jadwal-dokter-hfis');
+    }
 
 }
