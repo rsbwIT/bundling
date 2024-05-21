@@ -446,10 +446,10 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('sep-vclaim') }}" class="nav-link">
+                                    <a href="{{ url('update-jadwal-dokter') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
-                                            Sep V-Claim
+                                            HFIS
                                             <span class="badge badge-info right">dev</span>
                                         </p>
                                     </a>
