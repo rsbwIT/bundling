@@ -52,7 +52,7 @@
                         </div>
                         <div class="col-md-10">
                             <div class="form-group">
-                                <select class="form-control" wire:model="hari">
+                                <select class="form-control" wire:model.lazy="hari">
                                     <option value="0">Pilih Hari Untuk Menambahkan Waktu</option>
                                     <option value="1">1 - Senin</option>
                                     <option value="2">2 - Selasa</option>

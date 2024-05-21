@@ -31,7 +31,6 @@ class UpdateJadwalDokter extends Component
     {
         if (count($this->times) < 3) {
             $this->times[] = [
-                'hari' => $this->hari,
                 'buka' => '',
                 'tutup' => ''
             ];
@@ -64,14 +63,19 @@ class UpdateJadwalDokter extends Component
     public $response;
     public function UpdateJadwal()
     {
+        $this->times = array_map(function($time) {
+            return array_merge(['hari' => $this->hari], $time); // Anda bisa mengganti 'Senin' dengan nilai yang sesuai
+        }, $this->times);
         $jayParsedAry = [
             'kodepoli' => $this->poli,
             'kodesubspesialis' => $this->poli,
             'kodedokter' => $this->dokter,
             'jadwal' => $this->times
         ];
+
         $data = json_decode($this->ReferensiBpjs->updateJadwalHfisDokter(json_encode($jayParsedAry)));
         $this->response = [$data->metadata];
+        // SENIN tgl 27	ANA - ANAK 	dr. Soelistyowati,Sp.A 	40 	08:00-12:00 // di rubah pada hari selasa jam 13:45
     }
 
     public $poliParam;
