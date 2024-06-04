@@ -1,6 +1,78 @@
 <div>
     <div class="card">
         <div class="card-header">
+            <b>Cek Jadwal Dokter</b>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <select class="form-control" wire:model.lazy="poliParam">
+                                <option selected>Pilih Poli</option>
+                                @foreach ($getPoli as $item)
+                                    <option value="{{ $item->kd_poli_bpjs }}">
+                                        {{ $item->kd_poli_bpjs . ' - ' . $item->nm_poli_bpjs }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="input-group">
+                                <input type="date" class="form-control form-control-sidebar"
+                                    wire:model.defer="tanggal">
+                                <div class="input-group-append">
+                                    <button class="btn btn-sidebar btn-primary" wire:click="getJadwaldr">
+                                        <i class="fas fa-search fa-fw"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-sm table-bordered table-hover text-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Hari</th>
+                                <th>Nama Sub Spesialis</th>
+                                <th>Nama Dokter</th>
+                                <th>Kuota</th>
+                                <th>Jam Praktek</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if ($getJadwaldr == null)
+                                <tr>
+                                    <td colspan="6" class="text-center"><b>Jadwal Mungkin Tidak Tersedia
+                                            !!!</b></td>
+                                </tr>
+                            @else
+                                @foreach ($getJadwaldr as $key => $data)
+                                    @if (is_object($data))
+                                        <tr>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $data->namahari }}</td>
+                                            <td>{{ $data->kodesubspesialis . ' - ' . $data->namapoli }}</td>
+                                            <td>{{ $data->namadokter }}</td>
+                                            <td>{{ $data->kapasitaspasien }}</td>
+                                            <td>{{ $data->jadwal }}
+                                                <button data-toggle="modal" style="background: none; border: none;"
+                                                wire:click="getDataTable('{{$data->kodedokter}}', '{{$data->kodepoli}}')"><i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
             <b>Update Jadwal dokter</b>
         </div>
         <div class="card-body">
@@ -104,73 +176,6 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            <b>Cek Jadwal Dokter</b>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <select class="form-control" wire:model.lazy="poliParam">
-                                <option selected>Pilih Poli</option>
-                                @foreach ($getPoli as $item)
-                                    <option value="{{ $item->kd_poli_bpjs }}">
-                                        {{ $item->kd_poli_bpjs . ' - ' . $item->nm_poli_bpjs }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="input-group">
-                                <input type="date" class="form-control form-control-sidebar"
-                                    wire:model.defer="tanggal">
-                                <div class="input-group-append">
-                                    <button class="btn btn-sidebar btn-primary" wire:click="getJadwaldr">
-                                        <i class="fas fa-search fa-fw"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <table class="table table-sm table-bordered table-hover text-sm">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Hari</th>
-                                <th>Nama Sub Spesialis</th>
-                                <th>Nama Dokter</th>
-                                <th>Kuota</th>
-                                <th>Jam Praktek</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if ($getJadwaldr == null)
-                                <tr>
-                                    <td colspan="6" class="text-center"><b>Jadwal Mungkin Tidak Tersedia
-                                            !!!</b></td>
-                                </tr>
-                            @else
-                                @foreach ($getJadwaldr as $key => $data)
-                                    @if (is_object($data))
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>{{ $data->namahari }}</td>
-                                            <td>{{ $data->kodesubspesialis . ' - ' . $data->namapoli }}</td>
-                                            <td>{{ $data->namadokter }}</td>
-                                            <td>{{ $data->kapasitaspasien }}</td>
-                                            <td>{{ $data->jadwal }}</td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
 </div>

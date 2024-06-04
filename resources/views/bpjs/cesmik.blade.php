@@ -60,28 +60,31 @@
                     </div>
                     @if ($jumlahData > 0)
                         {{-- BERKAS SEP ============================================================= --}}
-                        @include('bpjs.component.berkas-sep')
+                        {{-- @include('bpjs.component.berkas-sep') --}}
 
                         {{-- RESUME PASIEN ============================================================= --}}
-                        @include('bpjs.component.resume-pasien')
+                        {{-- @include('bpjs.component.resume-pasien') --}}
 
                         {{-- RIANCIAN BIAYA / BILING ============================================================= --}}
-                        @include('bpjs.component.rincian-biaya')
+                        {{-- @include('bpjs.component.rincian-biaya') --}}
 
                         {{-- BERKAS LABORAT =============================================================  --}}
-                        @include('bpjs.component.berkas-laborat')
+                        {{-- @include('bpjs.component.berkas-laborat') --}}
 
                         {{-- BERKSA RADIOLOGI =============================================================  --}}
-                        @include('bpjs.component.berkas-radiologi')
+                        {{-- @include('bpjs.component.berkas-radiologi') --}}
 
                         {{-- AWAL MEDIS ============================================================= --}}
-                        @include('bpjs.component.awal-medis')
+                        {{-- @include('bpjs.component.awal-medis') --}}
 
                         {{-- SURAT KEMATIAN ========================================================== --}}
-                        @include('bpjs.component.surat-kematian')
+                        {{-- @include('bpjs.component.surat-kematian') --}}
 
                         {{-- LAPORAN OPERASI ========================================================== --}}
                         {{-- @include('bpjs.component.berkas-laporan-operasi') --}}
+                        @foreach ($settingBundling as $item)
+                            @include('bpjs.component.' . $item->nama_berkas)
+                        @endforeach
 
                         {{-- ERROR HANDLING ============================================================= --}}
                     @else

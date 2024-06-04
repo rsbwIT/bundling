@@ -27,6 +27,12 @@ class CesmikController extends Controller
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
 
+        $settingBundling = DB::connection('db_con2')->table('bw_setting_bundling')
+        ->select('bw_setting_bundling.nama_berkas', 'bw_setting_bundling.urutan')
+        ->where('bw_setting_bundling.status', '1')
+        ->orderBy('bw_setting_bundling.urutan','asc')
+        ->get();
+
         if ($jumlahData > 0) {
             // 1 BERKAS SEP
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
@@ -91,6 +97,7 @@ class CesmikController extends Controller
 
         } else {
             $getSetting = '';
+            $settingBundling = '';
             $jumlahData = '';
             $getSEP = '';
             $statusLanjut = '';
@@ -108,6 +115,7 @@ class CesmikController extends Controller
         // VIEW
         return view('bpjs.cesmik', [
             'getSetting'=>$getSetting,
+            'settingBundling'=>$settingBundling,
             'jumlahData'=>$jumlahData,
             'getSEP'=>$getSEP,
             'statusLanjut'=>$statusLanjut,

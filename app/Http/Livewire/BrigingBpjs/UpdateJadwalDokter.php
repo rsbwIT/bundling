@@ -64,7 +64,7 @@ class UpdateJadwalDokter extends Component
     public function UpdateJadwal()
     {
         $this->times = array_map(function($time) {
-            return array_merge(['hari' => $this->hari], $time); // Anda bisa mengganti 'Senin' dengan nilai yang sesuai
+            return array_merge(['hari' => $this->hari], $time);
         }, $this->times);
         $jayParsedAry = [
             'kodepoli' => $this->poli,
@@ -76,6 +76,10 @@ class UpdateJadwalDokter extends Component
         $data = json_decode($this->ReferensiBpjs->updateJadwalHfisDokter(json_encode($jayParsedAry)));
         $this->response = [$data->metadata];
         // SENIN tgl 27	ANA - ANAK 	dr. Soelistyowati,Sp.A 	40 	08:00-12:00 // di rubah pada hari selasa jam 13:45
+    }
+    public function getDataTable($kodedokter, $kodepoli) {
+        $this->dokter = $kodedokter;
+        $this->poli = $kodepoli;
     }
 
     public $poliParam;
