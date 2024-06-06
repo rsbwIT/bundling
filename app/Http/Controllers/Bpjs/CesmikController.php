@@ -27,7 +27,7 @@ class CesmikController extends Controller
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
 
-        $settingBundling = DB::connection('db_con2')->table('bw_setting_bundling')
+        $settingBundling = DB::table('bw_setting_bundling')
         ->select('bw_setting_bundling.nama_berkas', 'bw_setting_bundling.urutan')
         ->where('bw_setting_bundling.status', '1')
         ->orderBy('bw_setting_bundling.urutan','asc')
