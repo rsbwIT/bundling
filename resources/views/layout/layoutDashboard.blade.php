@@ -169,7 +169,7 @@
                                     <a href="{{ url('/cari-cob-bayar-piutang') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>COB</p>
-                                        <span class="badge badge-warning right">soon</span>
+                                        <span class="badge badge-danger right">New</span>
                                     </a>
                                 </li>
                             </ul>

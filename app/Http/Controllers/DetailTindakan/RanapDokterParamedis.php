@@ -84,6 +84,7 @@ class RanapDokterParamedis extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+            ->groupBy('rawat_inap_drpr.no_rawat','rawat_inap_drpr.kd_jenis_prw','rawat_inap_drpr.jam_rawat','rawat_inap_drpr.tarif_tindakanpr','rawat_inap_drpr.tgl_perawatan')
             ->orderBy('rawat_inap_drpr.no_rawat', 'DESC')
             ->get();
         $RalanDRParamedis = DB::table('pasien')
@@ -136,6 +137,7 @@ class RanapDokterParamedis extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+            ->groupBy('rawat_jl_drpr.no_rawat','rawat_jl_drpr.kd_jenis_prw','rawat_jl_drpr.jam_rawat','rawat_jl_drpr.tarif_tindakanpr','rawat_jl_drpr.tgl_perawatan')
             ->orderBy('rawat_jl_drpr.no_rawat', 'desc')
             ->get();
 

@@ -123,6 +123,7 @@ class OperasiAndVK extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+            ->groupBy('operasi.no_rawat','operasi.kode_paket','operasi.tgl_operasi','operasi.biayaoperator1','operasi.biayaoperator2', 'operasi.biayadokter_anak', 'operasi.biayadokter_anestesi')
             ->get();
         return view('detail-tindakan.operasi-and-vk', [
             'penjab'=>$penjab,

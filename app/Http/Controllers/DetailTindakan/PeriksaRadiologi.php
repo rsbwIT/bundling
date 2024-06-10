@@ -80,6 +80,7 @@ class PeriksaRadiologi extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+            ->groupBy('periksa_radiologi.no_rawat','periksa_radiologi.kd_jenis_prw','periksa_radiologi.tgl_periksa','periksa_radiologi.jam','periksa_radiologi.tarif_tindakan_dokter','periksa_radiologi.tarif_tindakan_petugas')
             ->get();
 
 

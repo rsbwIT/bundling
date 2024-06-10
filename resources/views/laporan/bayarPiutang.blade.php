@@ -54,7 +54,13 @@
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->status_lanjut }}</td>
                             <td>{{ $item->nm_pasien }}</td>
-                            <td>{{ $item->png_jawab }}</td>
+                            <td>
+                                @if ($item->png_jawab == $item->png_jawabCOB || $item->png_jawabCOB == null)
+                                    {{ $item->png_jawab }}
+                                @else
+                                    {{ $item->png_jawabCOB}} <b>COB</b> {{$item->png_jawab}}
+                                @endif
+                            </td>
                             <td>
                                 @foreach ($item->getNomorNota as $detail)
                                     {{ str_replace(':', '', $detail->nm_perawatan) }}
@@ -212,21 +218,21 @@
                         <th>
                             {{ $bayarPiutang->sum(function ($item) {
                                 return $item->getRegistrasi->sum('totalbiaya') +
-                                        $item->getObat->sum('totalbiaya') +
-                                        $item->getReturObat->sum('totalbiaya') +
-                                        $item->getResepPulang->sum('totalbiaya') +
-                                        $item->getRalanDokter->sum('totalbiaya') +
-                                        $item->getRalanParamedis->sum('totalbiaya') +
-                                        $item->getRalanDrParamedis->sum('totalbiaya') +
-                                        $item->getRanapDokter->sum('totalbiaya') +
-                                        $item->getRanapDrParamedis->sum('totalbiaya') +
-                                        $item->getRanapParamedis->sum('totalbiaya') +
-                                        $item->getOprasi->sum('totalbiaya') +
-                                        $item->getLaborat->sum('totalbiaya') +
-                                        $item->getRadiologi->sum('totalbiaya') +
-                                        $item->getTambahan->sum('totalbiaya') +
-                                        $item->getKamarInap->sum('totalbiaya') +
-                                        $item->getPotongan->sum('totalbiaya');
+                                    $item->getObat->sum('totalbiaya') +
+                                    $item->getReturObat->sum('totalbiaya') +
+                                    $item->getResepPulang->sum('totalbiaya') +
+                                    $item->getRalanDokter->sum('totalbiaya') +
+                                    $item->getRalanParamedis->sum('totalbiaya') +
+                                    $item->getRalanDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapDokter->sum('totalbiaya') +
+                                    $item->getRanapDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapParamedis->sum('totalbiaya') +
+                                    $item->getOprasi->sum('totalbiaya') +
+                                    $item->getLaborat->sum('totalbiaya') +
+                                    $item->getRadiologi->sum('totalbiaya') +
+                                    $item->getTambahan->sum('totalbiaya') +
+                                    $item->getKamarInap->sum('totalbiaya') +
+                                    $item->getPotongan->sum('totalbiaya');
                             }) }}
                         </th>
                         <th>

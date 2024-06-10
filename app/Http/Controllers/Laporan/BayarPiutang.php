@@ -17,6 +17,7 @@ class BayarPiutang extends Controller
 
     function CariBayarPiutang(Request $request)
     {
+        $url ='cari-bayar-piutang';
         $penjab = $this->cacheService->getPenjab();
 
         $cariNomor = $request->cariNomor;
@@ -40,12 +41,24 @@ class BayarPiutang extends Controller
                 'penjab.png_jawab',
                 'piutang_pasien.status',
                 'piutang_pasien.uangmuka',
-                'reg_periksa.status_lanjut'
+                'reg_periksa.status_lanjut',
+                // Testing
+                'detail_piutang_pasien.kd_pj as COB',
+                'penjabCOB.png_jawab as png_jawabCOB'
+
             )
             ->join('pasien', 'bayar_piutang.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->leftJoin('reg_periksa', 'bayar_piutang.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
+            // Testing
+            ->leftJoin('detail_piutang_pasien', function($join) {
+                $join->on('bayar_piutang.no_rawat', '=', 'detail_piutang_pasien.no_rawat')
+                     ->on('bayar_piutang.besar_cicilan', '=', 'detail_piutang_pasien.totalpiutang');
+            })
+            ->leftJoin('penjab as penjabCOB', 'detail_piutang_pasien.kd_pj', '=', 'penjabCOB.kd_pj')
+            // /Testing
+
             ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
             ->where(function ($query) use ($status, $kdPenjamin) {
                 if ($status) {
@@ -60,8 +73,8 @@ class BayarPiutang extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->orderBy('bayar_piutang.tgl_bayar', 'asc')
-            ->orderBy('bayar_piutang.no_rkm_medis', 'asc')
+            // ->groupBy('bayar_piutang.no_rawat')
+            ->orderBy('bayar_piutang.no_rawat', 'asc')
             ->paginate(1000);
             $bayarPiutang->map(function ($item) {
                 // NOMOR NOTA
@@ -169,6 +182,7 @@ class BayarPiutang extends Controller
                 return $item;
             });
         return view('laporan.bayarPiutang', [
+            'url' => $url,
             'penjab' => $penjab,
             'bayarPiutang' => $bayarPiutang,
         ]);

@@ -1,4 +1,4 @@
-<form action="{{ url('/cari-bayar-piutang') }}">
+<form action="{{ url($url) }}">
     @csrf
     <div class="row">
         <div class="col-md-2">

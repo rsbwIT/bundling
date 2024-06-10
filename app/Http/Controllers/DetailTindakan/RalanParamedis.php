@@ -69,6 +69,7 @@ class RalanParamedis extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+            ->groupBy('rawat_jl_pr.no_rawat','rawat_jl_pr.kd_jenis_prw','rawat_jl_pr.jam_rawat','rawat_jl_pr.tarif_tindakanpr','rawat_jl_pr.tgl_perawatan')
             ->orderBy('rawat_jl_pr.no_rawat','desc')
             ->get();
         return view('detail-tindakan.ralan-paramedis',[
