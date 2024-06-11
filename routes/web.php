@@ -20,6 +20,7 @@ use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
+use App\Http\Controllers\Laporan\InvoiceAsuransi;
 use App\Http\Controllers\Laporan\PembayaranRalan;
 use App\Http\Controllers\BriggingBpjs\KirimTaskId;
 use App\Http\Controllers\Laporan\PasienController;
@@ -114,6 +115,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
     Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
     Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
+    Route::get('/invoice-asuransi', [InvoiceAsuransi::class, 'InvoiceAsuransi']);
 
     // DETAIL TINDAKAN Asuransi
     Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);
