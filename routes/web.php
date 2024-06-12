@@ -116,6 +116,8 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
     Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
     Route::get('/invoice-asuransi', [InvoiceAsuransi::class, 'InvoiceAsuransi']);
+    Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
+    Route::get('/cetak-invoice-asuransi', [InvoiceAsuransi::class, 'cetakInvoice']);
 
     // DETAIL TINDAKAN Asuransi
     Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);

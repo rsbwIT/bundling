@@ -6,6 +6,7 @@
         <div class="card-header">
         </div>
         <div class="card-body">
+            {{-- FORM --}}
             <form action="{{ url($url) }}">
                 @csrf
                 <div class="row">
@@ -103,9 +104,32 @@
                     </div>
                 </div>
             </form>
+
+            {{-- Surat Tagihan --}}
             @if ($getNomorSurat)
-                <div class="card py-4  d-flex justify-content-center align-items-center" style="font-style: italic;">
+                <form action="{{ url('simpan-invoice-asuransi') }}">
+                    @csrf
+                    <input hidden name="nomor_tagihan" value="{{ $getNomorSurat }}">
+                    <input hidden name="kode_asuransi" value="{{ $getDetailAsuransi->kd_pj }}">
+                    <input hidden name="nama_asuransi" value="{{ $getDetailAsuransi->nama_perusahaan }}">
+                    <input hidden name="alamat_asuransi" value="{{ $getDetailAsuransi->alamat_asuransi }}">
+                    <input hidden name="tanggl1" value="{{ $tanggl1 }}">
+                    <input hidden name="tanggl2" value="{{ $tanggl2 }}">
+                    <input hidden name="status_lanjut" value="{{ $status_lanjut }}">
+                    <input hidden name="lamiran" value="{{ $lamiran }}">
+                    <button type="submit" class="btn btn-primary">Cetak</button>
+                </form>
+                <div class="card py-4 mt-3  d-flex justify-content-center align-items-center" style="font-style: italic;">
                     <table border="0px" width="1000px">
+                        <tr>
+                            <td class="text-center">
+                                <h4>Cetak Tagihan {{ $getDetailAsuransi->png_jawab }} <br>
+                                    Pasein Close Billing dari {{ date('d/m/Y', strtotime($tanggl1)) }} -
+                                    {{ date('d/m/Y', strtotime($tanggl2)) }} </h4>
+                            </td>
+                        </tr>
+                    </table>
+                    <table border="0px" width="1000px" class="mt-2">
                         <tr>
                             <td width ="100px">
                                 Nomor
@@ -230,7 +254,9 @@
                     <table border="0px" width="1000px" class="mt-4">
                         <tr>
                             <td><b>Terbilang : </b>
-                                @if ($getPasien){{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum('total_biaya')) }} @endif rupiah
+                                @if ($getPasien)
+                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum('total_biaya')) }}
+                                @endif rupiah
                             </td>
                         </tr>
                     </table>
@@ -246,6 +272,7 @@
                             <td>Bandar Lampung,
                                 {{ date('d') }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m')) }}-{{ date('Y') }}<br />
                                 Direktur Utama
+                                <br>
                                 <br>
                                 <br>
                                 <br>
@@ -271,7 +298,8 @@
                             <td>(Kami mohon rincian data nama-nama pasien yang dibayar harap diemailkan ke</td>
                         </tr>
                         <tr>
-                            <td><a href="#">Admkeuanganrsbumiwaras@yahoo.co.id Atau Wa Ke No 0823-7244-9677 ( Shity )</a></td>
+                            <td><a href="#">Admkeuanganrsbumiwaras@yahoo.co.id Atau Wa Ke No 0823-7244-9677 ( Shity
+                                    )</a></td>
                         </tr>
                         <tr>
                             <td>Atas perhatian dan kerjasamanya kami ucapkan terima kasih)</td>

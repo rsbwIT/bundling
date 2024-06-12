@@ -37,7 +37,6 @@ class NomorInvoice
     public static function Terbilang($x)
     {
         $abil = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
-
         if ($x < 12) {
             return " " . $abil[$x];
         } elseif ($x < 20) {
