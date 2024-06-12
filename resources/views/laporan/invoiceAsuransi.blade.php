@@ -124,7 +124,7 @@
                         <tr>
                             <td class="text-center">
                                 <h4>Cetak Tagihan {{ $getDetailAsuransi->png_jawab }} <br>
-                                    Pasein Close Billing dari {{ date('d/m/Y', strtotime($tanggl1)) }} -
+                                    Pasien Close Billing dari {{ date('d/m/Y', strtotime($tanggl1)) }} -
                                     {{ date('d/m/Y', strtotime($tanggl2)) }} </h4>
                             </td>
                         </tr>
