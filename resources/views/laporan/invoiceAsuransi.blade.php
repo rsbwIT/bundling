@@ -56,7 +56,7 @@
                     <div class="col-md-2">
                         <select class="form-control" name="status_lanjut" id="">
                             <option value="Ranap">Rawat Inap</option>
-                            <option value="Rajal">Rawat Jalan</option>
+                            <option value="Ralan">Rawat Jalan</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -256,7 +256,7 @@
                             <td><b>Terbilang : </b>
                                 @if ($getPasien)
                                     {{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum('total_biaya')) }}
-                                @endif rupiah
+                                @endif rupiah.
                             </td>
                         </tr>
                     </table>

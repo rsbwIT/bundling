@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -137,6 +137,105 @@
       <h2>we are sorry, but the page you requested was not found</h2>
     </div>
   </div>
+</body>
+
+</html> --}}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            padding: 10px;
+        }
+
+        .grid-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            padding: 2px 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+        <div class="grid-item">
+            <div class="card">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="width:100%">
+                <div class="container">
+                  <h4><b>John Doe</b></h4>
+                  <p>Architect & Engineer</p>
+                </div>
+              </div>
+        </div>
+    </div>
 </body>
 
 </html>

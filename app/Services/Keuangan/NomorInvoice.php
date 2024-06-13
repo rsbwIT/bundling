@@ -53,7 +53,9 @@ class NomorInvoice
             return self::Terbilang(intdiv($x, 1000)) . " ribu" . self::Terbilang($x % 1000);
         } elseif ($x < 1000000000) {
             return self::Terbilang(intdiv($x, 1000000)) . " juta" . self::Terbilang($x % 1000000);
-        } else {
+        }elseif ($x < 1000000000000) {
+            return self::Terbilang(intdiv($x, 1000000000)) . " miliar" . self::Terbilang($x % 1000000000);
+        }  else {
             return "Number is too large";
         }
     }
