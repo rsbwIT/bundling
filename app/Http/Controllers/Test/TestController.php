@@ -14,12 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class TestController extends Controller
 {
-    protected $Referensi;
-    protected $RsbwFktl;
-    public function __construct()
-    {
-        $this->Referensi = new Referensi;
-    }
+
     function TestDelete(Request $request) {
         //   $data = [
             //     // ['kode_brng'=>'GU000003240', 'kd_bangsal' => 'DepRJ', 'stok_minimal_medis' =>750],
@@ -66,18 +61,10 @@ class TestController extends Controller
     // }
 
     public function dashboardTanggal() {
-        $data = json_decode($this->Referensi->dashboardTanggal('2024-03-15'));
-        dd($data);
-    }
-    public function cekantrianTaskID() {
-        $data = json_decode($this->Referensi->cekantrianTaskID('20240315000004'));
-        dd($data);
-    }
-    public function cekTaskID() {
-        $jayParsedAry = [
-            "kodebooking" => '20240315000004',
-        ];
-        $data = json_decode($this->Referensi->cekTaskID(json_encode($jayParsedAry)));
+        $data = DB::table('')
+        ->where('')
+        ->delete();
+
         dd($data);
     }
 

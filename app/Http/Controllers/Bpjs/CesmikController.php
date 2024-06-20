@@ -16,64 +16,65 @@ class CesmikController extends Controller
     {
         $this->cacheService = $cacheService;
     }
-    function Casemix(Request $request) {
+    function Casemix(Request $request)
+    {
         $getSetting = $this->cacheService->getSetting();
         $noRawat = $request->cariNorawat;
         $noSep = $request->cariNoSep;
 
         $cekNorawat = DB::table('reg_periksa')
-        ->select('status_lanjut', 'kd_poli')
-        ->where('no_rawat', '=', $noRawat);
+            ->select('status_lanjut', 'kd_poli')
+            ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
 
         $settingBundling = DB::table('bw_setting_bundling')
-        ->select('bw_setting_bundling.nama_berkas', 'bw_setting_bundling.urutan')
-        ->where('bw_setting_bundling.status', '1')
-        ->orderBy('bw_setting_bundling.urutan','asc')
-        ->get();
+            ->select('bw_setting_bundling.nama_berkas', 'bw_setting_bundling.urutan')
+            ->where('bw_setting_bundling.status', '1')
+            ->orderBy('bw_setting_bundling.urutan', 'asc')
+            ->get();
 
         if ($jumlahData > 0) {
             // 1 BERKAS SEP
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 
             // 2 BERKAS RESUME
-            if($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS'){ // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS') { // U0061 = FisoTerapi
                 // 3 BERKAS RESUME FISO
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
                 $getKamarInap = '';
                 $cekPasienKmrInap = '';
-            }else{
+            } else {
                 if ($statusLanjut->status_lanjut === 'Ranap') {
                     // 4 BERKAS RESUME RANAP
                     $getResume = QueryResumeDll::getResumeRanap($noRawat);
-                        if($getResume){
-                            $getKamarInap = DB::table('kamar_inap')
-                                ->select([
-                                    'kamar_inap.tgl_keluar',
-                                    'kamar_inap.jam_keluar',
-                                    'kamar_inap.kd_kamar',
-                                    'bangsal.nm_bangsal'
-                                ])
-                                ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-                                ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-                                ->whereIn('kamar_inap.no_rawat', [$getResume->no_rawat])
-                                ->orderByDesc('tgl_keluar')
-                                ->orderByDesc('jam_keluar')
-                                ->limit(1)
-                                ->first();
-                            $cekPasienKmrInap = DB::table('kamar_inap')
-                                ->whereIn('kamar_inap.no_rawat', [$getResume->no_rawat])
-                                ->count();
-                        }else{
-                            $getKamarInap = '';
-                            $cekPasienKmrInap = '';
-                        }
+                    if ($getResume) {
+                        $getKamarInap = DB::table('kamar_inap')
+                            ->select([
+                                'kamar_inap.tgl_keluar',
+                                'kamar_inap.jam_keluar',
+                                'kamar_inap.kd_kamar',
+                                'bangsal.nm_bangsal'
+                            ])
+                            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+                            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+                            ->whereIn('kamar_inap.no_rawat', [$getResume->no_rawat])
+                            ->orderByDesc('tgl_keluar')
+                            ->orderByDesc('jam_keluar')
+                            ->limit(1)
+                            ->first();
+                        $cekPasienKmrInap = DB::table('kamar_inap')
+                            ->whereIn('kamar_inap.no_rawat', [$getResume->no_rawat])
+                            ->count();
+                    } else {
+                        $getKamarInap = '';
+                        $cekPasienKmrInap = '';
+                    }
                 } else {
                     // 5 BERKAS RESUME RALAN
                     $getResume = QueryResumeDll::getResumeRalan($noRawat);
-                        $getKamarInap = '';
-                        $cekPasienKmrInap = '';
+                    $getKamarInap = '';
+                    $cekPasienKmrInap = '';
                 }
             }
 
@@ -94,7 +95,6 @@ class CesmikController extends Controller
 
             // 11 LAPORAN OPERASi
             $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
-
         } else {
             $getSetting = '';
             $settingBundling = '';
@@ -102,33 +102,32 @@ class CesmikController extends Controller
             $getSEP = '';
             $statusLanjut = '';
             $getResume = '';
-            $getKamarInap= '';
-            $cekPasienKmrInap= '';
+            $getKamarInap = '';
+            $cekPasienKmrInap = '';
             $bilingRalan = '';
             $getLaborat = '';
             $getRadiologi = '';
-            $awalMedis= '';
+            $awalMedis = '';
             $getSudartKematian = '';
             $getLaporanOprasi = '';
         }
 
         // VIEW
         return view('bpjs.cesmik', [
-            'getSetting'=>$getSetting,
-            'settingBundling'=>$settingBundling,
-            'jumlahData'=>$jumlahData,
-            'getSEP'=>$getSEP,
-            'statusLanjut'=>$statusLanjut,
-            'getResume'=>$getResume,
-            'getKamarInap'=>$getKamarInap,
-            'cekPasienKmrInap'=>$cekPasienKmrInap,
-            'bilingRalan'=>$bilingRalan,
-            'getLaborat'=>$getLaborat,
-            'getRadiologi'=>$getRadiologi,
-            'awalMedis'=>$awalMedis,
-            'getSudartKematian'=>$getSudartKematian,
-            'getLaporanOprasi'=>$getLaporanOprasi,
+            'getSetting' => $getSetting,
+            'settingBundling' => $settingBundling,
+            'jumlahData' => $jumlahData,
+            'getSEP' => $getSEP,
+            'statusLanjut' => $statusLanjut,
+            'getResume' => $getResume,
+            'getKamarInap' => $getKamarInap,
+            'cekPasienKmrInap' => $cekPasienKmrInap,
+            'bilingRalan' => $bilingRalan,
+            'getLaborat' => $getLaborat,
+            'getRadiologi' => $getRadiologi,
+            'awalMedis' => $awalMedis,
+            'getSudartKematian' => $getSudartKematian,
+            'getLaporanOprasi' => $getLaporanOprasi,
         ]);
-
     }
 }

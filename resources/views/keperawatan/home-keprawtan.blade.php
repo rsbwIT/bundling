@@ -14,7 +14,7 @@
                                 <div class="small-box bg-primary">
                                     <div class="inner">
                                         <h3>1</h3>
-                                        <h5>Input Tindakan Keperawatan Dasar</h5>
+                                        <h5>Input Kegiatan Supervisi Keperawatan</h5>
                                     </div>
                                     <div class="icon">
                                         <i class="nav-icon fas fa-user-nurse"></i>
@@ -53,8 +53,7 @@
                                 <div class="small-box bg-warning">
                                     <div class="inner">
                                         <h3>3</h3>
-                                        <h5>Laporan Logbook Keperawatan I</h5>
-                                        <br>
+                                        <h5>Laporan Kegiatan Supervisi Keperawatan</h5>
                                     </div>
                                     <div class="icon">
                                         <i class="nav-icon fas fa-receipt"></i>
@@ -67,7 +66,7 @@
                                 <div class="small-box bg-warning">
                                     <div class="inner">
                                         <h3>5</h3>
-                                        <h5>Laporan Logbook Keperawatan II</h5>
+                                        <h5>Jumlah Kegiatan Supervisi Perawat</h5>
                                     </div>
                                     <div class="icon">
                                         <i class="nav-icon fas fa-receipt"></i>
@@ -80,7 +79,7 @@
                                 <div class="small-box bg-warning">
                                     <div class="inner">
                                         <h3>6</h3>
-                                        <h5>Laporan Kegiatan Kepala Ruangan</h5>
+                                        <h5>Jumlah Kegiatan Kepala Ruangan</h5>
                                     </div>
                                     <div class="icon">
                                         <i class="nav-icon fas fa-receipt"></i>

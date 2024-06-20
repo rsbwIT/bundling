@@ -391,6 +391,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/croscheck-coding') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Cross Check Coding</p>
+                                    </a>
+                                </li>
+                            </ul>
                             @if (session('obat') === 'true')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">

@@ -95,6 +95,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/gabung-berkas-casemix', [GabungBerkas::class, 'gabungBerkas']);
     Route::get('/data-inacbg', [DataInacbg::class, 'Inacbg']);
     Route::get('/setting-bpjs-casemix', [SettingBpjs::class, 'settingBpjsCasemix']);
+    Route::get('/croscheck-coding', [HomeCasemix::class, 'crosCheckCoding']);
 
     // FARMASI
     Route::get('/list-pasien-farmasi', [SepResepController::class, 'ListPasienFarmasi']);

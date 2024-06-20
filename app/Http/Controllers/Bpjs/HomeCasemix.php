@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 
 class HomeCasemix extends Controller
 {
+    function crosCheckCoding() {
+        return view('bpjs.croscheck-coding');
+    }
     function casemixHome(){
         // $getPasien = DB::table('reg_periksa')
             //     ->select('reg_periksa.no_rawat', 'reg_periksa.no_rkm_medis', 'reg_periksa.tgl_registrasi',
