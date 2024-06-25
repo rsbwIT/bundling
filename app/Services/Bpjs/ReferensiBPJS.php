@@ -112,5 +112,13 @@ class ReferensiBPJS
             return [];
         }
     }
+    public function CariSuplesi($nokartuPeserta, $tglSep ) {
+        try {
+            $endpoint = 'sep/JasaRaharja/Suplesi/'.$nokartuPeserta.'/tglPelayanan/'.$tglSep;
+            return $this->bridging->getRequest($endpoint);
+        } catch (\Throwable $th) {
+            return [];
+        }
+    }
 
 }

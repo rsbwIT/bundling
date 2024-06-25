@@ -118,13 +118,14 @@
                         </tr>
                         <tr>
                             <td>Sub/Spesialis</td>
-                            <td>: {{ $getSep[0]->poli }}</td>
+                            <td>: {{ $getSep2[0]->poli }}</td>
                             <td>Poli Perujuk</td>
                             <td>: -</td>
                         </tr>
                         <tr>
                             <td>Dokter</td>
-                            <td>: {{ $getRegPeriksa[0]->nm_dokter }}</td>
+                            <td>: {{ $getSep[0]->kontrol->nmDokter }}
+                            </td>
                             <td>Kls. Hak</td>
                             <td>: Kelas {{ $getSep[0]->klsRawat->klsRawatHak }}</td>
                         </tr>
