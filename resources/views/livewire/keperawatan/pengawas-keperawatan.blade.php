@@ -248,6 +248,71 @@
                                 </div>
                             </div>
                         @endforeach
+                        <div class="card-body table-responsive p-0" style="height: 350px;"">
+                            <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" width="3%">No.</th>
+                                        <th>Kegiatan/Tindakan Yang Sudah Dilakukan Terhadap Pasien Pada
+                                            {{ $tanggal }}</th>
+                                        <th width="10%" class="text-center">Mandiri</th>
+                                        <th width="10%" class="text-center">Supervisi</th>
+                                        <th width="10%" class="text-center">Tanggal</th>
+                                        <th>Act</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($getLogbookPasien as $key => $item)
+                                        <tr>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $item->nama_kegiatan }}</td>
+                                            <td class="text-center">
+                                                @if ($item->mandiri == 1)
+                                                    <i class="fas fa-check"></i>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($item->supervisi == 1)
+                                                    <i class="fas fa-check"></i>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item->tanggal }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger"
+                                                    wire:click="HapusKegiatan('{{ $item->id_logbook }}')"
+                                                    data-dismiss="modal">
+                                                    Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @foreach ($getLogbookPasienKHusus as $key => $item)
+                                        <tr>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $item->nama_kewenangan }}</td>
+                                            <td class="text-center">
+                                                @if ($item->mandiri == 1)
+                                                    <i class="fas fa-check"></i>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($item->supervisi == 1)
+                                                    <i class="fas fa-check"></i>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item->tanggal }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger"
+                                                    wire:click="HapusKegiatanKhusus('{{ $item->id_kewenangankhusus}}')"
+                                                    data-dismiss="modal">
+                                                    Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 </div>
             </div>

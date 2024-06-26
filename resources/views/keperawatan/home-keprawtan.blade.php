@@ -52,7 +52,7 @@
                             <div class="col-lg-3 col-6">
                                 <div class="small-box bg-warning">
                                     <div class="inner">
-                                        <h3>3</h3>
+                                        <h3>4</h3>
                                         <h5>Laporan Kegiatan Supervisi Keperawatan</h5>
                                     </div>
                                     <div class="icon">
