@@ -4,107 +4,104 @@
 @section('konten')
     <div class="card">
         <div class="card-header">
-        </div>
-        <div class="card-body">
-            {{-- FORM --}}
             <form action="{{ url($url) }}">
                 @csrf
                 <div class="row">
                     <div class="col-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <button type="button"
-                                    class="btn btn-default form-control form-control-xs d-flex justify-content-between"
-                                    data-toggle="modal" data-target="#modal-lg">
-                                    <p>Pilih Asuransi</p>
-                                    <p><i class="nav-icon fas fa-credit-card"></i></p>
-                                </button>
-                            </div>
-                            <div class="modal fade" id="modal-lg">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title">Pilih Penjamin / Asuransi</h4>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <select multiple="multiple" size="10" name="duallistbox[]">
-                                                @foreach ($penjab as $item)
-                                                    <option value="{{ $item->kd_pj }}">{{ $item->png_jawab }}</option>
-                                                @endforeach
-                                            </select>
-                                            <input type="hidden" name="kdPenjamin">
-                                            <script>
-                                                var demo1 = $('select[name="duallistbox[]"]').bootstrapDualListbox();
-                                                $('form').submit(function(e) {
-                                                    e.preventDefault();
-                                                    $('input[name="kdPenjamin"]').val($('select[name="duallistbox[]"]').val().join(','));
-                                                    this.submit();
-                                                });
-                                            </script>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                                        </div>
+                        <div class="input-group input-group-xs">
+                            <button type="button"
+                                class="btn btn-default btn-sm form-control form-control-sm d-flex justify-content-between"
+                                data-toggle="modal" data-target="#modal-lg">
+                                <p>Pilih Asuransi</p>
+                                <p><i class="nav-icon fas fa-credit-card"></i></p>
+                            </button>
+                        </div>
+                        <div class="modal fade" id="modal-lg">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Pilih Penjamin / Asuransi</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <select multiple="multiple" size="10" name="duallistbox[]">
+                                            @foreach ($penjab as $item)
+                                                <option value="{{ $item->kd_pj }}">{{ $item->png_jawab }}</option>
+                                            @endforeach
+                                        </select>
+                                        <input type="hidden" name="kdPenjamin">
+                                        <script>
+                                            var demo1 = $('select[name="duallistbox[]"]').bootstrapDualListbox();
+                                            $('form').submit(function(e) {
+                                                e.preventDefault();
+                                                $('input[name="kdPenjamin"]').val($('select[name="duallistbox[]"]').val().join(','));
+                                                this.submit();
+                                            });
+                                        </script>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-control" name="status_lanjut" id="">
-                            <option value="Ranap">Rawat Inap</option>
-                            <option value="Ralan">Rawat Jalan</option>
+                    <div class="col-md-1">
+                        <select class="form-control form-control-sm" name="status_lanjut" id="">
+                            <option value="Ranap">Ranap</option>
+                            <option value="Ralan">Ralan</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <input type="date" name="tgl1" class="form-control form-control-xs"
-                                    value="{{ request('tgl1', now()->format('Y-m-d')) }}">
-                                <div class="input-group-append">
-                                </div>
+                        <div class="input-group input-group-xs">
+                            <input type="date" name="tgl1" class="form-control form-control-sm"
+                                value="{{ request('tgl1', now()->format('Y-m-d')) }}">
+                            <div class="input-group-append">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <input type="date" name="tgl2" class="form-control form-control-xs"
-                                    value="{{ request('tgl2', now()->format('Y-m-d')) }}">
-                                <div class="input-group-append">
-                                </div>
+                        <div class="input-group input-group-xs">
+                            <input type="date" name="tgl2" class="form-control form-control-sm"
+                                value="{{ request('tgl2', now()->format('Y-m-d')) }}">
+                            <div class="input-group-append">
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-2">
-                        <select class="form-control" name="lampiran" id="">
-                            <option value="01 (Satu) lembar">01 (satu) lembar</option>
-                            <option value="02 (Dau) lembar">02 (Dau) lembar</option>
-                            <option value="03 (Tiga) lembar">03 (Tiga) lembar</option>
-                            <option value="04 (Empat) lembar">04 (Empat) lembar</option>
-                            <option value="05 (Lima) lembar">05 (Lima) lembar</option>
-                            <option value="06 (Enam) lembar">06 (Enam) lembar</option>
-                            <option value="07 (Tujuh) lembar">07 (Tujuh) lembar</option>
+                    <div class="col-md-1">
+                        <select class="form-control form-control-sm" name="lampiran" id="">
+                            <option>Lampiran</option>
+                            <option value="01 (Satu) lembar">01</option>
+                            <option value="02 (Dau) lembar">02</option>
+                            <option value="03 (Tiga) lembar">03</option>
+                            <option value="04 (Empat) lembar">04</option>
+                            <option value="05 (Lima) lembar">05</option>
+                            <option value="06 (Enam) lembar">06</option>
+                            <option value="07 (Tujuh) lembar">07</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-md btn-primary">
-                                        <i class="fa fa-search"></i> Cari
-                                    </button>
-                                </div>
+                        <input type="date" name="tgl_cetak" class="form-control form-control-sm"
+                            value="{{ request('tgl2', now()->format('Y-m-d')) }}">
+                        <div class="input-group-append">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-xs">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-search"></i> Cari
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
-
+        </div>
+        <div class="card-body">
             {{-- Surat Tagihan --}}
             @if ($getNomorSurat)
                 <form action="{{ url('simpan-invoice-asuransi') }}">
@@ -115,9 +112,11 @@
                     <input hidden name="alamat_asuransi" value="{{ $getDetailAsuransi->alamat_asuransi }}">
                     <input hidden name="tanggl1" value="{{ $tanggl1 }}">
                     <input hidden name="tanggl2" value="{{ $tanggl2 }}">
+                    <input hidden name="tgl_cetak" value="{{ $tgl_cetak }}">
                     <input hidden name="status_lanjut" value="{{ $status_lanjut }}">
                     <input hidden name="lamiran" value="{{ $lamiran }}">
-                    <button type="submit" class="btn btn-primary">Cetak</button>
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-save" aria-hidden="true"></i>
+                        Simpan</button>
                 </form>
                 <div class="card py-4 mt-3  d-flex justify-content-center align-items-center" style="font-style: italic;">
                     <table border="0px" width="1000px">
@@ -223,6 +222,7 @@
                             <th></th>
                             <th>Nama </th>
                             <th>Jumlah Biaya</th>
+                            <th>No Kwit</th>
                             <th>Rm</th>
                             <th>Tanggal Rawat</th>
                         </tr>
@@ -233,6 +233,11 @@
                                     <td width="15px">{{ $key + 1 }}. </td>
                                     <td>{{ $item->nm_pasien }}</td>
                                     <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
+                                    <td>
+                                        @foreach ($item->getNomorNota as $detail)
+                                            {{ str_replace(':', '', $detail->nm_perawatan) }}
+                                        @endforeach
+                                    </td>
                                     <td>{{ $item->no_rkm_medis }}</td>
                                     <td>
                                         @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
@@ -270,7 +275,7 @@
                     <table border="0px" width="1000px" class="mt-4">
                         <tr>
                             <td>Bandar Lampung,
-                                {{ date('d') }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m')) }}-{{ date('Y') }}<br />
+                                {{ date('d', strtotime($tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_cetak))) }}-{{ date('Y', strtotime($tgl_cetak)) }}<br />
                                 Direktur Utama
                                 <br>
                                 <br>
@@ -308,6 +313,45 @@
                     </table>
                 </div>
             @endif
+            <div class="card table-responsive p-0" style="height: 450px;"">
+                <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
+                    <thead>
+                        <tr>
+                            <th colspan="5" class="text-center"><b>Riwayat Tagihan</b></th>
+                        </tr>
+                    </thead>
+                    <thead>
+                        <tr>
+                            <th>Nomor Tagihan</th>
+                            <th>Nama Asuransi</th>
+                            <th>Tanggal Cetak</th>
+                            <th>Status Lanjut</th>
+                            <th>Lamiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($getListInvoice as $invoice)
+                            <tr>
+                                <td>
+                                    <div class="d-flex">
+                                        {{ $invoice->nomor_tagihan }}
+                                        <form action="{{ url('cetak-invoice-asuransi') }}">
+                                            @csrf
+                                            <input hidden name="nomor_tagihan" value="{{ $invoice->nomor_tagihan }}">
+                                            <button type="submit" class="ml-2 badge badge-primary"><i class="fa fa-print"
+                                                    aria-hidden="true"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td>{{ $invoice->nama_asuransi }}</td>
+                                <td>{{ $invoice->tgl_cetak }}</td>
+                                <td>{{ $invoice->status_lanjut }}</td>
+                                <td>{{ $invoice->lamiran }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 @endsection

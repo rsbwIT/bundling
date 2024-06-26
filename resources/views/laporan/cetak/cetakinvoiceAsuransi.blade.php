@@ -13,14 +13,20 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <div class="card py-4  d-flex justify-content-center align-items-center" style="font-style: italic;">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="card py-4  d-flex justify-content-center align-items-center mb-5" style="font-style: italic;">
         <table border="0px" width="1000px">
             <tr>
                 <td width ="100px">
                     Nomor
                 </td>
                 <td>
-                    : {{ $getNomorSurat }}
+                    : {{ $getListInvoice->nomor_tagihan }}
                 </td>
             </tr>
             <tr>
@@ -28,7 +34,7 @@
                     Lampiran
                 </td>
                 <td>
-                    : {{ $lamiran }}
+                    : {{ $getListInvoice->lamiran }}
                 </td>
             </tr>
             <tr>
@@ -108,6 +114,7 @@
                 <th></th>
                 <th>Nama </th>
                 <th>Jumlah Biaya</th>
+                <th>No Kwit</th>
                 <th>Rm</th>
                 <th>Tanggal Rawat</th>
             </tr>
@@ -118,6 +125,11 @@
                         <td width="15px">{{ $key + 1 }}. </td>
                         <td>{{ $item->nm_pasien }}</td>
                         <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
+                        <td>
+                            @foreach ($item->getNomorNota as $detail)
+                                {{ str_replace(':', '', $detail->nm_perawatan) }}
+                            @endforeach
+                        </td>
                         <td>{{ $item->no_rkm_medis }}</td>
                         <td>
                             @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
@@ -155,7 +167,7 @@
         <table border="0px" width="1000px" class="mt-4">
             <tr>
                 <td>Bandar Lampung,
-                    {{ date('d') }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m')) }}-{{ date('Y') }}<br />
+                    {{ date('d', strtotime( $getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime( $getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime( $getListInvoice->tgl_cetak)) }}<br />
                     Direktur Utama
                     <br>
                     <br>

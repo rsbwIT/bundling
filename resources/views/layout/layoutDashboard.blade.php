@@ -480,6 +480,17 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('sep-vclaim') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Simpan SEP Vclaim
+                                            <span class="badge badge-info right">dev</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Pelayanan - RM</li>

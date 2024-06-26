@@ -23,6 +23,7 @@ class InvoiceAsuransi extends Controller
 
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $tgl_cetak = $request->tgl_cetak;
         $status_lanjut = $request->status_lanjut;
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
         $lamiran = $request->lampiran;
@@ -47,25 +48,41 @@ class InvoiceAsuransi extends Controller
                 'reg_periksa.kd_pj',
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.status_lanjut',
-                DB::raw('SUM(billing.totalbiaya) AS total_biaya'),
-                'billing.tgl_byr',
+                'piutang_pasien.sisapiutang AS total_biaya',
+                'piutang_pasien.tgltempo AS tgl_byr',
                 'kamar_inap.tgl_keluar',
                 'kamar_inap.tgl_masuk',
                 'pasien.no_rkm_medis'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', $kdPenjamin)
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut', $status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
             ->get();
+        $getPasien->map(function ($item) {
+            $item->getNomorNota = DB::table('billing')
+                ->select('nm_perawatan')
+                ->where('no_rawat', $item->no_rawat)
+                ->where('no', '=', 'No.Nota')
+                ->get();
+        });
+
+        $getListInvoice = DB::connection('db_con2')->table('bw_invoice_asuransi')
+            ->select('bw_invoice_asuransi.nomor_tagihan', 'bw_invoice_asuransi.kode_asuransi', 'bw_invoice_asuransi.nama_asuransi', 'bw_invoice_asuransi.alamat_asuransi', 'bw_invoice_asuransi.tanggl1', 'bw_invoice_asuransi.tanggl2', 'bw_invoice_asuransi.tgl_cetak', 'bw_invoice_asuransi.status_lanjut', 'bw_invoice_asuransi.lamiran')
+            ->where('bw_invoice_asuransi.kode_asuransi', $kdPenjamin)
+            ->where('bw_invoice_asuransi.status_lanjut', $status_lanjut)
+            ->orderBy('bw_invoice_asuransi.nomor_tagihan','desc')
+            ->get();
 
         return view('laporan.invoiceAsuransi', [
+            'getListInvoice' => $getListInvoice,
             'lamiran' => $lamiran,
             'tanggl1' => $tanggl1,
             'tanggl2' => $tanggl2,
+            'tgl_cetak' => $tgl_cetak,
             'status_lanjut' => $status_lanjut,
             'url' => $url,
             'penjab' => $penjab,
@@ -83,32 +100,38 @@ class InvoiceAsuransi extends Controller
             'kode_asuransi' => $request->kode_asuransi,
             'nama_asuransi' => $request->nama_asuransi,
             'alamat_asuransi' => $request->alamat_asuransi,
-        ]);
-        $data = [
-            'nomor_tagihan' => $request->nomor_tagihan,
-            'kode_asuransi' => $request->kode_asuransi,
             'tanggl1' => $request->tanggl1,
             'tanggl2' => $request->tanggl2,
+            'tgl_cetak' => $request->tgl_cetak,
             'status_lanjut' => $request->status_lanjut,
             'lamiran' => $request->lamiran,
-        ];
-        return redirect('cetak-invoice-asuransi')->with('dataInvoice', $data);
+        ]);
+        return redirect()->back();
     }
 
     // 3 CETAK ======================================================================
-    public function cetakInvoice()
+    public function cetakInvoice(Request $request)
     {
-        $data = session('dataInvoice');
-        $tanggl1 = $data['tanggl1'];
-        $tanggl2 = $data['tanggl2'];
-        $status_lanjut = $data['status_lanjut'];
-        $kdPenjamin = $data['kode_asuransi'];
-        $lamiran = $data['lamiran'];
-        $getNomorSurat = $data['nomor_tagihan'];
+
+
+        $getListInvoice = DB::connection('db_con2')->table('bw_invoice_asuransi')
+            ->select(
+                'bw_invoice_asuransi.nomor_tagihan',
+                'bw_invoice_asuransi.kode_asuransi',
+                'bw_invoice_asuransi.nama_asuransi',
+                'bw_invoice_asuransi.alamat_asuransi',
+                'bw_invoice_asuransi.tanggl1',
+                'bw_invoice_asuransi.tanggl2',
+                'bw_invoice_asuransi.tgl_cetak',
+                'bw_invoice_asuransi.status_lanjut',
+                'bw_invoice_asuransi.lamiran'
+            )
+            ->where('bw_invoice_asuransi.nomor_tagihan', $request->nomor_tagihan)
+            ->first();
 
         $getDetailAsuransi = DB::table('penjab')
             ->select('penjab.kd_pj', 'penjab.png_jawab', 'penjab.nama_perusahaan', 'penjab.alamat_asuransi', 'penjab.no_telp', 'penjab.status')
-            ->where('penjab.kd_pj', $kdPenjamin)
+            ->where('penjab.kd_pj', $getListInvoice->kode_asuransi)
             ->where('penjab.status', '=', '1')
             ->first();
 
@@ -119,30 +142,32 @@ class InvoiceAsuransi extends Controller
                 'reg_periksa.kd_pj',
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.status_lanjut',
-                DB::raw('SUM(billing.totalbiaya) AS total_biaya'),
-                'billing.tgl_byr',
+                'piutang_pasien.sisapiutang AS total_biaya',
+                'piutang_pasien.tgltempo AS tgl_byr',
                 'kamar_inap.tgl_keluar',
                 'kamar_inap.tgl_masuk',
                 'pasien.no_rkm_medis'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->where('reg_periksa.kd_pj', $kdPenjamin)
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
-            ->where('reg_periksa.status_lanjut', $status_lanjut)
+            ->where('reg_periksa.kd_pj', $getListInvoice->kode_asuransi)
+            ->whereBetween('reg_periksa.tgl_registrasi', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])
+            ->where('reg_periksa.status_lanjut', $getListInvoice->status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
             ->get();
+        $getPasien->map(function ($item) {
+            $item->getNomorNota = DB::table('billing')
+                ->select('nm_perawatan')
+                ->where('no_rawat', $item->no_rawat)
+                ->where('no', '=', 'No.Nota')
+                ->get();
+        });
 
         return view('laporan.cetak.cetakinvoiceAsuransi', [
-            'lamiran' => $lamiran,
-            'tanggl1' => $tanggl1,
-            'tanggl2' => $tanggl2,
-            'status_lanjut' => $status_lanjut,
             'getDetailAsuransi' => $getDetailAsuransi,
-            'getNomorSurat' => $getNomorSurat,
+            'getListInvoice' => $getListInvoice,
             'getPasien' => $getPasien,
         ]);
-
     }
 }
