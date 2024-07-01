@@ -1,6 +1,7 @@
 ## Syarat Installasi
 - php8.0 - php8.1
 - extension=gd
+- import struktur database rsbw_lite difolder database ke database khanza (sik)
 
 ## Cara Install
 
