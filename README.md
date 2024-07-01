@@ -15,7 +15,6 @@
 
 ## Deskripsi Aplikasi
 Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) dengan beberapa menu dan fitur 
-- Bundling berkas berkas e-rekam medis
 - Keuangan
 - Detail tindakan umum dan asuransi berdasarkan tanggal bayar
 - Casemix dan crosscheck koding
@@ -23,6 +22,6 @@ Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) denga
 - Bridging bpjs (kirim ulang task id, simpan SEP V-claim ke khanza, dan HFIS)
 - Antrian (Antrian Poli, Loket dan Informasi Kamar)
 - Keperawatan
-- E-Rekam Medis
+- E-Rekam medis dan bundling
 
 
