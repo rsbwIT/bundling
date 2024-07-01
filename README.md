@@ -10,5 +10,18 @@
 ##### jalankan perintah php artisan serve untuk uji coba user@windows:folder\casemixRSBW:>php artisan serve"
 ##### 7. Kunjungi http://localhost:8000/
 
-- [Dukumentasi Laravel](https://laravel.com).
+## Deskripsi Aplikasi
+Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) dengan beberapa menu dan fitur 
+- Bundling berkas berkas e-rekam medis
+- Keuangan
+- Detail tindakan umum dan asuransi berdasarkan tanggal bayar
+- Casemix dan crosscheck koding
+- Farmasi
+- Bridging bpjs (kirim ulang task id, simpan SEP V-claim ke khanza, dan HFIS)
+- Antrian (Antrian Poli, Loket dan Informasi Kamar)
+- Keperawatan
+- E-Rekam Medis
 
+## Syarat Instalasi
+- php8.0 - php8.1
+- extension=gd
