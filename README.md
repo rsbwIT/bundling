@@ -1,5 +1,8 @@
-## CARA INSTAL
+## Syarat Instalasi
+- php8.0 - php8.1
+- extension=gd
 
+## CARA INSTAL
 
 ##### 1. Kloning proyek Anda
 ##### 2. Buka folder aplikasi yang sudah anda clone dengan terminal atau cmd "user@windows:folder\casemixRSBW:>"
@@ -22,6 +25,4 @@ Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) denga
 - Keperawatan
 - E-Rekam Medis
 
-## Syarat Instalasi
-- php8.0 - php8.1
-- extension=gd
+
