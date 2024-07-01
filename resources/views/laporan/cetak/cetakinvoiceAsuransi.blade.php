@@ -8,13 +8,13 @@
     <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="/dist/css/adminlte.min.css" />
     <script type="text/javascript">
-        window.onload = function() { window.print(); }
+        window.onload = function() {
+            window.print();
+        }
     </script>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <br>
-    <br>
     <br>
     <br>
     <br>
@@ -108,46 +108,15 @@
                 </td>
             </tr>
         </table>
-        <table border="0px" width="1000px" class="mt-4">
-            <tr>
-                <th></th>
-                <th></th>
-                <th>Nama </th>
-                <th>Jumlah Biaya</th>
-                <th>No Kwit</th>
-                <th>Rm</th>
-                <th>Tanggal Rawat</th>
-            </tr>
-            @if ($getPasien)
-                @foreach ($getPasien as $key => $item)
-                    <tr>
-                        <td width="50px"></td>
-                        <td width="15px">{{ $key + 1 }}. </td>
-                        <td>{{ $item->nm_pasien }}</td>
-                        <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
-                        <td>
-                            @foreach ($item->getNomorNota as $detail)
-                                {{ str_replace(':', '', $detail->nm_perawatan) }}
-                            @endforeach
-                        </td>
-                        <td>{{ $item->no_rkm_medis }}</td>
-                        <td>
-                            @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
-                                {{ $item->tgl_byr }}
-                            @else
-                                {{ date('d', strtotime($item->tgl_masuk)) . ' - ' . date('d', strtotime($item->tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_keluar))) }}-{{ date('Y', strtotime($item->tgl_keluar)) }}
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td>
-                </tr>
-            @endif
-        </table>
+        {{-- TEMPLATE --}}
+        @if ($template == 'template1')
+            @include('laporan.component.cetak-invoice-asuransi.template-cetak1')
+        @elseif ($template == 'template2')
+            @include('laporan.component.cetak-invoice-asuransi.template-cetak2')
+        @elseif ($template == 'template3')
+            @include('laporan.component.cetak-invoice-asuransi.template-cetak3')
+        @endif
+        {{-- //TEMPLATE --}}
         <table border="0px" width="1000px" class="mt-4">
             <tr>
                 <td><b>Terbilang : </b>
@@ -167,7 +136,7 @@
         <table border="0px" width="1000px" class="mt-4">
             <tr>
                 <td>Bandar Lampung,
-                    {{ date('d', strtotime( $getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime( $getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime( $getListInvoice->tgl_cetak)) }}<br />
+                    {{ date('d', strtotime($getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime($getListInvoice->tgl_cetak)) }}<br />
                     Direktur Utama
                     <br>
                     <br>
@@ -205,4 +174,5 @@
         </table>
     </div>
 </body>
+
 </html>

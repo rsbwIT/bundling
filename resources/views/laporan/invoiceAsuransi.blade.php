@@ -216,46 +216,9 @@
                             </td>
                         </tr>
                     </table>
-                    <table border="0px" width="1000px" class="mt-4">
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>Nama </th>
-                            <th>Jumlah Biaya</th>
-                            <th>No Kwit</th>
-                            <th>Rm</th>
-                            <th>Tanggal Rawat</th>
-                        </tr>
-                        @if ($getPasien)
-                            @foreach ($getPasien as $key => $item)
-                                <tr>
-                                    <td width="50px"></td>
-                                    <td width="15px">{{ $key + 1 }}. </td>
-                                    <td>{{ $item->nm_pasien }}</td>
-                                    <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
-                                    <td>
-                                        @foreach ($item->getNomorNota as $detail)
-                                            {{ str_replace(':', '', $detail->nm_perawatan) }}
-                                        @endforeach
-                                    </td>
-                                    <td>{{ $item->no_rkm_medis }}</td>
-                                    <td>
-                                        @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
-                                            {{ $item->tgl_byr }}
-                                        @else
-                                            {{ date('d', strtotime($item->tgl_masuk)) . ' - ' . date('d', strtotime($item->tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_keluar))) }}-{{ date('Y', strtotime($item->tgl_keluar)) }}
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td>
-                            </tr>
-                        @endif
-                    </table>
+                    {{-- TEMPLATE --}}
+                    @include('laporan.component.cetak-invoice-asuransi.template-cetak3')
+                    {{-- //TEMPLATE --}}
                     <table border="0px" width="1000px" class="mt-4">
                         <tr>
                             <td><b>Terbilang : </b>
@@ -317,7 +280,7 @@
                 <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
                     <thead>
                         <tr>
-                            <th colspan="5" class="text-center"><b>Riwayat Tagihan</b></th>
+                            <th colspan="6" class="text-center"><b>Riwayat Tagihan</b></th>
                         </tr>
                     </thead>
                     <thead>
@@ -327,26 +290,39 @@
                             <th>Tanggal Cetak</th>
                             <th>Status Lanjut</th>
                             <th>Lamiran</th>
+                            <th>Act</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($getListInvoice as $invoice)
                             <tr>
                                 <td>
-                                    <div class="d-flex">
-                                        {{ $invoice->nomor_tagihan }}
-                                        <form action="{{ url('cetak-invoice-asuransi') }}">
-                                            @csrf
-                                            <input hidden name="nomor_tagihan" value="{{ $invoice->nomor_tagihan }}">
-                                            <button type="submit" class="ml-2 badge badge-primary"><i class="fa fa-print"
-                                                    aria-hidden="true"></i></button>
-                                        </form>
-                                    </div>
+                                    {{ $invoice->nomor_tagihan }}
                                 </td>
                                 <td>{{ $invoice->nama_asuransi }}</td>
                                 <td>{{ $invoice->tgl_cetak }}</td>
                                 <td>{{ $invoice->status_lanjut }}</td>
                                 <td>{{ $invoice->lamiran }}</td>
+                                <td>
+                                    <div>
+                                        <form action="{{ url('cetak-invoice-asuransi') }}">
+                                            @csrf
+                                            <div class="input-group input-group-sm">
+                                                <input hidden name="nomor_tagihan" value="{{ $invoice->nomor_tagihan }}">
+                                                <select class="form-control form-control-sm" name="template"
+                                                    id="">
+                                                    <option value="template1">Template 1</option>
+                                                    <option value="template2">Template 2</option>
+                                                    <option value="template3">Template 3</option>
+                                                </select>
+                                                <span class="input-group-append">
+                                                    <button type="submit" class="btn btn-primary btn-flat"><i
+                                                            class="fa fa-print" aria-hidden="true"></i></button>
+                                                </span>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
