@@ -1,8 +1,8 @@
-## Syarat Instalasi
+## Syarat Installasi
 - php8.0 - php8.1
 - extension=gd
 
-## CARA INSTAL
+## Cara Install
 
 ##### 1. Kloning proyek Anda
 ##### 2. Buka folder aplikasi yang sudah anda clone dengan terminal atau cmd "user@windows:folder\casemixRSBW:>"
