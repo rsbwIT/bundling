@@ -15,7 +15,7 @@
 ##### 7. Kunjungi http://localhost:8000/
 
 ## Deskripsi Aplikasi
-Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) dengan beberapa menu dan fitur 
+Aplikasi pendukung <b>GRATIS!!!</b> untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) dengan beberapa menu dan fitur 
 - Keuangan
 - Detail tindakan umum dan asuransi berdasarkan tanggal bayar
 - Casemix dan crosscheck koding
@@ -25,4 +25,4 @@ Aplikasi pendukung untuk pengguna [SIMRS Khanza](https://www.yaski.or.id/) denga
 - Keperawatan
 - E-Rekam medis dan bundling
 
-
+[Pertanyaan lebih lanjut hubungi beliau GRATIS!! :  ]

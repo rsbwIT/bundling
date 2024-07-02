@@ -19,7 +19,6 @@ class LispasienRalan2 extends Component
     {
         $this->tanggal1 = date('Y-m-d');
         $this->tanggal2 = date('Y-m-d');
-        $this->penjamnin = 'BPJ';
         $this->getListPasienRalan();
     }
     public function render()
@@ -56,7 +55,6 @@ class LispasienRalan2 extends Component
                     ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
-            ->where('reg_periksa.kd_pj', '=', $this->penjamnin)
             ->get();
     }
     // 2 PROSES UPLOAD ==================================================================================

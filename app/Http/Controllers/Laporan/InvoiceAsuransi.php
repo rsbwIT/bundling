@@ -154,7 +154,7 @@ class InvoiceAsuransi extends Controller
                 ->get();
         });
 
-        $getListInvoice = DB::connection('db_con2')->table('bw_invoice_asuransi')
+        $getListInvoice = DB::table('bw_invoice_asuransi')
             ->select('bw_invoice_asuransi.nomor_tagihan', 'bw_invoice_asuransi.kode_asuransi', 'bw_invoice_asuransi.nama_asuransi', 'bw_invoice_asuransi.alamat_asuransi', 'bw_invoice_asuransi.tanggl1', 'bw_invoice_asuransi.tanggl2', 'bw_invoice_asuransi.tgl_cetak', 'bw_invoice_asuransi.status_lanjut', 'bw_invoice_asuransi.lamiran')
             ->where('bw_invoice_asuransi.kode_asuransi', $kdPenjamin)
             ->where('bw_invoice_asuransi.status_lanjut', $status_lanjut)
@@ -179,7 +179,7 @@ class InvoiceAsuransi extends Controller
     // 2 SIMPAN DAN REDIRECT KE CETAK ======================================================================
     public function simpanNomor(Request $request)
     {
-        DB::connection('db_con2')->table('bw_invoice_asuransi')->insert([
+        DB::table('bw_invoice_asuransi')->insert([
             'nomor_tagihan' => $request->nomor_tagihan,
             'kode_asuransi' => $request->kode_asuransi,
             'nama_asuransi' => $request->nama_asuransi,
@@ -198,7 +198,7 @@ class InvoiceAsuransi extends Controller
     {
 
 
-        $getListInvoice = DB::connection('db_con2')->table('bw_invoice_asuransi')
+        $getListInvoice = DB::table('bw_invoice_asuransi')
             ->select(
                 'bw_invoice_asuransi.nomor_tagihan',
                 'bw_invoice_asuransi.kode_asuransi',
