@@ -88,10 +88,7 @@
             </form>
             <div class="card">
                 <div class="card-header">
-                    @php
-                        $penjab = $penjamnin === 'BPJ' ? 'BPJS' : '';
-                    @endphp
-                    <h3 class="card-title">List Pasien <b>{{ $penjab }}</b> Berdasarkan <b>Tanggal Pulang</b>, Dari
+                    <h3 class="card-title">List Pasien Berdasarkan <b>Tanggal Pulang</b>, Dari
                         Tanggal:
                         <b>{{ date('d/m/Y', strtotime($tanggl1)) }}</b>
                         sampai <b>{{ date('d/m/Y', strtotime($tanggl2)) }} Rawat Inap</b>

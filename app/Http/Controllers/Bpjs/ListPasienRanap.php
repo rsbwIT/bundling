@@ -11,7 +11,6 @@ class ListPasienRanap extends Controller
     function lisPaseinRanap(Request $request){
         $tanggl1 = date('Y-m-d');
         $tanggl2 = date('Y-m-d');
-        $penjamnin = 'BPJ';
 
         $daftarPasien = DB::table('reg_periksa')
             ->select('reg_periksa.no_rkm_medis',
@@ -30,7 +29,6 @@ class ListPasienRanap extends Controller
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
-            ->where('reg_periksa.kd_pj','=', $penjamnin)
             ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
             ->get();
 
@@ -40,7 +38,6 @@ class ListPasienRanap extends Controller
 
         return view('bpjs.listpasien-ranap', [
             'daftarPasien'=>$daftarPasien,
-            'penjamnin'=>$penjamnin,
             'tanggl1'=>$tanggl1,
             'tanggl2'=>$tanggl2,
         ]);
@@ -49,7 +46,6 @@ class ListPasienRanap extends Controller
     function cariListPaseinRanap(Request $request){
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
-        $penjamnin = 'BPJ';
 
         $daftarPasien = DB::table('reg_periksa')
             ->select('reg_periksa.no_rkm_medis',
@@ -68,7 +64,6 @@ class ListPasienRanap extends Controller
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
-            ->where('reg_periksa.kd_pj','=', $penjamnin)
             ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
             ->get();
 
@@ -78,7 +73,6 @@ class ListPasienRanap extends Controller
 
         return view('bpjs.listpasien-ranap', [
             'daftarPasien'=>$daftarPasien,
-            'penjamnin'=>$penjamnin,
             'tanggl1'=>$tanggl1,
             'tanggl2'=>$tanggl2,
         ]);
