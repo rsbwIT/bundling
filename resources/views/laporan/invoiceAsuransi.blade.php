@@ -217,7 +217,7 @@
                         </tr>
                     </table>
                     {{-- TEMPLATE --}}
-                    @include('laporan.component.cetak-invoice-asuransi.template-cetak3')
+                    @include('laporan.component.cetak-invoice-asuransi.template-cetak2')
                     {{-- //TEMPLATE --}}
                     <table border="0px" width="1000px" class="mt-4">
                         <tr>

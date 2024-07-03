@@ -111,7 +111,6 @@
                                 {{ $item->getPotongan->sum('totalbiaya') }}
                             </td>
                             <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                <b>
                                     {{ $item->getRegistrasi->sum('totalbiaya') +
                                         $item->getObat->sum('totalbiaya') +
                                         $item->getReturObat->sum('totalbiaya') +
@@ -128,7 +127,6 @@
                                         $item->getTambahan->sum('totalbiaya') +
                                         $item->getKamarInap->sum('totalbiaya') +
                                         $item->getPotongan->sum('totalbiaya') }}
-                                </b>
                             </td>
                         </tr>
                         @foreach ($item->getDetailCob as $cob)

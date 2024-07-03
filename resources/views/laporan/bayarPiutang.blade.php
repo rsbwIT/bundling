@@ -13,6 +13,9 @@
                     </button>
                 </div>
             </div>
+            <nav aria-label="Page navigation example">
+                {{ $bayarPiutang->appends(request()->input())->links('pagination::bootstrap-4') }}
+            </nav>
             <table class="table table-sm table-bordered table-striped table-responsive text-xs mb-3"
                 style="white-space: nowrap;" id="tableToCopy">
                 <tbody>
@@ -262,9 +265,6 @@
                     </tr>
                 </tbody>
             </table>
-            <nav aria-label="Page navigation example">
-                {{ $bayarPiutang->appends(request()->input())->links('pagination::bootstrap-4') }}
-            </nav>
         </div>
     </div>
     <script>
