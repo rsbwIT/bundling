@@ -60,7 +60,7 @@
             <tr>
                 <td>
                     @if ($getDetailAsuransi->nama_perusahaan == '' || $getDetailAsuransi->nama_perusahaan == '-')
-                        <b>Hubungi IT Unuk Melengkapi Nama Asuransi</b>
+                        <b>Input dimenu maping asuransi untuk melengkapi nama asuransi</b>
                     @else
                         {{ $getDetailAsuransi->nama_perusahaan }}
                     @endif
@@ -69,7 +69,7 @@
             <tr>
                 <td>
                     @if ($getDetailAsuransi->alamat_asuransi == '' || $getDetailAsuransi->alamat_asuransi == '-')
-                        <b>Hubungi IT Unuk Melengkapi Alamat Asuransi</b>
+                        <b>Input dimenu maping asuransi untuk melengkapi alamat asuransi</b>
                     @else
                         @php
                             $text = $getDetailAsuransi->alamat_asuransi;
@@ -101,7 +101,7 @@
             <tr>
                 <td>
                     @if ($getDetailAsuransi->nama_perusahaan == '' || $getDetailAsuransi->nama_perusahaan == '-')
-                        <b>Hubungi IT Unuk Melengkapi Nama Asuransi</b>
+                        <b>Input dimenu maping asuransi untuk melengkapi nama asuransi</b>
                     @else
                         {{ $getDetailAsuransi->nama_perusahaan }}
                     @endif dengan perincian sebagai berikut:
