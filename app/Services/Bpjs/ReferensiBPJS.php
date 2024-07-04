@@ -2,6 +2,7 @@
 
 namespace App\Services\Bpjs;
 
+use Bpjs\Bridging\Icare\BridgeIcare;
 use Bpjs\Bridging\Antrol\BridgeAntrol;
 use Bpjs\Bridging\Vclaim\BridgeVclaim;
 
@@ -9,11 +10,13 @@ class ReferensiBPJS
 {
     protected $bridging;
     protected $antrol;
+    protected $icare;
 
     public function __construct()
 	{
 		$this->bridging = new BridgeVclaim();
         $this->antrol = new BridgeAntrol();
+        $this->icare = new BridgeIcare();
 	}
 
     // 1 REFERENSI ======================================================
@@ -112,6 +115,7 @@ class ReferensiBPJS
             return [];
         }
     }
+
     public function CariSuplesi($nokartuPeserta, $tglSep ) {
         try {
             $endpoint = 'sep/JasaRaharja/Suplesi/'.$nokartuPeserta.'/tglPelayanan/'.$tglSep;

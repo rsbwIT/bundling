@@ -69,7 +69,7 @@ class InvoiceAsuransi extends Controller
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', $kdPenjamin)
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->whereBetween('piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut', $status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
             ->get();
@@ -256,7 +256,7 @@ class InvoiceAsuransi extends Controller
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', $getListInvoice->kode_asuransi)
-            ->whereBetween('reg_periksa.tgl_registrasi', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])
+            ->whereBetween('piutang_pasien.tgltempo', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])
             ->where('reg_periksa.status_lanjut', $getListInvoice->status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
             ->get();
