@@ -22,10 +22,15 @@
                 </td>
                 <td>{{ $item->no_rkm_medis }}</td>
                 <td>
+                    @foreach ($item->getTglKeluar as $detail)
+                        @php
+                           $tgl_keluar = $detail->tgl_keluar;
+                        @endphp
+                    @endforeach
                     @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
                         {{ $item->tgl_byr }}
                     @else
-                        {{ date('d', strtotime($item->tgl_masuk)) . ' - ' . date('d', strtotime($item->tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_keluar))) }}-{{ date('Y', strtotime($item->tgl_keluar)) }}
+                        {{ date('d', strtotime($item->tgl_masuk))}}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }} - {{ date('d', strtotime($tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_keluar))) }}-{{ date('Y', strtotime($tgl_keluar)) }}
                     @endif
                 </td>
             </tr>
