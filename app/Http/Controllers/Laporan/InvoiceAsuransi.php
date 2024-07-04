@@ -29,7 +29,15 @@ class InvoiceAsuransi extends Controller
         $lamiran = $request->lampiran;
 
         $getDetailAsuransi = DB::table('penjab')
-            ->select('penjab.kd_pj', 'penjab.png_jawab', 'penjab.nama_perusahaan', 'penjab.alamat_asuransi', 'penjab.no_telp', 'penjab.status')
+            ->select(
+                'penjab.kd_pj',
+                'penjab.png_jawab',
+                'penjab.no_telp',
+                'penjab.status',
+                'bw_maping_asuransi.nama_perusahaan',
+                'bw_maping_asuransi.alamat_asuransi'
+            )
+            ->leftJoin('bw_maping_asuransi', 'penjab.kd_pj', '=', 'bw_maping_asuransi.kd_pj')
             ->where('penjab.kd_pj', $kdPenjamin)
             ->where('penjab.status', '=', '1')
             ->first();
@@ -52,10 +60,13 @@ class InvoiceAsuransi extends Controller
                 'piutang_pasien.tgltempo AS tgl_byr',
                 'kamar_inap.tgl_keluar',
                 'kamar_inap.tgl_masuk',
-                'pasien.no_rkm_medis'
+                'pasien.no_rkm_medis',
+                'bw_peserta_asuransi.nomor_kartu',
+                'bw_peserta_asuransi.nomor_klaim'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', $kdPenjamin)
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
@@ -196,8 +207,6 @@ class InvoiceAsuransi extends Controller
     // 3 CETAK ======================================================================
     public function cetakInvoice(Request $request)
     {
-
-
         $getListInvoice = DB::table('bw_invoice_asuransi')
             ->select(
                 'bw_invoice_asuransi.nomor_tagihan',
@@ -214,7 +223,15 @@ class InvoiceAsuransi extends Controller
             ->first();
 
         $getDetailAsuransi = DB::table('penjab')
-            ->select('penjab.kd_pj', 'penjab.png_jawab', 'penjab.nama_perusahaan', 'penjab.alamat_asuransi', 'penjab.no_telp', 'penjab.status')
+            ->select(
+                'penjab.kd_pj',
+                'penjab.png_jawab',
+                'penjab.no_telp',
+                'penjab.status',
+                'bw_maping_asuransi.nama_perusahaan',
+                'bw_maping_asuransi.alamat_asuransi'
+            )
+            ->leftJoin('bw_maping_asuransi', 'penjab.kd_pj', '=', 'bw_maping_asuransi.kd_pj')
             ->where('penjab.kd_pj', $getListInvoice->kode_asuransi)
             ->where('penjab.status', '=', '1')
             ->first();
@@ -230,10 +247,13 @@ class InvoiceAsuransi extends Controller
                 'piutang_pasien.tgltempo AS tgl_byr',
                 'kamar_inap.tgl_keluar',
                 'kamar_inap.tgl_masuk',
-                'pasien.no_rkm_medis'
+                'pasien.no_rkm_medis',
+                'bw_peserta_asuransi.nomor_kartu',
+                'bw_peserta_asuransi.nomor_klaim'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', $getListInvoice->kode_asuransi)
             ->whereBetween('reg_periksa.tgl_registrasi', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])

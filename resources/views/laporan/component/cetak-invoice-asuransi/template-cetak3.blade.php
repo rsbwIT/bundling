@@ -17,8 +17,8 @@
             <tr>
                 <td width="15px" class="text-center">{{ $key + 1 }}. </td>
                 <td>{{ $item->nm_pasien }}</td>
-                <td>NIP</td>
-                <td>No Klaim</td>
+                <td>{{ $item->nomor_kartu }}</td>
+                <td>{{ $item->nomor_klaim }}</td>
                 <td class="text-center">{{ $item->no_rkm_medis }}</td>
                 <td class="text-center">
                     @if ($item->tgl_masuk == null && $item->tgl_keluar == null)

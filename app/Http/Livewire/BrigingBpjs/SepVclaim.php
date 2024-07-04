@@ -78,7 +78,7 @@ class SepVclaim extends Component
         $getDokterDpjp = DB::table('maping_dokter_dpjpvclaim')
             ->select('dokter.nm_dokter')
             ->join('dokter', 'maping_dokter_dpjpvclaim.kd_dokter', '=', 'dokter.kd_dokter')
-            ->where('maping_dokter_dpjpvclaim.kd_dokter_bpjs', $this->getSep[0]['dpjp']['kdDPJP'])
+            ->where('maping_dokter_dpjpvclaim.kd_dokter_bpjs', $this->getSep[0]['kontrol']['kdDokter'])
             ->first();
         $jnsPelayanan = ($this->getSep[0]['jnsPelayanan'] = 'Rawat Jalan') ? '2' : '1';
         $tglpulang = ($this->getSep[0]['jnsPelayanan'] = 'Rawat Jalan') ? $this->getSep[0]['tglSep'] . " " . "00:00:00" : '0000-00-00 00:00:00';
@@ -87,7 +87,7 @@ class SepVclaim extends Component
         $cob = ($this->getSep[0]['cob'] == '0') ? '0. Tidak' : '1.Ya';
         $katarak = ($this->getSep[0]['katarak'] == '0') ? '0. Tidak' : '1.Ya';
         $suplesi = ($this->getSep[0]['lokasiKejadian']['ketKejadian'] == null) ? '0. Tidak' : '1.Ya';
-        dd([
+        $data = [
             'no_sep' => $this->getSep[0]['noSep'],
             'no_rawat' => $this->getRegPeriksa[0]['no_rawat'],
             'tglsep' => $this->getSep[0]['tglSep'],
@@ -140,11 +140,8 @@ class SepVclaim extends Component
             'asesmenpelayanan' => $this->getSep[0]['assestmenPel']['kode'],
             'kddpjplayanan' => $this->getSep[0]['dpjp']['kdDPJP'],
             'nmdpjplayanan' => $this->getSep[0]['dpjp']['nmDPJP'],
-        ]);
-        // dd([
-        //     $this->getSep,
-        //     $this->getSep2,
-        //     $this->getRegPeriksa
-        // ]);
+        ];
+        // DB::table('users')->insert($data);
+
     }
 }

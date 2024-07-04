@@ -19,11 +19,11 @@
                 <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
                 <td>
                     @foreach ($item->getNomorNota as $detail)
-                    {{ substr(str_replace(':', '', $detail->nm_perawatan), -6) }}
+                        {{ substr(str_replace(':', '', $detail->nm_perawatan), -6) }}
                     @endforeach
                 </td>
-                <td>Kartu</td>
-                <td>No Klaim</td>
+                <td>{{ $item->nomor_kartu }}</td>
+                <td>{{ $item->nomor_klaim }}</td>
                 <td>{{ $item->no_rkm_medis }}</td>
                 <td>
                     @if ($item->tgl_masuk == null && $item->tgl_keluar == null)

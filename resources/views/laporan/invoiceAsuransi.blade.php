@@ -1,6 +1,8 @@
 @extends('..layout.layoutDashboard')
 @section('title', 'Invoice Asuransi')
-
+@push('styles')
+    @livewireStyles
+@endpush
 @section('konten')
     <div class="card">
         <div class="card-header">
@@ -276,58 +278,94 @@
                     </table>
                 </div>
             @endif
-            <div class="card table-responsive p-0" style="height: 450px;"">
-                <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
-                    <thead>
-                        <tr>
-                            <th colspan="6" class="text-center"><b>Riwayat Tagihan</b></th>
-                        </tr>
-                    </thead>
-                    <thead>
-                        <tr>
-                            <th>Nomor Tagihan</th>
-                            <th>Nama Asuransi</th>
-                            <th>Tanggal Cetak</th>
-                            <th>Status Lanjut</th>
-                            <th>Lamiran</th>
-                            <th>Act</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($getListInvoice as $invoice)
-                            <tr>
-                                <td>
-                                    {{ $invoice->nomor_tagihan }}
-                                </td>
-                                <td>{{ $invoice->nama_asuransi }}</td>
-                                <td>{{ $invoice->tgl_cetak }}</td>
-                                <td>{{ $invoice->status_lanjut }}</td>
-                                <td>{{ $invoice->lamiran }}</td>
-                                <td>
-                                    <div>
-                                        <form action="{{ url('cetak-invoice-asuransi') }}">
-                                            @csrf
-                                            <div class="input-group input-group-sm">
-                                                <input hidden name="nomor_tagihan" value="{{ $invoice->nomor_tagihan }}">
-                                                <select class="form-control form-control-sm" name="template"
-                                                    id="">
-                                                    <option value="template1">Template 1</option>
-                                                    <option value="template2">Template 2</option>
-                                                    <option value="template3">Template 3</option>
-                                                </select>
-                                                <span class="input-group-append">
-                                                    <button type="submit" class="btn btn-primary btn-flat"><i
-                                                            class="fa fa-print" aria-hidden="true"></i></button>
-                                                </span>
+            <div class="card p-0 card-primary card-tabs" style="height: 450px;"">
+                <div class="card-header p-0 pt-1">
+                    <ul class="nav nav-tabs" id="tabCetak" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill"
+                                href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home"
+                                aria-selected="true">Riwayat Invoice</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="custom-tabs-one-profile-tab" data-toggle="pill"
+                                href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile"
+                                aria-selected="false">Peserta</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="mapingAsuransi" data-toggle="pill"
+                                href="#custom-mapingAsuransi" role="tab" aria-controls="custom-mapingAsuransi"
+                                aria-selected="false">Maping Asuransi</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content table-responsive" id="tabCetakContent">
+                    <div class="tab-pane fade show active" id="custom-tabs-one-home" role="tabpanel"
+                        aria-labelledby="custom-tabs-one-home-tab">
+                        <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
+                            <thead>
+                                <tr>
+                                    <th colspan="6" class="text-center"><b>Riwayat Tagihan</b></th>
+                                </tr>
+                            </thead>
+                            <thead>
+                                <tr>
+                                    <th>Nomor Tagihan</th>
+                                    <th>Nama Asuransi</th>
+                                    <th>Tanggal Cetak</th>
+                                    <th>Status Lanjut</th>
+                                    <th>Lamiran</th>
+                                    <th>Act</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($getListInvoice as $invoice)
+                                    <tr>
+                                        <td>
+                                            {{ $invoice->nomor_tagihan }}
+                                        </td>
+                                        <td>{{ $invoice->nama_asuransi }}</td>
+                                        <td>{{ $invoice->tgl_cetak }}</td>
+                                        <td>{{ $invoice->status_lanjut }}</td>
+                                        <td>{{ $invoice->lamiran }}</td>
+                                        <td>
+                                            <div>
+                                                <form action="{{ url('cetak-invoice-asuransi') }}">
+                                                    @csrf
+                                                    <div class="input-group input-group-sm">
+                                                        <input hidden name="nomor_tagihan"
+                                                            value="{{ $invoice->nomor_tagihan }}">
+                                                        <select class="form-control form-control-sm" name="template"
+                                                            id="">
+                                                            <option value="template1">Template 1</option>
+                                                            <option value="template2">Template 2</option>
+                                                            <option value="template3">Template 3</option>
+                                                        </select>
+                                                        <span class="input-group-append">
+                                                            <button type="submit" class="btn btn-primary btn-flat"><i
+                                                                    class="fa fa-print" aria-hidden="true"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </form>
                                             </div>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-one-profile" role="tabpanel"
+                        aria-labelledby="custom-tabs-one-profile-tab">
+                        @livewire('laporan.invoce-asuransi')
+                    </div>
+                    <div class="tab-pane fade" id="custom-mapingAsuransi" role="tabpanel"
+                    aria-labelledby="mapingAsuransi">
+                    @livewire('laporan.maping-asuransi')
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    @livewireScripts
+@endpush
