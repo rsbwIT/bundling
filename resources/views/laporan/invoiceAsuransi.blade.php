@@ -295,57 +295,7 @@
                 <div class="tab-content table-responsive" id="tabCetakContent">
                     <div class="tab-pane fade show active" id="custom-tabs-one-home" role="tabpanel"
                         aria-labelledby="custom-tabs-one-home-tab">
-                        <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
-                            <thead>
-                                <tr>
-                                    <th colspan="6" class="text-center"><b>Riwayat Tagihan</b></th>
-                                </tr>
-                            </thead>
-                            <thead>
-                                <tr>
-                                    <th>Nomor Tagihan</th>
-                                    <th>Nama Asuransi</th>
-                                    <th>Tanggal Cetak</th>
-                                    <th>Status Lanjut</th>
-                                    <th>Lamiran</th>
-                                    <th>Act</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($getListInvoice as $invoice)
-                                    <tr>
-                                        <td>
-                                            {{ $invoice->nomor_tagihan }}
-                                        </td>
-                                        <td>{{ $invoice->nama_asuransi }}</td>
-                                        <td>{{ $invoice->tgl_cetak }}</td>
-                                        <td>{{ $invoice->status_lanjut }}</td>
-                                        <td>{{ $invoice->lamiran }}</td>
-                                        <td>
-                                            <div>
-                                                <form action="{{ url('cetak-invoice-asuransi') }}">
-                                                    @csrf
-                                                    <div class="input-group input-group-sm">
-                                                        <input hidden name="nomor_tagihan"
-                                                            value="{{ $invoice->nomor_tagihan }}">
-                                                        <select class="form-control form-control-sm" name="template"
-                                                            id="">
-                                                            <option value="template1">Template 1</option>
-                                                            <option value="template2">Template 2</option>
-                                                            <option value="template3">Template 3</option>
-                                                        </select>
-                                                        <span class="input-group-append">
-                                                            <button type="submit" class="btn btn-primary btn-flat"><i
-                                                                    class="fa fa-print" aria-hidden="true"></i></button>
-                                                        </span>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        @livewire('laporan.riwayat-invoce')
                     </div>
                     <div class="tab-pane fade" id="custom-tabs-one-profile" role="tabpanel"
                         aria-labelledby="custom-tabs-one-profile-tab">

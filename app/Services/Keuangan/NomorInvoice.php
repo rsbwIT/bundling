@@ -16,7 +16,7 @@ class NomorInvoice
             $getNumber = DB::table('bw_invoice_asuransi')
                 ->select('nomor_tagihan')
                 ->where('kode_asuransi', $kode_asurasni)
-                // ->where('status_lanjut', $status_lanjut)
+                ->where('status_lanjut', $status_lanjut)
                 ->where(DB::raw('SUBSTRING_INDEX(SUBSTRING_INDEX(nomor_tagihan, "/", -1), "/", 1)'), $year)
                 ->orderBy('nomor_tagihan', 'desc')
                 ->first();
