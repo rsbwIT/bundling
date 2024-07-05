@@ -2,23 +2,20 @@
     <form wire:submit.prevent='getRiwayat()'>
         <div class="row my-2 mx-2">
             <div class="col-md-3">
-                <input class="form-control form-control-sm" placeholder="Pencarian.."
-                    wire:model.lazy="carinomor">
+                <input class="form-control form-control-sm" placeholder="Pencarian.." wire:model.lazy="carinomor">
             </div>
             <div class="col-md-2">
-                    <input class="form-control form-control-sm" type="date"
-                    wire:model.lazy="tgl_cetak1">
+                <input class="form-control form-control-sm" type="date" wire:model.lazy="tgl_cetak1">
             </div>
             <div class="col-md-2">
-                    <input class="form-control form-control-sm" type="date"
-                    wire:model.lazy="tgl_cetak2">
+                <input class="form-control form-control-sm" type="date" wire:model.lazy="tgl_cetak2">
             </div>
             <div class="col-md-2">
                 <div class="input-group input-group-sm">
-                      <select class="form-control" name="" id="" wire:model.lazy="status_lanjut">
+                    <select class="form-control" name="" id="" wire:model.lazy="status_lanjut">
                         <option value="Ranap">Ranap</option>
                         <option value="Ralan">Ralan</option>
-                      </select>
+                    </select>
                     <span class="input-group-append">
                         <button class="btn btn-sidebar btn-primary btn-sm">
                             <i class="fas fa-search fa-fw"></i>
@@ -92,21 +89,20 @@
                     <td>{{ $invoice->lamiran }}</td>
                     <td>
                         <div>
-                            <form action="{{ url('cetak-invoice-asuransi') }}">
-                                @csrf
-                                <div class="input-group input-group-sm">
-                                    <input hidden name="nomor_tagihan" value="{{ $invoice->nomor_tagihan }}">
-                                    <select class="form-control form-control-sm" name="template" id="">
-                                        <option value="template1">Template 1</option>
-                                        <option value="template2">Template 2</option>
-                                        <option value="template3">Template 3</option>
-                                    </select>
-                                    <span class="input-group-append">
-                                        <button type="submit" class="btn btn-primary btn-flat"><i class="fa fa-print"
-                                                aria-hidden="true"></i></button>
-                                    </span>
-                                </div>
-                            </form>
+                            <div class="input-group input-group-sm">
+                                <select class="form-control form-control-sm" wire:model.lazy="template">
+                                    <option value="template1">Template 1</option>
+                                    <option value="template2">Template 2</option>
+                                    <option value="template3">Template 3</option>
+                                </select>
+                                <span class="input-group-append">
+                                    <a target="_blank"
+                                        href="{{ url('cetak-invoice-asuransi', ['nomor_tagihan' => urlencode($invoice->nomor_tagihan), 'template' => $template]) }}"
+                                        class="btn btn-primary btn-flat"><i class="fa fa-print"
+                                            aria-hidden="true"></i></a>
+                                </span>
+                            </div>
+
                         </div>
                     </td>
                 </tr>

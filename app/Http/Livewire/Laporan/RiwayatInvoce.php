@@ -12,11 +12,13 @@ class RiwayatInvoce extends Component
     public $tgl_cetak2;
     public $carinomor;
     public $status_lanjut;
+    public $template;
     public function mount()
     {
         $this->tgl_cetak1 = date('Y-m-d');
         $this->tgl_cetak2 = date('Y-m-d');
         $this->status_lanjut = "Ranap";
+        $this->template = "template2";
         $this->getRiwayat();
     }
 

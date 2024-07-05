@@ -218,7 +218,7 @@ class InvoiceAsuransi extends Controller
     }
 
     // 3 CETAK ======================================================================
-    public function cetakInvoice(Request $request)
+    public function cetakInvoice(Request $request, $nomor_tagihan, $template)
     {
         $getListInvoice = DB::table('bw_invoice_asuransi')
             ->select(
@@ -232,7 +232,7 @@ class InvoiceAsuransi extends Controller
                 'bw_invoice_asuransi.status_lanjut',
                 'bw_invoice_asuransi.lamiran'
             )
-            ->where('bw_invoice_asuransi.nomor_tagihan', $request->nomor_tagihan)
+            ->where('bw_invoice_asuransi.nomor_tagihan', urldecode($nomor_tagihan))
             ->first();
 
         $getDetailAsuransi = DB::table('penjab')
@@ -384,7 +384,7 @@ class InvoiceAsuransi extends Controller
             'getDetailAsuransi' => $getDetailAsuransi,
             'getListInvoice' => $getListInvoice,
             'getPasien' => $getPasien,
-            'template' => $request->template,
+            'template' => $template,
         ]);
     }
 }
