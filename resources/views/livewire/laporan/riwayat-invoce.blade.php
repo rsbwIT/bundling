@@ -38,20 +38,11 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="form-group">
-                                                    <label>nama_perusahaan
+                                                    <label>Tanggal Cetak
                                                     </label>
-                                                    {{-- <input type="text" class="form-control"
+                                                    <input type="date" class="form-control"
                                                         placeholder="Enter ..."
-                                                        wire:model.defer="getAsuransi.{{ $key }}.nama_perusahaan"> --}}
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="form-group">
-                                                    <label>alamat_asuransi
-                                                    </label>
-                                                    {{-- <input type="text" class="form-control"
-                                                        placeholder="Enter ..."
-                                                        wire:model.defer="getAsuransi.{{ $key }}.alamat_asuransi"> --}}
+                                                        wire:model.defer="getListInvoice.{{ $key }}.tgl_cetak">
                                                 </div>
                                             </div>
                                         </div>

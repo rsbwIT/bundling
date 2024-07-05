@@ -24,13 +24,28 @@ class RiwayatInvoce extends Component
     }
 
     public $getListInvoice;
+    public $tgl_cetak;
     public function getRiwayat()
     {
         $this->getListInvoice = DB::table('bw_invoice_asuransi')
-            ->select('bw_invoice_asuransi.nomor_tagihan', 'bw_invoice_asuransi.kode_asuransi', 'bw_invoice_asuransi.nama_asuransi', 'bw_invoice_asuransi.alamat_asuransi', 'bw_invoice_asuransi.tanggl1', 'bw_invoice_asuransi.tanggl2', 'bw_invoice_asuransi.tgl_cetak', 'bw_invoice_asuransi.status_lanjut', 'bw_invoice_asuransi.lamiran')
+            ->select(
+                'bw_invoice_asuransi.nomor_tagihan',
+                'bw_invoice_asuransi.kode_asuransi',
+                'bw_invoice_asuransi.nama_asuransi',
+                'bw_invoice_asuransi.alamat_asuransi',
+                'bw_invoice_asuransi.tanggl1',
+                'bw_invoice_asuransi.tanggl2',
+                'bw_invoice_asuransi.tgl_cetak',
+                'bw_invoice_asuransi.status_lanjut',
+                'bw_invoice_asuransi.lamiran'
+            )
             ->where('bw_invoice_asuransi.kode_asuransi', $this->kdPenjamin)
             ->where('bw_invoice_asuransi.status_lanjut', $this->status_lanjut)
             ->orderBy('bw_invoice_asuransi.nomor_tagihan', 'desc')
             ->get();
     }
+
+    // function FunctionName() : Returntype {
+
+    // }
 }
