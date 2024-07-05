@@ -32,10 +32,10 @@ class MapingAsuransi extends Component
 
     public $nama_perusahaan;
     public $alamat_asuransi;
-    function updateInsertNomor($key, $kd_pj)  {
+    function updateInsertNomor($keyAsuransi, $kd_pj)  {
         DB::table('bw_maping_asuransi')->updateOrInsert(
             ['kd_pj' => $kd_pj],
-            ['nama_perusahaan' => $this->getAsuransi[$key]['nama_perusahaan'], 'alamat_asuransi' => $this->getAsuransi[$key]['alamat_asuransi']]
+            ['nama_perusahaan' => $this->getAsuransi[$keyAsuransi]['nama_perusahaan'], 'alamat_asuransi' => $this->getAsuransi[$keyAsuransi]['alamat_asuransi']]
         );
     }
 }

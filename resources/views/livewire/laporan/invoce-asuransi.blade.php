@@ -30,7 +30,7 @@
         </thead>
         <tbody>
             @if ($getPasien && $getPasien->isNotEmpty())
-                @foreach ($getPasien as $key => $pasien)
+                @foreach ($getPasien as $keyInvoice => $pasien)
                     <tr>
                         <td>{{ $pasien->nm_pasien }}</td>
                         <td>{{ $pasien->no_rkm_medis }}</td>
@@ -42,10 +42,10 @@
                         <td>{{ $pasien->no_tlp }}</td>
                         <td>
                             <div class="badge-group">
-                                <a data-toggle="modal" data-target="#updateModal{{ $key }}"
+                                <a data-toggle="modal" data-target="#ModalkeyInvoice{{ $keyInvoice }}"
                                     class="text-warning mx-2" href="#"><i class="fas fa-edit"></i></a>
                             </div>
-                            <div class="modal fade" id="updateModal{{ $key }}" tabindex="-1"
+                            <div class="modal fade" id="ModalkeyInvoice{{ $keyInvoice }}" tabindex="-1"
                                     role="dialog" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
@@ -64,7 +64,7 @@
                                                             </label>
                                                             <input type="text" class="form-control"
                                                                 placeholder="Enter ..."
-                                                                wire:model.defer="getPasien.{{ $key }}.nomor_kartu">
+                                                                wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_kartu">
                                                         </div>
                                                     </div>
                                                     <div class="col-12">
@@ -73,15 +73,15 @@
                                                             </label>
                                                             <input type="text" class="form-control"
                                                                 placeholder="Enter ..."
-                                                                wire:model.defer="getPasien.{{ $key }}.nomor_klaim">
+                                                                wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_klaim">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer justify-content-between">
                                                 <button type="button" class="btn btn-primary"
-                                                    wire:click="updateInsertNomor('{{ $key }}', '{{ $pasien->no_rkm_medis }}')"
-                                                    data-dismiss="modal">Update</button>
+                                                    wire:click="updateInsertNomor('{{ $keyInvoice }}', '{{ $pasien->no_rkm_medis }}')"
+                                                    data-dismiss="modal">Simpan</button>
                                             </div>
                                         </div>
                                     </div>

@@ -16,15 +16,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($getListInvoice as $key => $invoice)
+            @foreach ($getListInvoice as $keyRiwayat => $invoice)
                 <tr>
                     <td>
                         <div class="badge-group">
-                            <a data-toggle="modal" data-target="#updateModal{{ $key }}" class="text-warning mx-2"
+                            <a data-toggle="modal" data-target="#ModalkeyRiwayat{{ $keyRiwayat }}" class="text-warning mx-2"
                                 href="#"><i class="fas fa-edit"></i></a>
                             {{ $invoice->nomor_tagihan }}
                         </div>
-                        <div class="modal fade" id="updateModal{{ $key }}" tabindex="-1" role="dialog"
+                        <div class="modal fade" id="ModalkeyRiwayat{{ $keyRiwayat }}" tabindex="-1" role="dialog"
                             aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -42,15 +42,15 @@
                                                     </label>
                                                     <input type="date" class="form-control"
                                                         placeholder="Enter ..."
-                                                        wire:model.defer="getListInvoice.{{ $key }}.tgl_cetak">
+                                                        wire:model.defer="getListInvoice.{{ $keyRiwayat }}.tgl_cetak">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-primary"
-                                            wire:click="updateRiwayatinvoice('{{ $key }}', '{{ $invoice->nomor_tagihan }}')"
-                                            data-dismiss="modal">Update</button>
+                                            wire:click="updateRiwayatinvoice('{{ $keyRiwayat }}', '{{ $invoice->nomor_tagihan }}')"
+                                            data-dismiss="modal">Simpan</button>
                                     </div>
                                 </div>
                             </div>

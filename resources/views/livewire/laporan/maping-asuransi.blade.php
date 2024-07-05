@@ -26,18 +26,18 @@
         </thead>
         <tbody>
             @if ($getAsuransi && $getAsuransi->isNotEmpty())
-                @foreach ($getAsuransi as $key => $asuransi)
+                @foreach ($getAsuransi as $keyAsuransi => $asuransi)
                     <tr>
                         <td class="text-center">{{ $asuransi->kd_pj }}</td>
                         <td>{{ $asuransi->png_jawab }}</td>
                         <td>{{ $asuransi->nama_perusahaan }}</td>
                         <td>{{ $asuransi->alamat_asuransi }}</td>
-                        <td>
+                        <td>200533
                             <div class="badge-group">
-                                <a data-toggle="modal" data-target="#updateModal{{ $key }}"
+                                <a data-toggle="modal" data-target="#ModalkeyAsuransi{{ $keyAsuransi }}"
                                     class="text-warning mx-2" href="#"><i class="fas fa-edit"></i></a>
                             </div>
-                            <div class="modal fade" id="updateModal{{ $key }}" tabindex="-1"
+                            <div class="modal fade" id="ModalkeyAsuransi{{ $keyAsuransi }}" tabindex="-1"
                                     role="dialog" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
@@ -56,7 +56,7 @@
                                                             </label>
                                                             <input type="text" class="form-control"
                                                                 placeholder="Enter ..."
-                                                                wire:model.defer="getAsuransi.{{ $key }}.nama_perusahaan">
+                                                                wire:model.defer="getAsuransi.{{ $keyAsuransi }}.nama_perusahaan">
                                                         </div>
                                                     </div>
                                                     <div class="col-12">
@@ -65,15 +65,15 @@
                                                             </label>
                                                             <input type="text" class="form-control"
                                                                 placeholder="Enter ..."
-                                                                wire:model.defer="getAsuransi.{{ $key }}.alamat_asuransi">
+                                                                wire:model.defer="getAsuransi.{{ $keyAsuransi }}.alamat_asuransi">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer justify-content-between">
                                                 <button type="button" class="btn btn-primary"
-                                                    wire:click="updateInsertNomor('{{ $key }}')"
-                                                    data-dismiss="modal">Update</button>
+                                                    wire:click="updateInsertNomor('{{ $keyAsuransi }}')"
+                                                    data-dismiss="modal">Simpan</button>
                                             </div>
                                         </div>
                                     </div>

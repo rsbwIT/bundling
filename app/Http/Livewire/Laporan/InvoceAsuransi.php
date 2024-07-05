@@ -46,10 +46,10 @@ class InvoceAsuransi extends Component
     public $nomor_kartu;
     public $nomor_klaim;
     public $no_tlp;
-    function updateInsertNomor($key, $no_rkm_medis)  {
+    function updateInsertNomor($keyInvoice, $no_rkm_medis)  {
         DB::table('bw_peserta_asuransi')->updateOrInsert(
             ['no_rkm_medis' => $no_rkm_medis],
-            ['nomor_kartu' => $this->getPasien[$key]['nomor_kartu'], 'nomor_klaim' => $this->getPasien[$key]['nomor_klaim']]
+            ['nomor_kartu' => $this->getPasien[$keyInvoice]['nomor_kartu'], 'nomor_klaim' => $this->getPasien[$keyInvoice]['nomor_klaim']]
         );
     }
 }
