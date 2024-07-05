@@ -161,12 +161,12 @@
             </td>
             <td class="text-right px-2"><b>
                 {{ number_format($getPasien->sum(function ($item) {
-                        return $item->getObat->sum('totalbiaya');
+                        return $item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya');
                 }), 0, ',', '.') }}</b>
             </td>
             <td class="text-right px-2"><b>
                 {{ number_format($getPasien->sum(function ($item) {
-                        return $item->getRegistrasi->sum('totalbiaya');
+                        return $item->getRegistrasi->sum('totalbiaya') ;
                 }), 0, ',', '.') }}</b>
             </td>
             {{-- <td class="text-right px-2"><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b> --}}
