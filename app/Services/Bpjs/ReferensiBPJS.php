@@ -125,4 +125,11 @@ class ReferensiBPJS
         }
     }
 
+    // ICARE
+    public function validateICARE($data)
+    {
+            $endpoint = 'api/rs/validate';
+            return $this->icare->postRequest($endpoint, $data);
+    }
+
 }

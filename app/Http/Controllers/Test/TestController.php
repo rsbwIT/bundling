@@ -20,15 +20,14 @@ class TestController extends Controller
     {
         $this->referensi = new ReferensiBPJS;
     }
-
-    // public function dashboardTanggal() {
-    //     $data = DB::table('')
-    //     ->where('')
-    //     ->delete();
-
-    //     dd($data);
-    // }
-
+    public function dashboardTanggal() {
+        $data = [
+            'param' => "2200009338321",
+            'kodedokter' => "11111",
+        ];
+        $data = $this->referensi->validateICARE(json_encode($data));
+        dd($data);
+    }
 
 
 
