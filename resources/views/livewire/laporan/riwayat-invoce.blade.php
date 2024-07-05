@@ -1,4 +1,35 @@
 <div>
+    <form wire:submit.prevent='getRiwayat()'>
+        <div class="row my-2 mx-2">
+            <div class="col-md-3">
+                <input class="form-control form-control-sm" placeholder="Pencarian.."
+                    wire:model.lazy="carinomor">
+            </div>
+            <div class="col-md-2">
+                    <input class="form-control form-control-sm" type="date"
+                    wire:model.lazy="tgl_cetak1">
+            </div>
+            <div class="col-md-2">
+                    <input class="form-control form-control-sm" type="date"
+                    wire:model.lazy="tgl_cetak2">
+            </div>
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                      <select class="form-control" name="" id="" wire:model.lazy="status_lanjut">
+                        <option value="Ranap">Ranap</option>
+                        <option value="Ralan">Ralan</option>
+                      </select>
+                    <span class="input-group-append">
+                        <button class="btn btn-sidebar btn-primary btn-sm">
+                            <i class="fas fa-search fa-fw"></i>
+                            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" wire:loading
+                                wire:target='getRiwayat'></span>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
     <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
         <thead>
             <tr>
@@ -20,8 +51,8 @@
                 <tr>
                     <td>
                         <div class="badge-group">
-                            <a data-toggle="modal" data-target="#ModalkeyRiwayat{{ $keyRiwayat }}" class="text-warning mx-2"
-                                href="#"><i class="fas fa-edit"></i></a>
+                            <a data-toggle="modal" data-target="#ModalkeyRiwayat{{ $keyRiwayat }}"
+                                class="text-warning mx-2" href="#"><i class="fas fa-edit"></i></a>
                             {{ $invoice->nomor_tagihan }}
                         </div>
                         <div class="modal fade" id="ModalkeyRiwayat{{ $keyRiwayat }}" tabindex="-1" role="dialog"
@@ -40,8 +71,7 @@
                                                 <div class="form-group">
                                                     <label>Tanggal Cetak
                                                     </label>
-                                                    <input type="date" class="form-control"
-                                                        placeholder="Enter ..."
+                                                    <input type="date" class="form-control" placeholder="Enter ..."
                                                         wire:model.defer="getListInvoice.{{ $keyRiwayat }}.tgl_cetak">
                                                 </div>
                                             </div>
