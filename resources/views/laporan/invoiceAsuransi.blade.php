@@ -50,12 +50,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1">
-                        <select class="form-control form-control-sm" name="status_lanjut" id="">
-                            <option value="Ranap">Ranap</option>
-                            <option value="Ralan">Ralan</option>
-                        </select>
-                    </div>
                     <div class="col-md-2">
                         <div class="input-group input-group-xs">
                             <input type="date" name="tgl1" class="form-control form-control-sm"
@@ -72,17 +66,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-1">
-                        <select class="form-control form-control-sm" name="lampiran" id="">
-                            <option>Lampiran</option>
-                            <option value="01 (Satu) lembar">01</option>
-                            <option value="02 (Dau) lembar">02</option>
-                            <option value="03 (Tiga) lembar">03</option>
-                            <option value="04 (Empat) lembar">04</option>
-                            <option value="05 (Lima) lembar">05</option>
-                            <option value="06 (Enam) lembar">06</option>
-                            <option value="07 (Tujuh) lembar">07</option>
+                    <div class="col-md-2">
+                        <select class="form-control form-control-sm" name="status_lanjut" id="">
+                            <option value="Ranap">Ranap</option>
+                            <option value="Ralan">Ralan</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -116,7 +103,8 @@
                     <input hidden name="tanggl2" value="{{ $tanggl2 }}">
                     <input hidden name="tgl_cetak" value="{{ $tgl_cetak }}">
                     <input hidden name="status_lanjut" value="{{ $status_lanjut }}">
-                    <input hidden name="lamiran" value="{{ $lamiran }}">
+                    <input hidden name="lamiran"
+                        value="{{ count($getPasien) }} ({{ \App\Services\Keuangan\NomorInvoice::Terbilang(count($getPasien)) }} ) Lembar">
                     <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-save" aria-hidden="true"></i>
                         Simpan</button>
                 </form>
@@ -144,7 +132,8 @@
                                 Lampiran
                             </td>
                             <td>
-                                : {{ $lamiran }}
+                                : {{ count($getPasien) }}
+                                ({{ \App\Services\Keuangan\NomorInvoice::Terbilang(count($getPasien)) }} ) Lembar
                             </td>
                         </tr>
                         <tr>
@@ -225,9 +214,11 @@
                         <tr>
                             <td><b>Terbilang : </b>
                                 @if ($getPasien)
-                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum(function ($item) {
-                                        return $item->getTotalBiaya->sum('totalpiutang');
-                                    })) }}
+                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
+                                        $getPasien->sum(function ($item) {
+                                            return $item->getTotalBiaya->sum('totalpiutang');
+                                        }),
+                                    ) }}
                                 @endif rupiah.
                             </td>
 
@@ -244,7 +235,7 @@
                         <tr>
                             <td>Bandar Lampung,
                                 {{ date('d', strtotime($tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_cetak))) }}-{{ date('Y', strtotime($tgl_cetak)) }}<br />
-                               <b> Direktur Utama</b>
+                                <b> Direktur Utama</b>
                                 <br>
                                 <br>
                                 <br>
@@ -295,9 +286,9 @@
                                 aria-selected="false">Peserta</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="mapingAsuransi" data-toggle="pill"
-                                href="#custom-mapingAsuransi" role="tab" aria-controls="custom-mapingAsuransi"
-                                aria-selected="false">Maping Asuransi</a>
+                            <a class="nav-link" id="mapingAsuransi" data-toggle="pill" href="#custom-mapingAsuransi"
+                                role="tab" aria-controls="custom-mapingAsuransi" aria-selected="false">Maping
+                                Asuransi</a>
                         </li>
                     </ul>
                 </div>
@@ -361,8 +352,8 @@
                         @livewire('laporan.invoce-asuransi')
                     </div>
                     <div class="tab-pane fade" id="custom-mapingAsuransi" role="tabpanel"
-                    aria-labelledby="mapingAsuransi">
-                    @livewire('laporan.maping-asuransi')
+                        aria-labelledby="mapingAsuransi">
+                        @livewire('laporan.maping-asuransi')
                     </div>
                 </div>
             </div>

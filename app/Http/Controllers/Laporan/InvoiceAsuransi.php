@@ -26,7 +26,6 @@ class InvoiceAsuransi extends Controller
         $tgl_cetak = $request->tgl_cetak;
         $status_lanjut = $request->status_lanjut;
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
-        $lamiran = $request->lampiran;
 
         $getDetailAsuransi = DB::table('penjab')
             ->select(
@@ -43,8 +42,8 @@ class InvoiceAsuransi extends Controller
             ->first();
 
         try {
-            $kodeSts = $status_lanjut == "Ranap" ? "KEURI" : "KEURJ";
-            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_pj, $kodeSts);
+
+            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_pj, $status_lanjut );
         } catch (\Throwable $th) {
             $getNomorSurat = [];
         }
@@ -189,7 +188,6 @@ class InvoiceAsuransi extends Controller
 
         return view('laporan.invoiceAsuransi', [
             'getListInvoice' => $getListInvoice,
-            'lamiran' => $lamiran,
             'tanggl1' => $tanggl1,
             'tanggl2' => $tanggl2,
             'tgl_cetak' => $tgl_cetak,

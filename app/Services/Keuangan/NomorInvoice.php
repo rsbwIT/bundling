@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\DB;
 
 class NomorInvoice
 {
-    public static function getAutonumberInvoice($kode_asurasni, $status)
+    public static function getAutonumberInvoice($kode_asurasni, $status_lanjut)
     {
         try {
+            $kodeSts = $status_lanjut == "Ranap" ? "KEURI" : "KEURJ";
             $year = date('Y');
             $getNumber = DB::table('bw_invoice_asuransi')
                 ->select('nomor_tagihan')
                 ->where('kode_asuransi', $kode_asurasni)
+                // ->where('status_lanjut', $status_lanjut)
                 ->where(DB::raw('SUBSTRING_INDEX(SUBSTRING_INDEX(nomor_tagihan, "/", -1), "/", 1)'), $year)
                 ->orderBy('nomor_tagihan', 'desc')
                 ->first();
@@ -26,7 +28,7 @@ class NomorInvoice
             $newNumberFormatted = str_pad($newNumber, 4, '0', STR_PAD_LEFT);
             $month = BulanRomawi::getBulanRomawi();
 
-            $finalInvoiceNumber = "{$newNumberFormatted}/{$kode_asurasni}/{$status}/RSBW/{$month}/{$year}";
+            $finalInvoiceNumber = "{$newNumberFormatted}/{$kode_asurasni}/{$kodeSts}/RSBW/{$month}/{$year}";
 
             return $finalInvoiceNumber;
         } catch (\Throwable $th) {
