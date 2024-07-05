@@ -141,7 +141,7 @@
             <tr>
                 <td>Bandar Lampung,
                     {{ date('d', strtotime($getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime($getListInvoice->tgl_cetak)) }}<br />
-                    Direktur Utama
+                  <b>Direktur Utama</b>
                     <br>
                     <br>
                     <br>

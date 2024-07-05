@@ -244,7 +244,7 @@
                         <tr>
                             <td>Bandar Lampung,
                                 {{ date('d', strtotime($tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_cetak))) }}-{{ date('Y', strtotime($tgl_cetak)) }}<br />
-                                Direktur Utama
+                               <b> Direktur Utama</b>
                                 <br>
                                 <br>
                                 <br>
