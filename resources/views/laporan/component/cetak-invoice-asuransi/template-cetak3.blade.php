@@ -170,6 +170,7 @@
                 }), 0, ',', '.') }}</b>
             </td>
             {{-- <td class="text-right px-2"><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b> --}}
+             <td>
                 <b>Rp.
                     {{ number_format(
                         $getPasien->sum(function ($item) {

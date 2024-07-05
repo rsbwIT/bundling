@@ -225,9 +225,12 @@
                         <tr>
                             <td><b>Terbilang : </b>
                                 @if ($getPasien)
-                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum('total_biaya')) }}
+                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang($getPasien->sum(function ($item) {
+                                        return $item->getTotalBiaya->sum('totalpiutang');
+                                    })) }}
                                 @endif rupiah.
                             </td>
+
                         </tr>
                     </table>
                     <table border="0px" width="1000px">
