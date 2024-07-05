@@ -47,6 +47,11 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-primary"
+                                            wire:click="updateRiwayatinvoice('{{ $key }}', '{{ $invoice->nomor_tagihan }}')"
+                                            data-dismiss="modal">Update</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

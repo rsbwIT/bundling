@@ -81,7 +81,7 @@
                                             <div class="modal-footer justify-content-between">
                                                 <button type="button" class="btn btn-primary"
                                                     wire:click="updateInsertNomor('{{ $key }}', '{{ $pasien->no_rkm_medis }}')"
-                                                    data-dismiss="modal">Simpan</button>
+                                                    data-dismiss="modal">Update</button>
                                             </div>
                                         </div>
                                     </div>

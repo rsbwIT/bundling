@@ -25,6 +25,7 @@ class RiwayatInvoce extends Component
 
     public $getListInvoice;
     public $tgl_cetak;
+    public $nomor_tagihan;
     public function getRiwayat()
     {
         $this->getListInvoice = DB::table('bw_invoice_asuransi')
@@ -45,7 +46,11 @@ class RiwayatInvoce extends Component
             ->get();
     }
 
-    // function FunctionName() : Returntype {
-
-    // }
+    public function updateRiwayatinvoice($key, $nomor_tagihan)
+    {
+        DB::table('bw_invoice_asuransi')->where('nomor_tagihan', $nomor_tagihan)
+            ->update([
+                'tgl_cetak' =>  $this->getListInvoice[$key]['tgl_cetak']
+            ]);
+    }
 }
