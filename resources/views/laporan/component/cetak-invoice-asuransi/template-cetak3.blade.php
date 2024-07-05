@@ -169,7 +169,16 @@
                         return $item->getRegistrasi->sum('totalbiaya');
                 }), 0, ',', '.') }}</b>
             </td>
-            <td class="text-right px-2"><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b>
+            {{-- <td class="text-right px-2"><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b> --}}
+                <b>Rp.
+                    {{ number_format(
+                        $getPasien->sum(function ($item) {
+                            return $item->getTotalBiaya->sum('totalpiutang');
+                        }),
+                        0,
+                        ',',
+                        '.',
+                    ) }}</b>
             </td>
         </tr>
     @endif

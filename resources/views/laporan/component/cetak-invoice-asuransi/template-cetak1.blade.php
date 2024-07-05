@@ -14,7 +14,8 @@
                 <td width="50px"></td>
                 <td width="15px">{{ $key + 1 }}. </td>
                 <td>{{ $item->nm_pasien }}</td>
-                <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
+                {{-- <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td> --}}
+                <td>Rp. {{ number_format($item->getTotalBiaya->sum('totalpiutang'), 0, ',', '.') }}</td>
                 <td>
                     @foreach ($item->getNomorNota as $detail)
                         {{ str_replace(':', '', $detail->nm_perawatan) }}
@@ -39,7 +40,17 @@
             <td></td>
             <td></td>
             <td></td>
-            <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td>
+            {{-- <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td> --}}
+            <td><b>Rp.
+                {{ number_format(
+                    $getPasien->sum(function ($item) {
+                        return $item->getTotalBiaya->sum('totalpiutang');
+                    }),
+                    0,
+                    ',',
+                    '.',
+                ) }}</b>
+        </td>
         </tr>
     @endif
 </table>
