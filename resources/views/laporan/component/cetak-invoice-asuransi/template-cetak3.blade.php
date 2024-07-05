@@ -135,7 +135,7 @@
                 <td class="text-right px-2">{{ number_format($item->getLaborat->sum('totalbiaya'), 0, ',', '.') }}</td>
                 <td class="text-right px-2">{{ number_format($item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya'), 0, ',', '.') }}</td>
                 <td class="text-right px-2">{{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, ',', '.') }}</td>
-                <td class="text-right px-2"><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td>
+                <td class="text-right px-2">Rp. {{ number_format($item->total_biaya, 0, ',', '.') }} ,</td>
             </tr>
         @endforeach
         <tr>
