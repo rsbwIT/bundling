@@ -22,7 +22,6 @@
     <br>
     <br>
     <br>
-    <br>
     <div class="card py-4  d-flex justify-content-center align-items-center mb-5" style="font-style: italic;">
         <table border="0px" width="1000px">
             <tr>
