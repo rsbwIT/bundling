@@ -12,7 +12,7 @@ class NomorInvoice
     {
         try {
             $year = date('Y');
-            $getNumber = DB::connection('db_con2')->table('bw_invoice_asuransi')
+            $getNumber = DB::table('bw_invoice_asuransi')
                 ->select('nomor_tagihan')
                 ->where('kode_asuransi', $kode_asurasni)
                 ->where(DB::raw('SUBSTRING_INDEX(SUBSTRING_INDEX(nomor_tagihan, "/", -1), "/", 1)'), $year)

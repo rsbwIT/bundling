@@ -74,6 +74,13 @@ class InvoiceAsuransi extends Controller
             ->groupBy('reg_periksa.no_rawat')
             ->get();
         $getPasien->map(function ($item) {
+            // getTotalBiaya
+            $item->getTotalBiaya = DB::table('detail_piutang_pasien')
+                ->select('totalpiutang')
+                ->where('no_rawat', $item->no_rawat)
+                ->where('kd_pj', 'not like', 'BPJ')
+                ->get();
+            // TANGGAL KELUAR
             $item->getTglKeluar = DB::table('kamar_inap')
                 ->select('tgl_keluar')
                 ->where('no_rawat', $item->no_rawat)
@@ -81,6 +88,7 @@ class InvoiceAsuransi extends Controller
                 ->orderByDesc('jam_keluar')
                 ->limit(1)
                 ->get();
+            // NOMOR NOTA
             $item->getNomorNota = DB::table('billing')
                 ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
@@ -268,6 +276,13 @@ class InvoiceAsuransi extends Controller
             ->groupBy('reg_periksa.no_rawat')
             ->get();
         $getPasien->map(function ($item) {
+            // getTotalBiaya
+            $item->getTotalBiaya = DB::table('detail_piutang_pasien')
+                ->select('totalpiutang')
+                ->where('no_rawat', $item->no_rawat)
+                ->where('kd_pj', 'not like', 'BPJ')
+                ->get();
+            // TANGGAL KELUAR
             $item->getTglKeluar = DB::table('kamar_inap')
                 ->select('tgl_keluar')
                 ->where('no_rawat', $item->no_rawat)
@@ -275,6 +290,7 @@ class InvoiceAsuransi extends Controller
                 ->orderByDesc('jam_keluar')
                 ->limit(1)
                 ->get();
+            // NOMOR NOTA
             $item->getNomorNota = DB::table('billing')
                 ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
