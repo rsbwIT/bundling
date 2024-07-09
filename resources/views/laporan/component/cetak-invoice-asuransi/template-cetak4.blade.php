@@ -17,7 +17,7 @@
                 <td width="150px">{{ $item->nm_pasien }}</td>
                 <td width="250px">
                     @foreach ($item->getDiagnosa as $detail)
-                        {{ $detail->kd_penyakit }}-{{$detail->nm_penyakit}}
+                        {{ $detail->kd_penyakit }} - ( {{$detail->nm_penyakit}} )
                     @endforeach
                 </td>
                 {{-- <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td> --}}

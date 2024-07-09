@@ -97,6 +97,7 @@
                     @csrf
                     <input hidden name="nomor_tagihan" value="{{ $getNomorSurat }}">
                     <input hidden name="kode_asuransi" value="{{ $getDetailAsuransi->kd_pj }}">
+                    <input hidden name="cari_kode_asuransi" value="{{ implode(',', $kdPenjamin) }}">
                     <input hidden name="nama_asuransi" value="{{ $getDetailAsuransi->nama_perusahaan }}">
                     <input hidden name="alamat_asuransi" value="{{ $getDetailAsuransi->alamat_asuransi }}">
                     <input hidden name="tanggl1" value="{{ $tanggl1 }}">

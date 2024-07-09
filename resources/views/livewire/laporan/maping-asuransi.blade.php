@@ -32,7 +32,7 @@
                         <td>{{ $asuransi->png_jawab }}</td>
                         <td>{{ $asuransi->nama_perusahaan }}</td>
                         <td>{{ $asuransi->alamat_asuransi }}</td>
-                        <td>200533
+                        <td>
                             <div class="badge-group">
                                 <a data-toggle="modal" data-target="#ModalkeyAsuransi{{ $keyAsuransi }}"
                                     class="text-warning mx-2" href="#"><i class="fas fa-edit"></i></a>

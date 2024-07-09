@@ -67,7 +67,11 @@ class InvoiceAsuransi extends Controller
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->where('reg_periksa.kd_pj', $kdPenjamin)
+            ->where(function ($query) use ( $kdPenjamin) {
+                if ($kdPenjamin) {
+                    $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+                }
+            })
             ->whereBetween('piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut', $status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
@@ -192,6 +196,7 @@ class InvoiceAsuransi extends Controller
             'tanggl2' => $tanggl2,
             'tgl_cetak' => $tgl_cetak,
             'status_lanjut' => $status_lanjut,
+            'kdPenjamin' => $kdPenjamin,
             'url' => $url,
             'penjab' => $penjab,
             'getDetailAsuransi' => $getDetailAsuransi,
@@ -206,6 +211,7 @@ class InvoiceAsuransi extends Controller
         DB::table('bw_invoice_asuransi')->insert([
             'nomor_tagihan' => $request->nomor_tagihan,
             'kode_asuransi' => $request->kode_asuransi,
+            'cari_kode_asuransi' => $request->cari_kode_asuransi,
             'nama_asuransi' => $request->nama_asuransi,
             'alamat_asuransi' => $request->alamat_asuransi,
             'tanggl1' => $request->tanggl1,
@@ -224,6 +230,7 @@ class InvoiceAsuransi extends Controller
             ->select(
                 'bw_invoice_asuransi.nomor_tagihan',
                 'bw_invoice_asuransi.kode_asuransi',
+                'bw_invoice_asuransi.cari_kode_asuransi',
                 'bw_invoice_asuransi.nama_asuransi',
                 'bw_invoice_asuransi.alamat_asuransi',
                 'bw_invoice_asuransi.tanggl1',
@@ -234,7 +241,7 @@ class InvoiceAsuransi extends Controller
             )
             ->where('bw_invoice_asuransi.nomor_tagihan', urldecode($nomor_tagihan))
             ->first();
-
+        $kdPenjamin = explode(',',$getListInvoice->cari_kode_asuransi);
         $getDetailAsuransi = DB::table('penjab')
             ->select(
                 'penjab.kd_pj',
@@ -268,7 +275,11 @@ class InvoiceAsuransi extends Controller
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->where('reg_periksa.kd_pj', $getListInvoice->kode_asuransi)
+            ->where(function ($query) use ( $kdPenjamin) {
+                if ($kdPenjamin) {
+                    $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+                }
+            })
             ->whereBetween('piutang_pasien.tgltempo', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])
             ->where('reg_periksa.status_lanjut', $getListInvoice->status_lanjut)
             ->groupBy('reg_periksa.no_rawat')
