@@ -77,6 +77,16 @@ class ReferensiBPJS
             return [] ;
         }
     }
+    // Batal Antran MJKN
+    public function batalAntranMJKN($data)
+    {
+        try {
+            $endpoint = 'antrean/batal';
+            return $this->antrol->postRequest($endpoint, $data, "POST");
+        } catch (\Throwable $th) {
+            return [] ;
+        }
+    }
 
     public function updateJadwalHfisDokter($data)
     {

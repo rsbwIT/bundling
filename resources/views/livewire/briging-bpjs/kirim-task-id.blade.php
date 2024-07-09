@@ -110,7 +110,36 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-8">
+                    @if ($batalAntran)
+                        @foreach ($batalAntran as $item)
+                            @if (is_object($item))
+                                @if ($item->code == 200)
+                                    <div class="alert alert-warning alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert"
+                                            aria-hidden="true">&times;</button>
+                                        <i class="icon fas fa-check"></i>Antrean pasien berhasil dibatalkan!
+                                        {{ $item->code }}
+                                        status : {{ $item->message }}
+                                    </div>
+                                @else
+                                    <div class="alert alert-danger alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert"
+                                            aria-hidden="true">&times;</button>
+                                        <i class="icon fas fa-ban"></i> Antrean pasien Gagal dibatalkan!!
+                                        {{ $item->code }}
+                                        status : {{ $item->message }}
+                                    </div>
+                                @endif
+                            @endif
+                        @endforeach
+                    @endif
+                </div>
+            </div>
         </div>
+
+
     </div>
     <div class="card">
         <div class="card-header">
@@ -169,6 +198,7 @@
                         <th>Status Cekin</th>
                         <th>Jam Praktek</th>
                         <th>Validasi <span class="text-xs">(jam Cekin)</span></th>
+                        <th>Act</th>
                         {{-- <th>Pilih TaskId</th>
                         <th class="text-center">Act</th> --}}
                     </tr>
@@ -191,6 +221,10 @@
                             <td>{{ $item->status }}</td>
                             <td>{{ $item->jampraktek }}</td>
                             <td>{{ $item->validasi }}</td>
+                            <td> <button data-toggle="modal" style="background: none; border: none;"
+                                    wire:click="batalAntranMJKN"><i class="fas fa-times"></i>
+                                </button>
+                            </td>
                             {{-- <td>
                                 <select class="form-control form-control-sm" wire:model.lazy="taskid.{{$key}}">
                                     <option selected>Pilih Task id</option>
@@ -227,11 +261,12 @@
                                                             <div>
                                                                 <span class="fas bg-danger">X</span>
                                                                 <div class="timeline-item">
-                                                                    <span class="time"><i
-                                                                            class="fas fa-clock"></i> xx-xx-xxxx
+                                                                    <span class="time"><i class="fas fa-clock"></i>
+                                                                        xx-xx-xxxx
                                                                         xx:xx:xx</span>
                                                                     <h3 class="timeline-header"><span
-                                                                            class="text-danger">Belum Ada Task-Id Terkirim</span>
+                                                                            class="text-danger">Belum Ada Task-Id
+                                                                            Terkirim</span>
                                                                     </h3>
                                                                 </div>
                                                             </div>
@@ -253,13 +288,14 @@
                                                                                 $text = 'text-success';
                                                                             }
                                                                         @endphp
-                                                                        <span class="fas {{$bg}}">
+                                                                        <span class="fas {{ $bg }}">
                                                                             {{ $data->taskid }}</span>
                                                                         <div class="timeline-item">
                                                                             <span class="time"><i
                                                                                     class="fas fa-clock"></i>
                                                                                 {{ $data->waktu }}</span>
-                                                                            <h4 class="timeline-header"><a class="{{$text}}"
+                                                                            <h4 class="timeline-header"><a
+                                                                                    class="{{ $text }}"
                                                                                     href="#">{{ $data->kodebooking }}</a>
                                                                             </h4>
                                                                             <div class="timeline-body">

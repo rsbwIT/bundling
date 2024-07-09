@@ -146,4 +146,19 @@ class KirimTaskId extends Component
             $this->getTaskid = null;
         }
     }
+
+    public $batalAntran;
+    public function batalAntranMJKN() {
+        try {
+            $jayParsedAry = [
+                "kodebooking" => '16032021A001A',
+                "keterangan" => "Terjadi perubahan jadwal dokter, silahkan daftar kembali"
+            ];
+            $data = json_decode($this->ReferensiBpjs->batalAntranMJKN(json_encode($jayParsedAry)));
+            $this->batalAntran = [$data->metadata];
+        } catch (\Throwable $th) {
+            $this->batalAntran = [];
+        }
+
+    }
 }
