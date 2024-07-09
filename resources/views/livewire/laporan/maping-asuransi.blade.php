@@ -63,7 +63,7 @@
                                                         <div class="form-group">
                                                             <label>alamat_asuransi
                                                             </label>
-                                                            <input type="textarea" class="form-control"
+                                                            <textarea  type="text" class="form-control"
                                                                 placeholder="Enter ..."
                                                                 wire:model.defer="getAsuransi.{{ $keyAsuransi }}.alamat_asuransi">
                                                         </div>
