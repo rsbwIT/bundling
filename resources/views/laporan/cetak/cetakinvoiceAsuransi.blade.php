@@ -118,6 +118,8 @@
             @include('laporan.component.cetak-invoice-asuransi.template-cetak2')
         @elseif ($template == 'template3')
             @include('laporan.component.cetak-invoice-asuransi.template-cetak3')
+        @elseif ($template == 'template4')
+            @include('laporan.component.cetak-invoice-asuransi.template-cetak4')
         @endif
         {{-- //TEMPLATE --}}
         <table border="0px" width="1000px" class="mt-4">

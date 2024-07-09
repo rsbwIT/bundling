@@ -94,6 +94,7 @@
                                     <option value="template1">Template 1</option>
                                     <option value="template2">Template 2</option>
                                     <option value="template3">Template 3</option>
+                                    <option value="template4">Template 4</option>
                                 </select>
                                 <span class="input-group-append">
                                     <a target="_blank"

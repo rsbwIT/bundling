@@ -43,7 +43,7 @@ class InvoiceAsuransi extends Controller
 
         try {
 
-            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_pj, $status_lanjut );
+            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_pj, $status_lanjut);
         } catch (\Throwable $th) {
             $getNomorSurat = [];
         }
@@ -274,6 +274,13 @@ class InvoiceAsuransi extends Controller
             ->groupBy('reg_periksa.no_rawat')
             ->get();
         $getPasien->map(function ($item) {
+            // Get Diagnosa
+            $item->getDiagnosa = DB::table('diagnosa_pasien')
+                ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit')
+                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+                ->where('diagnosa_pasien.no_rawat', $item->no_rawat)
+                ->where('diagnosa_pasien.prioritas', '1')
+                ->get();
             // getTotalBiaya
             $item->getTotalBiaya = DB::table('detail_piutang_pasien')
                 ->select('totalpiutang')
