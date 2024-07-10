@@ -33,7 +33,7 @@
                         <td>{{ $asuransi->png_jawab }}</td>
                         <td>{{ $asuransi->nama_perusahaan }}</td>
                         <td>{{ $asuransi->alamat_asuransi }}</td>
-                        <td width="100px">-</td>
+                        <td width="100px">{{ $asuransi->kd_surat }}</td>
                         <td>
                             <div class="badge-group">
                                 <a data-toggle="modal" data-target="#ModalkeyAsuransi{{ $keyAsuransi }}"
@@ -52,6 +52,15 @@
                                             </div>
                                             <div class="modal-body">
                                                 <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>kd_surat
+                                                            </label>
+                                                            <input type="text" class="form-control" required
+                                                                placeholder="Enter ..."
+                                                                wire:model.defer="getAsuransi.{{ $keyAsuransi }}.kd_surat">
+                                                        </div>
+                                                    </div>
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>nama_perusahaan

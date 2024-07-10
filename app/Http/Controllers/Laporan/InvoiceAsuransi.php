@@ -34,7 +34,8 @@ class InvoiceAsuransi extends Controller
                 'penjab.no_telp',
                 'penjab.status',
                 'bw_maping_asuransi.nama_perusahaan',
-                'bw_maping_asuransi.alamat_asuransi'
+                'bw_maping_asuransi.alamat_asuransi',
+                'bw_maping_asuransi.kd_surat',
             )
             ->leftJoin('bw_maping_asuransi', 'penjab.kd_pj', '=', 'bw_maping_asuransi.kd_pj')
             ->where('penjab.kd_pj', $kdPenjamin)
@@ -43,7 +44,7 @@ class InvoiceAsuransi extends Controller
 
         try {
 
-            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_pj, $status_lanjut);
+            $getNomorSurat = NomorInvoice::getAutonumberInvoice($getDetailAsuransi->kd_surat, $status_lanjut);
         } catch (\Throwable $th) {
             $getNomorSurat = [];
         }
