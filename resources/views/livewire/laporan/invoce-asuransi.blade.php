@@ -44,47 +44,54 @@
                             <div class="badge-group">
                                 <a data-toggle="modal" data-target="#ModalkeyInvoice{{ $keyInvoice }}"
                                     class="text-warning mx-2" href="#"><i class="fas fa-edit"></i></a>
+                                @if (Session::has('sucsess' . $pasien->no_rkm_medis))
+                                    <span class="text-success"><i class="fas fa-check"></i>
+                                    </span>
+                                @elseif (Session::has('gagal' . $pasien->no_rkm_medis))
+                                    <span class="text-success"><i class="fas fa-check"></i>
+                                    </span>
+                                @endif
                             </div>
                             <div class="modal fade" id="ModalkeyInvoice{{ $keyInvoice }}" tabindex="-1"
-                                    role="dialog" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Nomor Kartu/Klaim : {{$pasien->nm_pasien}}</h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>nomor_kartu
-                                                            </label>
-                                                            <input type="text" class="form-control"
-                                                                placeholder="Enter ..."
-                                                                wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_kartu">
-                                                        </div>
+                                role="dialog" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Nomor Kartu/Klaim : {{ $pasien->nm_pasien }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <label>nomor_kartu
+                                                        </label>
+                                                        <input type="text" class="form-control" required
+                                                            placeholder="Enter ..."
+                                                            wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_kartu">
                                                     </div>
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>nomor_klaim
-                                                            </label>
-                                                            <input type="text" class="form-control"
-                                                                placeholder="Enter ..."
-                                                                wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_klaim">
-                                                        </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <label>nomor_klaim
+                                                        </label>
+                                                        <input type="text" class="form-control" required
+                                                            placeholder="Enter ..."
+                                                            wire:model.defer="getPasien.{{ $keyInvoice }}.nomor_klaim">
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer justify-content-between">
-                                                <button type="button" class="btn btn-primary"
-                                                    wire:click="updateInsertNomor('{{ $keyInvoice }}', '{{ $pasien->no_rkm_medis }}')"
-                                                    data-dismiss="modal">Simpan</button>
-                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="button" class="btn btn-primary"
+                                                wire:click="updateInsertNomor('{{ $keyInvoice }}', '{{ $pasien->no_rkm_medis }}')"
+                                                data-dismiss="modal">Simpan</button>
                                         </div>
                                     </div>
+                                </div>
                             </div>
                         </td>
                     </tr>

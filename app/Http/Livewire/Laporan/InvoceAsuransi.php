@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Laporan;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Session;
 class InvoceAsuransi extends Component
 {
     public function mount() {
@@ -47,9 +47,14 @@ class InvoceAsuransi extends Component
     public $nomor_klaim;
     public $no_tlp;
     function updateInsertNomor($keyInvoice, $no_rkm_medis)  {
-        DB::table('bw_peserta_asuransi')->updateOrInsert(
-            ['no_rkm_medis' => $no_rkm_medis],
-            ['nomor_kartu' => $this->getPasien[$keyInvoice]['nomor_kartu'], 'nomor_klaim' => $this->getPasien[$keyInvoice]['nomor_klaim']]
-        );
+        try {
+            DB::table('bw_peserta_asuransi')->updateOrInsert(
+                ['no_rkm_medis' => $no_rkm_medis],
+                ['nomor_kartu' => $this->getPasien[$keyInvoice]['nomor_kartu'], 'nomor_klaim' => $this->getPasien[$keyInvoice]['nomor_klaim']]
+            );
+            Session::flash('sucsess' . $no_rkm_medis, 'Berhasil');
+        } catch (\Throwable $th) {
+            Session::flash('gagal' . $no_rkm_medis, 'gagal');
+        }
     }
 }

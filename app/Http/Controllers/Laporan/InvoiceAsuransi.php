@@ -298,6 +298,12 @@ class InvoiceAsuransi extends Controller
                 ->where('no_rawat', $item->no_rawat)
                 ->where('kd_pj', 'not like', 'BPJ')
                 ->get();
+            // getTotalBiaya2
+            $item->getTotalBiaya2 = DB::table('detail_piutang_pasien')
+                ->select('totalpiutang', 'bw_maping_asuransi.nama_perusahaan')
+                ->where('no_rawat', $item->no_rawat)
+                ->leftJoin('bw_maping_asuransi','detail_piutang_pasien.kd_pj','=','bw_maping_asuransi.kd_pj')
+                ->get();
             // TANGGAL KELUAR
             $item->getTglKeluar = DB::table('kamar_inap')
                 ->select('tgl_keluar')

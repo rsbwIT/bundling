@@ -169,9 +169,8 @@
                         return $item->getRegistrasi->sum('totalbiaya') ;
                 }), 0, ',', '.') }}</b>
             </td>
-            {{-- <td class="text-right px-2"><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b> --}}
              <td>
-                <b>Rp.
+                {{-- <b>Rp.
                     {{ number_format(
                         $getPasien->sum(function ($item) {
                             return $item->getTotalBiaya->sum('totalpiutang');
@@ -179,8 +178,14 @@
                         0,
                         ',',
                         '.',
-                    ) }}</b>
+                    ) }}</b> --}}
             </td>
         </tr>
+        @foreach ($item->getTotalBiaya2 as $totalbiaya2)
+            <tr>
+                <td colspan="10" class="text-right"><b>{{$totalbiaya2->nama_perusahaan}} </b></td>
+                <td class="text-right"><b> Rp. {{number_format($totalbiaya2->totalpiutang, 0, ',', '.')}}</b> </td>
+            </tr>
+        @endforeach
     @endif
 </table>
