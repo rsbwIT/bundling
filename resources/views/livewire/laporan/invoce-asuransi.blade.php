@@ -48,7 +48,7 @@
                                     <span class="text-success"><i class="fas fa-check"></i>
                                     </span>
                                 @elseif (Session::has('gagal' . $pasien->no_rkm_medis))
-                                    <span class="text-success"><i class="fas fa-check"></i>
+                                    <span class="text-danger"><i class="fas fa-ban"></i>
                                     </span>
                                 @endif
                             </div>
