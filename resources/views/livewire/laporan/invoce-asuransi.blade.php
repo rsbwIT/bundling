@@ -19,8 +19,8 @@
             <tr>
                 <th>Nama Pasien/Peserta</th>
                 <th>No Rekam Medis</th>
-                <th>Nomor Klaim</th>
                 <th>Nomor Kartu</th>
+                <th>Nomor Klaim</th>
                 <th>Jenis Kelamin</th>
                 <th>Nama Ibu</th>
                 <th>Tanggal Daftar</th>
