@@ -21,6 +21,7 @@
                 <th>Penjamin/Asuransi</th>
                 <th>Nama Perusahaan/Asuransi</th>
                 <th>Alamat Asuransi</th>
+                <th>Kode Surat</th>
                 <th>Act</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                         <td>{{ $asuransi->png_jawab }}</td>
                         <td>{{ $asuransi->nama_perusahaan }}</td>
                         <td>{{ $asuransi->alamat_asuransi }}</td>
+                        <td width="100px">-</td>
                         <td>
                             <div class="badge-group">
                                 <a data-toggle="modal" data-target="#ModalkeyAsuransi{{ $keyAsuransi }}"
