@@ -151,7 +151,7 @@ class KirimTaskId extends Component
     public function batalAntranMJKN() {
         try {
             $jayParsedAry = [
-                "kodebooking" => '16032021A001A',
+                "kodebooking" => $this->kodebooking,
                 "keterangan" => "Terjadi perubahan jadwal dokter, silahkan daftar kembali"
             ];
             $data = json_decode($this->ReferensiBpjs->batalAntranMJKN(json_encode($jayParsedAry)));

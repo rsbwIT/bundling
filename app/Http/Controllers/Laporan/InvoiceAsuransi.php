@@ -98,6 +98,7 @@ class InvoiceAsuransi extends Controller
                 ->where('no_rawat', $item->no_rawat)
                 ->where('no', '=', 'No.Nota')
                 ->get();
+             // DETAIL TINDAKAN=====================================
             // REGISTRASI
             $item->getRegistrasi = DB::table('billing')
                 ->select('totalbiaya')
@@ -319,6 +320,7 @@ class InvoiceAsuransi extends Controller
                 ->where('no_rawat', $item->no_rawat)
                 ->where('no', '=', 'No.Nota')
                 ->get();
+            // DETAIL TINDAKAN=====================================
             // REGISTRASI
             $item->getRegistrasi = DB::table('billing')
                 ->select('totalbiaya')

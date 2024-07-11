@@ -21,16 +21,18 @@
                 <td>{{ $item->nomor_klaim }}</td>
                 <td class="text-center">{{ $item->no_rkm_medis }}</td>
                 <td class="text-center">
-                        @foreach ($item->getTglKeluar as $detail)
-                            @php
-                               $tgl_keluar = $detail->tgl_keluar;
-                            @endphp
-                        @endforeach
-                        @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
-                            {{ $item->tgl_byr }}
-                        @else
-                            {{ date('d', strtotime($item->tgl_masuk))}}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }} - {{ date('d', strtotime($tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_keluar))) }}-{{ date('Y', strtotime($tgl_keluar)) }}
-                        @endif
+                    @foreach ($item->getTglKeluar as $detail)
+                        @php
+                            $tgl_keluar = $detail->tgl_keluar;
+                        @endphp
+                    @endforeach
+                    @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
+                        {{ $item->tgl_byr }}
+                    @else
+                        {{ date('d', strtotime($item->tgl_masuk)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }}
+                        -
+                        {{ date('d', strtotime($tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_keluar))) }}-{{ date('Y', strtotime($tgl_keluar)) }}
+                    @endif
                 </td>
                 <td>
                     <table width="100%">
@@ -133,44 +135,74 @@
                     </table>
                 </td>
                 <td class="text-right px-2">{{ number_format($item->getLaborat->sum('totalbiaya'), 0, ',', '.') }}</td>
-                <td class="text-right px-2">{{ number_format($item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya'), 0, ',', '.') }}</td>
-                <td class="text-right px-2">{{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, ',', '.') }}</td>
+                <td class="text-right px-2">
+                    {{ number_format($item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya'), 0, ',', '.') }}
+                </td>
+                <td class="text-right px-2">{{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, ',', '.') }}
+                </td>
                 <td class="text-right px-2">Rp. {{ number_format($item->total_biaya, 0, ',', '.') }} ,</td>
             </tr>
+            @foreach ($item->getTotalBiaya2 as $totalbiaya2)
+                <tr>
+                    <td colspan="10" class="text-right">{{ $totalbiaya2->nama_perusahaan }}</td>
+                    <td class="text-right">Rp. {{ number_format($totalbiaya2->totalpiutang, 0, ',', '.') }}
+                    </td>
+                </tr>
+            @endforeach
         @endforeach
         <tr>
             <td colspan="6"></td>
             <td class="text-right px-2"><b>
-                {{ number_format($getPasien->sum(function ($item) {
-                        return
-                        $item->getRalanDokter->sum('totalbiaya')+
-                        $item->getRalanDrParamedis->sum('totalbiaya')+
-                        $item->getRalanParamedis->sum('totalbiaya')+
-                        $item->getRanapDrParamedis->sum('totalbiaya')+
-                        $item->getRanapParamedis->sum('totalbiaya')+
-                        $item->getTambahan->sum('totalbiaya')+
-                        $item->getKamarInap->sum('totalbiaya')+
-                        $item->getOprasi->sum('totalbiaya');
-                }), 0, ',', '.') }}
+                    {{ number_format(
+                        $getPasien->sum(function ($item) {
+                            return $item->getRalanDokter->sum('totalbiaya') +
+                                $item->getRalanDrParamedis->sum('totalbiaya') +
+                                $item->getRalanParamedis->sum('totalbiaya') +
+                                $item->getRanapDrParamedis->sum('totalbiaya') +
+                                $item->getRanapParamedis->sum('totalbiaya') +
+                                $item->getTambahan->sum('totalbiaya') +
+                                $item->getKamarInap->sum('totalbiaya') +
+                                $item->getOprasi->sum('totalbiaya');
+                        }),
+                        0,
+                        ',',
+                        '.',
+                    ) }}
                 </b>
             </td>
             <td class="text-right px-2"><b>
-                {{ number_format($getPasien->sum(function ($item) {
-                        return $item->getLaborat->sum('totalbiaya');
-                }), 0, ',', '.') }}</b>
+                    {{ number_format(
+                        $getPasien->sum(function ($item) {
+                            return $item->getLaborat->sum('totalbiaya');
+                        }),
+                        0,
+                        ',',
+                        '.',
+                    ) }}</b>
             </td>
             <td class="text-right px-2"><b>
-                {{ number_format($getPasien->sum(function ($item) {
-                        return $item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya');
-                }), 0, ',', '.') }}</b>
+                    {{ number_format(
+                        $getPasien->sum(function ($item) {
+                            return $item->getObat->sum('totalbiaya') + $item->getReturObat->sum('totalbiaya');
+                        }),
+                        0,
+                        ',',
+                        '.',
+                    ) }}</b>
             </td>
             <td class="text-right px-2"><b>
-                {{ number_format($getPasien->sum(function ($item) {
-                        return $item->getRegistrasi->sum('totalbiaya') ;
-                }), 0, ',', '.') }}</b>
+                    {{ number_format(
+                        $getPasien->sum(function ($item) {
+                            return $item->getRegistrasi->sum('totalbiaya');
+                        }),
+                        0,
+                        ',',
+                        '.',
+                    ) }}</b>
             </td>
-             <td>
-                {{-- <b>Rp.
+            <td>
+                <b>
+                    Rp.
                     {{ number_format(
                         $getPasien->sum(function ($item) {
                             return $item->getTotalBiaya->sum('totalpiutang');
@@ -178,14 +210,9 @@
                         0,
                         ',',
                         '.',
-                    ) }}</b> --}}
+                    ) }}
+                </b>
             </td>
         </tr>
-        @foreach ($item->getTotalBiaya2 as $totalbiaya2)
-            <tr>
-                <td colspan="10" class="text-right"><b>{{$totalbiaya2->nama_perusahaan}} </b></td>
-                <td class="text-right"><b> Rp. {{number_format($totalbiaya2->totalpiutang, 0, ',', '.')}}</b> </td>
-            </tr>
-        @endforeach
     @endif
 </table>
