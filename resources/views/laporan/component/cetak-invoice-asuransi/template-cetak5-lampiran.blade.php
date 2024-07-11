@@ -184,7 +184,8 @@
         </td>
         <td width="22%"></td>
         <td width="30%">
-            <b>Bandar
+            <b>
+                Bandar
                 Lampung,{{ date('d', strtotime($getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime($getListInvoice->tgl_cetak)) }}<br />
                 Koord. Tagihan Perusahaan
                 <br />
@@ -193,7 +194,8 @@
                 <br />
                 <br />
                 <br />
-                dr. Arief Yulizar, MARS, FISQua</b>
+                dr. Arief Yulizar, MARS, FISQua
+            </b>
         </td>
     </tr>
 </table>
