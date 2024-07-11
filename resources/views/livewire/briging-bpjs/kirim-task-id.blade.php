@@ -222,7 +222,7 @@
                             <td>{{ $item->jampraktek }}</td>
                             <td>{{ $item->validasi }}</td>
                             <td> <button data-toggle="modal" style="background: none; border: none;"
-                                    wire:click="batalAntranMJKN"><i class="fas fa-times"></i>
+                                    wire:click="batalAntranMJKN('{{$item->nobooking}}')"><i class="fas fa-times"></i>
                                 </button>
                             </td>
                             {{-- <td>
