@@ -151,5 +151,49 @@
                 </b>
             </td>
         </tr>
+        <tr>
+            <td colspan="9">
+                <b>Terbilang : </b>
+                @if ($getPasien)
+                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
+                        $getPasien->sum(function ($item) {
+                            return $item->getTotalBiaya->sum('totalpiutang');
+                        }),
+                    ) }}
+                @endif rupiah
+            </td>
+        </tr>
     @endif
+</table>
+<br>
+<br>
+<table border="0px" width="1000px" class="mt-4">
+    <tr>
+        <td width="8%">
+        </td>
+        <td width="40%">
+            <b>Mengetahui <br />
+                Direktur Utama
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                dr. Arief Yulizar, MARS, FISQua</b>
+        </td>
+        <td width="22%"></td>
+        <td width="30%">
+            <b>Bandar
+                Lampung,{{ date('d', strtotime($getListInvoice->tgl_cetak)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($getListInvoice->tgl_cetak))) }}-{{ date('Y', strtotime($getListInvoice->tgl_cetak)) }}<br />
+                Koord. Tagihan Perusahaan
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                dr. Arief Yulizar, MARS, FISQua</b>
+        </td>
+    </tr>
 </table>
