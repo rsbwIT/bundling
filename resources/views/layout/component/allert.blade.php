@@ -30,6 +30,18 @@
                 title: '{{ session('successGabungberkas') }}'
             });
         @endif
+        @if (session('sucsessSimpanNomor'))
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('sucsessSimpanNomor') }}'
+            });
+        @endif
+        @if (session('gagalSimpanNomor'))
+            Toast.fire({
+                icon: 'error',
+                title: '{{ session('gagalSimpanNomor') }}'
+            });
+        @endif
         @if (session('successSaveINACBG'))
             Toast.fire({
                 icon: 'success',

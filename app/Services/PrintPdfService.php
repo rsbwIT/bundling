@@ -12,14 +12,15 @@ use Illuminate\Support\Facades\Storage;
 class PrintPdfService
 {
 
-    public static function printPdf($no_rawat, $no_sep) {
+    public static function printPdf($no_rawat, $no_sep)
+    {
         $cacheService = new CacheService();
         $getSetting = $cacheService->getSetting();
         $cariNoSep = $no_sep;
         $noRawat = $no_rawat;
         $cekNorawat = DB::table('reg_periksa')
             ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli')
-            ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
@@ -31,13 +32,13 @@ class PrintPdfService
             $getSEP = QueryResumeDll::getSEP($noRawat, $cariNoSep);
 
             // 2 BERKAS RESUME
-            if($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS'){ // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS') { // U0061 = FisoTerapi
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
-                    $getKamarInap = '';
-            }else{
+                $getKamarInap = '';
+            } else {
                 if ($statusLanjut->status_lanjut === 'Ranap') {
                     $getResume = QueryResumeDll::getResumeRanap($noRawat);
-                        if($getResume){
+                    if ($getResume) {
                         $getKamarInap = DB::table('kamar_inap')
                             ->select([
                                 'kamar_inap.tgl_keluar',
@@ -52,12 +53,12 @@ class PrintPdfService
                             ->orderByDesc('jam_keluar')
                             ->limit(1)
                             ->first();
-                    }else{
+                    } else {
                         $getKamarInap = '';
                     }
                 } else {
                     $getResume = QueryResumeDll::getResumeRalan($noRawat);
-                        $getKamarInap = '';
+                    $getKamarInap = '';
                 }
             }
 
@@ -74,54 +75,100 @@ class PrintPdfService
             // AWAL MEDIS
             $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
 
-             // SURAT KEMATIAN
-             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
+            // SURAT KEMATIAN
+            $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
 
-             // LAPORAN OPERASI
-             $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
-
-
+            // LAPORAN OPERASI
+            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
         } else {
             $getSetting = '';
             $jumlahData = '';
             $getSEP = '';
             $statusLanjut = '';
             $getResume = '';
-            $$getKamarInap= '';
+            $$getKamarInap = '';
             $bilingRalan = '';
             $getLaborat = '';
             $getRadiologi = '';
-            $awalMedis= '';
-            $getSudartKematian= '';
-            $getLaporanOprasi= '';
+            $awalMedis = '';
+            $getSudartKematian = '';
+            $getLaporanOprasi = '';
         }
 
 
         // VIEW
         $pdf = PDF::loadView('bpjs.printcasemix', [
-            'getSetting'=>$getSetting,
-            'jumlahData'=>$jumlahData,
-            'getSEP'=>$getSEP,
-            'statusLanjut'=>$statusLanjut,
-            'getResume'=>$getResume,
-            'getKamarInap'=>$getKamarInap,
-            'bilingRalan'=>$bilingRalan,
-            'getLaborat'=>$getLaborat,
-            'getRadiologi'=>$getRadiologi,
-            'awalMedis'=>$awalMedis,
-            'getSudartKematian'=>$getSudartKematian,
-            'getLaporanOprasi'=>$getLaporanOprasi,
+            'getSetting' => $getSetting,
+            'jumlahData' => $jumlahData,
+            'getSEP' => $getSEP,
+            'statusLanjut' => $statusLanjut,
+            'getResume' => $getResume,
+            'getKamarInap' => $getKamarInap,
+            'bilingRalan' => $bilingRalan,
+            'getLaborat' => $getLaborat,
+            'getRadiologi' => $getRadiologi,
+            'awalMedis' => $awalMedis,
+            'getSudartKematian' => $getSudartKematian,
+            'getLaporanOprasi' => $getLaporanOprasi,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);
-        $pdfFilename = 'RESUMEDLL-'.$no_rawatSTR.'.pdf';
+        $pdfFilename = 'RESUMEDLL-' . $no_rawatSTR . '.pdf';
         Storage::disk('public')->put('resume_dll/' . $pdfFilename, $pdf->output());
         $cekBerkas = DB::table('bw_file_casemix_remusedll')->where('no_rawat', $noRawat)
             ->exists();
-        if (!$cekBerkas){
+        if (!$cekBerkas) {
             DB::table('bw_file_casemix_remusedll')->insert([
                 'no_rkm_medis' => $getpasien->no_rkm_medis,
                 'no_rawat' => $noRawat,
+                'file' => $pdfFilename,
+            ]);
+        }
+    }
+
+    public static function printPdfResep($no_rawat, $no_sep)
+    {
+        $cacheService = new CacheService();
+        $getSetting = $cacheService->getSetting();
+        $noRawat = $no_rawat;
+        $noSep = $no_sep;
+
+        $cekNorawat = DB::table('reg_periksa')
+            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->where('no_rawat', '=', $noRawat);
+        $jumlahData = $cekNorawat->count();
+        $getpasien = $cekNorawat->first();
+
+        if ($jumlahData > 0) {
+            // 1 BERKAS SEP
+            $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
+            if ($getSEP) {
+                $getSEP->getResep = QueryResumeDll::getResepObat($getSEP->no_rawat);
+            }
+        } else {
+            $getSetting = '';
+            $jumlahData = '';
+            $getSEP = '';
+        }
+        $pdf = PDF::loadView('farmasi.print-berkas-sep-resep2', [
+            'getSetting' => $getSetting,
+            'jumlahData' => $jumlahData,
+            'getSEP' => $getSEP,
+        ]);
+
+        $no_rawatSTR = str_replace('/', '', $noRawat);
+        $pdfFilename = 'RESEP2-' . $no_rawatSTR . '.pdf';
+        Storage::disk('public')->put('resep_sep_farmasi/' . $pdfFilename, $pdf->output());
+        $cekBerkas = DB::table('file_farmasi')->where('no_rawat', $noRawat)
+            ->where('jenis_berkas', 'HASIL-FARMASI2')
+            ->exists();
+        if (!$cekBerkas) {
+            DB::table('file_farmasi')->insert([
+                'no_rkm_medis' => $getpasien->no_rkm_medis,
+                'no_rawat' => $noRawat,
+                'nama_pasein' => $getpasien->nm_pasien,
+                'jenis_berkas' => 'HASIL-FARMASI2',
                 'file' => $pdfFilename,
             ]);
         }

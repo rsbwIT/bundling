@@ -430,6 +430,14 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
+                                        <a href="{{ url('list-pasien-farmasi2') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Piutang Obat & Alkes 2</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
                                         <a href="{{ url('minimal-stok-obat') }}" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Stok Minimal Obat</p>

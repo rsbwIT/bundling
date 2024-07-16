@@ -28,6 +28,7 @@ use App\Http\Controllers\AntrianPoli\BwJadwaldokter;
 use App\Http\Controllers\Bpjs\PrintCesmikController;
 use App\Http\Controllers\DetailTindakan\RalanDokter;
 use App\Http\Controllers\DetailTindakan\RanapDokter;
+use App\Http\Controllers\Farmasi\BundlingResepobat2;
 use App\Http\Controllers\Farmasi\SepResepController;
 use App\Http\Controllers\Keperawatan\LaporanLogBook;
 use App\Http\Controllers\DetailTindakan\OperasiAndVK;
@@ -40,6 +41,7 @@ use App\Http\Controllers\Keperawatan\LaporanLogbokKaru;
 use App\Http\Controllers\Returobat\ReturObatController;
 use App\Http\Controllers\Farmasi\ViewSepResepController;
 use App\Http\Controllers\DetailTindakan\PeriksaRadiologi;
+use App\Http\Controllers\Farmasi\ViewSepResepController2;
 use App\Http\Controllers\Keperawatan\PengawasKeperawatan;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterUm;
 use App\Http\Controllers\DetailTindakanUmum\RanapDokterUm;
@@ -107,6 +109,8 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/print-sep-resep', [BundlingFarmasi::class, 'PrintBerkasSepResep']);
     Route::get('/gabung-berkas-farmasi', [BundlingFarmasi::class, 'GabungBergkas']);
     Route::get('/minimal-stok-obat', [MinimalStokController::class, 'MinimalStokObat']);
+    Route::get('/list-pasien-farmasi2', [BundlingResepobat2::class, 'Listpasien2']);
+    Route::get('/view-sep-resep2', [ViewSepResepController2::class, 'ViewSepResepController2']);
 
     // LAPORAN / KEUANGAN
     Route::get('/pembayaran-ralan', [PembayaranRalan::class, 'PembayaranRanal']);

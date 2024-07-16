@@ -2,6 +2,7 @@
 
 namespace App\Services\Bpjs;
 
+use App\Services\Bpjs\cUrl;
 use Bpjs\Bridging\Icare\BridgeIcare;
 use Bpjs\Bridging\Antrol\BridgeAntrol;
 use Bpjs\Bridging\Vclaim\BridgeVclaim;
@@ -16,7 +17,7 @@ class ReferensiBPJS
 	{
 		$this->bridging = new BridgeVclaim();
         $this->antrol = new BridgeAntrol();
-        $this->icare = new BridgeIcare();
+        $this->icare = new cUrl();
 	}
 
     // 1 REFERENSI ======================================================
@@ -136,6 +137,7 @@ class ReferensiBPJS
     }
 
     // ICARE
+
     public function validateICARE($data)
     {
             $endpoint = 'api/rs/validate';

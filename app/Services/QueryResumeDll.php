@@ -581,4 +581,95 @@ class QueryResumeDll
         });
         return $laporanOprasi;
     }
+
+    public  static  function getResepObat($no_rawat)
+    {
+        $getResepObat =  DB::table('resep_obat')
+            ->select('resep_obat.no_resep', 'resep_obat.tgl_perawatan', 'resep_obat.jam', 'resep_obat.no_rawat', 'pasien.no_rkm_medis', 'pasien.nm_pasien', 'resep_obat.kd_dokter', 'dokter.nm_dokter')
+            ->join('reg_periksa', 'resep_obat.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('dokter', 'resep_obat.kd_dokter', '=', 'dokter.kd_dokter')
+            ->where('resep_obat.no_rawat', $no_rawat)
+            ->get();
+        $getResepObat->map(function ($item) {
+            // NON RACIk
+            $item->ResepNonracik = DB::table('detail_pemberian_obat')
+                ->select(
+                    'databarang.kode_brng',
+                    'databarang.nama_brng',
+                    'detail_pemberian_obat.jml',
+                    'detail_pemberian_obat.biaya_obat',
+                    'detail_pemberian_obat.embalase',
+                    'detail_pemberian_obat.tuslah',
+                    'detail_pemberian_obat.total',
+                    'kodesatuan.satuan',
+                    'aturan_pakai.aturan'
+                )
+                ->join('databarang', 'detail_pemberian_obat.kode_brng', '=', 'databarang.kode_brng')
+                ->join('kodesatuan', 'databarang.kode_sat', '=', 'kodesatuan.kode_sat')
+                ->leftJoin('aturan_pakai', function ($join) {
+                    $join->on('detail_pemberian_obat.tgl_perawatan', '=', 'aturan_pakai.tgl_perawatan')
+                        ->on('detail_pemberian_obat.jam', '=', 'aturan_pakai.jam')
+                        ->on('detail_pemberian_obat.no_rawat', '=', 'aturan_pakai.no_rawat')
+                        ->on('detail_pemberian_obat.kode_brng', '=', 'aturan_pakai.kode_brng');
+                })
+                ->where('detail_pemberian_obat.tgl_perawatan', $item->tgl_perawatan)
+                ->where('detail_pemberian_obat.jam', $item->jam)
+                ->where('detail_pemberian_obat.no_rawat', $item->no_rawat)
+                ->whereNotIn('databarang.kode_brng', function ($query) use ($item) {
+                    $query->select('detail_obat_racikan.kode_brng')
+                        ->from('detail_obat_racikan')
+                        ->where('detail_obat_racikan.tgl_perawatan', $item->tgl_perawatan)
+                        ->where('detail_obat_racikan.jam', $item->jam)
+                        ->where('detail_obat_racikan.no_rawat',  $item->no_rawat);
+                })
+                ->orderBy('databarang.kode_brng')
+                ->get();
+            // RACIK
+            $item->ResepRacik = DB::table('obat_racikan')
+                ->select(
+                    'obat_racikan.no_racik',
+                    'obat_racikan.tgl_perawatan',
+                    'obat_racikan.jam',
+                    'obat_racikan.no_rawat',
+                    'obat_racikan.nama_racik',
+                    'obat_racikan.kd_racik',
+                    'metode_racik.nm_racik as metode',
+                    'obat_racikan.jml_dr',
+                    'obat_racikan.aturan_pakai',
+                    'obat_racikan.keterangan'
+                )
+                ->join('metode_racik', 'obat_racikan.kd_racik', '=', 'metode_racik.kd_racik')
+                ->where('obat_racikan.tgl_perawatan', $item->tgl_perawatan)
+                ->where('obat_racikan.jam', $item->jam)
+                ->where('obat_racikan.no_rawat', $item->no_rawat)
+                ->get();
+            $item->ResepRacik->map(function ($detail) {
+                $detail->detailResepRacik = DB::table('detail_pemberian_obat')
+                    ->select(
+                        'databarang.kode_brng',
+                        'databarang.nama_brng',
+                        'detail_pemberian_obat.jml',
+                        'detail_pemberian_obat.biaya_obat',
+                        'detail_pemberian_obat.embalase',
+                        'detail_pemberian_obat.tuslah',
+                        'detail_pemberian_obat.total'
+                    )
+                    ->join('databarang', 'detail_pemberian_obat.kode_brng', '=', 'databarang.kode_brng')
+                    ->join('detail_obat_racikan', function ($join) {
+                        $join->on('detail_pemberian_obat.kode_brng', '=', 'detail_obat_racikan.kode_brng')
+                            ->on('detail_pemberian_obat.tgl_perawatan', '=', 'detail_obat_racikan.tgl_perawatan')
+                            ->on('detail_pemberian_obat.jam', '=', 'detail_obat_racikan.jam')
+                            ->on('detail_pemberian_obat.no_rawat', '=', 'detail_obat_racikan.no_rawat');
+                    })
+                    ->where('detail_pemberian_obat.tgl_perawatan', $detail->tgl_perawatan)
+                    ->where('detail_pemberian_obat.jam', $detail->jam)
+                    ->where('detail_pemberian_obat.no_rawat', $detail->no_rawat)
+                    ->where('detail_obat_racikan.no_racik',  $detail->no_racik)
+                    ->orderBy('databarang.kode_brng', 'asc')
+                    ->get();
+            });
+        });
+        return $getResepObat;
+    }
 }

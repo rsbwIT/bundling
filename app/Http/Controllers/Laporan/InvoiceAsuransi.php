@@ -210,19 +210,23 @@ class InvoiceAsuransi extends Controller
     // 2 SIMPAN DAN REDIRECT KE CETAK ======================================================================
     public function simpanNomor(Request $request)
     {
-        DB::table('bw_invoice_asuransi')->insert([
-            'nomor_tagihan' => $request->nomor_tagihan,
-            'kode_asuransi' => $request->kode_asuransi,
-            'cari_kode_asuransi' => $request->cari_kode_asuransi,
-            'nama_asuransi' => $request->nama_asuransi,
-            'alamat_asuransi' => $request->alamat_asuransi,
-            'tanggl1' => $request->tanggl1,
-            'tanggl2' => $request->tanggl2,
-            'tgl_cetak' => $request->tgl_cetak,
-            'status_lanjut' => $request->status_lanjut,
-            'lamiran' => $request->lamiran,
-        ]);
-        return redirect()->back();
+        try {
+            DB::table('bw_invoice_asuransi')->insert([
+                'nomor_tagihan' => $request->nomor_tagihan,
+                'kode_asuransi' => $request->kode_asuransi,
+                'cari_kode_asuransi' => $request->cari_kode_asuransi,
+                'nama_asuransi' => $request->nama_asuransi,
+                'alamat_asuransi' => $request->alamat_asuransi,
+                'tanggl1' => $request->tanggl1,
+                'tanggl2' => $request->tanggl2,
+                'tgl_cetak' => $request->tgl_cetak,
+                'status_lanjut' => $request->status_lanjut,
+                'lamiran' => $request->lamiran,
+            ]);
+            return redirect()->back()->with('sucsessSimpanNomor', 'Berhasil menyimpan template tagihan, silahkan cetak tagian');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('gagalSimpanNomor', 'Gagal menyimpan template tagihan, cek kembali data anda');
+        }
     }
 
     // 3 CETAK ======================================================================
