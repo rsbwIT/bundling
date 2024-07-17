@@ -15,7 +15,9 @@
             font-size: 8px;
             /* Adjust font size for paragraphs */
         }
-
+        .text-xm{
+            font-size: 10px;
+        }
         .h3 {
             font-size: 18px;
             font-weight: 700;
@@ -55,12 +57,18 @@
         .mx-1 {
             margin: 5px 8px;
         }
+        .ml-3 {
+            margin-left: 15px;
+        }
+        .ml-4 {
+            margin-left: 20px;
+        }
 
         .card-body {
             page-break-after: always;
         }
 
-        .pb-4{
+        .pb-4 {
             padding-bottom: 30px;
         }
 
@@ -211,7 +219,107 @@
         @else
             {{-- NULL --}}
         @endif
-<h1>PPPP</h1>
+
+        @if ($getSEP->getResep)
+            @foreach ($getSEP->getResep as $item)
+                @if ($item->ResepNonracik)
+                    <div class="card-body">
+                        <div class="card p-4 d-flex justify-content-center align-items-center">
+                            <table width="700px">
+                                <tr>
+                                    <td rowspan="5"> <img
+                                            src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                            alt="Girl in a jacket" width="80" height="80">
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="h3">{{ $getSetting->nama_instansi }} </span>
+                                    </td>
+                                    <td class="text-center" width="100px">
+                                    </td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->alamat_instansi }} ,
+                                        {{ $getSetting->kabupaten }}, {{ $getSetting->propinsi }}</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->kontak }}</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->email }}</td>
+                                </tr>
+                            </table>
+                            <hr width="700px"
+                                style=" height:2px; border-top:1px solid black; border-bottom:2px solid black;">
+                            <table width="700px">
+                                <tr>
+                                    <td width="126px">Nama Pasien</td>
+                                    <td>: {{ $item->nm_pasien }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. R.M</td>
+                                    <td>: {{ $item->no_rkm_medis }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. Rawat</td>
+                                    <td>: {{ $item->no_rawat }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Pemberi Resep</td>
+                                    <td>: {{ $item->nm_dokter }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. Resep</td>
+                                    <td>: {{ $item->no_resep }}</td>
+                                </tr>
+                            </table>
+                            <hr width="700px"
+                                style=" height:2px; border-top:1px solid black; border-bottom:2px solid black;">
+                            <table border="1px" width="700px" class="mt-0">
+                                <tr>
+                                    <td class="text-center" style="background-color: rgb(192, 192, 192)">
+                                        <b>RESEP</b>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="700px" class="mt-1 text-xm" border="1px">
+                                @foreach ($item->ResepNonracik as $resepnonracik)
+                                    <tr>
+                                        <td width="340px">R/ {{ $resepnonracik->nama_brng }}</td>
+                                        <td width="180px">
+                                            {{ $resepnonracik->jml }} {{ $resepnonracik->satuan }}
+                                        </td>
+                                        <td width="170px">
+                                            S_ _ _ _ _ _{{ $resepnonracik->aturan }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                @foreach ($item->ResepRacik as $resepracik)
+                                    <tr>
+                                        <td>
+                                            R/ {{ $resepracik->no_racik }}.
+                                            {{ $resepracik->nama_racik }}
+                                            <table class="ml-3 text-xm" border="0">
+                                                @foreach ($resepracik->detailResepRacik as $detailresepracik)
+                                                    <tr>
+                                                        <td> - {{ $detailresepracik->nama_brng }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </table>
+                                        </td>
+                                        <td style="vertical-align: top;">
+                                            {{ $resepracik->jml_dr }}
+                                            {{ $resepracik->metode }}</td>
+                                        <td style="vertical-align: top;">
+                                            S_ _ _ _ _ _ {{ $resepracik->aturan_pakai }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @endif
         {{-- ERROR HANDLING ============================================================= --}}
     @else
         <div class="card-body">
