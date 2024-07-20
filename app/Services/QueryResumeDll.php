@@ -672,4 +672,98 @@ class QueryResumeDll
         });
         return $getResepObat;
     }
+
+    public  static function getSoapieRalan($noRawat)
+    {
+        return DB::table('pemeriksaan_ralan')
+            ->select(
+                'pemeriksaan_ralan.no_rawat',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
+                'pemeriksaan_ralan.suhu_tubuh',
+                'pemeriksaan_ralan.tensi',
+                'pemeriksaan_ralan.nadi',
+                'pemeriksaan_ralan.respirasi',
+                'pemeriksaan_ralan.tinggi',
+                'pemeriksaan_ralan.berat',
+                'pemeriksaan_ralan.spo2',
+                'pemeriksaan_ralan.gcs',
+                'pemeriksaan_ralan.kesadaran',
+                'pemeriksaan_ralan.keluhan',
+                'pemeriksaan_ralan.pemeriksaan',
+                'pemeriksaan_ralan.alergi',
+                'pemeriksaan_ralan.lingkar_perut',
+                'pemeriksaan_ralan.rtl',
+                'pemeriksaan_ralan.penilaian',
+                'pemeriksaan_ralan.instruksi',
+                'pemeriksaan_ralan.evaluasi',
+                'pemeriksaan_ralan.nip',
+               'dokter.nm_dokter',
+                'dokter.kd_dokter',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.tmp_lahir',
+                'pasien.tgl_lahir',
+                'pasien.nm_ibu',
+                'pasien.jk',
+                'pasien.alamat',
+                'pasien.gol_darah',
+                'pasien.stts_nikah',
+                'pasien.agama',
+                'pasien.cacat_fisik'
+            )
+            ->join('dokter', 'pemeriksaan_ralan.nip', '=', 'dokter.kd_dokter')
+            ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->where('pemeriksaan_ralan.no_rawat', $noRawat)
+            ->orderBy('pemeriksaan_ralan.tgl_perawatan', 'asc')
+            ->orderBy('pemeriksaan_ralan.jam_rawat', 'asc')
+            ->get();
+    }
+    public  static function getSoapieRanap($noRawat)
+    {
+        return DB::table('pemeriksaan_ranap')
+            ->select(
+                'pemeriksaan_ranap.tgl_perawatan',
+                'pemeriksaan_ranap.jam_rawat',
+                'pemeriksaan_ranap.suhu_tubuh',
+                'pemeriksaan_ranap.tensi',
+                'pemeriksaan_ranap.nadi',
+                'pemeriksaan_ranap.respirasi',
+                'pemeriksaan_ranap.tinggi',
+                'pemeriksaan_ranap.berat',
+                'pemeriksaan_ranap.spo2',
+                'pemeriksaan_ranap.gcs',
+                'pemeriksaan_ranap.kesadaran',
+                'pemeriksaan_ranap.keluhan',
+                'pemeriksaan_ranap.pemeriksaan',
+                'pemeriksaan_ranap.alergi',
+                'pemeriksaan_ranap.penilaian',
+                'pemeriksaan_ranap.rtl',
+                'pemeriksaan_ranap.instruksi',
+                'pemeriksaan_ranap.evaluasi',
+                'pemeriksaan_ranap.nip',
+                'dokter.nm_dokter',
+                'dokter.kd_dokter',
+                'pasien.nm_pasien',
+                'reg_periksa.no_rkm_medis',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tmp_lahir',
+                'pasien.tgl_lahir',
+                'pasien.nm_ibu',
+                'pasien.gol_darah',
+                'pasien.stts_nikah',
+                'pasien.agama',
+                'pasien.cacat_fisik'
+            )
+            ->join('dokter', 'pemeriksaan_ranap.nip', '=', 'dokter.kd_dokter')
+            ->join('reg_periksa', 'pemeriksaan_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->where('pemeriksaan_ranap.no_rawat', $noRawat)
+            ->orderBy('pemeriksaan_ranap.tgl_perawatan', 'asc')
+            ->orderBy('pemeriksaan_ranap.jam_rawat', 'asc')
+            ->take(1)
+            ->get();
+    }
 }

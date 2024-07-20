@@ -75,7 +75,10 @@
                         @include('bpjs.component.berkas-radiologi')
 
                         {{-- AWAL MEDIS ============================================================= --}}
-                        @include('bpjs.component.awal-medis')
+                        {{-- @include('bpjs.component.awal-medis') --}}
+
+                        {{-- SOAPIE PASIEN ============================================================= --}}
+                        @include('bpjs.component.soapie-pasien')
 
                         {{-- SURAT KEMATIAN ========================================================== --}}
                         @include('bpjs.component.surat-kematian')
@@ -96,12 +99,6 @@
                         </div>
                     @endif
 
-
-                    <div class="card-footer">
-                        <div class="row">
-
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

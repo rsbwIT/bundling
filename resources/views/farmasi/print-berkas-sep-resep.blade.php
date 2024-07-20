@@ -382,7 +382,7 @@
                             <tr>
                                 <td></td>
                                 <td class="text-center" width="220px">
-                                    Pasien/Keluarga Pasien <br>
+                                    Bandar Lampung, {{$tgl_peresepan}}<br>
                                     <div class="barcode mt-1">
                                         <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota '.$getSetting->kabupaten.' Ditandatangani secara elektronik oleh ' . $nm_dokter . ' ID ' . $kd_dokter . ' ' . $tgl_peresepan, 'QRCODE') }}"
                                             alt="barcode" width="80px" height="75px" />

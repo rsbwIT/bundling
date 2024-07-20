@@ -76,9 +76,8 @@ class UpdateJadwalDokter extends Component
             'jadwal' => $this->times
         ];
 
-        dd( $this->times);
-        // $data = json_decode($this->ReferensiBpjs->updateJadwalHfisDokter(json_encode($jayParsedAry)));
-        // $this->response = [$data->metadata];
+        $data = json_decode($this->ReferensiBpjs->updateJadwalHfisDokter(json_encode($jayParsedAry)));
+        $this->response = [$data->metadata];
         // SENIN tgl 27	ANA - ANAK 	dr. Soelistyowati,Sp.A 	40 	08:00-12:00 // di rubah pada hari selasa jam 13:45
     }
     public function getDataTable($kodedokter, $kodepoli) {

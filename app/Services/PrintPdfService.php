@@ -73,13 +73,20 @@ class PrintPdfService
             $getRadiologi = QueryResumeDll::getRadiologi($noRawat);
 
             // AWAL MEDIS
-            $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
+            // $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
 
             // SURAT KEMATIAN
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
 
             // LAPORAN OPERASI
             $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
+
+            // 12 SOAPIE PASIEN
+            if ($statusLanjut->status_lanjut === 'Ranap') {
+                $getSoapie = QueryResumeDll::getSoapieRanap($noRawat);
+            } else {
+                $getSoapie = QueryResumeDll::getSoapieRalan($noRawat);
+            }
         } else {
             $getSetting = '';
             $jumlahData = '';
@@ -90,9 +97,10 @@ class PrintPdfService
             $bilingRalan = '';
             $getLaborat = '';
             $getRadiologi = '';
-            $awalMedis = '';
+            // $awalMedis = '';
             $getSudartKematian = '';
             $getLaporanOprasi = '';
+            $getSoapie = '';
         }
 
 
@@ -107,9 +115,10 @@ class PrintPdfService
             'bilingRalan' => $bilingRalan,
             'getLaborat' => $getLaborat,
             'getRadiologi' => $getRadiologi,
-            'awalMedis' => $awalMedis,
+            // 'awalMedis' => $awalMedis,
             'getSudartKematian' => $getSudartKematian,
             'getLaporanOprasi' => $getLaporanOprasi,
+            'getSoapie' => $getSoapie,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);
