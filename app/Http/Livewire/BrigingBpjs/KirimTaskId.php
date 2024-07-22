@@ -95,42 +95,6 @@ class KirimTaskId extends Component
         }
     }
 
-    // public $kodebooking;
-    // public $taskid = [];
-    // public $waktu;
-    // public $getCekin;
-    // public $getCekinFktl;
-    // public function cekinBPJS($key, $nobooking)
-    // {
-    //     date_default_timezone_set('Asia/Jakarta');
-    //     $timestamp_sec = strtotime($this->date . $this->time);
-    //     $this->waktu = $timestamp_sec * 1000;
-    //     dd([
-    //         $this->taskid[$key],
-    //         $nobooking,
-    //         $this->waktu,
-    //     ]);
-    //     $jayParsedAry = [
-    //         "kodebooking" => $nobooking, //"20240301000001",
-    //         "taskid" => $this->taskid[$key],
-    //         "waktu" => $this->waktu
-    //     ];
-    //     $dataFktl = [
-    //         "kodebooking"=> $nobooking,
-    //         "waktu"=> $this->waktu
-    //     ];
-    //     try {
-    //         $data = json_decode($this->ReferensiBpjs->cekinBPJS(json_encode($jayParsedAry)));
-    //         if ($this->taskid[$key] == 3 && $this->konfirmasi_cekin == true) {
-    //             $responsefktl = $this->RsbwFktl->cekinMjkn($dataFktl);
-    //             $this->getCekinFktl = [$responsefktl->metadata];
-    //         }
-    //         $this->getCekin = [$data->metadata];
-
-    //     } catch (\Throwable $th) {
-    //     }
-    // }
-
     public $nobooking;
     public $listTaskId;
     public $getTaskid;

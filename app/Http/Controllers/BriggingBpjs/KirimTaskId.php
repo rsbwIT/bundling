@@ -23,5 +23,8 @@ class KirimTaskId extends Controller
     function UpdateJadwalHfis() {
         return view('briging-bpjs.update-jadwal-dokter-hfis');
     }
+    function Icare() {
+        return view('briging-bpjs.icare');
+    }
 
 }

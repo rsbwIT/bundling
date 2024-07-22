@@ -178,6 +178,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/kirim-taskid-bpjs2', [KirimTaskId::class, 'KirimTaskId2']);
     Route::get('/sep-vclaim', [KirimTaskId::class, 'CariSepVclaim']);
     Route::get('/update-jadwal-dokter', [KirimTaskId::class, 'UpdateJadwalHfis']);
+    Route::get('/icare', [KirimTaskId::class, 'Icare']);
 
 
 });

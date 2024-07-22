@@ -179,10 +179,6 @@
                                 class="form-control form-control-sidebar form-control-sm"wire:model.lazy="time">
                         </div>
                     </div>
-                    <div class="col-lg-2">
-                        <input type="checkbox" wire:model.lazy="konfirmasi_cekin">
-                        Cekin Khanza ?
-                    </div>
                 </div>
             </form>
         </div>
@@ -211,37 +207,34 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>
                                 {{ $item->nobooking }}
-                                <button data-toggle="modal" style="background: none; border: none;"
-                                    wire:click="DetailTaskID('{{ $item->nobooking }}')"
-                                    data-target="#UploadInacbg{{ $key }}"><i class="fas fa-eye"></i>
-                                </button>
                             </td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->norm }}</td>
                             <td>{{ $item->status }}</td>
                             <td>{{ $item->jampraktek }}</td>
                             <td>{{ $item->validasi }}</td>
-                            <td> <button data-toggle="modal" style="background: none; border: none;"
-                                    wire:click="batalAntranMJKN('{{$item->nobooking}}')"><i class="fas fa-times"></i>
-                                </button>
-                            </td>
-                            {{-- <td>
-                                <select class="form-control form-control-sm" wire:model.lazy="taskid.{{$key}}">
-                                    <option selected>Pilih Task id</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="99" class="text-danger">99 (Untuk Batal)</option>
-                                </select>
-                            </td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-primary" wire:click="cekinBPJS('{{$key}}', '{{$item->nobooking}}' )">
-                                    Submit
-                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" wire:loading
-                                        wire:target="cekinBPJS('{{$key}}', '{{$item->nobooking}}' )"></span>
-                                </button>
-                            </td> --}}
-                            {{-- MODAL --}}
+                                {{--  --}}
+                                <div class="margin">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v "></i>
+                                        </button>
+                                        <div class="dropdown-menu" role="menu">
+                                            <button class="dropdown-item" data-toggle="modal"
+                                                wire:click="DetailTaskID('{{ $item->nobooking }}')"data-target="#UploadInacbg{{ $key }}">
+                                                <i class="fas fa-eye"></i> Taskid
+                                            </button>
+                                            <div class="dropdown-divider"></div>
+                                            <button data-toggle="modal" class="dropdown-item"
+                                                wire:click="batalAntranMJKN('{{ $item->nobooking }}')"><i
+                                                    class="fas fa-times"></i> Batal antrian
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            {{-- MODAL DETAIL CEKIN --}}
                             <div class="modal fade" id="UploadInacbg{{ $key }}" tabindex="-1"
                                 role="dialog" aria-hidden="true" wire:ignore.self>
                                 <div class="modal-dialog" role="document">

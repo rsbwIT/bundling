@@ -22,11 +22,11 @@ class TestController extends Controller
     }
     public function dashboardTanggal() {
         $data = [
-            'param' => "0000033695008",
+            'param' => "1809065102880001",
             'kodedokter' => 415168,
         ];
         $data = $this->referensi->validateICARE(json_encode($data));
-        dd(json_encode($data));
+        dd($data);
     }
 
 

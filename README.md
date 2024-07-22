@@ -25,4 +25,4 @@ Aplikasi pendukung <b>GRATIS!!!</b> untuk pengguna [SIMRS Khanza](https://www.ya
 - Keperawatan
 - E-Rekam medis dan bundling
 
-[Pertanyaan lebih lanjut hubungi beliau GRATIS!! :  ]
+[Pertanyaan lebih lanjut hubungi beliau [WA](https://wa.link/tg6woh) GRATIS!! :  ]
