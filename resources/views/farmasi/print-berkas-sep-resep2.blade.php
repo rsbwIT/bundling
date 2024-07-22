@@ -15,9 +15,11 @@
             font-size: 8px;
             /* Adjust font size for paragraphs */
         }
-        .text-xm{
+
+        .text-xm {
             font-size: 10px;
         }
+
         .h3 {
             font-size: 18px;
             font-weight: 700;
@@ -57,9 +59,11 @@
         .mx-1 {
             margin: 5px 8px;
         }
+
         .ml-3 {
             margin-left: 15px;
         }
+
         .ml-4 {
             margin-left: 20px;
         }
@@ -220,6 +224,7 @@
             {{-- NULL --}}
         @endif
 
+        {{-- BERKAS RESEP ============================================================= --}}
         @if ($getSEP->getResep)
             @foreach ($getSEP->getResep as $item)
                 @if ($item->ResepNonracik)
@@ -320,12 +325,123 @@
                                     <td>
                                     </td>
                                     <td class="text-center" width="220px">
-                                        Bandar Lampung, {{$item->tgl_perawatan}}<br>
+                                        Bandar Lampung, {{ $item->tgl_perawatan }}<br>
                                         <div class="barcode mt-1">
-                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di '.$getSetting->nama_instansi.', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->nm_dokter . ' ID ' . $item->kd_dokter . ' ' . $item->tgl_perawatan, 'QRCODE') }}"
+                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->nm_dokter . ' ID ' . $item->kd_dokter . ' ' . $item->tgl_perawatan, 'QRCODE') }}"
                                                 alt="barcode" width="80px" height="75px" />
                                         </div>
                                         <b class="mt-1">{{ $item->nm_dokter }}</b>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @endif
+
+        {{-- BERKAS BIAYA RESEP ============================================================= --}}
+        @if ($getSEP->getResep)
+            @foreach ($getSEP->getResep as $item)
+                @if ($item->ResepNonracik)
+                    <div class="card-body">
+                        <div class="card p-4 d-flex justify-content-center align-items-center">
+                            <table width="700px">
+                                <tr>
+                                    <td rowspan="5"> <img
+                                            src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                                            alt="Girl in a jacket" width="80" height="80">
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="h3">{{ $getSetting->nama_instansi }} </span>
+                                    </td>
+                                    <td class="text-center" width="100px">
+                                    </td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->alamat_instansi }} ,
+                                        {{ $getSetting->kabupaten }}, {{ $getSetting->propinsi }}</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->kontak }}</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="pr-4 h4">{{ $getSetting->email }}</td>
+                                </tr>
+                            </table>
+                            <hr width="700px"
+                                style=" height:2px; border-top:1px solid black; border-bottom:2px solid black;">
+                            <table width="700px">
+                                <tr>
+                                    <td width="126px">Nama Pasien</td>
+                                    <td>: {{ $item->nm_pasien }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. R.M</td>
+                                    <td>: {{ $item->no_rkm_medis }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. Rawat</td>
+                                    <td>: {{ $item->no_rawat }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Pemberi Resep</td>
+                                    <td>: {{ $item->nm_dokter }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. Resep</td>
+                                    <td>: {{ $item->no_resep }}</td>
+                                </tr>
+                            </table>
+                            <hr width="700px"
+                                style=" height:2px; border-top:1px solid black; border-bottom:2px solid black;">
+                            <table width="700px" class="mt-1 text-xm" border="1px">
+                                <tr>
+                                    <td class="text-center" colspan="4">
+                                        <b>BIAYA NO RESEP {{ $item->no_resep }}</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center">Barang</th>
+                                    <th class="text-center">Harga</th>
+                                    <th class="text-center">Jml</th>
+                                    <th class="text-center">Total</th>
+                                </tr>
+                                @php
+                                    $totalNonracik = 0;
+                                    $totalRacik = 0;
+                                @endphp
+                                @foreach ($item->ResepNonracik as $resepnonracik)
+                                    @php
+                                        $totalNonracik += $resepnonracik->total;
+                                    @endphp
+                                    <tr>
+                                        <td width="340px">R/ {{ $resepnonracik->nama_brng }}</td>
+                                        <td class="text-right">
+                                            {{ number_format($resepnonracik->biaya_obat, 0, ',', '.') }}
+                                        </td>
+                                        <td class="text-center">{{ $resepnonracik->jml }}</td>
+                                        <td class="text-right">{{ number_format($resepnonracik->total, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                @foreach ($item->ResepRacik as $resepracik)
+                                    @php
+                                        $totalRacik += $resepracik->detailResepRacik->sum('total');
+                                    @endphp
+                                    @foreach ($resepracik->detailResepRacik as $detailresepracik)
+                                        <tr>
+                                            <td>R/ {{ $detailresepracik->nama_brng }}</td>
+                                            <td class="text-right">{{ $detailresepracik->biaya_obat }}</td>
+                                            <td class="text-center">{{ $detailresepracik->jml }}</td>
+                                            <td class="text-right">{{ $detailresepracik->total }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                                <tr>
+                                    <td colspan="3" class="text-right"><b>Total</b></td>
+                                    <td class="text-right font-weight-bold">
+                                        {{ number_format($totalNonracik + $totalRacik, 0, ',', '.') }}
                                     </td>
                                 </tr>
                             </table>

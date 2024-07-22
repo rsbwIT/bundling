@@ -582,10 +582,20 @@ class QueryResumeDll
         return $laporanOprasi;
     }
 
+    // GET RESEP OBAT
     public  static  function getResepObat($no_rawat)
     {
         $getResepObat =  DB::table('resep_obat')
-            ->select('resep_obat.no_resep', 'resep_obat.tgl_perawatan', 'resep_obat.jam', 'resep_obat.no_rawat', 'pasien.no_rkm_medis', 'pasien.nm_pasien', 'resep_obat.kd_dokter', 'dokter.nm_dokter')
+            ->select(
+                'resep_obat.no_resep',
+                'resep_obat.tgl_perawatan',
+                'resep_obat.jam',
+                'resep_obat.no_rawat',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'resep_obat.kd_dokter',
+                'dokter.nm_dokter'
+            )
             ->join('reg_periksa', 'resep_obat.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('dokter', 'resep_obat.kd_dokter', '=', 'dokter.kd_dokter')
@@ -673,6 +683,7 @@ class QueryResumeDll
         return $getResepObat;
     }
 
+    // GET SOAPIE RALAN
     public  static function getSoapieRalan($noRawat)
     {
         return DB::table('pemeriksaan_ralan')
@@ -698,7 +709,7 @@ class QueryResumeDll
                 'pemeriksaan_ralan.instruksi',
                 'pemeriksaan_ralan.evaluasi',
                 'pemeriksaan_ralan.nip',
-               'dokter.nm_dokter',
+                'dokter.nm_dokter',
                 'dokter.kd_dokter',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
@@ -720,6 +731,7 @@ class QueryResumeDll
             ->orderBy('pemeriksaan_ralan.jam_rawat', 'asc')
             ->get();
     }
+    // GET SOAPIE RANAP
     public  static function getSoapieRanap($noRawat)
     {
         return DB::table('pemeriksaan_ranap')
