@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RM\Borlos;
 use App\Http\Controllers\RM\BerkasRM;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -163,6 +164,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
 
     // RM
     Route::get('/berkas-rm', [BerkasRM::class, 'BerkasRM']);
+    Route::get('/laporan-borlos', [Borlos::class, 'Borlos']);
 
     // KEPERAWATAN
     Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
