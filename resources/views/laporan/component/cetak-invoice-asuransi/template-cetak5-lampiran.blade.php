@@ -194,7 +194,7 @@
                 <br />
                 <br />
                 <br />
-                dr. Arief Yulizar, MARS, FISQua
+                Ita apriyanti S.Kep NS
             </b>
         </td>
     </tr>
