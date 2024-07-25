@@ -5,6 +5,7 @@ namespace App\Http\Livewire\RM;
 use Carbon\Carbon;
 use Livewire\Component;
 use App\Services\BulanRomawi;
+use App\Services\Rm\QueryBorlos;
 use Illuminate\Support\Facades\DB;
 
 class Bor extends Component
@@ -13,16 +14,14 @@ class Bor extends Component
     public function mount() {
         $this->year = 2024;
         $this->Bor();
-        $this->emit('initialChartData', $this->BOR);
     }
     public function render()
     {
         $this->Bor();
-        $this->emit('initialChartData', $this->BOR);
         return view('livewire.r-m.bor');
     }
 
-    public $BOR;
+    public $Bor;
     public function Bor() {
         $Ruangan = DB::table('bw_borlos')
             ->select('bw_borlos.ruangan', 'bw_borlos.jml_bed')
@@ -32,7 +31,7 @@ class Bor extends Component
         $borResults = [];
         for ($month = 1; $month <= 12; $month++) {
             $total_bed_perbulan[$month] = 0;
-            $total_hari_perbulan[$month] = 0;
+            $total_hari_rawat[$month] = 0;
         }
         foreach ($Ruangan as $room) {
             $kamar = $room->ruangan;
@@ -40,45 +39,37 @@ class Bor extends Component
             for ($month = 1; $month <= 12; $month++) {
                 $start_Date = Carbon::create($this->year, $month, 1)->startOfMonth()->toDateString();
                 $end_Date = Carbon::create($this->year, $month, 1)->endOfMonth()->toDateString();
-                $total_hari = DB::table('reg_periksa')
-                    ->select(DB::raw('SUM(DATEDIFF(kamar_inap.tgl_keluar, kamar_inap.tgl_masuk)) as total_jumlah_hari'))
-                    ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-                    ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-                    ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-                    ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-                    ->whereBetween('reg_periksa.tgl_registrasi', [$start_Date, $end_Date])
-                    ->where('bangsal.nm_bangsal', 'like', '%' . $kamar . '%')
-                    ->first();
-                $jumlah_hari = (int) ($total_hari->total_jumlah_hari ?? 0);
-                $periode_hari = Carbon::create($this->year, $month, 1)->daysInMonth;
+                $jml_hari_dlm_sebulan = Carbon::create($this->year, $month, 1)->daysInMonth;
+                $hari_rawat = QueryBorlos::jmlHariRawat($start_Date, $end_Date, $kamar);
 
-                $bor = ($jumlah_hari / ($jumlah_tempat_tidur * $periode_hari)) * 100;
+                $bor = ($hari_rawat / ($jumlah_tempat_tidur * $jml_hari_dlm_sebulan)) * 100;
+
+                $total_bed_perbulan[$month] += $jumlah_tempat_tidur;
+                $total_hari_rawat[$month] += $hari_rawat;
 
                 $borResults[$kamar][BulanRomawi::BulanIndo2(sprintf("%02d",$month))] = [
-                    'jumlah_hari' => $jumlah_hari,
+                    'hari_rawat' => $hari_rawat,
                     'jumlah_tempat_tidur' => $jumlah_tempat_tidur,
-                    'periode_hari' => $periode_hari,
+                    'jml_hari_dlm_sebulan' => $jml_hari_dlm_sebulan,
                     'bor' => $bor
                 ];
-                $total_bed_perbulan[$month] += $jumlah_tempat_tidur;
-                $total_hari_perbulan[$month] += $jumlah_hari;
             }
         }
         $TotalBor = [];
         foreach ($total_bed_perbulan as $month => $totalBeds) {
-            $periode_hari = Carbon::create($this->year, $month, 1)->daysInMonth;
-            $hitung_total_bor = ($total_hari_perbulan[$month] / ($totalBeds * $periode_hari)) * 100;
+            $jml_hari_dlm_sebulan = Carbon::create($this->year, $month, 1)->daysInMonth;
+            $hitung_total_bor = ($total_hari_rawat[$month] / ($totalBeds * $jml_hari_dlm_sebulan)) * 100;
 
             $TotalBor[BulanRomawi::BulanIndo2(sprintf("%02d",$month))] = [
-                'jumlah_hari' => $total_hari_perbulan[$month],
+                'hari_rawat' => $total_hari_rawat[$month],
                 'jumlah_tempat_tidur' => $totalBeds,
-                'periode_hari' => $periode_hari,
+                'jml_hari_dlm_sebulan' => $jml_hari_dlm_sebulan,
                 'bor' => $hitung_total_bor
             ];
         }
         $borResults['SEMUA RUANGAN'] = $TotalBor;
 
-        $this->BOR = $borResults;
-        $this->emit('chartDataUpdated', $this->BOR);
+        $this->Bor = $borResults;
+        $this->emit('chartDataUpdated', $this->Bor);
     }
 }

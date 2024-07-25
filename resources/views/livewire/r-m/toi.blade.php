@@ -26,23 +26,23 @@
         </div>
         <div class="card-body table-responsive p-0" style="height: 460px;">
             <div class="row">
-                @foreach ($Bor as $nama_kamar => $dataBulanan)
+                @foreach ($Toi as $nama_kamar => $dataBulanan)
                     <div class="col-md-6">
-                        <div id="myPlot-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
+                        <div id="ChartToi-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
                     </div>
 
                     <script>
-                        function ChartBor(Bor) {
-                            for (const [nama_kamar, dataBulanan] of Object.entries(Bor)) {
+                        function ChartToi(Toi) {
+                            for (const [nama_kamar, dataBulanan] of Object.entries(Toi)) {
                                 const xBulan = [];
-                                const yBor = [];
+                                const yToi = [];
                                 for (const bulan in dataBulanan) {
                                     xBulan.push(bulan);
-                                    yBor.push(parseFloat(dataBulanan[bulan]['bor'].toFixed(2)));
+                                    yToi.push(parseFloat(dataBulanan[bulan]['toi'].toFixed(2)));
                                 }
                                 const data = [{
                                     x: xBulan,
-                                    y: yBor,
+                                    y: yToi,
                                     type: "bar",
                                     orientation: "v",
                                     marker: {
@@ -51,20 +51,23 @@
                                     hoverinfo: 'y'
                                 }];
                                 const layout = {
-                                    title: `Bor Perbulan ${nama_kamar} `,
+                                    title: `Los Perbulan ${nama_kamar} `,
                                     yaxis: {
-                                        range: [0, 100],
-                                        ticksuffix: '%'
-                                    }
+                                        title: "Dalam Hari",
+                                        range: [0, 5]
+                                    },
+                                    xaxis: {
+                                        title: "Bulan"
+                                    },
                                 };
-                                Plotly.newPlot(`myPlot-${nama_kamar}`, data, layout);
+                                Plotly.newPlot(`ChartToi-${nama_kamar}`, data, layout);
                             }
                         }
                         document.addEventListener('DOMContentLoaded', function() {
-                            ChartBor(@json($Bor));
+                            ChartToi(@json($Toi));
                         });
                         document.addEventListener('livewire:load', function() {
-                            Livewire.on('chartDataUpdated', ChartBor);
+                            Livewire.on('chartDataUpdated', ChartToi);
                         });
                     </script>
                 @endforeach

@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Services\Rm;
+
+use Illuminate\Support\Facades\DB;
+
+class QueryBorlos
+{
+
+    public static function jmlHariRawat($start_Date, $end_Date, $kamar)
+    {
+        $jml_hari_rawat = DB::table('reg_periksa')
+            ->select(DB::raw('SUM(DATEDIFF(kamar_inap.tgl_keluar, kamar_inap.tgl_masuk)) as total_jumlah_hari'))
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->whereBetween('reg_periksa.tgl_registrasi', [$start_Date, $end_Date])
+            ->where('bangsal.nm_bangsal', 'like', '%' . $kamar . '%')
+            ->first();
+        return (int) ($jml_hari_rawat->total_jumlah_hari ?? 0);
+    }
+
+    public static function pasienKeluar($start_Date, $end_Date, $kamar)
+    {
+        $pasienKeluar = DB::table('reg_periksa')
+            ->select(DB::raw('COUNT(kamar_inap.no_rawat) AS jumlah_pasien_keluar'))
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->whereBetween('reg_periksa.tgl_registrasi', [$start_Date, $end_Date])
+            ->where('bangsal.nm_bangsal', 'like', '%' . $kamar . '%')
+            ->groupBy('bangsal.nm_bangsal')
+            ->get();
+        return (int) ($pasienKeluar->sum('jumlah_pasien_keluar') ?? 0);
+    }
+
+    public static function lamaDiRawat($start_Date, $end_Date, $kamar)
+    {
+        $lama_dirawat = DB::table('reg_periksa')
+            ->select(DB::raw('SUM(kamar_inap.lama) AS total_days_hospitalized'))
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->whereBetween('reg_periksa.tgl_registrasi', [$start_Date, $end_Date])
+            ->where('bangsal.nm_bangsal', 'like', '%' . $kamar . '%')
+            ->groupBy('bangsal.nm_bangsal')
+            ->get();
+        return (int) ($lama_dirawat->sum('total_days_hospitalized') ?? 0);
+    }
+}
