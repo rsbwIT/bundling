@@ -1,7 +1,7 @@
 <div>
     <div class="card">
         <div class="card-header">
-            <form wire:submit.prevent="Toi">
+            <form wire:submit.prevent="Ndr">
                 <div class="row">
                     <div class="col-lg-2">
                         <div class="input-group">
@@ -16,7 +16,7 @@
                                 <button class="btn btn-sidebar btn-primary btn-sm" wire:click="render()">
                                     <i class="fas fa-search fa-fw"></i>
                                     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
-                                        wire:loading wire:target="Toi"></span>
+                                        wire:loading wire:target="Ndr"></span>
                                 </button>
                             </div>
                         </div>
@@ -26,48 +26,48 @@
         </div>
         <div class="card-body table-responsive p-0" style="height: 460px;">
             <div class="row">
-                @foreach ($Toi as $nama_kamar => $dataBulanan)
+                @foreach ($Ndr as $nama_kamar => $dataBulanan)
                     <div class="col-md-6">
-                        <div id="ChartToi-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
+                        <div id="ChartNdr-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
                     </div>
 
                     <script>
-                        function ChartToi(Toi) {
-                            for (const [nama_kamar, dataBulanan] of Object.entries(Toi)) {
+                        function ChartNdr(Ndr) {
+                            for (const [nama_kamar, dataBulanan] of Object.entries(Ndr)) {
                                 const xBulan = [];
-                                const yToi = [];
+                                const yNdr = [];
                                 for (const bulan in dataBulanan) {
                                     xBulan.push(bulan);
-                                    yToi.push(parseFloat(dataBulanan[bulan]['toi'].toFixed(2)));
+                                    yNdr.push(parseFloat(dataBulanan[bulan]['ndr'].toFixed(2)));
                                 }
                                 const data = [{
                                     x: xBulan,
-                                    y: yToi,
+                                    y: yNdr,
                                     type: "bar",
                                     orientation: "v",
                                     marker: {
-                                        color: "rgb(252, 248, 0)"
+                                        color: "rgb(11, 232, 255)"
                                     },
                                     hoverinfo: 'y'
                                 }];
                                 const layout = {
-                                    title: `Toi Perbulan ${nama_kamar} `,
+                                    title: `Ndr Perbulan ${nama_kamar} `,
                                     yaxis: {
                                         title: "Dalam Hari",
-                                        range: [0, 5]
+                                        range: [0, 100]
                                     },
                                     xaxis: {
                                         title: "Bulan"
                                     },
                                 };
-                                Plotly.newPlot(`ChartToi-${nama_kamar}`, data, layout);
+                                Plotly.newPlot(`ChartNdr-${nama_kamar}`, data, layout);
                             }
                         }
                         document.addEventListener('DOMContentLoaded', function() {
-                            ChartToi(@json($Toi));
+                            ChartNdr(@json($Ndr));
                         });
                         document.addEventListener('livewire:load', function() {
-                            Livewire.on('chartDataToiUpdated', ChartToi);
+                            Livewire.on('chartDataNdrUpdated', ChartNdr);
                         });
                     </script>
                 @endforeach

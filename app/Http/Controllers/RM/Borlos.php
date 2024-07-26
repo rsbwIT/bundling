@@ -16,7 +16,7 @@ class Borlos extends Controller
         return view('rm.borlos');
     }
 
-    public  function Toi()
+    public  function Bto()
     {
 
     }

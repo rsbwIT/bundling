@@ -165,7 +165,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     // RM
     Route::get('/berkas-rm', [BerkasRM::class, 'BerkasRM']);
     Route::get('/laporan-borlosetc', [Borlos::class, 'Borlosetc']);
-    Route::get('/laporan-toi', [Borlos::class, 'Toi']);
+    Route::get('/laporan-bto', [Borlos::class, 'Bto']);
 
     // KEPERAWATAN
     Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);

@@ -590,8 +590,18 @@
                                 <p>
                                     E-Rekam Medis
                                     <i class="right fas fa-angle-left"></i>
+                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-borlosetc') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Sensus Bulanan</p>
+                                        <span class="badge badge-danger right">New</span>
+                                    </a>
+                                </li>
+                            </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('berkas-rm') }}" class="nav-link">

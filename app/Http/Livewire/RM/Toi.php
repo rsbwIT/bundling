@@ -43,6 +43,7 @@ class Toi extends Component
                 $hari_rawat = QueryBorlos::jmlHariRawat($start_Date, $end_Date, $kamar);
                 $pasien_keluar = QueryBorlos::pasienKeluar($start_Date, $end_Date, $kamar);
 
+                // $toi = $pasien_keluar > 0 ? ((($jumlah_tempat_tidur * $jml_hari_dlm_sebulan) - $hari_rawat) / $pasien_keluar) : 0;
                 $toi = $pasien_keluar > 0 ? ((($jumlah_tempat_tidur * $jml_hari_dlm_sebulan) - $hari_rawat) / $pasien_keluar) : 0;
 
                 $toiResults[$kamar][BulanRomawi::BulanIndo2(sprintf("%02d",$month))] = [
@@ -72,6 +73,6 @@ class Toi extends Component
         }
         $toiResults['SEMUA RUANGAN'] = $TotalToi;
         $this->Toi = $toiResults;
-        $this->emit('chartDataUpdated', $this->Toi);
+        $this->emit('chartDataToiUpdated', $this->Toi);
     }
 }

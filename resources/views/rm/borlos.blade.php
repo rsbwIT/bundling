@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'BOR LOS etc')
+@section('title', 'Laporan Pasien')
 @push('styles')
     @livewireStyles
 @endpush
@@ -11,15 +11,27 @@
                     <ul class="nav nav-tabs" id="tabCetak" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="Bor" data-toggle="pill" href="#tab_Bor" role="tab"
-                                aria-controls="tab_Bor" aria-selected="true">Bor</a>
+                                aria-controls="tab_Bor" aria-selected="true">BOR</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="Los" data-toggle="pill" href="#tab_Los" role="tab"
-                                aria-controls="tab_Los" aria-selected="false">Los</a>
+                                aria-controls="tab_Los" aria-selected="false">LOS</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="Toi" data-toggle="pill" href="#tab_toi" role="tab"
-                                aria-controls="tab_toi" aria-selected="false">Toi</a>
+                                aria-controls="tab_toi" aria-selected="false">TOI</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="Bto" data-toggle="pill" href="#tab_bto" role="tab"
+                                aria-controls="tab_bto" aria-selected="false">BTO</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="Ndr" data-toggle="pill" href="#tab_ndr" role="tab"
+                                aria-controls="tab_ndr" aria-selected="false">NDR</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="Gdr" data-toggle="pill" href="#tab_gdr" role="tab"
+                                aria-controls="tab_gdr" aria-selected="false">GDR</a>
                         </li>
                     </ul>
                 </div>
@@ -32,6 +44,15 @@
                     </div>
                     <div class="tab-pane fade" id="tab_toi" role="tabpanel" aria-labelledby="Toi">
                         @livewire('r-m.toi')
+                    </div>
+                    <div class="tab-pane fade" id="tab_bto" role="tabpanel" aria-labelledby="Bto">
+                        @livewire('r-m.bto')
+                    </div>
+                    <div class="tab-pane fade" id="tab_ndr" role="tabpanel" aria-labelledby="Ndr">
+                        @livewire('r-m.ndr')
+                    </div>
+                    <div class="tab-pane fade" id="tab_gdr" role="tabpanel" aria-labelledby="Gdr">
+                        @livewire('r-m.gdr')
                     </div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 <div>
     <div class="card">
         <div class="card-header">
-            <form wire:submit.prevent="Toi">
+            <form wire:submit.prevent="Gdr">
                 <div class="row">
                     <div class="col-lg-2">
                         <div class="input-group">
@@ -16,7 +16,7 @@
                                 <button class="btn btn-sidebar btn-primary btn-sm" wire:click="render()">
                                     <i class="fas fa-search fa-fw"></i>
                                     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
-                                        wire:loading wire:target="Toi"></span>
+                                        wire:loading wire:target="Gdr"></span>
                                 </button>
                             </div>
                         </div>
@@ -26,48 +26,48 @@
         </div>
         <div class="card-body table-responsive p-0" style="height: 460px;">
             <div class="row">
-                @foreach ($Toi as $nama_kamar => $dataBulanan)
+                @foreach ($Gdr as $nama_kamar => $dataBulanan)
                     <div class="col-md-6">
-                        <div id="ChartToi-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
+                        <div id="ChartGdr-{{ $nama_kamar }}" style="width:100%;max-width:100%"></div>
                     </div>
 
                     <script>
-                        function ChartToi(Toi) {
-                            for (const [nama_kamar, dataBulanan] of Object.entries(Toi)) {
+                        function ChartGdr(Gdr) {
+                            for (const [nama_kamar, dataBulanan] of Object.entries(Gdr)) {
                                 const xBulan = [];
-                                const yToi = [];
+                                const yGdr = [];
                                 for (const bulan in dataBulanan) {
                                     xBulan.push(bulan);
-                                    yToi.push(parseFloat(dataBulanan[bulan]['toi'].toFixed(2)));
+                                    yGdr.push(parseFloat(dataBulanan[bulan]['gdr'].toFixed(2)));
                                 }
                                 const data = [{
                                     x: xBulan,
-                                    y: yToi,
+                                    y: yGdr,
                                     type: "bar",
                                     orientation: "v",
                                     marker: {
-                                        color: "rgb(252, 248, 0)"
+                                        color: "rgba(245, 40, 145, 0.8)"
                                     },
                                     hoverinfo: 'y'
                                 }];
                                 const layout = {
-                                    title: `Toi Perbulan ${nama_kamar} `,
+                                    title: `Gdr Perbulan ${nama_kamar} `,
                                     yaxis: {
                                         title: "Dalam Hari",
-                                        range: [0, 5]
+                                        range: [0, 100]
                                     },
                                     xaxis: {
                                         title: "Bulan"
                                     },
                                 };
-                                Plotly.newPlot(`ChartToi-${nama_kamar}`, data, layout);
+                                Plotly.newPlot(`ChartGdr-${nama_kamar}`, data, layout);
                             }
                         }
                         document.addEventListener('DOMContentLoaded', function() {
-                            ChartToi(@json($Toi));
+                            ChartGdr(@json($Gdr));
                         });
                         document.addEventListener('livewire:load', function() {
-                            Livewire.on('chartDataToiUpdated', ChartToi);
+                            Livewire.on('chartDataGdrUpdated', ChartGdr);
                         });
                     </script>
                 @endforeach
