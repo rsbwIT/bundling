@@ -23,6 +23,7 @@ class MapingAsuransi extends Component
         $this->getAsuransi = DB::table('penjab')
         ->select('penjab.png_jawab','penjab.kd_pj', 'bw_maping_asuransi.nama_perusahaan', 'bw_maping_asuransi.alamat_asuransi','bw_maping_asuransi.kd_surat')
         ->leftJoin('bw_maping_asuransi','penjab.kd_pj','=','bw_maping_asuransi.kd_pj')
+        ->where('penjab.status', '=', '1')
         ->where(function ($query) use ($cariKode) {
             $query->orwhere('penjab.png_jawab', 'LIKE', "%$cariKode%")
                 ->orwhere('penjab.kd_pj', 'LIKE', "%$cariKode%");
