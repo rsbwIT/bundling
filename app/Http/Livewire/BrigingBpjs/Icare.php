@@ -42,12 +42,14 @@ class Icare extends Component
                 'reg_periksa.no_rawat',
                 'poliklinik.nm_poli',
                 'maping_dokter_dpjpvclaim.kd_dokter_bpjs',
-                'pasien.no_ktp'
+                'pasien.no_ktp',
+                'bw_validasi_icare.status'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->leftJoin('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->leftJoin('bw_validasi_icare', 'reg_periksa.no_rawat', '=', 'bw_validasi_icare.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
@@ -70,6 +72,18 @@ class Icare extends Component
             Session::flash('sucsessGetUrl' . $key, $this->getriwayat['response']['url']);
         }else{
             Session::flash('failedGetUrl' . $key, 'gagal');
+        }
+    }
+
+    public function sudahDibuka($no_rawat, $kd_dokter_bpjs) {
+        try {
+            DB::table('bw_validasi_icare')->insert([
+                'no_rawat' => $no_rawat,
+                'kd_dokter_bpjs' => $kd_dokter_bpjs,
+                'status' => '1'
+            ]);
+        } catch (\Throwable $th) {
+
         }
     }
 }

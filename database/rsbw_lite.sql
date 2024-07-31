@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 02 Jul 2024 pada 05.25
+-- Waktu pembuatan: 31 Jul 2024 pada 05.54
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.0.30
 
@@ -20,6 +20,18 @@ SET time_zone = "+00:00";
 --
 -- Database: `rsbw_lite`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `bw_borlos`
+--
+
+CREATE TABLE `bw_borlos` (
+  `id_ruangan` int(122) NOT NULL,
+  `ruangan` varchar(122) NOT NULL,
+  `jml_bed` int(122) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -281,6 +293,18 @@ CREATE TABLE `bw_log_antrian_poli` (
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `bw_maping_asuransi`
+--
+
+CREATE TABLE `bw_maping_asuransi` (
+  `kd_pj` varchar(15) NOT NULL,
+  `nama_perusahaan` varchar(255) NOT NULL,
+  `alamat_asuransi` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `bw_nm_kegiatan_karu`
 --
 
@@ -304,6 +328,18 @@ CREATE TABLE `bw_nm_kegiatan_keperawatan` (
   `kd_jesni_lb` varchar(15) NOT NULL,
   `default_mandiri` varchar(12) NOT NULL,
   `default_supervisi` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `bw_peserta_asuransi`
+--
+
+CREATE TABLE `bw_peserta_asuransi` (
+  `no_rkm_medis` varchar(20) NOT NULL,
+  `nomor_kartu` varchar(50) NOT NULL,
+  `nomor_klaim` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -374,32 +410,13 @@ CREATE TABLE `bw_test_cekin` (
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `failed_jobs`
+-- Struktur dari tabel `bw_validasi_icare`
 --
 
-CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  `connection` text NOT NULL,
-  `queue` text NOT NULL,
-  `payload` longtext NOT NULL,
-  `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `file_casemix`
---
-
-CREATE TABLE `file_casemix` (
-  `id` int(50) NOT NULL,
-  `no_rkm_medis` varchar(50) NOT NULL,
-  `no_rawat` varchar(50) NOT NULL,
-  `nama_pasein` varchar(100) NOT NULL,
-  `jenis_berkas` varchar(50) NOT NULL,
-  `file` varchar(255) DEFAULT NULL
+CREATE TABLE `bw_validasi_icare` (
+  `no_rawat` varchar(20) NOT NULL,
+  `kd_dokter_bpjs` varchar(20) NOT NULL,
+  `status` enum('1','0') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -455,30 +472,6 @@ CREATE TABLE `loket` (
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `migrations`
---
-
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `password_resets`
---
-
-CREATE TABLE `password_resets` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Struktur dari tabel `pendaftaran`
 --
 
@@ -487,44 +480,15 @@ CREATE TABLE `pendaftaran` (
   `nama_pendaftaran` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `personal_access_tokens`
---
-
-CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `abilities` text DEFAULT NULL,
-  `last_used_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `users`
---
-
-CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indeks untuk tabel `bw_borlos`
+--
+ALTER TABLE `bw_borlos`
+  ADD PRIMARY KEY (`id_ruangan`);
 
 --
 -- Indeks untuk tabel `bw_crosscheck_coding`
@@ -642,6 +606,12 @@ ALTER TABLE `bw_log_antrian_poli`
   ADD PRIMARY KEY (`no_rawat`);
 
 --
+-- Indeks untuk tabel `bw_maping_asuransi`
+--
+ALTER TABLE `bw_maping_asuransi`
+  ADD PRIMARY KEY (`kd_pj`);
+
+--
 -- Indeks untuk tabel `bw_nm_kegiatan_karu`
 --
 ALTER TABLE `bw_nm_kegiatan_karu`
@@ -653,6 +623,12 @@ ALTER TABLE `bw_nm_kegiatan_karu`
 ALTER TABLE `bw_nm_kegiatan_keperawatan`
   ADD PRIMARY KEY (`kd_kegiatan`),
   ADD KEY `kd_jesni_lb` (`kd_jesni_lb`);
+
+--
+-- Indeks untuk tabel `bw_peserta_asuransi`
+--
+ALTER TABLE `bw_peserta_asuransi`
+  ADD PRIMARY KEY (`no_rkm_medis`);
 
 --
 -- Indeks untuk tabel `bw_ruangpoli_dokter`
@@ -685,17 +661,10 @@ ALTER TABLE `bw_test_cekin`
   ADD PRIMARY KEY (`kode_booking`);
 
 --
--- Indeks untuk tabel `failed_jobs`
+-- Indeks untuk tabel `bw_validasi_icare`
 --
-ALTER TABLE `failed_jobs`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
-
---
--- Indeks untuk tabel `file_casemix`
---
-ALTER TABLE `file_casemix`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `bw_validasi_icare`
+  ADD PRIMARY KEY (`no_rawat`);
 
 --
 -- Indeks untuk tabel `file_farmasi`
@@ -725,41 +694,20 @@ ALTER TABLE `loket`
   ADD KEY `loket_kd_pendaftaran_foreign` (`kd_pendaftaran`);
 
 --
--- Indeks untuk tabel `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indeks untuk tabel `password_resets`
---
-ALTER TABLE `password_resets`
-  ADD KEY `password_resets_email_index` (`email`);
-
---
 -- Indeks untuk tabel `pendaftaran`
 --
 ALTER TABLE `pendaftaran`
   ADD PRIMARY KEY (`kd_pendaftaran`);
 
 --
--- Indeks untuk tabel `personal_access_tokens`
---
-ALTER TABLE `personal_access_tokens`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
-  ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`);
-
---
--- Indeks untuk tabel `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`);
-
---
 -- AUTO_INCREMENT untuk tabel yang dibuang
 --
+
+--
+-- AUTO_INCREMENT untuk tabel `bw_borlos`
+--
+ALTER TABLE `bw_borlos`
+  MODIFY `id_ruangan` int(122) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `bw_logbook_karu`
@@ -786,40 +734,10 @@ ALTER TABLE `bw_logbook_keperawatan_kewenangankhusus`
   MODIFY `id_kewenangankhusus` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT untuk tabel `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT untuk tabel `file_casemix`
---
-ALTER TABLE `file_casemix`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT untuk tabel `file_farmasi`
 --
 ALTER TABLE `file_farmasi`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT untuk tabel `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT untuk tabel `personal_access_tokens`
---
-ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT untuk tabel `users`
---
-ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

@@ -53,16 +53,20 @@
                             <td>{{ $item->nm_dokter }}</td>
                             <td>{{ $item->nm_poli }}</td>
                             <td width="100px">
-                                <button class="btn btn-default btn-sm"
+                                @php
+                                    $color = $item->status == 1 ? 'text-success' : 'text-default';
+                                    $icon = $item->status == 1 ? 'fa-check' : 'fa-pen';
+                                @endphp
+                                <button class="btn btn-default {{$color}} btn-sm"
                                     style="background: none; border: none; padding: 0px; margin: 0px;"
                                     wire:click="riwayatIcare('{{ $item->no_ktp }}','{{ $item->kd_dokter_bpjs }}' ,'{{ $key }}')">
-                                    <i class="fas fa-pen" data-toggle="tooltip" data-placement="top"
+                                    <i class="fas {{$icon}}" data-toggle="tooltip" data-placement="top"
                                         title="Lihat riwayat"></i>
                                 </button>
                                 @if (Session::has('sucsessGetUrl' . $key))
                                     <a target="_blank" href="{{ Session::get('sucsessGetUrl' . $key) }}"
                                         class="btn btn-default btn-sm float-right"
-                                        style="background: none; border: none; padding: 0px; margin: 0px;">
+                                        style="background: none; border: none; padding: 0px; margin: 0px;" wire:click="sudahDibuka('{{$item->no_rawat}}', '{{$item->kd_dokter_bpjs}}')">
                                         <i class="fas fa-eye "></i>
                                     </a>
                                 @endif
