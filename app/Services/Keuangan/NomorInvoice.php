@@ -28,7 +28,7 @@ class NomorInvoice
             $newNumberFormatted = str_pad($newNumber, 4, '0', STR_PAD_LEFT);
             $month = BulanRomawi::getBulanRomawi();
 
-            $finalInvoiceNumber = "{$newNumberFormatted}/{$kode_asurasni}/{$kodeSts}/RSBW/{$month}/{$year}";
+            $finalInvoiceNumber = "{$newNumberFormatted}/{$kode_asurasni}/{$kodeSts}/RSBW/VII/{$year}";
 
             return $finalInvoiceNumber;
         } catch (\Throwable $th) {
