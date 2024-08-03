@@ -601,6 +601,12 @@
                                         <span class="badge badge-danger right">New</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('laporan-pasien') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Pasien</p>
+                                    </a>
+                                </li>
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">

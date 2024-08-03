@@ -86,7 +86,7 @@
                 </div>
             </form>
         </div>
-        <div class="card-body table-responsive p-0" style="height: 450px;"">
+        <div class="card-body table-responsive p-0" style="height: 450px;">
             <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
                 <thead>
                     <tr>

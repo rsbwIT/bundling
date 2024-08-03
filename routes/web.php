@@ -18,6 +18,7 @@ use App\Http\Controllers\Laporan\BayarPiutang;
 use App\Http\Controllers\Laporan\PiutangRalan;
 use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
+use App\Http\Controllers\Regperiksa\Listpasien;
 use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Farmasi\BundlingResepobat2;
 use App\Http\Controllers\Farmasi\SepResepController;
 use App\Http\Controllers\Keperawatan\LaporanLogBook;
 use App\Http\Controllers\DetailTindakan\OperasiAndVK;
+use App\Http\Controllers\DetailTindakan\RanapDokter2;
 use App\Http\Controllers\Keperawatan\HomeKeperawatan;
 use App\Http\Controllers\Keperawatan\LaporanLogBook2;
 use App\Http\Controllers\DetailTindakan\RalanParamedis;
@@ -76,7 +78,10 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/test-delte', [TestController::class, 'TestDelete']);
     Route::get('/test-cari', [TestController::class, 'TestCari']);
     Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
-    Route::get('/', [PasienController::class, 'Pasien']);
+    Route::get('/laporan-pasien', [PasienController::class, 'Pasien']);
+
+    // LIST PASIEN
+    Route::get('/', [Listpasien::class, 'Listpasien']);
 
     // OBAT
     Route::get('/returObat', [ReturObatController::class, 'Obat'])->middleware('permision-rsbw:penyakit');
@@ -131,6 +136,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/ralan-dokter-paramedis', [RalanDokterParamedis::class, 'RalanDokterParamedis']);
     Route::get('/operasi-and-vk', [OperasiAndVK::class, 'OperasiAndVK']);
     Route::get('/ranap-dokter', [RanapDokter::class, 'RanapDokter']);
+    Route::get('/ranap-dokter2', [RanapDokter2::class, 'RanapDokter2']);
     Route::get('/ranap-paramedis', [RanapParamedis::class, 'RanapParamedis']);
     Route::get('/ranap-dokter-paramedis', [RanapDokterParamedis::class, 'RanapDokterParamedis']);
     Route::get('/periksa-radiologi', [PeriksaRadiologi::class, 'PeriksaRadiologi']);

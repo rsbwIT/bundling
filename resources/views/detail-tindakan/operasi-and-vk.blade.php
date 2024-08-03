@@ -25,14 +25,21 @@
                         <th>Tanggal Operasi</th>
                         <th>Penanggung Jawab</th>
                         <th>Ruangan</th>
+                        <th>Rincian Piutang (Total)</th>
+                        <th>Cicilan(Rp)</th>
+                        <th>Ekses / Uang Muka</th>
+                        <th>Total Terbayar</th>
+                        <th>Selisih</th>
                         <th>Operator 1</th>
                         <th>Biaya Operator 1</th>
+                        <th>Operator 1 (20% Koding INACBG)</th>
                         <th>Operator 2</th>
                         <th>Biaya Operator 2</th>
                         <th>Operator 3</th>
                         <th>Biaya Operator 3</th>
                         <th>Asisten Operator 1</th>
                         <th>Biaya Asisten Operator 1</th>
+                        <th>JM Asisten Operator 1 (15% JM Operator)</th>
                         <th>Asisten Operator 2</th>
                         <th>Biaya Asisten Operator 2</th>
                         <th>Asisten Operator 3</th>
@@ -45,8 +52,10 @@
                         <th>Biaya Perawat Resusitas</th>
                         <th>Dokter Anestesi</th>
                         <th>Biaya Dokter Anestesi</th>
+                        <th>Biaya Dokter Anestesi (35% JM Operator)</th>
                         <th>Asisten Anestesi</th>
                         <th>Biaya Asisten Anestesi</th>
+                        <th>Biaya Asisten Anestesi (10% JM Operator)</th>
                         <th>Asisten Anestesi 2</th>
                         <th>Biaya Asisten Anestesi 2</th>
                         <th>Bidan</th>
@@ -93,14 +102,49 @@
                             <td>{{ $item->tgl_operasi }}</td>
                             <td>{{ $item->png_jawab }}</td>
                             <td>{{ $item->ruangan }}</td>
+                            @php
+                                $total_piutang_rs =
+                                    $item->getRegistrasi->sum('totalbiaya') +
+                                    $item->getObat->sum('totalbiaya') +
+                                    $item->getReturObat->sum('totalbiaya') +
+                                    $item->getResepPulang->sum('totalbiaya') +
+                                    $item->getRalanDokter->sum('totalbiaya') +
+                                    $item->getRalanParamedis->sum('totalbiaya') +
+                                    $item->getRalanDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapDokter->sum('totalbiaya') +
+                                    $item->getRanapDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapParamedis->sum('totalbiaya') +
+                                    $item->getOprasi->sum('totalbiaya') +
+                                    $item->getLaborat->sum('totalbiaya') +
+                                    $item->getRadiologi->sum('totalbiaya') +
+                                    $item->getTambahan->sum('totalbiaya') +
+                                    $item->getKamarInap->sum('totalbiaya') +
+                                    $item->getPotongan->sum('totalbiaya') -
+                                    $item->uangmuka;
+                            @endphp
+                            <td>
+                                {{ $total_piutang_rs }}
+                            </td>
+                            <td>{{ $item->besar_cicilan }}</td>
+                            <td>{{ $item->uangmuka }}</td>
+                            @php
+                                $total_terbayar = $item->besar_cicilan + $item->uangmuka;
+                            @endphp
+                            <td>{{ $total_terbayar }}</td>
+                            <td>{{ $item->besar_cicilan - $total_piutang_rs + $item->uangmuka }}</td>
                             <td>{{ $item->operator1 }}</td>
                             <td>{{ round($item->biayaoperator1) }}</td>
+                            @php
+                                $oprator1INACBG = $total_terbayar * 0.2;
+                            @endphp
+                            <td>{{ round($oprator1INACBG) }}</td>
                             <td>{{ $item->operator2 }}</td>
                             <td>{{ round($item->biayaoperator2) }}</td>
                             <td>{{ $item->operator3 }}</td>
                             <td>{{ round($item->biayaoperator3) }}</td>
                             <td>{{ $item->asisten_operator1 }}</td>
                             <td>{{ round($item->biayaasisten_operator1) }}</td>
+                            <td>{{ round($oprator1INACBG * 0.15) }}</td>
                             <td>{{ $item->asisten_operator2 }}</td>
                             <td>{{ round($item->biayaasisten_operator2) }}</td>
                             <td>{{ $item->asisten_operator3 }}</td>
@@ -113,8 +157,10 @@
                             <td>{{ round($item->biayaperawaat_resusitas) }}</td>
                             <td>{{ $item->dokter_anestesi }}</td>
                             <td>{{ round($item->biayadokter_anestesi) }}</td>
+                            <td>{{ round($oprator1INACBG * 0.35) }}</td>
                             <td>{{ $item->asisten_anestesi }}</td>
                             <td>{{ round($item->biayaasisten_anestesi) }}</td>
+                            <td>{{ round($oprator1INACBG * 0.1) }}</td>
                             <td>{{ $item->asisten_anestesi2 }}</td>
                             <td>{{ round($item->biayaasisten_anestesi2) }}</td>
                             <td>{{ $item->bidan }}</td>
