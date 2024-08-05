@@ -60,7 +60,7 @@
             page-break-after: always;
         }
 
-        .mt-3{
+        .mt-3 {
             margin-top: 15px;
         }
 
@@ -174,7 +174,38 @@
                             <td>Fasker Perujuk</td>
                             <td>: {{ $getSEP->nmppkrujukan }}</td>
                             <td>Kls. Rawat</td>
-                            <td>: {{ $getSEP->klsrawat }}</td>
+                            @php
+                                switch ($getSEP->klsnaik) {
+                                    case 1:
+                                        $kelasRawat = 'VVIP';
+                                        break;
+                                    case 2:
+                                        $kelasRawat = 'VIP';
+                                        break;
+                                    case 3:
+                                        $kelasRawat = 'Kelas 1';
+                                        break;
+                                    case 4:
+                                        $kelasRawat = 'Kelas 2';
+                                        break;
+                                    case 5:
+                                        $kelasRawat = 'Kelas 3';
+                                        break;
+                                    case 6:
+                                        $kelasRawat = 'ICCU';
+                                        break;
+                                    case 7:
+                                        $kelasRawat = 'ICU';
+                                        break;
+                                    case 8:
+                                        $kelasRawat = 'Diatas Kelas 1';
+                                        break;
+                                    default:
+                                        $kelasRawat = 'Tidak Diketahui';
+                                        break;
+                                }
+                            @endphp
+                            <td>: {{ $kelasRawat }}</td>
                         </tr>
                         <tr>
                             <td style="vertical-align: top;">Diagnosa Awal</td>

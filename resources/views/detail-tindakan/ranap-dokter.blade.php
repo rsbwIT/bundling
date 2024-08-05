@@ -16,6 +16,7 @@
                 id="tableToCopy">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>No. Rawat</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
@@ -40,8 +41,9 @@
                         $mergedData = $ranapDokter->merge($RalanDokter);
                         $sortedData = $mergedData->sortBy('no_rawat');
                     @endphp
-                    @foreach ($sortedData as $item)
+                    @foreach ($sortedData as $key => $item)
                         <tr>
+                            <td>{{$key+1}}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>

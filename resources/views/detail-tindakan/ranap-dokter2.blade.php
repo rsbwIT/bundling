@@ -53,11 +53,13 @@
                             foreach ($group as $item) {
                                 foreach ($item->dpjpRanap as $dpjp) {
                                     if (empty($item->operator1) && $item->kd_dokter == $dpjp->dpjp) {
-                                        $persen = 0.09;
+                                        $persen = 0.05;
                                         break 2;
-                                    }else if ($item->kd_dokter != $dpjp->dpjp ){
-                                        $persen = 0.04;
+                                    } elseif ($item->kd_dokter != $dpjp->dpjp) {
+                                        $persen = 0.03;
                                         break 2;
+                                    } else {
+                                        $persen = 0;
                                     }
                                 }
                             }
@@ -100,6 +102,8 @@
                             </tr>
                         @endforeach
                     @endforeach
+
+                    {{-- RALAN DOKTER --}}
                     @php
                         $sortedData = $RalanDokter->sortBy('no_rawat');
                         $groupedData = $sortedData->groupBy(function ($item) {
