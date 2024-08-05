@@ -123,7 +123,7 @@
                                 $kelasRawat = 'Diatas Kelas 1';
                                 break;
                             default:
-                                $kelasRawat = 'Tidak Diketahui';
+                                $kelasRawat = $getSEP->klsrawat;
                                 break;
                         }
                     @endphp
