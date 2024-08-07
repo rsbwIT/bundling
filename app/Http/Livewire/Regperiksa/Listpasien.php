@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class Listpasien extends Component
 {
+    public $tampil = '';
+    public function showRiwayatInvoice($test1)
+    {
+        $this->tampil = $test1;
+    }
+
     public $tanggal1;
     public $tanggal2;
     public $status_lanjut;
@@ -34,6 +40,7 @@ class Listpasien extends Component
                 'reg_periksa.no_rawat',
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.tgl_registrasi',
+                'reg_periksa.status_lanjut',
                 'dokter.nm_dokter',
                 DB::raw('COALESCE(bridging_sep.no_sep, "-") as no_sep')
             )
@@ -44,6 +51,7 @@ class Listpasien extends Component
             ->where(function ($query) use ($cariKode) {
                 $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
                     ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
@@ -59,6 +67,7 @@ class Listpasien extends Component
                 'reg_periksa.no_rawat',
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.tgl_registrasi',
+                'reg_periksa.status_lanjut',
                 'dokter.nm_dokter',
                 DB::raw('COALESCE(bridging_sep.no_sep, "-") as no_sep'),
                 'kamar_inap.tgl_masuk',
@@ -82,6 +91,7 @@ class Listpasien extends Component
 
                 $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
                     ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ranap')

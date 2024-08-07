@@ -63,7 +63,7 @@
                     @foreach ($getPasien as $key => $item)
                         <tr wire:key='{{ $key }}'>
                             <td>
-                                <button id="dropdownSubMenu1" data-toggle="dropdown" aria-haspopup="true"
+                                <button id="dropdownSubMenu1{{$key}}" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false"
                                     class="btn btn-default btn-sm dropdown-toggle dropdown dropdown-hover py-0"></button>
                                 @include('regperiksa.component.menu')

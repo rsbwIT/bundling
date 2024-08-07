@@ -19,6 +19,7 @@ use App\Http\Controllers\Laporan\PiutangRalan;
 use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\Regperiksa\Listpasien;
+use App\Http\Controllers\Lab\BridgingalatlatLis;
 use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
@@ -168,8 +169,6 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     //DISPLAY
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
 
-
-
     // RM
     Route::get('/berkas-rm', [BerkasRM::class, 'BerkasRM']);
     Route::get('/laporan-borlosetc', [Borlos::class, 'Borlosetc']);
@@ -184,12 +183,17 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/input-kegiatan-karu', [PengawasKeperawatan::class, 'InputKegiatankaru']);
     Route::get('/laporan-kegiatan-karu', [LaporanLogbokKaru::class, 'LaporanLogbokKaru']);
 
-    // BRIFING BPJS
+    // BRIDGING BPJS
     Route::get('/kirim-taskid-bpjs', [KirimTaskId::class, 'KirimTaskId']);
     Route::get('/kirim-taskid-bpjs2', [KirimTaskId::class, 'KirimTaskId2']);
     Route::get('/sep-vclaim', [KirimTaskId::class, 'CariSepVclaim']);
     Route::get('/update-jadwal-dokter', [KirimTaskId::class, 'UpdateJadwalHfis']);
     Route::get('/icare', [KirimTaskId::class, 'Icare']);
+
+    // LAB
+    Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
+
+
 
 
 });

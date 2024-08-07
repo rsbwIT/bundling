@@ -1,18 +1,22 @@
-<ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-    <li><a href="#" class="dropdown-item">Some action </a></li>
-    <li><a href="#" class="dropdown-item">Some other action</a></li>
-    <li class="dropdown-divider"></li>
-    <li class="dropdown-submenu dropdown-hover">
-        <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false"
-            class="dropdown-item dropdown-toggle">Hover for action</a>
-        <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-            <li>
-                <a tabindex="-1" href="#" class="dropdown-item">level 2</a>
-            </li>
-
-            <li><a href="#" class="dropdown-item">level 2</a></li>
-            <li><a href="#" class="dropdown-item">level 2</a></li>
-        </ul>
-    </li>
-</ul>
+<div>
+    <ul aria-labelledby="dropdownSubMenu1{{ $key }}" class="dropdown-menu border-0 shadow">
+        <li><a href="#" class="dropdown-item">Some other action</a></li>
+        <li class="dropdown-divider"></li>
+        {{-- LAB --}}
+        <li class="dropdown-submenu dropdown-hover">
+            <a id="dropdownSubMenuLab2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false" class="dropdown-item dropdown-toggle">Lab</a>
+            <ul aria-labelledby="dropdownSubMenuLab2" class="dropdown-menu border-0 shadow">
+                <li>
+                    <form action="{{ url('bridging-lis-lab') }}" method="">
+                        @csrf
+                        <input type="text" name="no_rawat" value="{{ $item->no_rawat }}">
+                        <input type="text" name="status_lanjut" value="{{ $item->status_lanjut }}">
+                        <input type="text" name="nm_pasien" value="{{ $item->nm_pasien }}">
+                        <button class="dropdown-item" type="submit">Bridging LIS</a>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
