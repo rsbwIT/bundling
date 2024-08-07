@@ -10,9 +10,9 @@
                 <li>
                     <form action="{{ url('bridging-lis-lab') }}" method="">
                         @csrf
-                        <input type="text" name="no_rawat" value="{{ $item->no_rawat }}">
-                        <input type="text" name="status_lanjut" value="{{ $item->status_lanjut }}">
-                        <input type="text" name="nm_pasien" value="{{ $item->nm_pasien }}">
+                        <input hidden type="text" name="no_rawat" value="{{ $item->no_rawat }}">
+                        <input hidden type="text" name="status_lanjut" value="{{ $item->status_lanjut }}">
+                        <input hidden type="text" name="nm_pasien" value="{{ $item->nm_pasien }}">
                         <button class="dropdown-item" type="submit">Bridging LIS</a>
                     </form>
                 </li>
