@@ -3,10 +3,10 @@
 namespace App\Http\Livewire\Lab;
 
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Livewire\Component;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\Lab\ServiceSoftmedik;
 
 class BridgingalatlatLis extends Component
 {
@@ -104,6 +104,7 @@ class BridgingalatlatLis extends Component
 
     public function sendDataToLIS($key)
     {
+        $Service = new  ServiceSoftmedik();
         $data = $this->getDatakhanza;
         $order_test = [];
         foreach ($data[$key]['Permintaan'] as $permintaan) {
@@ -113,9 +114,9 @@ class BridgingalatlatLis extends Component
             'order' => [
                 'msh' => [
                     'product' => 'SOFTMEDIX LIS',
-                    'version' => 'ws.003',
-                    'user_id' => 'RSBWLAMPUNG01',
-                    'key' => 'BWLPG01',
+                    'version' => $Service->version(),
+                    'user_id' => $Service->user_id(),
+                    'key' => $Service->key(),
                 ],
                 'pid' => [
                     'pmrn' => $data[$key]['no_rkm_medis'],
@@ -129,7 +130,7 @@ class BridgingalatlatLis extends Component
                     'nik' => ($data[$key]['nip']) ? $data[$key]['nip'] : '-',
                 ],
                 'obr' => [
-                    'order_control' => 'N',
+                    'order_control' => 'U',
                     'ptype' => ($data[$key]['status_lanjut'] === 'Ralan') ? 'OP' : 'IP',
                     'reg_no' => $data[$key]['noorder'],
                     'order_lab' => $data[$key]['noorder'],
@@ -155,23 +156,6 @@ class BridgingalatlatLis extends Component
                 ],
             ],
         ];
-
-        $client = new Client();
-
-        try {
-            $response = $client->post('192.168.3.37/wslis/bridging/order', [
-                'json' => $sendToLis,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-            ]);
-            $responseBody = $response->getBody();
-            $responseData = json_decode($responseBody, true);
-
-            dd($responseData);
-        } catch (\Exception $e) {
-            dd('Error: ' . $e->getMessage());
-        }
-        dd($sendToLis);
+        return $Service->ServiceSoftmedixPOST($sendToLis);
     }
 }
