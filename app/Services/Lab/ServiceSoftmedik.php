@@ -13,8 +13,10 @@ class ServiceSoftmedik
     public $version;
     public $user_id;
     public $key;
+    public $client;
     public function __construct()
     {
+        $this->client = new Client();
         $dotenv = Dotenv::createUnsafeImmutable(getcwd());
         $dotenv->safeLoad();
 
@@ -43,19 +45,28 @@ class ServiceSoftmedik
 
     public function ServiceSoftmedixPOST($sendToLis)
     {
-        $client = new Client();
+
 
         try {
-            $response = $client->post(self::url() . '/wslis/bridging/order', [
+            $response = $this->client->post(self::url() . '/wslis/bridging/order', [
                 'json' => $sendToLis,
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],
             ]);
             $responseBody = $response->getBody();
-            $responseData = json_decode($responseBody, true);
+            return json_decode($responseBody, true);
+        } catch (\Exception $e) {
+            dd('Error: ' . $e->getMessage());
+        }
+    }
 
-            dd($responseData);
+    public function ServiceSoftmedixGet($noorder)
+    {
+        try {
+            $response = $this->client->get(self::url() . '/wslis/bridging/result/'.self::user_id().'/'.self::key().'/'.$noorder);
+            $responseBody = $response->getBody();
+            return json_decode($responseBody, true);
         } catch (\Exception $e) {
             dd('Error: ' . $e->getMessage());
         }

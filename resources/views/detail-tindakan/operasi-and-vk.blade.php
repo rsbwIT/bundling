@@ -137,14 +137,26 @@
                             @php
                                 $oprator1INACBG = $total_terbayar * 0.2;
                             @endphp
-                            <td>{{ round($oprator1INACBG) }}</td>
+                            <td>
+                                @if ($item->kd_pj == 'BPJ')
+                                    {{ round($oprator1INACBG) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $item->operator2 }}</td>
                             <td>{{ round($item->biayaoperator2) }}</td>
                             <td>{{ $item->operator3 }}</td>
                             <td>{{ round($item->biayaoperator3) }}</td>
                             <td>{{ $item->asisten_operator1 }}</td>
                             <td>{{ round($item->biayaasisten_operator1) }}</td>
-                            <td>{{ round($oprator1INACBG * 0.15) }}</td>
+                            <td>
+                                @if ($item->kd_pj == 'BPJ')
+                                    {{ round($oprator1INACBG * 0.15) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $item->asisten_operator2 }}</td>
                             <td>{{ round($item->biayaasisten_operator2) }}</td>
                             <td>{{ $item->asisten_operator3 }}</td>
@@ -157,10 +169,22 @@
                             <td>{{ round($item->biayaperawaat_resusitas) }}</td>
                             <td>{{ $item->dokter_anestesi }}</td>
                             <td>{{ round($item->biayadokter_anestesi) }}</td>
-                            <td>{{ round($oprator1INACBG * 0.35) }}</td>
+                            <td>
+                                @if ($item->kd_pj == 'BPJ')
+                                    {{ round($oprator1INACBG * 0.35) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $item->asisten_anestesi }}</td>
                             <td>{{ round($item->biayaasisten_anestesi) }}</td>
-                            <td>{{ round($oprator1INACBG * 0.1) }}</td>
+                            <td>
+                                @if ($item->kd_pj == 'BPJ')
+                                    {{ round($oprator1INACBG * 0.1) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $item->asisten_anestesi2 }}</td>
                             <td>{{ round($item->biayaasisten_anestesi2) }}</td>
                             <td>{{ $item->bidan }}</td>

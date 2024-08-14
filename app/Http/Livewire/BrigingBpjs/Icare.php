@@ -43,13 +43,15 @@ class Icare extends Component
                 'poliklinik.nm_poli',
                 'maping_dokter_dpjpvclaim.kd_dokter_bpjs',
                 'pasien.no_ktp',
-                'bw_validasi_icare.status'
+                'bw_validasi_icare.status',
+                DB::raw('COALESCE(bridging_sep.no_sep, "-") as no_sep')
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->leftJoin('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('bw_validasi_icare', 'reg_periksa.no_rawat', '=', 'bw_validasi_icare.no_rawat')
+            ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")

@@ -32,6 +32,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-3 text-right">
+                    @if (session()->has('response200'))
+                        <span class="text-success"><i class="icon fas fa-check"> </i>
+                            {{ session('response200') }} </span>
+                    @endif
+                    @if (session()->has('response500'))
+                        <span class="text-danger"><i class="icon fas fa-ban"> </i> {{ session('response500') }}
+                        </span>
+                    @endif
+                </div>
             </div>
         </form>
     </div>
@@ -70,7 +80,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </td>
                         <td>{{ $data->no_rawat }}</td>
                         <td>{{ $data->nm_pasien }} - {{ $data->no_rkm_medis }} - ({{ $data->jk }})</td>
@@ -91,81 +100,236 @@
                                     <li><button class="dropdown-item" data-toggle="modal"
                                             data-target="#KirimDataLIS{{ $key }}">Kirim ke SOFTMEDIX</a>
                                     </li>
+                                    <li><button class="dropdown-item" wire:click="getDataLIS('{{ $data->noorder }}')"
+                                            data-toggle="modal" data-target="#DetailDataLIS{{ $key }}">Tarik
+                                            Data Sotfmedix</a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
-                        {{-- MODAL KIRIM --}}
-                        <div class="modal fade" id="KirimDataLIS{{ $key }}" tabindex="-1" role="dialog"
-                            aria-hidden="true" wire:ignore.self>
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title">Order Data SOFTMEDIX LIS
-                                            <b>{{ $data->nm_pasien }}</b>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Cito
-                                                    </label>
-                                                    <select class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.cito">
-                                                        <option value="Y">Cito</option>
-                                                        <option value="N">Tidak Cito</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Sembunyikan Nama
-                                                    </label>
-                                                    <select class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.med_legal">
-                                                        <option value="Y">Ya</option>
-                                                        <option value="N">Tidak</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Catan 1
-                                                    </label>
-                                                    <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve1"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Catan 2
-                                                    </label>
-                                                    <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve2"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Catan 3
-                                                    </label>
-                                                    <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve3"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label>Catan 4
-                                                    </label>
-                                                    <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve4"></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer justify-content-between">
-                                        <button type="button" class="btn btn-primary"
-                                            wire:click="sendDataToLIS('{{ $key }}')"
-                                            data-dismiss="modal">Kirim</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        @foreach ($getDatakhanza as $key => $item)
+            {{-- MODAL KIRIM --}}
+            <div class="modal fade" id="KirimDataLIS{{ $key }}" tabindex="-1" role="dialog"
+                aria-hidden="true" wire:ignore.self>
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title">Order Data SOFTMEDIX LIS
+                                <b>{{ $data->nm_pasien }}</b>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>Action
+                                        </label>
+                                        <select class="form-control"
+                                            wire:model.defer="getDatakhanza.{{ $key }}.order_control">
+                                            <option value="D">Delete</option>
+                                            <option value="U">Update</option>
+                                            <option value="N">Baru</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Cito
+                                        </label>
+                                        <select class="form-control"
+                                            wire:model.defer="getDatakhanza.{{ $key }}.cito">
+                                            <option value="Y">Cito</option>
+                                            <option value="N">Tidak Cito</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Sembunyikan Nama
+                                        </label>
+                                        <select class="form-control"
+                                            wire:model.defer="getDatakhanza.{{ $key }}.med_legal">
+                                            <option value="Y">Ya</option>
+                                            <option value="N">Tidak</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Catan 1
+                                        </label>
+                                        <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve1"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Catan 2
+                                        </label>
+                                        <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Catan 3
+                                        </label>
+                                        <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Catan 4
+                                        </label>
+                                        <textarea type="text" class="form-control" wire:model.defer="getDatakhanza.{{ $key }}.reserve4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-primary"
+                                wire:click="sendDataToLIS('{{ $key }}')" data-dismiss="modal">Kirim</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- MODAL DETAIL --}}
+            <div class="modal fade" id="DetailDataLIS{{ $key }}" tabindex="-1" role="dialog"
+                aria-hidden="true" wire:ignore.self>
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title">Detail Data LIS
+                            </h6>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <div class="card py-3  d-flex justify-content-center align-items-center">
+                                    @if ($detailDataLis)
+                                    @if ($detailDataLis['response']['code'] == '200')
+                                    <table border="0px" width="1000px">
+                                        <tr>
+                                            <td rowspan="4"> <img
+                                                    src="data:image/png;base64,{{ base64_encode($Setting['logo']) }}"
+                                                    alt="Girl in a jacket" width="80" height="80">
+                                            </td>
+                                            <td class="text-center">
+                                                <h4>{{ $Setting['nama_instansi'] }} </h4>
+                                            </td>
+                                            <td rowspan="4" class="px-4">
+                                            </td>
+                                        </tr>
+                                        <tr class="text-center">
+                                            <td>{{ $Setting['alamat_instansi'] }} , {{ $Setting['kabupaten'] }},
+                                                {{ $Setting['propinsi'] }}
+                                                {{ $Setting['kontak'] }}</td>
+                                        </tr>
+                                        <tr class="text-center">
+                                            <td> E-mail : {{ $Setting['email'] }}</td>
+                                        </tr>
+                                        <tr class="text-center">
+                                            <td colspan="">
+                                                <h5 class="mt-2">HASIL PEMERIKSAAN LABORATORIUM </h5>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0px" width="1000px">
+                                        <tr style="vertical-align: top;">
+                                            <td width="130px">No.RM</td>
+                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['pid'] }}</td>
+                                            <td width="130px">No.Rawat </td>
+                                            <td width="200px">: </td>
+                                        </tr>
+                                        <tr style="vertical-align: top;">
+                                            <td width="130px">Nama Pasien</td>
+                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['pname'] }}</td>
+
+                                            <td width="130px">Tgl. Periksa </td>
+                                            <td width="200px">:
+                                                {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['order_lab'])) }}
+                                            </td>
+                                        </tr>
+                                        <tr style="vertical-align: top;">
+                                            <td width="130px">JK/Umur </td>
+                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['sex']  }} / {{ $detailDataLis['response']['sampel']['birth_dt'] }}
+                                            </td>
+
+                                            <td width="130px">Jam Periksa </td>
+                                            <td width="200px">: </td>
+                                            </td>
+                                        </tr>
+
+                                        <tr style="vertical-align: top;">
+                                            <td width="130px">Alamat </td>
+                                            <td width="300px">:</td>
+                                                <td width="130px">Kamar/Poli </td>
+                                                <td width="200px">: {{ $detailDataLis['response']['sampel']['bangsal_name']}}</td>
+                                        </tr>
+                                        <tr style="vertical-align: top;">
+                                            <td width="130px"> Dokter Pengirim </td>
+                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['clinician_name'] }} </td>
+                                            <td width="130px"> </td>
+                                            <td width="200px"></td>
+                                        </tr>
+                                    </table>
+                                    @endif
+                                    @endif
+                                    {{-- @if ($detailDataLis)
+                                        {{$Setting['nama_instansi']}}
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>test_id</th>
+                                                        <th>nama_test</th>
+                                                        <th>jenis_hasil</th>
+                                                        <th>hasil</th>
+                                                        <th>satuan</th>
+                                                        <th>nilai_normal</th>
+                                                        <th>flag</th>
+                                                        <th>kode_paket</th>
+                                                        <th>reserve4</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if ($detailDataLis['response']['code'])
+                                                        {{ $detailDataLis['response']['sampel']['pid'] }}
+                                                        {{ $detailDataLis['response']['sampel']['pname'] }}
+                                                        {{ $detailDataLis['response']['sampel']['sex'] }}
+                                                        {{ $detailDataLis['response']['sampel']['birth_dt'] }}
+                                                        {{ $detailDataLis['response']['sampel']['clinician_name'] }}
+                                                        {{ $detailDataLis['response']['sampel']['bangsal_name'] }}
+                                                        {{ $detailDataLis['response']['sampel']['order_lab'] }}
+                                                        {{ $detailDataLis['response']['sampel']['reg_no'] }}
+                                                        {{ $detailDataLis['response']['sampel']['lis_sampel'] }}
+                                                        {{ $detailDataLis['response']['sampel']['acc_by'] }}
+                                                        {{ $detailDataLis['response']['sampel']['acc_date'] }}
+                                                        {{ $detailDataLis['response']['sampel']['reserve1'] }}
+                                                        {{ $detailDataLis['response']['sampel']['reserve2'] }}
+                                                        {{ $detailDataLis['response']['sampel']['reserve3'] }}
+                                                        @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
+                                                            <tr>
+                                                                <td>{{ $item['test_id'] }}</td>
+                                                                <td>{{ $item['nama_test'] }}</td>
+                                                                <td>{{ $item['jenis_hasil'] }}</td>
+                                                                <td>{{ $item['hasil'] }}</td>
+                                                                <td>{{ $item['satuan'] }}</td>
+                                                                <td>{{ $item['nilai_normal'] }}</td>
+                                                                <td>{{ $item['flag'] }}</td>
+                                                                <td>{{ $item['kode_paket'] }}</td>
+                                                                <td>{{ $item['reserve4'] }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                    @endif --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>

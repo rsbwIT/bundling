@@ -36,6 +36,7 @@ class OperasiAndVK extends Controller
                 'paket_operasi.nm_perawatan',
                 'operasi.tgl_operasi',
                 'penjab.png_jawab',
+                'penjab.kd_pj',
                 DB::raw('IF(operasi.status="Ralan", (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli=reg_periksa.kd_poli), (SELECT bangsal.nm_bangsal FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar=kamar.kd_kamar INNER JOIN bangsal ON kamar.kd_bangsal=bangsal.kd_bangsal WHERE kamar_inap.no_rawat=operasi.no_rawat LIMIT 1)) AS ruangan'),
                 'operator1.nm_dokter AS operator1',
                 'operasi.biayaoperator1',
@@ -128,6 +129,7 @@ class OperasiAndVK extends Controller
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
             ->groupBy('operasi.no_rawat', 'operasi.kode_paket')
+            ->orderBy('penjab.kd_pj','asc')
             ->get();
         $OperasiAndVK->map(function ($item) {
             // REGISTRASI

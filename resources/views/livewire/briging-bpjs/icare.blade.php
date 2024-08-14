@@ -42,6 +42,7 @@
                         <th>Nama Pasien</th>
                         <th>Nama Dokter</th>
                         <th>Poli</th>
+                        <th>Np Sep</th>
                         <th>Act</th>
                     </tr>
                 </thead>
@@ -52,6 +53,7 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_dokter }}</td>
                             <td>{{ $item->nm_poli }}</td>
+                            <td>{{ $item->no_sep }}</td>
                             <td width="100px">
                                 @php
                                     $color = $item->status == 1 ? 'text-success' : 'text-default';

@@ -5,8 +5,10 @@ namespace App\Http\Livewire\Lab;
 use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Http\Request;
+use App\Services\CacheService;
 use Illuminate\Support\Facades\DB;
 use App\Services\Lab\ServiceSoftmedik;
+use Illuminate\Support\Facades\Session;
 
 class BridgingalatlatLis extends Component
 {
@@ -23,11 +25,20 @@ class BridgingalatlatLis extends Component
         $this->cito = 'Y';
         $this->tanggal2 = date('Y-m-d');
         $this->getDataKhanza();
+        $this->Setting();
     }
     public function render()
     {
         $this->getDataKhanza();
+        $this->Setting();
         return view('livewire.lab.bridgingalatlat-lis');
+    }
+
+    public $Setting;
+    function Setting() {
+        $cache = new CacheService();
+        $settingData = $cache->getSetting();
+        $this->Setting = (array) $settingData;
     }
 
     public $getDatakhanza;
@@ -68,7 +79,8 @@ class BridgingalatlatLis extends Component
                 DB::raw('"" as reserve1'),
                 DB::raw('"" as reserve2'),
                 DB::raw('"" as reserve3'),
-                DB::raw('"" as reserve4')
+                DB::raw('"" as reserve4'),
+                DB::raw('"N" as order_control')
             )
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_lab.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -80,15 +92,13 @@ class BridgingalatlatLis extends Component
             ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
             ->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
             ->where('reg_periksa.status_lanjut', $this->status_lanjut)
-            ->where(function ($query) use ($carinomor, $tanggal1, $tanggal2) {
+            ->whereBetween('permintaan_lab.tgl_permintaan', [$tanggal1, $tanggal2])
+            ->where(function ($query) use ($carinomor) {
                 if ($carinomor) {
                     $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$carinomor%")
                         ->orwhere('pasien.nm_pasien', 'LIKE', "%$carinomor%")
                         ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$carinomor%")
-                        ->orwhere('permintaan_lab.noorder', 'LIKE', "%$carinomor%")
-                        ->whereBetween('permintaan_lab.tgl_permintaan', [$tanggal1, $tanggal2]);
-                } else {
-                    $query->whereBetween('permintaan_lab.tgl_permintaan', [$tanggal1, $tanggal2]);
+                        ->orwhere('permintaan_lab.noorder', 'LIKE', "%$carinomor%");
                 }
             })
             ->get();
@@ -102,60 +112,86 @@ class BridgingalatlatLis extends Component
     }
 
 
+    public $response;
     public function sendDataToLIS($key)
     {
         $Service = new  ServiceSoftmedik();
-        $data = $this->getDatakhanza;
-        $order_test = [];
-        foreach ($data[$key]['Permintaan'] as $permintaan) {
-            $order_test[] = $permintaan['kd_jenis_prw'];
+        try {
+            $data = $this->getDatakhanza;
+            $order_test = [];
+            foreach ($data[$key]['Permintaan'] as $permintaan) {
+                $order_test[] = $permintaan['kd_jenis_prw'];
+            }
+            $sendToLis = [
+                'order' => [
+                    'msh' => [
+                        'product' => 'SOFTMEDIX LIS',
+                        'version' => $Service->version(),
+                        'user_id' => $Service->user_id(),
+                        'key' => $Service->key(),
+                    ],
+                    'pid' => [
+                        'pmrn' => $data[$key]['no_rkm_medis'],
+                        'pname' => $data[$key]['nm_pasien'],
+                        'sex' => $data[$key]['jk'],
+                        'birth_dt' => Carbon::parse($data[$key]['tgl_lahir'])->format('d.m.Y'),
+                        'address' => $data[$key]['alamat'],
+                        'no_tlp' => $data[$key]['no_tlp'],
+                        'no_hp' => $data[$key]['no_tlp'],
+                        'email' => ($data[$key]['email']) ? $data[$key]['email'] : '-',
+                        'nik' => ($data[$key]['nip']) ? $data[$key]['nip'] : '-',
+                    ],
+                    'obr' => [
+                        'order_control' => 'N',
+                        'ptype' => ($data[$key]['status_lanjut'] === 'Ralan') ? 'OP' : 'IP',
+                        'reg_no' => $data[$key]['noorder'],
+                        'order_lab' => $data[$key]['noorder'],
+                        'provider_id' => $data[$key]['kd_pj'],
+                        'provider_name' => $data[$key]['png_jawab'],
+                        'order_date' => Carbon::parse($data[$key]['tgl_permintaan'])->format('d.m.Y') . ' ' . Carbon::parse($data[$key]['jam_permintaan'])->format('h:m:s'),
+                        'clinician_id' => $data[$key]['kd_dr_perujuk'],
+                        'clinician_name' => $data[$key]['dr_perujuk'],
+                        'bangsal_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['kd_poli'] : $data[$key]['kd_bangsal'],
+                        'bangsal_name' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['nm_poli'] : $data[$key]['nm_bangsal'],
+                        'bed_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0000' : $data[$key]['kd_kamar'],
+                        'bed_name' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0000' : $data[$key]['nm_bangsal'],
+                        'class_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0' : substr($data[$key]['kelas'], 6),
+                        'class_name' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0' : $data[$key]['kelas'],
+                        'cito' => $data[$key]['cito'],
+                        'med_legal' => $data[$key]['med_legal'],
+                        'user_id' => session('auth')['id_user'],
+                        'reserve1' => $data[$key]['reserve1'],
+                        'reserve2' => $data[$key]['reserve2'],
+                        'reserve3' => $data[$key]['reserve3'],
+                        'reserve4' => $data[$key]['reserve4'],
+                        'order_test' => $order_test,
+                    ],
+                ],
+            ];
+            $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
+            // dd($this->response);
+            if ($this->response) {
+                if ($this->response['response']['code'] === "200") {
+                    session()->flash('response200', $this->response['response']['message']);
+                } else {
+                    session()->flash('response500', $this->response['response']['message']);
+                }
+            }
+        } catch (\Throwable $th) {
         }
-        $sendToLis = [
-            'order' => [
-                'msh' => [
-                    'product' => 'SOFTMEDIX LIS',
-                    'version' => $Service->version(),
-                    'user_id' => $Service->user_id(),
-                    'key' => $Service->key(),
-                ],
-                'pid' => [
-                    'pmrn' => $data[$key]['no_rkm_medis'],
-                    'pname' => $data[$key]['nm_pasien'],
-                    'sex' => $data[$key]['jk'],
-                    'birth_dt' => Carbon::parse($data[$key]['tgl_lahir'])->format('d.m.Y'),
-                    'address' => $data[$key]['alamat'],
-                    'no_tlp' => $data[$key]['no_tlp'],
-                    'no_hp' => $data[$key]['no_tlp'],
-                    'email' => ($data[$key]['email']) ? $data[$key]['email'] : '-',
-                    'nik' => ($data[$key]['nip']) ? $data[$key]['nip'] : '-',
-                ],
-                'obr' => [
-                    'order_control' => 'U',
-                    'ptype' => ($data[$key]['status_lanjut'] === 'Ralan') ? 'OP' : 'IP',
-                    'reg_no' => $data[$key]['noorder'],
-                    'order_lab' => $data[$key]['noorder'],
-                    'provider_id' => $data[$key]['kd_pj'],
-                    'provider_name' => $data[$key]['png_jawab'],
-                    'order_date' => Carbon::parse($data[$key]['tgl_permintaan'])->format('d.m.Y') . ' ' . Carbon::parse($data[$key]['jam_permintaan'])->format('h:m:s'),
-                    'clinician_id' => $data[$key]['kd_dr_perujuk'],
-                    'clinician_name' => $data[$key]['dr_perujuk'],
-                    'bangsal_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['kd_poli'] : $data[$key]['kd_bangsal'],
-                    'bangsal_name' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['nm_poli'] : $data[$key]['nm_bangsal'],
-                    'bed_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0000' : $data[$key]['kd_kamar'],
-                    'bed_name' => ($data[$key]['status_lanjut'] === 'Ralan') ?'0000' : $data[$key]['nm_bangsal'],
-                    'class_id' => ($data[$key]['status_lanjut'] === 'Ralan') ?'0' : substr($data[$key]['kelas'], 6),
-                    'class_name' => ($data[$key]['status_lanjut'] === 'Ralan') ?'0' : $data[$key]['kelas'],
-                    'cito' => $data[$key]['cito'],
-                    'med_legal' => $data[$key]['med_legal'],
-                    'user_id' => session('auth')['id_user'],
-                    'reserve1' => $data[$key]['reserve1'],
-                    'reserve2' => $data[$key]['reserve2'],
-                    'reserve3' => $data[$key]['reserve3'],
-                    'reserve4' => $data[$key]['reserve4'],
-                    'order_test' => $order_test,
-                ],
-            ],
-        ];
-        return $Service->ServiceSoftmedixPOST($sendToLis);
+    }
+
+    public $detailDataLis;
+    public function getDataLIS($noorder)
+    {
+        try {
+            $Service = new  ServiceSoftmedik();
+            $data = $Service->ServiceSoftmedixGet($noorder);
+            $this->detailDataLis = $data;
+            // dd($this->detailDataLis['response']['sampel']['result_test']);
+            dd($this->detailDataLis);
+        } catch (\Throwable $th) {
+            $this->detailDataLis = [];
+        }
     }
 }
