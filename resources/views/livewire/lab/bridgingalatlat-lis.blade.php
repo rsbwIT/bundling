@@ -207,73 +207,151 @@
                             <div class="card-body">
                                 <div class="card py-3  d-flex justify-content-center align-items-center">
                                     @if ($detailDataLis)
-                                    @if ($detailDataLis['response']['code'] == '200')
-                                    <table border="0px" width="1000px">
-                                        <tr>
-                                            <td rowspan="4"> <img
-                                                    src="data:image/png;base64,{{ base64_encode($Setting['logo']) }}"
-                                                    alt="Girl in a jacket" width="80" height="80">
-                                            </td>
-                                            <td class="text-center">
-                                                <h4>{{ $Setting['nama_instansi'] }} </h4>
-                                            </td>
-                                            <td rowspan="4" class="px-4">
-                                            </td>
-                                        </tr>
-                                        <tr class="text-center">
-                                            <td>{{ $Setting['alamat_instansi'] }} , {{ $Setting['kabupaten'] }},
-                                                {{ $Setting['propinsi'] }}
-                                                {{ $Setting['kontak'] }}</td>
-                                        </tr>
-                                        <tr class="text-center">
-                                            <td> E-mail : {{ $Setting['email'] }}</td>
-                                        </tr>
-                                        <tr class="text-center">
-                                            <td colspan="">
-                                                <h5 class="mt-2">HASIL PEMERIKSAAN LABORATORIUM </h5>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <table border="0px" width="1000px">
-                                        <tr style="vertical-align: top;">
-                                            <td width="130px">No.RM</td>
-                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['pid'] }}</td>
-                                            <td width="130px">No.Rawat </td>
-                                            <td width="200px">: </td>
-                                        </tr>
-                                        <tr style="vertical-align: top;">
-                                            <td width="130px">Nama Pasien</td>
-                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['pname'] }}</td>
+                                        @if ($detailDataLis['response']['code'] == '200')
+                                            <table border="0px" width="1000px">
+                                                <tr>
+                                                    <td rowspan="4"> <img
+                                                            src="data:image/png;base64,{{ base64_encode($Setting['logo']) }}"
+                                                            alt="Girl in a jacket" width="80" height="80">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <h4>{{ $Setting['nama_instansi'] }} </h4>
+                                                    </td>
+                                                    <td rowspan="4" class="px-4">
+                                                    </td>
+                                                </tr>
+                                                <tr class="text-center">
+                                                    <td>{{ $Setting['alamat_instansi'] }} ,
+                                                        {{ $Setting['kabupaten'] }},
+                                                        {{ $Setting['propinsi'] }}
+                                                        {{ $Setting['kontak'] }}</td>
+                                                </tr>
+                                                <tr class="text-center">
+                                                    <td> E-mail : {{ $Setting['email'] }}</td>
+                                                </tr>
+                                                <tr class="text-center">
+                                                    <td colspan="">
+                                                        <h5 class="mt-2">HASIL PEMERIKSAAN LABORATORIUM </h5>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table border="0px" width="1000px">
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px">No.RM</td>
+                                                    <td width="300px">:
+                                                        {{ $detailDataLis['response']['sampel']['pid'] }}</td>
+                                                    <td width="130px">No.Rawat </td>
+                                                    <td width="200px">: </td>
+                                                </tr>
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px">Nama Pasien</td>
+                                                    <td width="300px">:
+                                                        {{ $detailDataLis['response']['sampel']['pname'] }}</td>
 
-                                            <td width="130px">Tgl. Periksa </td>
-                                            <td width="200px">:
-                                                {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['order_lab'])) }}
-                                            </td>
-                                        </tr>
-                                        <tr style="vertical-align: top;">
-                                            <td width="130px">JK/Umur </td>
-                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['sex']  }} / {{ $detailDataLis['response']['sampel']['birth_dt'] }}
-                                            </td>
+                                                    <td width="130px">Tgl. Periksa </td>
+                                                    <td width="200px">:
+                                                        {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['order_lab'])) }}
+                                                    </td>
+                                                </tr>
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px">JK/Umur </td>
+                                                    <td width="300px">:
+                                                        {{ $detailDataLis['response']['sampel']['sex'] }} /
+                                                        {{ $detailDataLis['response']['sampel']['birth_dt'] }}
+                                                    </td>
 
-                                            <td width="130px">Jam Periksa </td>
-                                            <td width="200px">: </td>
-                                            </td>
-                                        </tr>
+                                                    <td width="130px">Jam Periksa </td>
+                                                    <td width="200px">: </td>
+                                                    </td>
+                                                </tr>
 
-                                        <tr style="vertical-align: top;">
-                                            <td width="130px">Alamat </td>
-                                            <td width="300px">:</td>
-                                                <td width="130px">Kamar/Poli </td>
-                                                <td width="200px">: {{ $detailDataLis['response']['sampel']['bangsal_name']}}</td>
-                                        </tr>
-                                        <tr style="vertical-align: top;">
-                                            <td width="130px"> Dokter Pengirim </td>
-                                            <td width="300px">: {{ $detailDataLis['response']['sampel']['clinician_name'] }} </td>
-                                            <td width="130px"> </td>
-                                            <td width="200px"></td>
-                                        </tr>
-                                    </table>
-                                    @endif
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px">Alamat </td>
+                                                    <td width="300px">:</td>
+                                                    <td width="130px">Kamar/Poli </td>
+                                                    <td width="200px">:
+                                                        {{ $detailDataLis['response']['sampel']['bangsal_name'] }}</td>
+                                                </tr>
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px"> Dokter Pengirim </td>
+                                                    <td width="300px">:
+                                                        {{ $detailDataLis['response']['sampel']['clinician_name'] }}
+                                                    </td>
+                                                    <td width="130px"> </td>
+                                                    <td width="200px"></td>
+                                                </tr>
+                                            </table>
+                                            <table border="1px" width="1000px" class="mt-2">
+                                                <tr>
+                                                    <th>test_id</th>
+                                                    <th>nama_test</th>
+                                                    <th>id_template</th>
+                                                    <th>jenis_hasil</th>
+                                                    <th>hasil</th>
+                                                    <th>satuan</th>
+                                                    <th>nilai_normal</th>
+                                                    <th>flag</th>
+                                                    <th>kode_paket</th>
+                                                    <th>reserve4</th>
+                                                </tr>
+                                                @php
+                                                    $uniqueTests = [];
+                                                @endphp
+
+                                                @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
+                                                    @if (!in_array($item['id_template'], $uniqueTests))
+                                                        <tr>
+                                                            <td>{{ $item['test_id'] }}</td>
+                                                            <td>{{ $item['nama_test'] }}</td>
+                                                            <td>{{ $item['id_template'] }}</td>
+                                                            <td>{{ $item['jenis_hasil'] }}</td>
+                                                            <td>{{ $item['hasil'] }}</td>
+                                                            <td>{{ $item['satuan'] }}</td>
+                                                            <td>{{ $item['nilai_normal'] }}</td>
+                                                            <td>{{ $item['flag'] }}</td>
+                                                            <td>{{ $item['kode_paket'] }}</td>
+                                                            <td>{{ $item['reserve4'] }}</td>
+                                                        </tr>
+                                                        @php
+                                                            $uniqueTests[] = $item['id_template'];
+                                                        @endphp
+                                                    @endif
+                                                @endforeach
+
+                                            </table>
+                                            <table border="0px" width="1000px" class="mt-2">
+                                                <tr>
+                                                    <td class="text-xs"><b>Catatan :</b> Jika ada keragu-raguan
+                                                        pemeriksaan,
+                                                        diharapkan
+                                                        segera menghubungi laboratorium</td>
+                                                </tr>
+                                            </table>
+                                            <table border="0px" width="1000px">
+                                                <tr>
+                                                    <td width="250px" class="text-center">
+                                                        Penanggung Jawab
+                                                        <div class="barcode mt-1">
+                                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $Setting['nama_instansi'] . ', Kabupaten/Kota ' . $Setting['kabupaten'] . ' Ditandatangani secara elektronik oleh ' . $detailDataLis['response']['sampel']['clinician_name'] . ' ID ' . 'Kode Dokter' . ' ' . $detailDataLis['response']['sampel']['order_lab'], 'QRCODE') }}"
+                                                                alt="barcode" width="80px" height="75px" />
+                                                        </div>
+                                                        {{-- {{ $periksa->nm_dokter }} --}}
+                                                    </td>
+                                                    <td width="150px"></td>
+                                                    <td width="250px" class="text-center">
+                                                        Hasil :
+                                                        {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['order_lab'])) }}
+                                                        <br>
+                                                        Petugas Laboratorium
+                                                        <div class="barcode mt-1">
+                                                            <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $Setting['nama_instansi'] . ', Kabupaten/Kota ' . $Setting['kabupaten'] . ' Ditandatangani secara elektronik oleh ' . $detailDataLis['response']['sampel']['acc_by'] . ' ID ' . 'PETUGAS' . ' ' . $detailDataLis['response']['sampel']['order_lab'], 'QRCODE') }}"
+                                                                alt="barcode" width="80px" height="75px" />
+                                                        </div>
+                                                        {{ $detailDataLis['response']['sampel']['acc_by'] }}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        @endif
                                     @endif
                                     {{-- @if ($detailDataLis)
                                         {{$Setting['nama_instansi']}}

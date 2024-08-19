@@ -11,16 +11,16 @@
         <div class="row justify-content-center" wire:poll.1000ms>
             @if ($getRuangan)
                 @foreach ($getRuangan as $item)
-                    <div class="col-3 p-1">
+                    <div class="col-2 p-1">
                         <div class="card p-1" style="border: 1px solid; height: 100%">
                             <div class="card-header text-center p-1" style="border: 1px solid">
                                 <h2 class="font-weight-bold" style="color: rgb(2, 1, 10)">{{ $item->ruangan }}</h2>
                             </div>
-                            <div class="row  text-center">
+                            <div class="row  text-center ">
                                 @foreach ($item->getKamar as $kamar)
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="card mt-2 mb-2" style="border: 1px solid">
-                                            <h6 class="mb-"><b>{{ $kamar->kamar }} </b> ({{ $kamar->kelas }})</h6>
+                                            <h6 class=""><b>{{ $kamar->kamar }} </b> ({{ $kamar->kelas }})</h6>
                                             <hr class="m-1" style="border: 1px solid">
                                             <div class="row">
                                                 @php
@@ -51,7 +51,12 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <br>
+                            <h3> Terisi : {{$item->getKamarIsi}}</h3>
+                            <h3> Kosong : {{$item->getKamarKosong}}</h3>
                         </div>
+                        <br>
+                        <br>
                     </div>
                 @endforeach
             @else

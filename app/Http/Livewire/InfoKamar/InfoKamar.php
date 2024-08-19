@@ -30,9 +30,17 @@ class InfoKamar extends Component
                         ->where('bw_display_bad.ruangan', $item->ruangan)
                         ->groupBy('bw_display_bad.kamar')
                         ->get();
+                    $item->getKamarIsi =  DB::table('bw_display_bad')
+                        ->where('ruangan', $item->ruangan)
+                        ->where('status', '1')
+                        ->count();
+                    $item->getKamarKosong =  DB::table('bw_display_bad')
+                        ->where('ruangan', $item->ruangan)
+                        ->where('status', '0')
+                        ->count();
                         $item->getKamar->map(function ($item) {
                             $item->getBed = DB::table('bw_display_bad')
-                                ->select('bw_display_bad.id','bw_display_bad.ruangan', 'bw_display_bad.kamar', 'bw_display_bad.bad', 'bw_display_bad.status', 'bw_display_bad.kelas')
+                                ->select('bw_display_bad.id', 'bw_display_bad.ruangan', 'bw_display_bad.kamar', 'bw_display_bad.bad', 'bw_display_bad.status', 'bw_display_bad.kelas')
                                 ->where('bw_display_bad.kamar', $item->kamar)
                                 ->get();
                         });
@@ -40,14 +48,15 @@ class InfoKamar extends Component
         } catch (\Throwable $th) {
         }
     }
-    public function actionIsi($status, $id) {
+    public function actionIsi($status, $id)
+    {
         if ($status == '1') {
             $updateStatus = '0';
-        } else{
+        } else {
             $updateStatus = '1';
         }
         DB::table('bw_display_bad')
-        ->where('id', $id)
-        ->update(['status' => $updateStatus]);
+            ->where('id', $id)
+            ->update(['status' => $updateStatus]);
     }
 }

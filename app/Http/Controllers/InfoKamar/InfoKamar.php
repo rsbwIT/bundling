@@ -19,4 +19,7 @@ class InfoKamar extends Controller
             'getSetting' => $getSetting
         ]);
     }
+    function InfoKamarRuangan() {
+        return view('display.info-kamar-ruangan');
+    }
 }

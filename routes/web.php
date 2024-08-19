@@ -167,6 +167,7 @@ Route::group(['middleware' => 'auth-rsbw'], function () {
     Route::get('/jadwal-dokter', [BwJadwaldokter::class, 'BwJadwaldokter']);
 
     //DISPLAY
+    Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
 
     // RM
