@@ -4,14 +4,14 @@
             @if ($getRuangan)
                 @foreach ($getRuangan as $item)
                     <div class="col-3 p-1">
-                        <div class="card p-1" style="border: 1px solid; height: 100%">
+                        <div class="card p-1 m-2" style="border: 1px solid; height: 100%">
                             <div class="text-center p-1  d-flex justify-content-between"
                                 style="border: 1px solid">
-                                <button class="btn btn-xs text-white"
+                                <button class="btn btn-xs text-white ml-5"
                                     style="background-color: rgb(0, 26, 109); width: 30px;"><b>{{ $item->getKamarIsi }}</b>
                                 </button>
                                 <h3 class="font-weight-bold" style="color: rgb(2, 1, 10)">{{ $item->ruangan }}</h3>
-                                <button class="btn btn-xs"
+                                <button class="btn btn-xs mr-5"
                                     style="background-color: rgb(255, 255, 255);  border: 1px solid; width: 30px;"><b>{{ $item->getKamarKosong }}</b>
                                 </button>
                             </div>

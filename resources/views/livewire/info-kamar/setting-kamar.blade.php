@@ -1,18 +1,27 @@
 <div>
     <div class="card ">
         <div class="card-header">
-            <div class="col-4">
-                <select class="form-control form-control-sidebar form-control" wire:model="select_kamar">
-                    @foreach ($getRuang as $item)
-                        <option value="{{ $item->ruangan }}">{{ $item->ruangan }}</option>
-                    @endforeach
-                </select>
+            <div class="row">
+                <div class="col-4">
+                    <select class="form-control form-control-sidebar form-control" wire:model="select_kamar">
+                        @foreach ($getRuang as $item)
+                            <option value="{{ $item->ruangan }}">{{ $item->ruangan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-1 ml-5">
+                    <button class="form-control btn btn-xs text-white ml-5"
+                        style="background-color: rgb(0, 26, 109);"><b>Terisi</b></button>
+                </div>
+                <div class="col-1">
+                    <button class="form-control btn btn-xs ml-5"
+                        style="background-color: rgb(255, 255, 255);  border: 1px solid;"><b>Kosong</b></button>
+                </div>
             </div>
         </div>
-
         <div class="card-body">
             {{-- TAB INFO KAMAR --}}
-            <div class="container-fluid p-3">
+            <div class="container-fluid">
                 <div class="row">
                     @if ($getRuangan)
                         @foreach ($getRuangan as $item)
@@ -87,23 +96,24 @@
                         </div>
                         <div class="col-md-1">
                             <div class="input-group">
-                                <input type="text" class="form-control" wire:model.lazy="input_kamar" placeholder="G-XXX">
+                                <input type="text" class="form-control" wire:model.lazy="input_kamar"
+                                    placeholder="G-XXX">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="input-group">
                                 <select class="form-control" wire:model.lazy="input_kelas">
-                                        <option value="-">-</option>
-                                        <option value="Kelas 1">Kelas 1</option>
-                                        <option value="Kelas 2">Kelas 2</option>
-                                        <option value="Kelas 3">Kelas 3</option>
-                                        <option value="Senior">Senior</option>
-                                        <option value="Yunior">Yunior</option>
-                                        <option value="Utama">Utama</option>
-                                        <option value="Deluxe">Deluxe</option>
-                                        <option value="VIP">VIP</option>
-                                        <option value="VVIP">VVIP</option>
-                                        <option value="Executive">Executive</option>
+                                    <option value="-">-</option>
+                                    <option value="Kelas 1">Kelas 1</option>
+                                    <option value="Kelas 2">Kelas 2</option>
+                                    <option value="Kelas 3">Kelas 3</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Yunior">Yunior</option>
+                                    <option value="Utama">Utama</option>
+                                    <option value="Deluxe">Deluxe</option>
+                                    <option value="VIP">VIP</option>
+                                    <option value="VVIP">VVIP</option>
+                                    <option value="Executive">Executive</option>
                                 </select>
                             </div>
                         </div>
