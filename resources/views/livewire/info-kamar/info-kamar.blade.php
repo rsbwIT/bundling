@@ -3,7 +3,7 @@
         <div class="row justify-content-center" wire:poll.1000ms>
             @if ($getRuangan)
                 @foreach ($getRuangan as $item)
-                    <div class="col-3 p-1">
+                    <div class="col-4 p-1 mb-5">
                         <div class="card p-1 m-2" style="border: 1px solid; height: 100%">
                             <div class="text-center p-1  d-flex justify-content-between"
                                 style="border: 1px solid">
@@ -18,9 +18,9 @@
                             <div class="row  text-center ">
                                 @foreach ($item->getKamar as $kamar)
                                     <div class="col-md-4">
-                                        <div class="card mt-2 mb-2 bg-dafault" style="border: 1px solid">
-                                            <h6 class=""><b>{{ $kamar->kamar }} </b> ({{ $kamar->kelas }})</h6>
-                                            <hr class="m-1" style="border: 1px solid">
+                                        <div class="card mt-2 mb-1 bg-dafault" style="border: 1px solid">
+                                            <h6 class="m-0"><b>{{ $kamar->kamar }} </b> ({{ $kamar->kelas }})</h6>
+                                            <hr class="m-0" style="border: 1px solid">
                                             <div class="row">
                                                 @php
                                                     $bed = count($kamar->getBed);
