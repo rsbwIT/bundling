@@ -118,7 +118,7 @@
                             </div>
                         @endforeach
                         @php
-                            $disabled = count($input_bed) > 4 ? 'disabled' : '';
+                            $disabled = count($input_bed) > 5 ? 'disabled' : '';
                         @endphp
                         <div class="col-md-1">
                             <div class="d-flex justify-content-between">

@@ -75,7 +75,7 @@ class SettingKamar extends Component
     public $input_bed = [];
     public function addInput()
     {
-        if (count($this->input_bed) < 5) {
+        if (count($this->input_bed) < 6) {
             $this->input_bed[] = count($this->input_bed);
         }
     }
