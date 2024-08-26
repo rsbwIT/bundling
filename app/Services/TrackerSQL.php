@@ -12,7 +12,7 @@ class TrackerSQL
         $values = implode(', ', array_map(function ($value) {
             return is_string($value) ? "'$value'" : $value;
         }, array_values($data)));
-        return DB::connection('db_con2')->table('trackersql')->insert([
+        return DB::table('trackersql')->insert([
             'tanggal' => Carbon::now()->format('Y-m-d H:i:s'),
             'sqle' => 'Insert Into ' . $table . '(' . $values . ')',
             'usere' => session('auth')['id_user'],
