@@ -18,7 +18,7 @@ class AnjunganMandiri extends Controller
     public function Print($noRawat)
     {
         $setting = new CacheService();
-        $pasien = DB::connection('db_con2')->table('reg_periksa')
+        $pasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.jam_reg',
