@@ -299,7 +299,7 @@
                                                 @endphp
 
                                                 @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
-                                                    @if (!in_array($item['id_template'], $uniqueTests))
+                                                    @if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template'])
                                                         <tr>
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
@@ -313,7 +313,7 @@
                                                             <td>{{ $item['reserve4'] }}</td>
                                                         </tr>
                                                         @php
-                                                            $uniqueTests[] = $item['id_template'];
+                                                            $uniqueTests[] = $item['nama_test'];
                                                         @endphp
                                                     @endif
                                                 @endforeach

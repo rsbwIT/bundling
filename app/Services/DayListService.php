@@ -32,4 +32,19 @@ class DayListService
         $hariInggris = date('l', strtotime($tanggal));
         return $namaHari[$hariInggris];
     }
+
+    public static function hariKhanza($tanggal) {
+        $namaHari = [
+            'Sunday' => 'MINGGU',
+            'Monday' => 'SENIN',
+            'Tuesday' => 'SELASA',
+            'Wednesday' => 'RABU',
+            'Thursday' => 'KAMIS',
+            'Friday' => 'JUMAT',
+            'Saturday' => 'SABTU'
+        ];
+
+        $hariInggris = date('l', strtotime($tanggal));
+        return $namaHari[$hariInggris];
+    }
 }

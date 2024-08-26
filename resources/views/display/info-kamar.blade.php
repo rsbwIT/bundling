@@ -19,13 +19,13 @@
         <div class="pricing-header ">
             <h1 class="display-4 font-weight-bold">Informasi Kamar</h1>
             <div class="row justify-content-center">
-                <div class="d-flex item-center mt-1">
-                    <button class="mr-2 btn text-white"
-                        style="background-color: rgb(0, 26, 109); width: 100px;"><b>Terisi</b></button>
-                    <button class="mr-2 btn"
-                        style="background-color: rgb(255, 255, 255); border: 1px solid;width: 100px"><b>Kosong</b></button>
-                </div>
-            </div>
+        <div class="d-flex item-center mt-1">
+            <button class="mr-2 btn text-white"
+                style="background-color: rgb(0, 26, 109); width: 100px;"><b>Terisi</b></button>
+            <button class="mr-2 btn"
+                style="background-color: rgb(255, 255, 255); border: 1px solid;width: 100px"><b>Kosong</b></button>
+        </div>
+    </div>
         </div>
         <div class="pricing-header">
             <div id="clock"></div>

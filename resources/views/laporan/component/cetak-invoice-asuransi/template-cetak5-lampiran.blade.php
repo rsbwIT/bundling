@@ -180,7 +180,7 @@
                 <br />
                 <br />
                 <br />
-                dr. Arief Yulizar, MARS, FISQua</b>
+                dr. Arief Yulizar, MARS, FISQua.CHAE</b>
         </td>
         <td width="22%"></td>
         <td width="30%">

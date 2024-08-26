@@ -18,7 +18,7 @@
                             <div class="row  text-center ">
                                 @foreach ($item->getKamar as $kamar)
                                     <div class="col-md-4">
-                                        <div class="card mt-2 mb-1 bg-dafault" style="border: 1px solid">
+                                        <div class="card mt-2 mb-1" style="border: 1px solid;">
                                             <h6 class="m-0"><b>{{ $kamar->kamar }} </b> ({{ $kamar->kelas }})</h6>
                                             <hr class="m-0" style="border: 1px solid">
                                             <div class="row">

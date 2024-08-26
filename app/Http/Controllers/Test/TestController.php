@@ -21,11 +21,7 @@ class TestController extends Controller
         $this->referensi = new ReferensiBPJS;
     }
     public function dashboardTanggal() {
-        $data = [
-            'param' => "1809065102880001",
-            'kodedokter' => 415168,
-        ];
-        $data = $this->referensi->validateICARE(json_encode($data));
+        $data = $this->referensi->getPoli('Dalam');
         dd($data);
     }
 

@@ -520,8 +520,20 @@
                                 <p>
                                     Antrian Loket
                                     <i class="right fas fa-angle-left"></i>
+                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
+                            @if (session('registrasi') === 'true')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('anjungan-mandiri') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Anjungan Mandiri</p>
+                                            <span class="badge badge-danger right">New</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endif
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('antrian-pendaftaran') }}" class="nav-link">
@@ -598,7 +610,6 @@
                                 <p>
                                     E-Rekam Medis
                                     <i class="right fas fa-angle-left"></i>
-                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
@@ -606,7 +617,6 @@
                                     <a href="{{ url('laporan-borlosetc') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Sensus Bulanan</p>
-                                        <span class="badge badge-danger right">New</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

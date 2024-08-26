@@ -17,6 +17,7 @@ class CacheService
             $penjab = DB::table('penjab')
                 ->select('penjab.kd_pj', 'penjab.png_jawab')
                 ->where('penjab.status', '=', '1')
+                ->orderBy('penjab.png_jawab','asc')
                 ->get();
             Cache::put($cacheKeyPenjab, $penjab, 720);
         }

@@ -165,7 +165,7 @@
                         <br>
                         <br>
                         <br>
-                        <b> dr. Arief Yulizar, MARS, FISQua</b>
+                        <b> dr. Arief Yulizar, MARS, FISQua.CHAE</b>
                     </td>
                 </tr>
             </table>
