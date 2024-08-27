@@ -199,5 +199,6 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
     });
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
+    Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
     Route::get('/display-petugas', [AntrianPendaftaran::class, 'DisplayPetugas']);
 });
