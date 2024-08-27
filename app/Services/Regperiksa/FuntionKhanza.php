@@ -91,6 +91,7 @@ class FuntionKhanza
         return DB::table('reg_periksa')
         ->select('reg_periksa.almt_pj')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->where('reg_periksa.stts','!=', 'Batal')
         ->where('reg_periksa.tgl_registrasi', Carbon::now()->format('Y-m-d'))
         ->where(function ($query) use ($carinomor) {
             $query->orWhere('pasien.no_rkm_medis', '=', $carinomor)
@@ -99,5 +100,32 @@ class FuntionKhanza
                 ->orWhere('pasien.no_tlp', '=', $carinomor);
         })
         ->count();
+    }
+
+    public static function cekRegistrasiBelum($carinomor) {
+        return DB::table('reg_periksa')
+        ->select('reg_periksa.almt_pj')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->where('reg_periksa.stts','=', 'Belum')
+        ->where('reg_periksa.tgl_registrasi',  '>=', Carbon::tomorrow()->toDateString())
+        ->where(function ($query) use ($carinomor) {
+            $query->orWhere('pasien.no_rkm_medis', '=', $carinomor)
+                ->orWhere('pasien.no_ktp', '=', $carinomor)
+                ->orWhere('pasien.no_peserta', '=', $carinomor)
+                ->orWhere('pasien.no_tlp', '=', $carinomor);
+        })
+        ->count();
+    }
+
+    public static function TrackerSimpan($table, $data)
+    {
+        $values = implode(', ', array_map(function ($value) {
+            return is_string($value) ? "'$value'" : $value;
+        }, array_values($data)));
+        return DB::table('trackersql')->insert([
+            'tanggal' => Carbon::now()->format('Y-m-d H:i:s'),
+            'sqle' => 'Insert Into ' . $table . '(' . $values . ')',
+            'usere' => session('auth')['id_user'],
+        ]);
     }
 }

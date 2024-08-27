@@ -28,11 +28,13 @@ class AnjunganMandiri extends Controller
                 'pasien.alamat',
                 'pasien.umur',
                 'poliklinik.nm_poli',
-                'dokter.nm_dokter'
+                'dokter.nm_dokter',
+                'penjab.png_jawab'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('reg_periksa.no_rawat', '=', Crypt::decryptString($noRawat))
             ->first();
         return view('regperiksa.anjungan-mandiri-print', [

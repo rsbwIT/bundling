@@ -99,6 +99,11 @@
             <td class="large-text">{{ $pasien->no_reg }}</td>
         </tr>
         <tr>
+            <td class="small-text v-top">Penjamin </td>
+            <td class="small-text v-top">:</td>
+            <td class="small-text">{{ $pasien->png_jawab }}</td>
+        </tr>
+        <tr>
             <td class="small-text v-top">Nama </td>
             <td class="small-text v-top">:</td>
             <td class="small-text">{{ $pasien->nm_pasien }}</td>

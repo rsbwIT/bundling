@@ -58,9 +58,13 @@ class AnjunganMandiri extends Component
     public $getpasien;
     function setPasien()
     {
+        $pasienBelum = FuntionKhanza::cekRegistrasiBelum($this->cariKode);
         $pasien = FuntionKhanza::cekRegistrasi($this->cariKode);
         $this->getpasien();
-        if ($pasien >= 1) {
+        if ($pasienBelum >= 1) {
+            $this->showItem = 1;
+            session()->flash('pasienBelum', 'Terdapat perawatan yang belum terselesaikan');
+        } elseif ($pasien >= 1) {
             $this->showItem = 1;
             session()->flash('sudahada', 'Sudah Terdaftar Hari Ini.');
         } elseif ($this->getpasien->isNotEmpty()) {
@@ -210,12 +214,13 @@ class AnjunganMandiri extends Component
                 'status_poli' => FuntionKhanza::getStatuspoli($this->registrasi['no_rkm_medis'], $this->registrasi['kd_poli']),
             ];
             $pasien = FuntionKhanza::cekRegistrasi($this->registrasi['no_rkm_medis']);
-            if ($pasien >= 1) {
+            $pasienBelum = FuntionKhanza::cekRegistrasiBelum($this->cariKode);
+            if ($pasien >= 1 || $pasienBelum >= 1) {
                 session()->flash('gagalRegistrasi', 'Gagal.');
-            } else{
+            } else {
                 DB::table('reg_periksa')->insert($data);
                 $this->getRegistrasi = Crypt::encryptString($data['no_rawat']);
-                TrackerSQL::TrackerSimpan('reg_periksa (Unit APM)', $data);
+                FuntionKhanza::TrackerSimpan('reg_periksa (Unit APM)', $data);
                 session()->flash('messageRegistrasi', 'Berhasil');
             }
         } catch (\Throwable $th) {
