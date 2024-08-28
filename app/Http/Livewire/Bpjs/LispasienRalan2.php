@@ -50,25 +50,40 @@ class LispasienRalan2 extends Component
             ->leftJoin('bw_file_casemix_hasil', 'bw_file_casemix_hasil.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
-                    ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
+                if ($cariKode) {
+                    $query->orwhere('reg_periksa.no_rkm_medis', '=', "$cariKode")
+                        ->orwhere('pasien.nm_pasien', '=', "$cariKode")
+                        ->orwhere('bridging_sep.no_sep', '=', "$cariKode");
+                }
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->get();
     }
+
     // 2 PROSES UPLOAD ==================================================================================
+    // A
+    public $keyModal;
+    public $no_rawat;
+    public $no_rkm_medis;
+    public $nm_pasien;
     use WithFileUploads;
+    public function SetmodalInacbg($key)
+    {
+        $this->keyModal = $key;
+        $this->no_rawat = $this->getPasien[$key]['no_rawat'];
+        $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
+        $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
+    }
     public $upload_file_inacbg = [];
     public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
     {
         try {
-        $no_rawatSTR = str_replace('/', '', $no_rawat);
-        $file_name = 'INACBG' . '-' . $no_rawatSTR . '.' . $this->upload_file_inacbg[$key]->getClientOriginalExtension();
+            $no_rawatSTR = str_replace('/', '', $no_rawat);
+            $file_name = 'INACBG' . '-' . $no_rawatSTR . '.' . $this->upload_file_inacbg[$key]->getClientOriginalExtension();
 
-        $this->upload_file_inacbg[$key]->storeAs('file_inacbg',  $file_name, 'public');
-        $livewire_tmp_file = 'livewire-tmp/' . $this->upload_file_inacbg[$key]->getFileName();
-        Storage::delete($livewire_tmp_file);
+            $this->upload_file_inacbg[$key]->storeAs('file_inacbg',  $file_name, 'public');
+            $livewire_tmp_file = 'livewire-tmp/' . $this->upload_file_inacbg[$key]->getFileName();
+            Storage::delete($livewire_tmp_file);
             $cekBerkas = DB::table('bw_file_casemix_inacbg')->where('no_rawat', $no_rawat)
                 ->exists();
             if (!$cekBerkas) {
@@ -82,6 +97,14 @@ class LispasienRalan2 extends Component
         } catch (\Throwable $th) {
             session()->flash('errorBundling', 'Gagal!! Upload File Inacbg');
         }
+    }
+    // B
+    public function SetmodalScan($key)
+    {
+        $this->keyModal = $key;
+        $this->no_rawat = $this->getPasien[$key]['no_rawat'];
+        $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
+        $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
     }
     public $upload_file_scan = [];
     public function UploadScan($key, $no_rawat, $no_rkm_medis)

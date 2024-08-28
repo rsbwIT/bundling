@@ -68,7 +68,7 @@ class RanapDokter3 extends Controller
             ->leftJoin('operasi', 'rawat_inap_dr.no_rawat', '=', 'operasi.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
-            // ->where('jns_perawatan_inap.nm_perawatan', 'like', '%'.'konsul'.'%')
+            ->where('jns_perawatan_inap.nm_perawatan', 'like', '%'.'Visite Dokter Spesialis'.'%')
             ->where(function ($query) {
                 $query->whereNull('operasi.operator1')
                     ->orWhereColumn('rawat_inap_dr.kd_dokter', '!=', 'operasi.operator1');
@@ -91,7 +91,7 @@ class RanapDokter3 extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter')
+            ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'rawat_inap_dr.kd_jenis_prw')
             ->orderByDesc('rawat_inap_dr.no_rawat')
             ->get();
         $ranapDokter->map(function ($item) {

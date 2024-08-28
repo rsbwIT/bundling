@@ -66,9 +66,8 @@
                             <div class="input-group-append">
                                 <button class="btn btn-sidebar btn-primary btn-sm" wire:click="render()">
                                     <i class="fas fa-search fa-fw"></i>
-                                    <span class="spinner-grow spinner-grow-sm" role="status"
-                                                aria-hidden="true" wire:loading
-                                                wire:target="getListPasienRalan"></span>
+                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
+                                        wire:loading wire:target="getListPasienRalan"></span>
                                 </button>
                             </div>
                         </div>
@@ -118,11 +117,12 @@
                                         </button>
                                         <div class="dropdown-menu" role="menu">
                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#UploadInacbg{{ $key }}"><i
-                                                    class="fas fa-upload"></i> Berkas Inacbg </a>
+                                                wire:click="SetmodalInacbg('{{ $key }}')"
+                                                data-target="#UploadInacbg"><i class="fas fa-upload"></i> Berkas Inacbg
+                                            </a>
                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#UploadScan{{ $key }}"><i
-                                                    class="fas fa-upload"></i>
+                                                wire:click="SetmodalScan('{{ $key }}')"
+                                                data-target="#UploadScan"><i class="fas fa-upload"></i>
                                                 Berkas Scan </a>
                                         </div>
                                     </div>
@@ -164,12 +164,13 @@
                                     <div class="btn-group">
                                         @if ($item->file)
                                             <a href="{{ url('hasil_pdf/' . $item->file) }}" download
-                                                class="btn btn-block btn-outline-success btn-xs btn-flat" role="button">
+                                                class="btn btn-block btn-outline-success btn-xs btn-flat"
+                                                role="button">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         @else
-                                            <a href="#"
-                                                class="btn btn-block btn-outline-dark btn-xs btn-flat" role="button">
+                                            <a href="#" class="btn btn-block btn-outline-dark btn-xs btn-flat"
+                                                role="button">
                                                 <i class="fas fa-ban"></i>
                                             </a>
                                         @endif
@@ -182,83 +183,81 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
-                            {{-- MODAL --}}
-                            <div class="modal fade" id="UploadInacbg{{ $key }}" tabindex="-1"
-                                role="dialog" aria-hidden="true" wire:ignore.self>
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h6 class="modal-title">Upload Berkas <b>INACBG</b> :
-                                                <u>{{ $item->nm_pasien }}</u>
-                                            </h6>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group">
-                                                        <label>File Inacbg
-                                                        </label>
-                                                        <input type="file" class="form-control form-control"
-                                                            wire:model="upload_file_inacbg.{{ $key }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer justify-content-between">
-                                            <button type="submit" class="btn btn-primary" data-dismiss="modal"
-                                                wire:click="UploadInacbg('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')"
-                                                wire:loading.remove
-                                                wire:target="upload_file_inacbg.{{ $key }}">Submit
-                                            </button>
-                                            <div wire:loading wire:target="upload_file_inacbg.{{ $key }}">
-                                                Uploading...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal fade" id="UploadScan{{ $key }}" tabindex="-1"
-                                role="dialog" aria-hidden="true" wire:ignore.self>
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h6 class="modal-title">Upload Berkas <b>SCAN</b> :
-                                                <u>{{ $item->nm_pasien }}</u>
-                                            </h6>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group">
-                                                        <label>File Inacbg
-                                                        </label>
-                                                        <input type="file" class="form-control form-control"
-                                                            wire:model="upload_file_scan.{{ $key }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer justify-content-between">
-                                            <button type="submit" class="btn btn-primary" data-dismiss="modal"
-                                                wire:click="UploadScan('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')"
-                                                wire:loading.remove
-                                                wire:target="upload_file_scan.{{ $key }}">Submit
-                                            </button>
-                                            <div wire:loading wire:target="upload_file_scan.{{ $key }}">
-                                                Uploading...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </tr>
                     @endforeach
+                    {{-- MODAL --}}
+                    <div class="modal fade" id="UploadInacbg" tabindex="-1" role="dialog" aria-hidden="true"
+                        wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title">Upload Berkas <b>INACBG</b> :
+                                        <u>{{ $nm_pasien }}</u>
+                                    </h6>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label>File Inacbg
+                                                </label>
+                                                <input type="file" class="form-control form-control"
+                                                    wire:model="upload_file_inacbg.{{ $keyModal }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                                        wire:click="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        wire:loading.remove
+                                        wire:target="upload_file_inacbg.{{ $keyModal }}">Submit
+                                    </button>
+                                    <div wire:loading wire:target="upload_file_inacbg.{{ $keyModal }}">
+                                        Uploading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="UploadScan" tabindex="-1" role="dialog" aria-hidden="true"
+                        wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title">Upload Berkas <b>SCAN</b> :
+                                        <u>{{ $nm_pasien }}</u>
+                                    </h6>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label>File Inacbg
+                                                </label>
+                                                <input type="file" class="form-control form-control"
+                                                    wire:model="upload_file_scan.{{ $keyModal }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                                        wire:click="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        wire:loading.remove wire:target="upload_file_scan.{{ $keyModal }}">Submit
+                                    </button>
+                                    <div wire:loading wire:target="upload_file_scan.{{ $keyModal }}">
+                                        Uploading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- // MODAL --}}
                 </tbody>
             </table>
         </div>

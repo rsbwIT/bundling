@@ -154,8 +154,8 @@ class BridgingalatlatLis extends Component
                 'obr' => [
                     'order_control' => 'N',
                     'ptype' => ($data[$key]['status_lanjut'] === 'Ralan') ? 'OP' : 'IP',
-                    'reg_no' => $data[$key]['noorder'].'A',
-                    'order_lab' => $data[$key]['noorder'].'A',
+                    'reg_no' => $data[$key]['noorder'],
+                    'order_lab' => $data[$key]['noorder'],
                     'provider_id' => $data[$key]['kd_pj'],
                     'provider_name' => $data[$key]['png_jawab'],
                     'order_date' => Carbon::parse($data[$key]['tgl_permintaan'])->format('d.m.Y') . ' ' . Carbon::parse($data[$key]['jam_permintaan'])->format('h:m:s'),
@@ -174,8 +174,7 @@ class BridgingalatlatLis extends Component
                     'reserve2' => $data[$key]['reserve2'],
                     'reserve3' => $data[$key]['reserve3'],
                     'reserve4' => $data[$key]['reserve4'],
-                    // 'order_test' => $order_test,
-                    'order_test' => ['LAB030C'],
+                    'order_test' => $order_test,
                 ],
             ],
         ];
@@ -197,7 +196,7 @@ class BridgingalatlatLis extends Component
     {
         // try {
         $Service = new  ServiceSoftmedik();
-        $data = $Service->ServiceSoftmedixGet($noorder.'A');
+        $data = $Service->ServiceSoftmedixGet($noorder);
         $this->detailDataLis = $data;
         $this->detailDataLis['response']['sampel']['result_test'] = collect($this->detailDataLis['response']['sampel']['result_test'])->map(function ($item) {
             $khanza = DB::table('template_laboratorium')
