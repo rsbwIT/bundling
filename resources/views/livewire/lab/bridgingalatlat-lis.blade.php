@@ -300,7 +300,7 @@
 
                                                 @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
                                                     @if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template'])
-                                                        <tr>
+                                                    <tr>
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
                                                             <td>{{ $item['id_template'] }}</td>
@@ -319,6 +319,9 @@
                                                 @endforeach
 
                                             </table>
+
+                                            <button type="button" name="" id="" class="btn btn-primary" btn-lg btn-block" wire:click='getTestLAB("{{$key}}")'>getTestLab</button>
+
                                             <table border="0px" width="1000px" class="mt-2">
                                                 <tr>
                                                     <td class="text-xs"><b>Catatan :</b> Jika ada keragu-raguan
