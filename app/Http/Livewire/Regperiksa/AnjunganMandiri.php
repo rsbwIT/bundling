@@ -128,8 +128,9 @@ class AnjunganMandiri extends Component
         $nm_poli  = $this->nm_poli;
         try {
             $this->getDokter = DB::table('dokter')
-                ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'jadwal.kuota', 'jadwal.jam_mulai', 'jadwal.jam_selesai')
+                ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'jadwal.kuota', 'jadwal.jam_mulai', 'jadwal.jam_selesai','list_dokter.foto')
                 ->join('jadwal', 'dokter.kd_dokter', '=', 'jadwal.kd_dokter')
+                ->leftJoin('list_dokter','dokter.kd_dokter','=','list_dokter.kd_dokter')
                 ->where('jadwal.hari_kerja', '=', DayListService::hariKhanza(date('l')))
                 ->where('jadwal.kd_poli', '=', $kdPoli)
                 ->groupBy('dokter.kd_dokter')

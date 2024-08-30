@@ -15,13 +15,14 @@
                         <i class="icon fas fa-{{ Session::get('icon') }}"></i> {{ Session::get('message') }}!
                     </div>
                 @endif
-                <table class="table">
+                <table class="table table-sm">
                     <thead>
                         <tr>
                             <th>No</th>
                             <th>Kd Dokter</th>
                             <th>Nama</th>
                             <th class="text-center">Lokasi Dokter</th>
+                            <th class="text-center">Foto</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,7 +34,10 @@
                                 <td class="text-center">
                                     @foreach ($getLoket as $keyLoket => $data)
                                         @php
-                                            $typeBtn = $data->kd_loket == $item->kd_loket ? 'btn-primary' : 'btn-outline-primary';
+                                            $typeBtn =
+                                                $data->kd_loket == $item->kd_loket
+                                                    ? 'btn-primary'
+                                                    : 'btn-outline-primary';
                                         @endphp
                                         <button type="button" class="btn {{ $typeBtn }} btn-xs mx-1"
                                             wire:click.prevent="editLoketConfirm('{{ $item->kd_dokter }}', '{{ $item->nm_dokter }}', '{{ $data->kd_loket }}')">
@@ -41,8 +45,55 @@
                                         </button>
                                     @endforeach
                                 </td>
+                                <td width="15%" class="text-center">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-block btn-outline-primary btn-xs btn-flat"
+                                            data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
+                                            data-target="#UploadFotoDokter">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
+                        {{-- MODAL UPLOAD --}}
+                        <div class="modal fade" id="UploadFotoDokter" tabindex="-1" role="dialog" aria-hidden="true"
+                            wire:ignore.self>
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h6 class="modal-title">Upload Foto Dokter :
+                                            <u>{{ $nm_dokter }}</u>
+                                        </h6>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label>File Foto
+                                                    </label>
+                                                    <input type="file" class="form-control form-control"
+                                                        wire:model="foto_dokter.{{ $keyModal }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                                            wire:click="UploadFoto('{{ $keyModal }}','{{ $kd_dokter }}')"
+                                            wire:loading.remove
+                                            wire:target="foto_dokter.{{ $keyModal }}">Submit
+                                        </button>
+                                        <div wire:loading wire:target="foto_dokter.{{ $keyModal }}">
+                                            Uploading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- MODAl --}}
                     </tbody>
                 </table>
             </div>

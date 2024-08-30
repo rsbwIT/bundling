@@ -136,9 +136,9 @@
                         <div class="col-md-6">
                             <h4 class="text-center display-5">Pilih Dokter</h4>
                             @php
-                                $center = (count($getDokter) > 1 ) ? '' : 'justify-content-center' ;
+                                $center = count($getDokter) > 1 ? '' : 'justify-content-center';
                             @endphp
-                            <div class="row {{$center}}">
+                            <div class="row {{ $center }}">
                                 @foreach ($getDokter as $dokter)
                                     <div class="col-md-6 m-0">
                                         <div class="card card-primary card-outline m-0">
@@ -151,10 +151,12 @@
                                             @endif
                                             <div class="card-body box-profile">
                                                 <div class="text-center">
-                                                    <img class="img-circle elevation-1 mb-2" src="/img/user.jpg"
+                                                    <img class="img-circle elevation-1 mb-2"
+                                                        src="{{ $dokter->foto ? url('/storage/foto_dokter/' . $dokter->foto) : '/img/user.jpg' }}"
                                                         alt="User profile picture" width="60px" height="60px">
                                                 </div>
-                                                <div class="text-center mb-1 font-weight-bold">{{ $dokter->nm_dokter }}
+                                                <div class="text-center mb-1 font-weight-bold">
+                                                    {{ $dokter->nm_dokter }}
                                                 </div>
                                                 <div class="text-center">
                                                     {{ date('H:i', strtotime($dokter->jam_mulai)) }} -

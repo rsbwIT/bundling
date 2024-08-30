@@ -164,14 +164,27 @@ class BridgingalatlatLis extends Component
                     'test_id' => $item['test_id'],
                     'nama_test' => $item['nama_test'],
                     'id_template' => $item['id_template'],
-                    'kode_paket' => $item['kode_paket']
+                    'kode_paket' => $item['kode_paket'],
+                    'nilai' => $item['hasil'],
+                    'nilai_rujukan' => $item['nilai_normal'],
+                    'keterangan' => $item['reserve4'],
                 ];
                 $uniqueNamaTest[] = $item['nama_test'];
             }
         }
         $resultDetailPeriksaLab = collect($resultDetailPeriksaLab)->map(function ($item) use ($key) {
             $khanza = DB::table('template_laboratorium')
-                ->select('template_laboratorium.kd_jenis_prw')
+                ->select(
+                    'template_laboratorium.kd_jenis_prw',
+                    'template_laboratorium.bagian_rs',
+                    'template_laboratorium.bhp',
+                    'template_laboratorium.bagian_perujuk',
+                    'template_laboratorium.bagian_dokter',
+                    'template_laboratorium.bagian_laborat',
+                    'template_laboratorium.kso',
+                    'template_laboratorium.menejemen',
+                    'template_laboratorium.biaya_item'
+                )
                 ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
                 ->where('template_laboratorium.kd_jenis_prw', $item['kode_paket'])
                 ->first();
@@ -179,6 +192,14 @@ class BridgingalatlatLis extends Component
             $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
             $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
             $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
+            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? '-';
+            $item['bhp'] = (int)$khanza->bhp ?? '-';
+            $item['bagian_perujuk'] = (int)$khanza->bagian_perujuk ?? '-';
+            $item['bagian_dokter'] = (int)$khanza->bagian_dokter ?? '-';
+            $item['bagian_laborat'] = (int)$khanza->bagian_laborat ?? '-';
+            $item['kso'] = (int)$khanza->kso ?? '-';
+            $item['menejemen'] = (int)$khanza->menejemen ?? '-';
+            $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
             return $item;
         });
         // / DETAIL PERIKSA LAB
@@ -186,55 +207,53 @@ class BridgingalatlatLis extends Component
         dd($resultDetailPeriksaLab);
 
         // PERIKSA LAB
-            $uniqueKodePaket = [];
-            $resultPeriksaLab = [];
-            foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
-                if (!in_array($item['kode_paket'], $uniqueKodePaket)) {
-                    $resultPeriksaLab[] = [
-                        'kode_paket' => $item['kode_paket']
-                    ];
-                    $uniqueKodePaket[] = $item['kode_paket'];
-                }
+        $uniqueKodePaket = [];
+        $resultPeriksaLab = [];
+        foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
+            if (!in_array($item['kode_paket'], $uniqueKodePaket)) {
+                $resultPeriksaLab[] = [
+                    'kode_paket' => $item['kode_paket']
+                ];
+                $uniqueKodePaket[] = $item['kode_paket'];
             }
-            $resultPeriksaLab = collect($resultPeriksaLab)->map(function ($item) use ($key) {
-                $khanza = DB::table('jns_perawatan_lab')
-                    ->select(
-                        'jns_perawatan_lab.kd_jenis_prw',
-                        'jns_perawatan_lab.nm_perawatan',
-                        'jns_perawatan_lab.bagian_rs',
-                        'jns_perawatan_lab.bhp',
-                        'jns_perawatan_lab.tarif_perujuk',
-                        'jns_perawatan_lab.tarif_tindakan_dokter',
-                        'jns_perawatan_lab.tarif_tindakan_petugas',
-                        'jns_perawatan_lab.kso',
-                        'jns_perawatan_lab.menejemen',
-                        'jns_perawatan_lab.total_byr',
-                        'jns_perawatan_lab.kategori'
-                    )
-                    ->where('jns_perawatan_lab.kd_jenis_prw', $item['kode_paket'])
-                    ->first();
-                $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
-                $item['nip'] = 'DARI FORMMMMMMMMMMMMMMMMMMMMMMMMMM' ?? '-';
-                $item['nm_perawatan'] = $khanza->nm_perawatan ?? '-';
-                $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
-                $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
-                $item['dokter_perujuk'] = $this->getDatakhanza[$key]['kd_dr_perujuk'] ?? '-';
-                $item['bagian_rs'] = (int)$khanza->bagian_rs ?? '0';
-                $item['bhp'] = (int)$khanza->bhp ?? '0';
-                $item['tarif_perujuk'] = (int)$khanza->tarif_perujuk ?? '0';
-                $item['tarif_tindakan_dokter'] = (int)$khanza->tarif_tindakan_dokter ?? '0';
-                $item['tarif_tindakan_petugas'] = (int)$khanza->tarif_tindakan_petugas ?? '0';
-                $item['kso'] = (int)$khanza->kso ?? '0';
-                $item['menejemen'] = (int)$khanza->menejemen ?? '0';
-                $item['biaya'] = (int)$khanza->total_byr ?? '0';
-                $item['kd_dokter'] = 'DOKTER LAB' ?? '-';
-                $item['status'] = $this->getDatakhanza[$key]['status_lanjut'] ?? '-';
-                $item['kategori'] = $khanza->kategori ?? '-';
-                return $item;
-            });
+        }
+        $resultPeriksaLab = collect($resultPeriksaLab)->map(function ($item) use ($key) {
+            $khanza = DB::table('jns_perawatan_lab')
+                ->select(
+                    'jns_perawatan_lab.kd_jenis_prw',
+                    'jns_perawatan_lab.nm_perawatan',
+                    'jns_perawatan_lab.bagian_rs',
+                    'jns_perawatan_lab.bhp',
+                    'jns_perawatan_lab.tarif_perujuk',
+                    'jns_perawatan_lab.tarif_tindakan_dokter',
+                    'jns_perawatan_lab.tarif_tindakan_petugas',
+                    'jns_perawatan_lab.kso',
+                    'jns_perawatan_lab.menejemen',
+                    'jns_perawatan_lab.total_byr',
+                    'jns_perawatan_lab.kategori'
+                )
+                ->where('jns_perawatan_lab.kd_jenis_prw', $item['kode_paket'])
+                ->first();
+            $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
+            $item['nip'] = 'DARI FORMMMMMMMMMMMMMMMMMMMMMMMMMM' ?? '-';
+            $item['nm_perawatan'] = $khanza->nm_perawatan ?? '-';
+            $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
+            $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
+            $item['dokter_perujuk'] = $this->getDatakhanza[$key]['kd_dr_perujuk'] ?? '-';
+            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? '0';
+            $item['bhp'] = (int)$khanza->bhp ?? '0';
+            $item['tarif_perujuk'] = (int)$khanza->tarif_perujuk ?? '0';
+            $item['tarif_tindakan_dokter'] = (int)$khanza->tarif_tindakan_dokter ?? '0';
+            $item['tarif_tindakan_petugas'] = (int)$khanza->tarif_tindakan_petugas ?? '0';
+            $item['kso'] = (int)$khanza->kso ?? '0';
+            $item['menejemen'] = (int)$khanza->menejemen ?? '0';
+            $item['biaya'] = (int)$khanza->total_byr ?? '0';
+            $item['kd_dokter'] = 'DOKTER LAB' ?? '-';
+            $item['status'] = $this->getDatakhanza[$key]['status_lanjut'] ?? '-';
+            $item['kategori'] = $khanza->kategori ?? '-';
+            return $item;
+        });
         // /PERIKSA LAB
 
-
-        // dd($this->getDatakhanza);
     }
 }
