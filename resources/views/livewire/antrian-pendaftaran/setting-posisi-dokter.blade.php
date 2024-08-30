@@ -47,10 +47,10 @@
                                 </td>
                                 <td width="15%" class="text-center">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-block btn-outline-primary btn-xs btn-flat"
+                                        <button type="button" class="btn btn-block btn-outline-{{ $item->foto ? 'success' : 'primary' }} btn-xs btn-flat"
                                             data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
                                             data-target="#UploadFotoDokter">
-                                            <i class="fas fa-upload"></i> Upload
+                                            <i class="fas {{ $item->foto ? 'fa-check' : 'fa-upload' }}"></i> Upload
                                         </button>
                                     </div>
                                 </td>

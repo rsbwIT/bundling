@@ -36,7 +36,7 @@ class SettingPosisiDokter extends Component
     private function getListDokter()
     {
         $this->getListDokter = DB::table('dokter')
-            ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'list_dokter.kd_loket')
+            ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'list_dokter.kd_loket', 'list_dokter.foto')
             ->leftJoin('list_dokter', 'dokter.kd_dokter', '=', 'list_dokter.kd_dokter')
             ->where('dokter.status', '=', '1')
             ->orderBy('dokter.kd_dokter', 'ASC')
