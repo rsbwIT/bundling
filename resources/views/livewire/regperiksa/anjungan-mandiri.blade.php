@@ -153,7 +153,9 @@
                                                 <div class="text-center">
                                                     <img class="img-circle elevation-1 mb-2"
                                                         src="{{ $dokter->foto ? url('/storage/foto_dokter/' . $dokter->foto) : '/img/user.jpg' }}"
-                                                        alt="User profile picture" width="60px" height="60px">
+                                                        alt="User profile picture"
+                                                        style="width: 60px; height: 60px; object-fit: cover;">
+
                                                 </div>
                                                 <div class="text-center mb-1 font-weight-bold">
                                                     {{ $dokter->nm_dokter }}
