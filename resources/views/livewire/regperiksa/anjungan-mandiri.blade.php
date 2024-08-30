@@ -133,11 +133,11 @@
                 </div>
                 <div class="col-md-12">
                     <div class="row justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <h4 class="text-center display-5">Pilih Dokter</h4>
                             <div class="row justify-content-center">
                                 @foreach ($getDokter as $dokter)
-                                    <div class="col-md-6 m-0">
+                                    <div class="col-md-12 m-0">
                                         <div class="card card-primary card-outline m-0">
                                             @if ($dokter->terdaftar >= $dokter->kuota)
                                                 <div class="ribbon-wrapper">

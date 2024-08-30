@@ -285,7 +285,8 @@
                                                 <tr>
                                                     <th>test_id</th>
                                                     <th>nama_test</th>
-                                                    <th>id_template</th>
+                                                    <th>id_template(BW)</th>
+                                                    <th>nama_test(Bw)</th>
                                                     <th>jenis_hasil</th>
                                                     <th>hasil</th>
                                                     <th>satuan</th>
@@ -304,6 +305,7 @@
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
                                                             <td>{{ $item['id_template'] }}</td>
+                                                            <td>{{ $item['Pemeriksaan'] }}</td>
                                                             <td>{{ $item['jenis_hasil'] }}</td>
                                                             <td>{{ $item['hasil'] }}</td>
                                                             <td>{{ $item['satuan'] }}</td>
