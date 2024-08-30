@@ -132,51 +132,56 @@
                         class="btn btn-danger" wire:click='ResertShow("{{ 2 }}")'>X</button>
                 </div>
                 <div class="col-md-12">
-                    <h4 class="text-center display-5">Pilih Dokter</h4>
                     <div class="row justify-content-center">
-                        @foreach ($getDokter as $dokter)
-                            <div class="col-md-3 m-0">
-                                <div class="card card-primary card-outline m-0">
-                                    @if ($dokter->terdaftar >= $dokter->kuota)
-                                        <div class="ribbon-wrapper">
-                                            <div class="ribbon bg-warning">
-                                                Penuh
+                        <div class="col-md-6">
+                            <h4 class="text-center display-5">Pilih Dokter</h4>
+                            <div class="row justify-content-center">
+                                @foreach ($getDokter as $dokter)
+                                    <div class="col-md-6 m-0">
+                                        <div class="card card-primary card-outline m-0">
+                                            @if ($dokter->terdaftar >= $dokter->kuota)
+                                                <div class="ribbon-wrapper">
+                                                    <div class="ribbon bg-warning">
+                                                        Penuh
+                                                    </div>
+                                                </div>
+                                            @endif
+                                            <div class="card-body box-profile">
+                                                <div class="text-center">
+                                                    <img class="img-circle elevation-1 mb-2" src="/img/user.jpg"
+                                                        alt="User profile picture" width="60px" height="60px">
+                                                </div>
+                                                <div class="text-center mb-1 font-weight-bold">{{ $dokter->nm_dokter }}
+                                                </div>
+                                                <div class="text-center">
+                                                    {{ date('H:i', strtotime($dokter->jam_mulai)) }} -
+                                                    {{ date('H:i', strtotime($dokter->jam_selesai)) }}
+                                                </div>
+                                                @php
+                                                    if ($dokter->terdaftar >= $dokter->kuota) {
+                                                        $disable = 'disabled';
+                                                        $hidden = 'hidden';
+                                                    } else {
+                                                        $disable = '';
+                                                        $hidden = '';
+                                                    }
+                                                @endphp
+                                                Kuota <a class="float-right">{{ $dokter->kuota }}</a>
+                                                <hr class="my-1">
+                                                <span {{ $hidden }}> Terdaftar<a
+                                                        class="float-right">{{ $dokter->terdaftar }}</a>
+                                                    <hr class="my-1">
+                                                </span>
+                                                <button class="btn btn-block btn-xs  btn-outline-primary mt-4"
+                                                    wire:click='pilihDokter("{{ $dokter->kd_dokter }}","{{ $dokter->kd_poli }}","{{ $dokter->nm_dokter }}","{{ $dokter->nm_poli }}")'{{ $disable }}>
+                                                    <b>Daftar</b>
+                                                </button>
                                             </div>
                                         </div>
-                                    @endif
-                                    <div class="card-body box-profile">
-                                        <div class="text-center">
-                                            <img class="img-circle elevation-1 mb-2" src="/img/user.jpg"
-                                                alt="User profile picture" width="60px" height="60px">
-                                        </div>
-                                        <div class="text-center mb-1 font-weight-bold">{{ $dokter->nm_dokter }}</div>
-                                        <div class="text-center">
-                                            {{ date('H:i', strtotime($dokter->jam_mulai)) }} -
-                                            {{ date('H:i', strtotime($dokter->jam_selesai)) }}
-                                        </div>
-                                        @php
-                                            if ($dokter->terdaftar >= $dokter->kuota) {
-                                                $disable = 'disabled';
-                                                $hidden = 'hidden';
-                                            } else {
-                                                $disable = '';
-                                                $hidden = '';
-                                            }
-                                        @endphp
-                                        Kuota <a class="float-right">{{ $dokter->kuota }}</a>
-                                        <hr class="my-1">
-                                        <span {{ $hidden }}> Terdaftar<a
-                                                class="float-right">{{ $dokter->terdaftar }}</a>
-                                            <hr class="my-1">
-                                        </span>
-                                        <button class="btn btn-block btn-xs  btn-outline-primary mt-4"
-                                            wire:click='pilihDokter("{{ $dokter->kd_dokter }}","{{ $dokter->kd_poli }}","{{ $dokter->nm_dokter }}","{{ $dokter->nm_poli }}")'{{ $disable }}>
-                                            <b>Daftar</b>
-                                        </button>
                                     </div>
-                                </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
