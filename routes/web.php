@@ -78,7 +78,7 @@ Route::group(['middleware' => 'default'], function () {
     Route::post('/mesinlogin', [AuthController::class, 'mesinLogin']);
 
     Route::group(['middleware' => 'auth-rsbw'], function () {
-        Route::get('/test', [TestController::class, 'dashboardTanggal']);
+        Route::get('/test', [TestController::class, 'Test']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');

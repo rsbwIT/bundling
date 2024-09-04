@@ -5,7 +5,7 @@
             <div class="col-md-12">
                 <div class="row justify-content-center">
                     <div class="col-md-3">
-                        <h2 class="text-center display-4">Cari Nomor</h2>
+                        <h2 class="text-center display-5">Cari Nomor</h2>
                         <form wire:submit.prevent="setPasien">
                             <div class="input-group">
                                 <input type="search"
@@ -107,6 +107,24 @@
                 <div class="col-md-8">
                     <h4 class="text-center display-5">Pilih Poliklinik</h4>
                     <div class="row">
+                        <div class="col-md-8">
+                            @if ($getpasien)
+                                <table>
+                                    @foreach ($getpasien as $item)
+                                        <tr>
+                                            <td>Nama</td>
+                                            <td> : {{ $item->nm_pasien }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>No.Rm</td>
+                                            <td> : {{ $item->no_rkm_medis }}</td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row">
                         @foreach ($getPoli as $item)
                             <div class="col-md-3 m-0" style="cursor: pointer;"
                                 wire:click='setDokter("{{ $item->kd_poli }}","{{ $item->nm_poli }}")'>
@@ -138,6 +156,24 @@
                             @php
                                 $center = count($getDokter) > 1 ? '' : 'justify-content-center';
                             @endphp
+                            <div class="row">
+                                <div class="col-md-6">
+                                    @if ($getpasien)
+                                        <table>
+                                            @foreach ($getpasien as $item)
+                                                <tr>
+                                                    <td>Nama</td>
+                                                    <td> : {{ $item->nm_pasien }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>No.Rm</td>
+                                                    <td> : {{ $item->no_rkm_medis }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </table>
+                                    @endif
+                                </div>
+                            </div>
                             <div class="row {{ $center }}">
                                 @foreach ($getDokter as $dokter)
                                     <div class="col-md-6 m-0">
@@ -198,6 +234,13 @@
     {{-- 4. DAFTAR --}}
     @if ($showItem == 4)
         <div class="container">
+            <div style="position: sticky; top: 0;padding: 20px;  z-index: 100;">
+                <a href="{{ url('/anjungan-mandiri') }}"
+                    style="position: fixed; top: 20px; left: 20px; z-index: 1000;" type="button"
+                    class="btn btn-danger">
+                    <i class='fas fa-home'></i>
+                </a>
+            </div>
             <div style="position: sticky; top: 0;padding: 20px;  z-index: 100;">
                 <button style="position: fixed; top: 20px; right: 20px; z-index: 1000;" type="button"
                     class="btn btn-danger" wire:click='ResertShow("{{ 3 }}")'>X</button>

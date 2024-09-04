@@ -51,6 +51,7 @@ class AnjunganMandiri extends Component
         $this->showItem = $no;
         $this->getPoli();
         $this->getDokter();
+        $this->getpasien();
         $this->getRegistrasi = [];
     }
 
@@ -115,6 +116,7 @@ class AnjunganMandiri extends Component
     public $nm_poli;
     function setDokter($kdPoli, $nm_poli)
     {
+        $this->getpasien();
         $this->kdPoli = $kdPoli;
         $this->nm_poli = $nm_poli;
         $this->getDokter();

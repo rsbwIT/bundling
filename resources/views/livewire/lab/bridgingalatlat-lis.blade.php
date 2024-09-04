@@ -277,12 +277,45 @@
                                                     <td width="300px">:
                                                         {{ $detailDataLis['response']['sampel']['clinician_name'] }}
                                                     </td>
-                                                    <td width="130px"> </td>
-                                                    <td width="200px"></td>
+                                                    <td width="130px">Penerima </td>
+                                                    <td width="200px" class="dropdown">
+                                                        : @if ($set_dokter_penerima == '')
+                                                            Pilihdokter
+                                                        @else
+                                                            {{ $set_dokter_penerima }}
+                                                        @endif
+                                                        @php
+                                                            $retVal = ($show == 'show') ? "'false',''" : "'true', 'show'";
+                                                        @endphp
+                                                        <button id="dokterMenu{{ $key }}"
+                                                            aria-expanded="{{$aria_expanded}}"
+                                                            class="btn btn-primary btn-sm dropdown-toggle dropdown dropdown-hover py-0"
+                                                            data-bs-auto-close="outside" wire:click="dropdown({{$retVal}})"></button>
+                                                        <div>
+                                                            <ul aria-labelledby="dokterMenu{{ $key }}"
+                                                                style="background-color: rgb(235, 235, 235)"
+                                                                class="dropdown-menu border-0 shadow p-2 {{$show}}">
+                                                                <li>
+                                                                    <input type="text"
+                                                                        class="form-control form-control-sm"
+                                                                        wire:model='cariDokter'>
+                                                                </li>
+                                                                <li style="margin-top: 10px; max-height: 200px; overflow-y: auto; padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+                                                                    @foreach ($getDokter as $dokter)
+                                                                    <div wire:click="dropdown('false', '')">
+                                                                        <button class="dropdown-item"
+                                                                        wire:click='setDokterPenerima("{{ $dokter->kd_dokter }}","{{$dokter->nm_dokter}}")'>{{ $dokter->nm_dokter }}</button>
+                                                                    </div>
+                                                                    @endforeach
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             </table>
                                             <table border="1px" width="1000px" class="mt-2">
                                                 <tr>
+                                                    <th>#</th>
                                                     <th>test_id</th>
                                                     <th>nama_test</th>
                                                     <th>id_template(BW)</th>
@@ -299,9 +332,14 @@
                                                     $uniqueTests = [];
                                                 @endphp
 
-                                                @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
+                                                @foreach ($detailDataLis['response']['sampel']['result_test'] as $check => $item)
                                                     @if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template'])
-                                                    <tr>
+                                                        <tr>
+                                                            <td>
+                                                                <input class="" type="checkbox"
+                                                                    value="{{ $check }}"
+                                                                    wire:model="check.{{ $key }}.{{ $check }}">
+                                                            </td>
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
                                                             <td>{{ $item['id_template'] }}</td>
@@ -322,7 +360,9 @@
 
                                             </table>
 
-                                            <button type="button" name="" id="" class="btn btn-primary" btn-lg btn-block" wire:click='getTestLAB("{{$key}}")'>getTestLab</button>
+                                            <button type="button"
+                                                class="btn btn-primary btn-lg btn-block"
+                                                wire:click='getTestLAB("{{ $key }}")'>getTestLab</button>
 
                                             <table border="0px" width="1000px" class="mt-2">
                                                 <tr>
@@ -413,6 +453,7 @@
                     </div>
                 </div>
             </div>
+
         @endforeach
     </div>
 </div>
