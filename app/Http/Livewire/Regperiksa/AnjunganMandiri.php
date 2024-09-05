@@ -219,7 +219,7 @@ class AnjunganMandiri extends Component
             $pasien = FuntionKhanza::cekRegistrasi($this->cariKode);
             $pasienBelum = FuntionKhanza::cekRegistrasiBelum($this->cariKode);
             if ($pasien >= 1 || $pasienBelum >= 1) {
-                session()->flash('gagalRegistrasi', 'Gagal.');
+                session()->flash('gagalRegistrasi', 'Sudah Ada');
             } else {
                 DB::table('reg_periksa')->insert($data);
                 $this->getRegistrasi = Crypt::encryptString($data['no_rawat']);

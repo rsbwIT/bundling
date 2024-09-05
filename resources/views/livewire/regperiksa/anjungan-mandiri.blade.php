@@ -276,14 +276,14 @@
                                 @if (session()->has('messageRegistrasi'))
                                     <div class="ribbon-wrapper">
                                         <div class="ribbon bg-success">
-                                            Berhasil
+                                            {{ session('messageRegistrasi') }}
                                         </div>
                                     </div>
                                 @endif
                                 @if (session()->has('gagalRegistrasi'))
                                     <div class="ribbon-wrapper">
                                         <div class="ribbon bg-danger">
-                                            Gagal
+                                            {{ session('gagalRegistrasi') }}
                                         </div>
                                     </div>
                                 @endif
