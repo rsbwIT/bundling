@@ -216,7 +216,7 @@ class AnjunganMandiri extends Component
                 'status_bayar' => 'Belum Bayar',
                 'status_poli' => FuntionKhanza::getStatuspoli($this->registrasi['no_rkm_medis'], $this->registrasi['kd_poli']),
             ];
-            $pasien = FuntionKhanza::cekRegistrasi($this->registrasi['no_rkm_medis']);
+            $pasien = FuntionKhanza::cekRegistrasi($this->cariKode);
             $pasienBelum = FuntionKhanza::cekRegistrasiBelum($this->cariKode);
             if ($pasien >= 1 || $pasienBelum >= 1) {
                 session()->flash('gagalRegistrasi', 'Gagal.');
