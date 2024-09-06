@@ -97,8 +97,7 @@ class AnjunganMandiri extends Component
                 ->where(function ($query) use ($cariKode) {
                     $query->orWhere('pasien.no_rkm_medis', '=', $cariKode)
                         ->orWhere('pasien.no_ktp', '=', $cariKode)
-                        ->orWhere('pasien.no_peserta', '=', $cariKode)
-                        ->orWhere('pasien.no_tlp', '=', $cariKode);
+                        ->orWhere('pasien.no_peserta', '=', $cariKode);
                 })
                 ->limit(1)
                 ->get();

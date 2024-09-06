@@ -96,23 +96,21 @@ class FuntionKhanza
         ->where(function ($query) use ($carinomor) {
             $query->orWhere('pasien.no_rkm_medis', '=', $carinomor)
                 ->orWhere('pasien.no_ktp', '=', $carinomor)
-                ->orWhere('pasien.no_peserta', '=', $carinomor)
-                ->orWhere('pasien.no_tlp', '=', $carinomor);
+                ->orWhere('pasien.no_peserta', '=', $carinomor);
         })
         ->count();
     }
 
     public static function cekRegistrasiBelum($carinomor) {
         return DB::table('reg_periksa')
-        ->select('reg_periksa.almt_pj')
+        ->select('reg_periksa.no_rkm_medis')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->where('reg_periksa.stts','=', 'Belum')
         ->where('reg_periksa.tgl_registrasi',  '>=', Carbon::tomorrow()->toDateString())
         ->where(function ($query) use ($carinomor) {
             $query->orWhere('pasien.no_rkm_medis', '=', $carinomor)
                 ->orWhere('pasien.no_ktp', '=', $carinomor)
-                ->orWhere('pasien.no_peserta', '=', $carinomor)
-                ->orWhere('pasien.no_tlp', '=', $carinomor);
+                ->orWhere('pasien.no_peserta', '=', $carinomor);
         })
         ->count();
     }
