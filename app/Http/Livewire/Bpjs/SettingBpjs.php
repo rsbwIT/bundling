@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Storage;
 class SettingBpjs extends Component
 {
     public function mount() {
+        $this->getSeting();
         $this->getListCasemix();
     }
     public function render()
     {
+        $this->getSeting();
         $this->getListCasemix();
         return view('livewire.bpjs.setting-bpjs', [
             'getDataListCasemix' => $this->loadDataCasemix,
@@ -73,5 +75,31 @@ class SettingBpjs extends Component
         Session::flash('message', $message);
         Session::flash('color', $color);
         Session::flash('icon', $icon);
+    }
+
+    // final drag and drop UPDATE LIST BUNDLING===============================================================
+    public $getSeting;
+    public function getSeting()
+    {
+        $this->getSeting = DB::table('bw_setting_bundling')
+            ->select('bw_setting_bundling.id', 'bw_setting_bundling.nama_berkas', 'bw_setting_bundling.status', 'bw_setting_bundling.urutan')
+            ->orderBy('bw_setting_bundling.urutan', 'asc')
+            ->get();
+    }
+
+    public function updateStatus($id, $value)
+    {
+        DB::table('bw_setting_bundling')
+            ->where('id', $id)
+            ->update(['status' => $value]);
+    }
+
+    public function updateOrder($item)
+    {
+        foreach ($item as $key => $value) {
+            DB::table('bw_setting_bundling')
+                ->where('id', $value)
+                ->update(['urutan' => $key + 1]);
+        }
     }
 }

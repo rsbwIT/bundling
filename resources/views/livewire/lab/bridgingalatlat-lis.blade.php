@@ -1,4 +1,7 @@
 <div>
+    @push('styles')
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @endpush
     <div class="card-header">
         <form wire:submit.prevent="getDataKhanza">
             <div class="row">
@@ -278,37 +281,54 @@
                                                         {{ $detailDataLis['response']['sampel']['clinician_name'] }}
                                                     </td>
                                                     <td width="130px">Penerima </td>
-                                                    <td width="200px" class="dropdown">
-                                                        : @if ($set_dokter_penerima == '')
-                                                            Pilihdokter
-                                                        @else
-                                                            {{ $set_dokter_penerima }}
-                                                        @endif
-                                                        @php
-                                                            $retVal = ($show == 'show') ? "'false',''" : "'true', 'show'";
-                                                        @endphp
-                                                        <button id="dokterMenu{{ $key }}"
-                                                            aria-expanded="{{$aria_expanded}}"
-                                                            class="btn btn-primary btn-sm dropdown-toggle dropdown dropdown-hover py-0"
-                                                            data-bs-auto-close="outside" wire:click="dropdown({{$retVal}})"></button>
-                                                        <div>
-                                                            <ul aria-labelledby="dokterMenu{{ $key }}"
-                                                                style="background-color: rgb(235, 235, 235)"
-                                                                class="dropdown-menu border-0 shadow p-2 {{$show}}">
-                                                                <li>
-                                                                    <input type="text"
-                                                                        class="form-control form-control-sm"
-                                                                        wire:model='cariDokter'>
-                                                                </li>
-                                                                <li style="margin-top: 10px; max-height: 200px; overflow-y: auto; padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
-                                                                    @foreach ($getDokter as $dokter)
-                                                                    <div wire:click="dropdown('false', '')">
-                                                                        <button class="dropdown-item"
-                                                                        wire:click='setDokterPenerima("{{ $dokter->kd_dokter }}","{{$dokter->nm_dokter}}")'>{{ $dokter->nm_dokter }}</button>
-                                                                    </div>
-                                                                    @endforeach
-                                                                </li>
-                                                            </ul>
+                                                    <td width="200px">
+                                                        <div class="form-group dropdown" x-data="{ open: false }">
+                                                            <button
+                                                                class="btn btn-default btn-block btn-sm dropdown dropdown-hover"
+                                                                data-bs-auto-close="outside"
+                                                                id="dokterMenu{{ $key }}"
+                                                                aria-expanded="true"
+                                                                @click="open = ! open; $nextTick(() => $refs.cariDokter.focus());">
+                                                                <span
+                                                                    class="float-left">{{ $set_dokter_penerima }}</span>
+                                                                <span class="float-right">
+                                                                    <i class="fas fa-angle-down"></i>
+                                                                </span>
+                                                            </button>
+                                                            <div x-show="open" x-transition>
+                                                                <ul aria-labelledby="dokterMenu{{ $key }}"
+                                                                    style="width: 100%;background-color: rgb(230, 230, 230);"
+                                                                    class="dropdown-menu border-0 shadow p-2 show">
+                                                                    <li>
+                                                                        <input type="text"
+                                                                            class="form-control form-control-sm"
+                                                                            x-ref="cariDokter"
+                                                                            wire:model='cariDokter'>
+                                                                    </li>
+                                                                    @if ($getDokter)
+                                                                        @if ($getDokter->IsEmpty())
+                                                                            <li wire:loading.remove>
+                                                                                    Tidak Tersedia
+                                                                            </li>
+                                                                        @else
+                                                                            <li wire:loading.remove
+                                                                                style="margin-top: 10px; max-height: 200px; overflow-y: auto; padding: 5px; border: 1px solid #7ab8fb; border-radius: 5px;">
+                                                                                @foreach ($getDokter as $item)
+                                                                                    <div @click="open = ! open">
+                                                                                        <button class="dropdown-item"
+                                                                                            wire:click='setDokterPenerima("{{ $item->kd_dokter }}", "{{ $item->nm_dokter }}")'>{{ $item->nm_dokter }}</button>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </li>
+                                                                        @endif
+                                                                    @endif
+                                                                    <li wire:loading wire:target="cariDokter">
+                                                                        <button class="dropdown-item">
+                                                                            Processing Payment...
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -360,8 +380,7 @@
 
                                             </table>
 
-                                            <button type="button"
-                                                class="btn btn-primary btn-lg btn-block"
+                                            <button type="button" class="btn btn-primary btn-lg btn-block"
                                                 wire:click='getTestLAB("{{ $key }}")'>getTestLab</button>
 
                                             <table border="0px" width="1000px" class="mt-2">

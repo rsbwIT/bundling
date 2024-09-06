@@ -15,7 +15,7 @@
                         <i class="icon fas fa-{{ Session::get('icon') }}"></i> {{ Session::get('message') }}!
                     </div>
                 @endif
-                <table class="table table-sm">
+                <table class="table table-sm text-sm">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -23,6 +23,7 @@
                             <th>Nama</th>
                             <th class="text-center">Lokasi Dokter</th>
                             <th class="text-center">Foto</th>
+                            <th class="text-center">Kuota Tambahan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,12 +46,23 @@
                                         </button>
                                     @endforeach
                                 </td>
-                                <td width="15%" class="text-center">
+                                <td width="3%" class="text-center">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-block btn-outline-{{ $item->foto ? 'success' : 'primary' }} btn-xs btn-flat"
+                                        <button type="button"
+                                            class="btn btn-block btn-outline-{{ $item->foto ? 'success' : 'primary' }} btn-xs btn-flat"
                                             data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
                                             data-target="#UploadFotoDokter">
-                                            <i class="fas {{ $item->foto ? 'fa-check' : 'fa-upload' }}"></i> Upload
+                                            <i class="fas {{ $item->foto ? 'fa-check' : 'fa-upload' }}"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td width="15%" class="text-center">
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-block btn-outline-primary btn-xs btn-flat"
+                                            data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
+                                            data-target="#EditKuota">
+                                            <b> {{ $item->kuota_tambahan }}</b> +
                                         </button>
                                     </div>
                                 </td>
@@ -84,11 +96,44 @@
                                     <div class="modal-footer justify-content-between">
                                         <button type="submit" class="btn btn-primary" data-dismiss="modal"
                                             wire:click="UploadFoto('{{ $keyModal }}','{{ $kd_dokter }}')"
-                                            wire:loading.remove
-                                            wire:target="foto_dokter.{{ $keyModal }}">Submit
+                                            wire:loading.remove wire:target="foto_dokter.{{ $keyModal }}">Submit
                                         </button>
                                         <div wire:loading wire:target="foto_dokter.{{ $keyModal }}">
                                             Uploading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- MODAL UPDATE KUOTA DOKTER --}}
+                        <div class="modal fade" id="EditKuota" tabindex="-1" role="dialog" aria-hidden="true"
+                            wire:ignore.self>
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h6 class="modal-title">Update Kuota Dokter :
+                                            <u>{{ $nm_dokter }}</u>
+                                        </h6>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label>Jumlah Kuota
+                                                    </label>
+                                                    <input type="text" class="form-control form-control"
+                                                        wire:model.defer="getListDokter.{{ $keyModal }}.kuota_tambahan">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                                            wire:click="updateKuotaDokter('{{ $keyModal }}','{{ $kd_dokter }}')">
+                                            Update
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -109,7 +154,8 @@
                             <h4>Anda Yakin Ingin Menginput Atau Merubah posisi dokter?</h4>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" wire:click="cancelEdit()">Tidak !</button>
+                            <button type="button" class="btn btn-secondary" wire:click="cancelEdit()">Tidak
+                                !</button>
                             <button type="button" class="btn btn-primary" wire:click="editLoket()">Ya !</button>
                         </div>
                     </div>

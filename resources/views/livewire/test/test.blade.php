@@ -18,7 +18,7 @@
                     <div class="form-group dropdown" x-data="{ open: false }">
                         <label for="exampleInputPassword1">Password</label>
                         <button id="dokterMenu" aria-expanded="true"
-                            @click="open = ! open; $nextTick(() => $refs.cariDiagnosa.focus())"
+                            @click="open = ! open; $nextTick(() => $refs.cariDiagnosa.focus());"
                             class="btn btn-default btn-block dropdown dropdown-hover" data-bs-auto-close="outside">
                             <span class="float-left">{{ $diagnosa }}</span>
                             <span class="float-right">

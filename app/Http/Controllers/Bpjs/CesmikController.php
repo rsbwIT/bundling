@@ -88,7 +88,7 @@ class CesmikController extends Controller
             $getRadiologi = QueryResumeDll::getRadiologi($noRawat);
 
             // 9 AWAL MEDIS
-            // $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
+            $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
 
             // 10  SURAT KEMATIAN
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
@@ -102,6 +102,9 @@ class CesmikController extends Controller
             } else {
                 $getSoapie = QueryResumeDll::getSoapieRalan($noRawat);
             }
+
+            $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
+
         } else {
             $getSetting = '';
             $settingBundling = '';
@@ -114,10 +117,11 @@ class CesmikController extends Controller
             $bilingRalan = '';
             $getLaborat = '';
             $getRadiologi = '';
-            // $awalMedis = '';
+            $awalMedis = '';
             $getSudartKematian = '';
             $getLaporanOprasi = '';
             $getSoapie = '';
+            $getTriaseIGD = '';
         }
 
         // VIEW
@@ -133,10 +137,11 @@ class CesmikController extends Controller
             'bilingRalan' => $bilingRalan,
             'getLaborat' => $getLaborat,
             'getRadiologi' => $getRadiologi,
-            // 'awalMedis' => $awalMedis,
+            'awalMedis' => $awalMedis,
             'getSudartKematian' => $getSudartKematian,
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,
+            'getTriaseIGD' => $getTriaseIGD,
         ]);
     }
 }

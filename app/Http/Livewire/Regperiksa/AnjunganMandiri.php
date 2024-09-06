@@ -82,7 +82,18 @@ class AnjunganMandiri extends Component
         $cariKode = $this->cariKode;
         if (!empty($cariKode)) {
             $this->getpasien = DB::table('pasien')
-                ->select('pasien.no_rkm_medis', 'pasien.nm_pasien', 'pasien.no_ktp', 'pasien.jk', 'pasien.umur', 'pasien.namakeluarga', 'pasien.kd_pj', 'pasien.keluarga', 'pasien.alamat', 'pasien.tgl_daftar')
+                ->select(
+                    'pasien.no_rkm_medis',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp',
+                    'pasien.jk',
+                    'pasien.umur',
+                    'pasien.namakeluarga',
+                    'pasien.kd_pj',
+                    'pasien.keluarga',
+                    'pasien.alamat',
+                    'pasien.tgl_daftar'
+                )
                 ->where(function ($query) use ($cariKode) {
                     $query->orWhere('pasien.no_rkm_medis', '=', $cariKode)
                         ->orWhere('pasien.no_ktp', '=', $cariKode)
@@ -130,9 +141,18 @@ class AnjunganMandiri extends Component
         $nm_poli  = $this->nm_poli;
         try {
             $this->getDokter = DB::table('dokter')
-                ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'jadwal.kuota', 'jadwal.jam_mulai', 'jadwal.jam_selesai','list_dokter.foto')
+                ->select(
+                    'dokter.kd_dokter',
+                    'dokter.nm_dokter',
+                    'jadwal.kuota',
+                    'jadwal.jam_mulai',
+                    'jadwal.jam_selesai',
+                    'list_dokter.foto',
+                    DB::raw('IFNULL(list_dokter.kuota_tambahan, 0) as kuota_tambahan'),
+                    DB::raw('IFNULL(list_dokter.kuota_tambahan, 0) + jadwal.kuota as total_kuota')
+                )
                 ->join('jadwal', 'dokter.kd_dokter', '=', 'jadwal.kd_dokter')
-                ->leftJoin('list_dokter','dokter.kd_dokter','=','list_dokter.kd_dokter')
+                ->leftJoin('list_dokter', 'dokter.kd_dokter', '=', 'list_dokter.kd_dokter')
                 ->where('jadwal.hari_kerja', '=', DayListService::hariKhanza(date('l')))
                 ->where('jadwal.kd_poli', '=', $kdPoli)
                 ->groupBy('dokter.kd_dokter')

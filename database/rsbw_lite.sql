@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 31 Jul 2024 pada 05.54
+-- Waktu pembuatan: 06 Sep 2024 pada 03.46
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.0.30
 
@@ -59,6 +59,29 @@ CREATE TABLE `bw_display_bad` (
   `kelas` varchar(50) NOT NULL,
   `status` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `bw_display_bad`
+--
+
+INSERT INTO `bw_display_bad` (`id`, `ruangan`, `kamar`, `bad`, `kelas`, `status`) VALUES
+('DIS001', 'Anggrek', 'G-301', 'G-301-A', 'Kelas 3', '1'),
+('DIS002', 'Anggrek', 'G-301', 'G-301-B', 'Kelas 3', '1'),
+('DIS003', 'Anggrek', 'G-301', 'G-301-C', 'Kelas 3', '1'),
+('DIS004', 'Anggrek', 'G-302', 'G-302-A', 'Kelas 2', '0'),
+('DIS005', 'Anggrek', 'G-302', 'G-302-B', 'Kelas 2', '0'),
+('DIS006', 'Anggrek', 'G-303', 'G-302-A', 'Kelas 1', '1'),
+('DIS007', 'Anggrek', 'G-304', 'G-304-A', 'Kelas 2', '1'),
+('DIS008', 'Anggrek', 'G-304', 'G-304-B', 'Kelas 2', '1'),
+('DIS009', 'Anggrek', 'G-305', 'G-305-A', 'Kelas 3', '1'),
+('DIS010', 'Anggrek', 'G-305', 'G-305-B', 'Kelas 3', '1'),
+('DIS011', 'Garuda', 'G-306', 'G-306-A', 'Kelas 2', '0'),
+('DIS012', 'Garuda', 'G-306', 'G-306-B', 'Kelas 2', '0'),
+('DIS013', 'Nuri', 'G-101', 'G-N-101-A', 'Kelas 3', '1'),
+('DIS014', 'Nuri', 'G-101', 'G-N-101-B', 'Kelas 3', '0'),
+('DIS015', 'Nuri', 'G-101', 'G-N-101-C', 'Kelas 3', '1'),
+('DIS016', 'Kutilang', 'G-201', 'G-K-201-A', 'Kelas 2', '1'),
+('DIS017', 'Kutilang', 'G-201', 'G-K-201-B', 'Kelas 2', '1');
 
 -- --------------------------------------------------------
 
@@ -375,10 +398,27 @@ CREATE TABLE `bw_ruang_poli` (
 
 CREATE TABLE `bw_setting_bundling` (
   `id` varchar(20) NOT NULL,
-  `nama_berkas` varchar(50) DEFAULT NULL,
+  `nama_berkas` varchar(100) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `urutan` int(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `bw_setting_bundling`
+--
+
+INSERT INTO `bw_setting_bundling` (`id`, `nama_berkas`, `status`, `urutan`) VALUES
+('BUN001', 'berkas-sep', '1', 1),
+('BUN002', 'resume-pasien', '1', 2),
+('BUN003', 'rincian-biaya', '1', 3),
+('BUN004', 'berkas-laborat', '1', 5),
+('BUN005', 'berkas-radiologi', '1', 4),
+('BUN006', 'awal-medis', '1', 6),
+('BUN007', 'surat-kematian', '1', 8),
+('BUN008', 'berkas-laporan-operasi', '1', 7),
+('BUN009', 'soapie-pasien', '1', 9),
+('BUN010', 'hasil-pemeriksaan-ekg', '1', 10),
+('BUN011', 'berkas-triase-igdsekunder', '1', 11);
 
 -- --------------------------------------------------------
 
@@ -443,7 +483,9 @@ CREATE TABLE `file_farmasi` (
 CREATE TABLE `list_dokter` (
   `kd_dokter` varchar(255) NOT NULL,
   `nama_dokter` varchar(255) NOT NULL,
-  `kd_loket` varchar(255) NOT NULL
+  `kd_loket` varchar(255) DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `kuota_tambahan` varchar(50) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -479,6 +521,16 @@ CREATE TABLE `pendaftaran` (
   `kd_pendaftaran` varchar(255) NOT NULL,
   `nama_pendaftaran` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `pendaftaran`
+--
+
+INSERT INTO `pendaftaran` (`kd_pendaftaran`, `nama_pendaftaran`) VALUES
+('A', 'PENDAFTARAN A'),
+('B', 'PENDAFTARAN B'),
+('FISIO', 'FISIOTERAPI'),
+('G5', 'PENDAFTARAN G5');
 
 --
 -- Indexes for dumped tables
@@ -676,8 +728,8 @@ ALTER TABLE `file_farmasi`
 -- Indeks untuk tabel `list_dokter`
 --
 ALTER TABLE `list_dokter`
-  ADD PRIMARY KEY (`kd_dokter`),
-  ADD KEY `list_dokter_kd_loket_foreign` (`kd_loket`);
+  ADD PRIMARY KEY (`kd_dokter`) USING BTREE,
+  ADD KEY `list_dokter_kd_loket_foreign` (`kd_loket`) USING BTREE;
 
 --
 -- Indeks untuk tabel `log_antrian_loket`

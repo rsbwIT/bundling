@@ -36,7 +36,7 @@ class SettingPosisiDokter extends Component
     private function getListDokter()
     {
         $this->getListDokter = DB::table('dokter')
-            ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'list_dokter.kd_loket', 'list_dokter.foto')
+            ->select('dokter.kd_dokter', 'dokter.nm_dokter', 'list_dokter.kd_loket', 'list_dokter.foto', DB::raw('IFNULL(kuota_tambahan, 0) as kuota_tambahan'))
             ->leftJoin('list_dokter', 'dokter.kd_dokter', '=', 'list_dokter.kd_dokter')
             ->where('dokter.status', '=', '1')
             ->orderBy('dokter.kd_dokter', 'ASC')
@@ -81,6 +81,7 @@ class SettingPosisiDokter extends Component
         Session::flash('icon', $icon);
     }
 
+    // UPLOAD FOTO
     public $keyModal;
     public $nm_dokter;
     public $kd_dokter;
@@ -95,7 +96,7 @@ class SettingPosisiDokter extends Component
     use WithFileUploads;
     public function UploadFoto($key, $kd_dokter)
     {
-        // try {
+        try {
             $this->validate([
                 'foto_dokter.' . $key => 'image'
             ]);
@@ -106,7 +107,22 @@ class SettingPosisiDokter extends Component
             DB::table('list_dokter')
                 ->where('kd_dokter', $kd_dokter)
                 ->update(['foto' => $file_name]);
-        // } catch (\Throwable $th) {
-        // }
+        } catch (\Throwable $th) {
+        }
+    }
+
+    // TAMBAH KUOTA
+    public $kuota_tambahan;
+    function updateKuotaDokter($key, $kd_dokter)
+    {
+        try {
+            DB::table('list_dokter')
+                ->where('kd_dokter', $kd_dokter) // Specify the doctor using kd_dokter
+                ->update([
+                    'kuota_tambahan' => $this->getListDokter[$key]['kuota_tambahan']
+                ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 }

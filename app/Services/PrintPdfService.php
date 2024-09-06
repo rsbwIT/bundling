@@ -26,6 +26,12 @@ class PrintPdfService
         $statusLanjut = $cekNorawat->first();
         $getpasien = $cekNorawat->first();
 
+        $settingBundling = DB::table('bw_setting_bundling')
+            ->select('bw_setting_bundling.nama_berkas', 'bw_setting_bundling.urutan')
+            ->where('bw_setting_bundling.status', '1')
+            ->orderBy('bw_setting_bundling.urutan', 'asc')
+            ->get();
+
 
         if ($jumlahData > 0) {
             // 1 BERKAS SEP
@@ -73,7 +79,7 @@ class PrintPdfService
             $getRadiologi = QueryResumeDll::getRadiologi($noRawat);
 
             // AWAL MEDIS
-            // $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
+            $awalMedis = QueryResumeDll::getAwalMedis($noRawat);
 
             // SURAT KEMATIAN
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
@@ -88,6 +94,7 @@ class PrintPdfService
                 $getSoapie = QueryResumeDll::getSoapieRalan($noRawat);
             }
         } else {
+            $settingBundling = '';
             $getSetting = '';
             $jumlahData = '';
             $getSEP = '';
@@ -97,7 +104,7 @@ class PrintPdfService
             $bilingRalan = '';
             $getLaborat = '';
             $getRadiologi = '';
-            // $awalMedis = '';
+            $awalMedis = '';
             $getSudartKematian = '';
             $getLaporanOprasi = '';
             $getSoapie = '';
@@ -106,6 +113,7 @@ class PrintPdfService
 
         // VIEW
         $pdf = PDF::loadView('bpjs.printcasemix', [
+            'settingBundling' => $settingBundling,
             'getSetting' => $getSetting,
             'jumlahData' => $jumlahData,
             'getSEP' => $getSEP,
@@ -115,7 +123,7 @@ class PrintPdfService
             'bilingRalan' => $bilingRalan,
             'getLaborat' => $getLaborat,
             'getRadiologi' => $getRadiologi,
-            // 'awalMedis' => $awalMedis,
+            'awalMedis' => $awalMedis,
             'getSudartKematian' => $getSudartKematian,
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,

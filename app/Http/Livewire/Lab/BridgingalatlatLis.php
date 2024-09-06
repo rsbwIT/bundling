@@ -31,7 +31,7 @@ class BridgingalatlatLis extends Component
         $this->getDataKhanza();
         $this->Setting();
         $this->getDokter();
-        $this->set_dokter_penerima = '';
+        $this->set_dokter_penerima = 'Pilih Dokter';
         $this->set_kd_dokter_penerima = '';
     }
     public function render()
@@ -43,13 +43,6 @@ class BridgingalatlatLis extends Component
     }
 
     // Dropdown Manual
-    public  $aria_expanded;
-    public  $show;
-    function dropdown($value1, $value2)
-    {
-        $this->aria_expanded = $value1;
-        $this->show = $value2;
-    }
     public function setDokterPenerima($kd_dokter, $nm_dokter)
     {
         $this->set_dokter_penerima = $nm_dokter;
@@ -63,14 +56,22 @@ class BridgingalatlatLis extends Component
     public function getDokter()
     {
         $cariDokter = $this->cariDokter;
-        $this->getDokter = DB::table('dokter')
-            ->select('dokter.kd_dokter', 'dokter.nm_dokter')
-            ->where('dokter.status', '=', '1')
-            ->where(function ($query) use ($cariDokter) {
-                $query->orwhere('dokter.nm_dokter', 'LIKE', "%$cariDokter%")
-                    ->orwhere('dokter.kd_dokter', 'LIKE', "%$cariDokter%");
-            })
-            ->get();
+        if ($cariDokter) {
+            try {
+                $this->getDokter = DB::table('dokter')
+                    ->select('dokter.kd_dokter', 'dokter.nm_dokter')
+                    ->where('dokter.status', '=', '1')
+                    ->where(function ($query) use ($cariDokter) {
+                        $query->orwhere('dokter.nm_dokter', 'LIKE', "%$cariDokter%")
+                            ->orwhere('dokter.kd_dokter', 'LIKE', "%$cariDokter%");
+                    })
+                    ->get();
+            } catch (\Throwable $th) {
+                $this->getDokter = [];
+            }
+        } else {
+            $this->getDokter = [];
+        }
     }
 
     public $Setting;

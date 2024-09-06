@@ -178,7 +178,7 @@
                                 @foreach ($getDokter as $dokter)
                                     <div class="col-md-6 m-0">
                                         <div class="card card-primary card-outline m-0">
-                                            @if ($dokter->terdaftar >= $dokter->kuota)
+                                            @if ($dokter->terdaftar >= $dokter->total_kuota)
                                                 <div class="ribbon-wrapper">
                                                     <div class="ribbon bg-warning">
                                                         Penuh
@@ -201,7 +201,7 @@
                                                     {{ date('H:i', strtotime($dokter->jam_selesai)) }}
                                                 </div>
                                                 @php
-                                                    if ($dokter->terdaftar >= $dokter->kuota) {
+                                                    if ($dokter->terdaftar >= $dokter->total_kuota) {
                                                         $disable = 'disabled';
                                                         $hidden = 'hidden';
                                                     } else {
@@ -209,7 +209,7 @@
                                                         $hidden = '';
                                                     }
                                                 @endphp
-                                                Kuota <a class="float-right">{{ $dokter->kuota }}</a>
+                                                Kuota <a class="float-right">{{ $dokter->kuota }} + {{ $dokter->kuota_tambahan }}</a>
                                                 <hr class="my-1">
                                                 <span {{ $hidden }}> Terdaftar<a
                                                         class="float-right">{{ $dokter->terdaftar }}</a>
