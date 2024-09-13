@@ -44,33 +44,17 @@ class SettingPosisiDokter extends Component
     }
 
     // EDIT LOKET DOKTER
-    public $confirmingEdit = false;
-    public $selectedKdDokter;
-    public $selectedNmDokter;
-    public $selectedKdLoket;
-    public function editLoketConfirm($kd_dokter, $nm_dokter, $kd_loket)
-    {
-        $this->confirmingEdit = true;
-        $this->selectedKdDokter = $kd_dokter;
-        $this->selectedNmDokter = $nm_dokter;
-        $this->selectedKdLoket = $kd_loket;
-    }
-    public function editLoket()
+    public function editLoket($kd_dokter, $nm_dokter, $kd_loket)
     {
         try {
             DB::table('list_dokter')->updateOrInsert(
-                ['kd_dokter' => $this->selectedKdDokter],
-                ['nama_dokter' => $this->selectedNmDokter, 'kd_loket' => $this->selectedKdLoket]
+                ['kd_dokter' => $kd_dokter],
+                ['nama_dokter' => $nm_dokter, 'kd_loket' => $kd_loket]
             );
-            $this->flashMessage('Posisi Dokter Dipindahkan Ke ' . $this->selectedKdLoket, 'success', 'check');
+            $this->flashMessage('Posisi Dokter Dipindahkan Ke ' . $kd_loket, 'success', 'check');
         } catch (\Exception $e) {
             $this->flashMessage('Terjadi kesalahan saat menghapus pendaftaran.', 'danger', 'ban');
         }
-        $this->confirmingEdit = false;
-    }
-    public function cancelEdit()
-    {
-        $this->confirmingEdit = false;
     }
 
     // ALERT
@@ -85,11 +69,13 @@ class SettingPosisiDokter extends Component
     public $keyModal;
     public $nm_dokter;
     public $kd_dokter;
-    public function SetmodalInacbg($key)
+    public $kd_loket;
+    public function SetmodalInacbg($key, $kd_loket)
     {
         $this->keyModal = $key;
         $this->nm_dokter = $this->getListDokter[$key]['nm_dokter'];
         $this->kd_dokter = $this->getListDokter[$key]['kd_dokter'];
+        $this->kd_loket = $kd_loket;
     }
 
     public $foto_dokter = [];

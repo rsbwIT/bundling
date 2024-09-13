@@ -33,24 +33,18 @@
                                 <td>{{ $item->kd_dokter }}</td>
                                 <td>{{ $item->nm_dokter }}</td>
                                 <td class="text-center">
-                                    @foreach ($getLoket as $keyLoket => $data)
-                                        @php
-                                            $typeBtn =
-                                                $data->kd_loket == $item->kd_loket
-                                                    ? 'btn-primary'
-                                                    : 'btn-outline-primary';
-                                        @endphp
-                                        <button type="button" class="btn {{ $typeBtn }} btn-xs mx-1"
-                                            wire:click.prevent="editLoketConfirm('{{ $item->kd_dokter }}', '{{ $item->nm_dokter }}', '{{ $data->kd_loket }}')">
-                                            {{ $data->nama_loket }}
-                                        </button>
-                                    @endforeach
+                                    <button class="btn btn-outline-primary btn-xs btn-flat" href="#"
+                                        data-toggle="modal"
+                                        wire:click="SetmodalInacbg('{{ $key }}','{{ $item->kd_loket }}')"
+                                        data-target="#EditPosisiDokter"><i class="fas fa-pen"></i>
+                                    </button>
                                 </td>
                                 <td width="3%" class="text-center">
                                     <div class="btn-group">
                                         <button type="button"
                                             class="btn btn-block btn-outline-{{ $item->foto ? 'success' : 'primary' }} btn-xs btn-flat"
-                                            data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
+                                            data-toggle="modal"
+                                            wire:click="SetmodalInacbg('{{ $key }}','{{ $item->kd_loket }}')"
                                             data-target="#UploadFotoDokter">
                                             <i class="fas {{ $item->foto ? 'fa-check' : 'fa-upload' }}"></i>
                                         </button>
@@ -60,7 +54,8 @@
 
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-block btn-outline-primary btn-xs btn-flat"
-                                            data-toggle="modal" wire:click="SetmodalInacbg('{{ $key }}')"
+                                            data-toggle="modal"
+                                            wire:click="SetmodalInacbg('{{ $key }}','{{ $item->kd_loket }}')"
                                             data-target="#EditKuota">
                                             <b> {{ $item->kuota_tambahan }}</b> +
                                         </button>
@@ -138,29 +133,45 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- MODAl --}}
+                        {{-- MODAL UPDATE LOKASI DOKTER --}}
+                        <div class="modal fade" id="EditPosisiDokter" tabindex="-1" role="dialog"
+                            aria-hidden="true" wire:ignore.self>
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h6 class="modal-title">Update Posisi Loket Dokter :
+                                            <u>{{ $nm_dokter }}</u>
+                                        </h6>
+                                        <button type="button" class="close" data-dismiss="modal"
+                                            aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row justify-content-center">
+                                            @foreach ($getLoket as $keyLoket => $data)
+                                                @php
+                                                    $typeBtn =
+                                                        $data->kd_loket == $kd_loket
+                                                            ? 'btn-primary'
+                                                            : 'btn-outline-primary';
+                                                @endphp
+                                                <button type="button" class="btn {{ $typeBtn }} m-1"
+                                                    data-dismiss="modal"
+                                                    wire:click.prevent="editLoket('{{ $kd_dokter }}', '{{ $nm_dokter }}', '{{ $data->kd_loket }}')">
+                                                    {{ $data->nama_loket }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    @if ($confirmingEdit)
-        <div class="modal fade show" tabindex="-100" role="dialog" style="padding-right: 17px; display: block;"
-            aria-modal="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4>Anda Yakin Ingin Menginput Atau Merubah posisi dokter?</h4>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" wire:click="cancelEdit()">Tidak
-                                !</button>
-                            <button type="button" class="btn btn-primary" wire:click="editLoket()">Ya !</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
