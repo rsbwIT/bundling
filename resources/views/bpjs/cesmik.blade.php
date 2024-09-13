@@ -61,8 +61,9 @@
                     @if ($jumlahData > 0)
                         {{-- INCLUDE BERKAS ============================================================= --}}
                         @foreach ($settingBundling as $item)
-                            @include('bpjs.component.' .$item->nama_berkas)
+                            @include('bpjs.component.' . $item->nama_berkas)
                         @endforeach
+                        {{--  --}}
                     @else
                         <div class="card-body">
                             <div class="card p-4 d-flex justify-content-center align-items-center">

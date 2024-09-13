@@ -103,6 +103,7 @@ class CesmikController extends Controller
                 $getSoapie = QueryResumeDll::getSoapieRalan($noRawat);
             }
 
+            // 13 TRIASE PASIEN
             $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
 
         } else {

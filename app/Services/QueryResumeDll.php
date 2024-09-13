@@ -782,7 +782,7 @@ class QueryResumeDll
     // GET TRIASE IGD
     public static function getTriaseIGD($noRawat)
     {
-        return DB::table('data_triase_igdsekunder')
+        $getTriaseIGD = DB::table('data_triase_igdsekunder')
             ->select(
                 'data_triase_igdsekunder.anamnesa_singkat',
                 'data_triase_igdsekunder.catatan',
@@ -811,6 +811,26 @@ class QueryResumeDll
             ->join('pegawai', 'pegawai.nik', '=', 'data_triase_igdsekunder.nik')
             ->join('master_triase_macam_kasus', 'master_triase_macam_kasus.kode_kasus', '=', 'data_triase_igd.kode_kasus')
             ->where('data_triase_igd.no_rawat', '=', $noRawat)
-            ->get();
+            ->first();
+        if ($getTriaseIGD) {
+            $getTriaseIGD->masterTriase = DB::table('master_triase_pemeriksaan')
+                ->select('master_triase_pemeriksaan.kode_pemeriksaan','data_triase_igddetail_skala3.no_rawat','master_triase_pemeriksaan.nama_pemeriksaan')
+                ->join('master_triase_skala3', 'master_triase_pemeriksaan.kode_pemeriksaan', '=', 'master_triase_skala3.kode_pemeriksaan')
+                ->join('data_triase_igddetail_skala3', 'master_triase_skala3.kode_skala3', '=', 'data_triase_igddetail_skala3.kode_skala3')
+                ->where('data_triase_igddetail_skala3.no_rawat', '=', $getTriaseIGD->no_rawat)
+                ->groupBy('master_triase_pemeriksaan.kode_pemeriksaan')
+                ->orderBy('master_triase_pemeriksaan.kode_pemeriksaan', 'asc')
+                ->get();
+                $getTriaseIGD->masterTriase->map(function($item){
+                    $item->skala = DB::table('master_triase_skala3')
+                    ->select('master_triase_skala3.pengkajian_skala3')
+                    ->join('data_triase_igddetail_skala3','master_triase_skala3.kode_skala3','=','data_triase_igddetail_skala3.kode_skala3')
+                    ->where('master_triase_skala3.kode_pemeriksaan', $item->kode_pemeriksaan)
+                    ->where('data_triase_igddetail_skala3.no_rawat', $item->no_rawat)
+                    ->orderBy('data_triase_igddetail_skala3.kode_skala3','asc')
+                    ->get();
+                });
+        }
+        return $getTriaseIGD;
     }
 }

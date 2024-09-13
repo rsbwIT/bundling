@@ -93,6 +93,9 @@ class PrintPdfService
             } else {
                 $getSoapie = QueryResumeDll::getSoapieRalan($noRawat);
             }
+
+            // 13 TRIASE PASIEN
+            $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
         } else {
             $settingBundling = '';
             $getSetting = '';
@@ -108,6 +111,7 @@ class PrintPdfService
             $getSudartKematian = '';
             $getLaporanOprasi = '';
             $getSoapie = '';
+            $getTriaseIGD = '';
         }
 
 
@@ -127,6 +131,7 @@ class PrintPdfService
             'getSudartKematian' => $getSudartKematian,
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,
+            'getTriaseIGD' => $getTriaseIGD,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);

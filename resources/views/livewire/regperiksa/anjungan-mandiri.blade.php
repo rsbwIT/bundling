@@ -157,7 +157,7 @@
                                 $center = count($getDokter) > 1 ? '' : 'justify-content-center';
                             @endphp
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     @if ($getpasien)
                                         <table>
                                             @foreach ($getpasien as $item)

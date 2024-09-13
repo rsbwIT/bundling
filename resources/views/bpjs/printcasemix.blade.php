@@ -16,6 +16,10 @@
             /* Adjust font size for paragraphs */
         }
 
+        .text-md {
+            font-size: 10px;
+        }
+
         .h3 {
             font-size: 18px;
             font-weight: 700;
