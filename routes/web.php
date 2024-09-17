@@ -16,6 +16,7 @@ use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Laporan\BayarPiutang;
 use App\Http\Controllers\Laporan\PiutangRalan;
+use App\Http\Controllers\Laporan\PiutangRanap;
 use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\Regperiksa\Listpasien;
@@ -125,8 +126,8 @@ Route::group(['middleware' => 'default'], function () {
         // LAPORAN / KEUANGAN
         Route::get('/pembayaran-ralan', [PembayaranRalan::class, 'PembayaranRanal']);
         Route::get('/cari-pembayaran-ralan', [PembayaranRalan::class, 'CariPembayaranRanal']);
-        Route::get('/piutang-ralan', [PiutangRalan::class, 'PiutangRalan']);
         Route::get('/cari-piutang-ralan', [PiutangRalan::class, 'CariPiutangRalan']);
+        Route::get('/cari-piutang-ranap', [PiutangRanap::class, 'CariPiutangRanap']);
         Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);

@@ -141,6 +141,7 @@ class SepVclaim extends Component
             'kddpjplayanan' => $this->getSep[0]['dpjp']['kdDPJP'],
             'nmdpjplayanan' => $this->getSep[0]['dpjp']['nmDPJP'],
         ];
+        dd($data);
         // DB::table('users')->insert($data);
 
     }

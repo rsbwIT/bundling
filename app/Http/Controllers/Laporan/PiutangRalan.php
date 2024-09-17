@@ -15,109 +15,8 @@ class PiutangRalan extends Controller
     {
         $this->cacheService = $cacheService;
     }
-    function PiutangRalan(){
-        $tanggl1 = date('Y-m-d');
-        $tanggl2 = date('Y-m-d');
-        $penjab = $this->cacheService->getPenjab();
-
-        $piutangRalan = DB::table('reg_periksa')
-            ->select('reg_periksa.no_rawat',
-                'reg_periksa.no_rkm_medis',
-                'pasien.nm_pasien',
-                'reg_periksa.tgl_registrasi',
-                'dokter.nm_dokter',
-                'penjab.png_jawab',
-                'piutang_pasien.uangmuka',
-                'piutang_pasien.totalpiutang')
-            ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
-            ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
-            ->join('dokter','reg_periksa.kd_dokter','=','dokter.kd_dokter')
-            ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
-            ->join('piutang_pasien','piutang_pasien.no_rawat','=','reg_periksa.no_rawat')
-            ->where('reg_periksa.status_lanjut','=','Ralan')
-            ->whereBetween('reg_periksa.tgl_registrasi',[$tanggl1 , $tanggl2])
-            ->orderBy('reg_periksa.tgl_registrasi','asc')
-            ->get();
-            $piutangRalan->map(function ($item) {
-                // NOMOR NOTA
-                $item->getNomorNota = DB::table('nota_jalan')
-                    ->select('no_nota')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->get();
-                // LABORAT
-                $item->getLaborat = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Laborat')
-                    ->get();
-                // RADIOLOGI
-                $item->getRadiologi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Radiologi')
-                    ->get();
-                // Obat+Emb+Tsl / OBAT
-                $item->getObat = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Obat')
-                    ->get();
-                // RALAN DOKTER / 1 Paket Tindakan
-                $item->getRalanDokter = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter')
-                    ->get();
-                // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-                $item->getRalanDrParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter Paramedis')
-                    ->get();
-                // RALAN PARAMEDIS / 3 Paket Tindakan
-                $item->getRalanParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Paramedis')
-                    ->get();
-                // TAMBAHAN
-                $item->getTambahan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Tambahan')
-                    ->get();
-                // POTONGAN
-                $item->getPotongan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Potongan')
-                    ->get();
-                // REGISTRASI
-                $item->getRegistrasi = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Registrasi')
-                    ->get();
-                // OPERASI
-                $item->getOprasi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Operasi')
-                    ->get();
-                // SUDAH DIBAYAR / DISKON / TIDAK TERBAYAR
-                $item->getSudahBayar = DB::table('bayar_piutang')
-                    ->select('besar_cicilan', 'diskon_piutang', 'tidak_terbayar')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->get();
-            });
-
-
-        return view('laporan.piutangRalan',[
-            'penjab'=> $penjab,
-            'piutangRalan'=> $piutangRalan,
-        ]);
-    }
     function CariPiutangRalan(Request $request) {
+        $pencarian = '/cari-piutang-ralan';
         $penjab = $this->cacheService->getPenjab();
 
         $cariNomor = $request->cariNomor;
@@ -235,6 +134,7 @@ class PiutangRalan extends Controller
             });
 
         return view('laporan.piutangRalan',[
+            'pencarian'=> $pencarian,
             'penjab'=> $penjab,
             'piutangRalan'=> $piutangRalan,
         ]);

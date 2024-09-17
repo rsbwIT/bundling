@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 06 Sep 2024 pada 03.46
+-- Waktu pembuatan: 17 Sep 2024 pada 03.36
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.0.30
 
@@ -59,29 +59,6 @@ CREATE TABLE `bw_display_bad` (
   `kelas` varchar(50) NOT NULL,
   `status` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `bw_display_bad`
---
-
-INSERT INTO `bw_display_bad` (`id`, `ruangan`, `kamar`, `bad`, `kelas`, `status`) VALUES
-('DIS001', 'Anggrek', 'G-301', 'G-301-A', 'Kelas 3', '1'),
-('DIS002', 'Anggrek', 'G-301', 'G-301-B', 'Kelas 3', '1'),
-('DIS003', 'Anggrek', 'G-301', 'G-301-C', 'Kelas 3', '1'),
-('DIS004', 'Anggrek', 'G-302', 'G-302-A', 'Kelas 2', '0'),
-('DIS005', 'Anggrek', 'G-302', 'G-302-B', 'Kelas 2', '0'),
-('DIS006', 'Anggrek', 'G-303', 'G-302-A', 'Kelas 1', '1'),
-('DIS007', 'Anggrek', 'G-304', 'G-304-A', 'Kelas 2', '1'),
-('DIS008', 'Anggrek', 'G-304', 'G-304-B', 'Kelas 2', '1'),
-('DIS009', 'Anggrek', 'G-305', 'G-305-A', 'Kelas 3', '1'),
-('DIS010', 'Anggrek', 'G-305', 'G-305-B', 'Kelas 3', '1'),
-('DIS011', 'Garuda', 'G-306', 'G-306-A', 'Kelas 2', '0'),
-('DIS012', 'Garuda', 'G-306', 'G-306-B', 'Kelas 2', '0'),
-('DIS013', 'Nuri', 'G-101', 'G-N-101-A', 'Kelas 3', '1'),
-('DIS014', 'Nuri', 'G-101', 'G-N-101-B', 'Kelas 3', '0'),
-('DIS015', 'Nuri', 'G-101', 'G-N-101-C', 'Kelas 3', '1'),
-('DIS016', 'Kutilang', 'G-201', 'G-K-201-A', 'Kelas 2', '1'),
-('DIS017', 'Kutilang', 'G-201', 'G-K-201-B', 'Kelas 2', '1');
 
 -- --------------------------------------------------------
 
@@ -499,39 +476,6 @@ CREATE TABLE `log_antrian_loket` (
   `kd_loket` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `loket`
---
-
-CREATE TABLE `loket` (
-  `kd_loket` varchar(255) NOT NULL,
-  `nama_loket` varchar(255) NOT NULL,
-  `kd_pendaftaran` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `pendaftaran`
---
-
-CREATE TABLE `pendaftaran` (
-  `kd_pendaftaran` varchar(255) NOT NULL,
-  `nama_pendaftaran` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data untuk tabel `pendaftaran`
---
-
-INSERT INTO `pendaftaran` (`kd_pendaftaran`, `nama_pendaftaran`) VALUES
-('A', 'PENDAFTARAN A'),
-('B', 'PENDAFTARAN B'),
-('FISIO', 'FISIOTERAPI'),
-('G5', 'PENDAFTARAN G5');
-
 --
 -- Indexes for dumped tables
 --
@@ -739,19 +683,6 @@ ALTER TABLE `log_antrian_loket`
   ADD KEY `log_antrian_loket_kd_loket_foreign` (`kd_loket`);
 
 --
--- Indeks untuk tabel `loket`
---
-ALTER TABLE `loket`
-  ADD PRIMARY KEY (`kd_loket`),
-  ADD KEY `loket_kd_pendaftaran_foreign` (`kd_pendaftaran`);
-
---
--- Indeks untuk tabel `pendaftaran`
---
-ALTER TABLE `pendaftaran`
-  ADD PRIMARY KEY (`kd_pendaftaran`);
-
---
 -- AUTO_INCREMENT untuk tabel yang dibuang
 --
 
@@ -818,12 +749,6 @@ ALTER TABLE `list_dokter`
 --
 ALTER TABLE `log_antrian_loket`
   ADD CONSTRAINT `log_antrian_loket_kd_loket_foreign` FOREIGN KEY (`kd_loket`) REFERENCES `loket` (`kd_loket`) ON DELETE CASCADE;
-
---
--- Ketidakleluasaan untuk tabel `loket`
---
-ALTER TABLE `loket`
-  ADD CONSTRAINT `loket_kd_pendaftaran_foreign` FOREIGN KEY (`kd_pendaftaran`) REFERENCES `pendaftaran` (`kd_pendaftaran`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

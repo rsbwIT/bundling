@@ -150,9 +150,17 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/piutang-ralan') }}" class="nav-link">
+                                    <a href="{{ url('/cari-piutang-ralan') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Piutang Ralan</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/cari-piutang-ranap') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Piutang Ranap</p>
                                     </a>
                                 </li>
                             </ul>
