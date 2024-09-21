@@ -181,7 +181,6 @@ class BridgingalatlatLis extends Component
                     ->first();
                 $item['id_template'] = $khanza->id_template ?? '-';
                 $item['Pemeriksaan'] = $khanza->Pemeriksaan ?? '-';
-                $item['check'] = true;
                 return $item;
             });
             // dd($this->detailDataLis);
@@ -190,13 +189,18 @@ class BridgingalatlatLis extends Component
         }
     }
 
-    public $check = [];
     function getTestLAB($key)
     {
-        dd($this->check[$key]);
+        $uniqueTests = [];
         $resultDetailPeriksaLab = [];
-        foreach ($this->check[$key] as $key => $value) {
-            $resultDetailPeriksaLab[] = $this->detailDataLis['response']['sampel']['result_test'][$value];
+        foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
+            if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template']) {
+                $resultDetailPeriksaLab[] = [
+                    'kode_paket' => $item['kode_paket'],
+                    'id_template' => $item['id_template'],
+                ];
+                $uniqueTests[] = $item['nama_test'];
+            }
         }
         $resultDetailPeriksaLab = collect($resultDetailPeriksaLab)->map(function ($item) use ($key) {
             $khanza = DB::table('template_laboratorium')
@@ -228,7 +232,7 @@ class BridgingalatlatLis extends Component
             $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
             return $item;
         });
-        dd($resultDetailPeriksaLab);
+
 
         // foreach ($test as $item) {
         //     DB::connection('db_con2')->table('detail_periksa_lab')->insert([
@@ -299,7 +303,7 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-
+        dd($resultPeriksaLab);
         // foreach ($resultPeriksaLab as $item) {
         //     DB::connection('db_con2')->table('periksa_lab')->insert([
         //         'no_rawat' => $item['no_rawat'],

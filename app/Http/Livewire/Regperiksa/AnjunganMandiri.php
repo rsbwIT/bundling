@@ -155,7 +155,7 @@ class AnjunganMandiri extends Component
                 ->where('jadwal.hari_kerja', '=', DayListService::hariKhanza(date('l')))
                 ->where('jadwal.kd_poli', '=', $kdPoli)
                 ->groupBy('dokter.kd_dokter')
-                ->orderBy('dokter.nm_dokter', 'asc')
+                ->orderBy('list_dokter.nama_dokter', 'asc')
                 ->get()
                 ->map(function ($item) use ($kdPoli, $nm_poli) {
                     $item->kd_poli = $kdPoli;

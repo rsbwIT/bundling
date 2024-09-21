@@ -335,7 +335,6 @@
                                             </table>
                                             <table border="1px" width="1000px" class="mt-2">
                                                 <tr>
-                                                    <th>#</th>
                                                     <th>test_id</th>
                                                     <th>nama_test</th>
                                                     <th>id_template(BW)</th>
@@ -355,11 +354,6 @@
                                                 @foreach ($detailDataLis['response']['sampel']['result_test'] as $check => $item)
                                                     @if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template'])
                                                         <tr>
-                                                            <td>
-                                                                <input class="" type="checkbox"
-                                                                    value="{{ $check }}"
-                                                                    wire:model="check.{{ $key }}.{{ $check }}">
-                                                            </td>
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
                                                             <td>{{ $item['id_template'] }}</td>
