@@ -53,7 +53,7 @@
                         Perihal
                     </td>
                     <td>
-                        : Tagihan Perawatan dan Pengobatan
+                        : Tagihan Perawatan dan Pengobatan <b>{{ $getListInvoice->status_lanjut == 'Ranap' ? 'Rawat Inap' : 'Rawat Jalan' }}</b>
                     </td>
                 </tr>
             </table>
