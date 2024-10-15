@@ -16,7 +16,6 @@
                 id="tableToCopy">
                 <thead>
                     <tr>
-                        <th>No</th>
                         <th>No. Rawat</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
@@ -34,6 +33,7 @@
                         <th>KSO</th>
                         <th>Manajemen</th>
                         <th>Total</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +43,6 @@
                     @endphp
                     @foreach ($sortedData as $key => $item)
                         <tr>
-                            <td>{{$key+1}}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
@@ -61,6 +60,7 @@
                             <td>{{ round($item->kso) }}</td>
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
+                            <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach
                 </tbody>

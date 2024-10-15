@@ -1,7 +1,7 @@
 <form action="{{ url($action) }}">
     @csrf
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-10">
             <div class="form-group">
                 <div class="input-group input-group-xs">
                     <input type="text" name="cariNomor" class="form-control form-control-xs"
@@ -11,6 +11,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
@@ -28,6 +30,16 @@
                         value="{{ request('tgl2', now()->format('Y-m-d')) }}">
                     <div class="input-group-append">
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
+                    <select class="form-control" name="statusLunas" id="">
+                        <option value="Lunas">Lunas</option>
+                        <option value="Belum Lunas">Belum Lunas</option>
+                    </select>
                 </div>
             </div>
         </div>

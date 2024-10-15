@@ -37,6 +37,7 @@
                         <th>Manajemen</th>
                         <th>Biaya Rawat</th>
                         <th>Tanggal Bayar</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -69,6 +70,7 @@
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
                             <td>{{ $item->tgl_bayar }}</td>
+                            <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach
                 </tbody>

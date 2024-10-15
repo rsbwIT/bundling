@@ -21,6 +21,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
+                    <select class="form-control" name="statusLunas" id="">
+                        <option value="Lunas">Lunas</option>
+                        <option value="Belum Lunas">Belum Lunas</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="col-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
@@ -152,7 +162,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <div class="form-group">
                 <div class="input-group input-group-xs">
                     <input type="text" name="cariNomor" class="form-control form-control-xs"

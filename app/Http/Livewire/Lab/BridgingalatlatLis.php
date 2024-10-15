@@ -298,7 +298,7 @@ class BridgingalatlatLis extends Component
             $item['kso'] = (int)$khanza->kso ?? '0';
             $item['menejemen'] = (int)$khanza->menejemen ?? '0';
             $item['biaya'] = (int)$khanza->total_byr ?? '0';
-            $item['kd_dokter'] = 'DOKTER LAB' ?? '-';
+            $item['kd_dokter'] = $this->set_kd_dokter_penerima ?? '-';
             $item['status'] = $this->getDatakhanza[$key]['status_lanjut'] ?? '-';
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;

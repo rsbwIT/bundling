@@ -22,7 +22,7 @@ class RalanParamedis extends Controller
         $petugas = $this->cacheService->getPetugas();
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
-
+        $status = $request->statusLunas;
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
@@ -46,22 +46,31 @@ class RalanParamedis extends Controller
                 'rawat_jl_pr.kso',
                 'rawat_jl_pr.menejemen',
                 'rawat_jl_pr.biaya_rawat',
-                'bayar_piutang.tgl_bayar')
+                'bayar_piutang.tgl_bayar',
+                'piutang_pasien.status'
+                )
             ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->join('rawat_jl_pr','rawat_jl_pr.no_rawat','=','reg_periksa.no_rawat')
             ->join('jns_perawatan','rawat_jl_pr.kd_jenis_prw','=','jns_perawatan.kd_jenis_prw')
             ->join('petugas','rawat_jl_pr.nip','=','petugas.nip')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
             ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
-            ->join('bayar_piutang','reg_periksa.no_rawat','=','bayar_piutang.no_rawat')
+            ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_pr.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->whereBetween('bayar_piutang.tgl_bayar',[$tanggl1, $tanggl2])
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
                 if ($kdPetugas) {
                     $query->whereIn('petugas.nip', $kdPetugas);
+                }
+                if ($status == "Lunas") {
+                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Lunas');
+                } elseif ($status == "Belum Lunas") {
+                    $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Belum Lunas');
                 }
             })
             ->where(function($query) use ($cariNomor) {

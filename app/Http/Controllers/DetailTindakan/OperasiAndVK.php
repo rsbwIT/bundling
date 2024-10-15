@@ -26,6 +26,7 @@ class OperasiAndVK extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $OperasiAndVK = DB::table('operasi')
             ->select(
@@ -112,10 +113,9 @@ class OperasiAndVK extends Controller
             ->join('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
             ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
             ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
-            ->join('bayar_piutang', 'operasi.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -125,6 +125,13 @@ class OperasiAndVK extends Controller
                 if ($kdDokter) {
                     $query->whereIn('operator1.kd_dokter', $kdDokter);
                 }
+                if ($status == "Lunas") {
+                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Lunas');
+                } elseif ($status == "Belum Lunas") {
+                    $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Belum Lunas');
+                }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
@@ -132,7 +139,7 @@ class OperasiAndVK extends Controller
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
             ->groupBy('operasi.no_rawat', 'operasi.tgl_operasi')
-            ->orderBy('penjab.kd_pj','asc')
+            ->orderBy('penjab.kd_pj', 'asc')
             ->get();
         $OperasiAndVK->map(function ($item) {
             // REGISTRASI

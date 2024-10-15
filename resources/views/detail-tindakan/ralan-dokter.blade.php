@@ -35,6 +35,7 @@
                         <th>KSO</th>
                         <th>Menejemen</th>
                         <th>Total</th>
+                        <th>Status</th>
                     </tr>
                     @php
                         $no = 1;
@@ -60,6 +61,7 @@
                             <td>{{ round($item->kso) }}</td>
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
+                            <td>{{ $item->status }}</td>
 
                         </tr>
                     @endforeach
