@@ -27,7 +27,7 @@ class RanapDokterParamedis extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
-        $status = $request->statusLunas;
+        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $RanapDRParamedis = DB::table('pasien')
             ->select(

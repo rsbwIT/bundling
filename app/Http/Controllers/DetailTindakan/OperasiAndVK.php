@@ -95,7 +95,8 @@ class OperasiAndVK extends Controller
                 'operasi.biayasarpras',
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
-                'bayar_piutang.tgl_bayar'
+                'bayar_piutang.tgl_bayar',
+                'piutang_pasien.status'
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')

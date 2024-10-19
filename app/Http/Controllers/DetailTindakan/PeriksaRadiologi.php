@@ -26,6 +26,7 @@ class PeriksaRadiologi extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $getPeriksaRadiologi = DB::table('periksa_radiologi')
             ->select(
@@ -62,9 +63,9 @@ class PeriksaRadiologi extends Controller
             ->join('petugas', 'periksa_radiologi.nip', '=', 'petugas.nip')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
-            ->join('bayar_piutang', 'periksa_radiologi.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->leftJoin('bayar_piutang', 'periksa_radiologi.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_radiologi.no_rawat')
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -73,6 +74,13 @@ class PeriksaRadiologi extends Controller
                 }
                 if ($kdDokter) {
                     $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
+                }
+                if ($status == "Lunas") {
+                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Lunas');
+                } elseif ($status == "Belum Lunas") {
+                    $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+                        ->where('piutang_pasien.status', 'Belum Lunas');
                 }
             })
             ->where(function($query) use ($cariNomor) {

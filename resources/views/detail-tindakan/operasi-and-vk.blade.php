@@ -85,6 +85,7 @@
                         <th>Akomodasi</th>
                         <th>Bagian RS</th>
                         <th>Biaya Sarpras</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -214,6 +215,7 @@
                             <td>{{ round($item->akomodasi) }}</td>
                             <td>{{ round($item->bagian_rs) }}</td>
                             <td>{{ round($item->biayasarpras) }}</td>
+                            <td>{{$item->status }}</td>
                         </tr>
                     @endforeach
                 </tbody>

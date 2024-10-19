@@ -19,6 +19,7 @@
             page-break-after: always;
         }
     }
+
 </style>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -53,7 +54,8 @@
                         Perihal
                     </td>
                     <td>
-                        : Tagihan Perawatan dan Pengobatan <b>{{ $getListInvoice->status_lanjut == 'Ranap' ? 'Rawat Inap' : 'Rawat Jalan' }}</b>
+                        : Tagihan Perawatan dan Pengobatan
+                        <b>{{ $getListInvoice->status_lanjut == 'Ranap' ? 'Rawat Inap' : 'Rawat Jalan' }}</b>
                     </td>
                 </tr>
             </table>

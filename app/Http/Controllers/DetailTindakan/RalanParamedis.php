@@ -22,7 +22,7 @@ class RalanParamedis extends Controller
         $petugas = $this->cacheService->getPetugas();
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
-        $status = $request->statusLunas;
+        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
