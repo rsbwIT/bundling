@@ -15,7 +15,6 @@
             <div class="form-group">
                 <div class="input-group input-group-xs">
                     <select class="form-control" name="statusLunas" id="">
-                        <option value="">Status / Semua</option>
                         <option value="Lunas">Lunas</option>
                         <option value="Belum Lunas">Belum Lunas</option>
                     </select>

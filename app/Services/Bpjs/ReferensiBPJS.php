@@ -6,68 +6,100 @@ use App\Services\Bpjs\cUrl;
 use Bpjs\Bridging\Icare\BridgeIcare;
 use Bpjs\Bridging\Antrol\BridgeAntrol;
 use Bpjs\Bridging\Vclaim\BridgeVclaim;
+use Bpjs\Bridging\Aplicare\BridgeAplicares;
 
 class ReferensiBPJS
 {
     protected $bridging;
     protected $antrol;
     protected $icare;
+    protected $aplicare;
 
     public function __construct()
-	{
-		$this->bridging = new BridgeVclaim();
+    {
+        $this->bridging = new BridgeVclaim();
         $this->antrol = new BridgeAntrol();
         $this->icare = new cUrl();
-	}
+        $this->aplicare = new BridgeAplicares();
+    }
 
-    // 1 REFERENSI ======================================================
+    // 1 VCLAIM ======================================================
     public function getDiagnosa($kode)
-	{
+    {
         try {
-            $endpoint = 'referensi/diagnosa/'. $kode;
+            $endpoint = 'referensi/diagnosa/' . $kode;
             return $this->bridging->getRequest($endpoint);
         } catch (\Throwable $th) {
             return [];
         }
-	}
+    }
 
     public function getPoli($kode)
-	{
+    {
         try {
-            $endpoint = 'referensi/poli/'. $kode;
+            $endpoint = 'referensi/poli/' . $kode;
             return $this->bridging->getRequest($endpoint);
         } catch (\Throwable $th) {
             return [];
         }
-	}
+    }
 
     public function getFasilitasKesehatan($parameter1, $parameter2)
-	{
+    {
         try {
-            $endpoint = 'referensi/faskes/'.$parameter1.'/'.$parameter2;
+            $endpoint = 'referensi/faskes/' . $parameter1 . '/' . $parameter2;
             return $this->bridging->getRequest($endpoint);
         } catch (\Throwable $th) {
             return [];
         }
-	}
+    }
+    public function CariSepVclaim1($nomorsep)
+    {
+        try {
+            $endpoint = 'SEP/' . $nomorsep;
+            return $this->bridging->getRequest($endpoint);
+        } catch (\Throwable $th) {
+            return [];
+        }
+    }
+
+    public function CariSepVclaim2($nomorsep)
+    {
+        try {
+            $endpoint = 'RencanaKontrol/nosep/' . $nomorsep;
+            return $this->bridging->getRequest($endpoint);
+        } catch (\Throwable $th) {
+            return [];
+        }
+    }
+
+    public function CariSuplesi($nokartuPeserta, $tglSep)
+    {
+        try {
+            $endpoint = 'sep/JasaRaharja/Suplesi/' . $nokartuPeserta . '/tglPelayanan/' . $tglSep;
+            return $this->bridging->getRequest($endpoint);
+        } catch (\Throwable $th) {
+            return [];
+        }
+    }
 
     // 2 ANTROL ======================================================
     public function cekinBPJS($data)
-	{
-            $endpoint = 'antrean/updatewaktu';
-            return $this->antrol->postRequest($endpoint, $data, "POST");
-	}
+    {
+        $endpoint = 'antrean/updatewaktu';
+        return $this->antrol->postRequest($endpoint, $data, "POST");
+    }
 
     public function dashboardTanggal($tanggal)
-	{
+    {
         $endpoint = "antrean/pendaftaran/tanggal/{$tanggal}";
-		return $this->antrol->getRequest($endpoint);
-	}
+        return $this->antrol->getRequest($endpoint);
+    }
 
     public function cekantrianTaskID($kodebooking)
     {
-            $endpoint = "antrean/pendaftaran/kodebooking/{$kodebooking}";
-            return $this->antrol->getRequest($endpoint);
+        $endpoint = "antrean/pendaftaran/kodebooking/{$kodebooking}";
+        return $this->antrol->getRequest($endpoint);
     }
     public function cekTaskID($data)
     {
@@ -75,17 +107,17 @@ class ReferensiBPJS
             $endpoint = 'antrean/getlisttask';
             return $this->antrol->postRequest($endpoint, $data, "POST");
         } catch (\Throwable $th) {
-            return [] ;
+            return [];
         }
     }
-    // Batal Antran MJKN
+
     public function batalAntranMJKN($data)
     {
         try {
             $endpoint = 'antrean/batal';
             return $this->antrol->postRequest($endpoint, $data, "POST");
         } catch (\Throwable $th) {
-            return [] ;
+            return [];
         }
     }
 
@@ -95,7 +127,7 @@ class ReferensiBPJS
             $endpoint = 'jadwaldokter/updatejadwaldokter';
             return $this->antrol->postRequest($endpoint, $data, "POST");
         } catch (\Throwable $th) {
-            return [] ;
+            return [];
         }
     }
     public function getJadwalHfisDokter($kdpoli, $tanggal)
@@ -106,42 +138,25 @@ class ReferensiBPJS
         } catch (\Throwable $th) {
             //throw $th;
         }
-}
-
-    // 3 SEP ======================================================
-    public function CariSepVclaim1($nomorsep) {
-        try {
-            $endpoint = 'SEP/'. $nomorsep;
-            return $this->bridging->getRequest($endpoint);
-        } catch (\Throwable $th) {
-            return [];
-        }
-    }
-
-    public function CariSepVclaim2($nomorsep) {
-        try {
-            $endpoint = 'RencanaKontrol/nosep/'. $nomorsep;
-            return $this->bridging->getRequest($endpoint);
-        } catch (\Throwable $th) {
-            return [];
-        }
-    }
-
-    public function CariSuplesi($nokartuPeserta, $tglSep ) {
-        try {
-            $endpoint = 'sep/JasaRaharja/Suplesi/'.$nokartuPeserta.'/tglPelayanan/'.$tglSep;
-            return $this->bridging->getRequest($endpoint);
-        } catch (\Throwable $th) {
-            return [];
-        }
     }
 
     // ICARE
-
     public function validateICARE($data)
     {
-            $endpoint = 'api/rs/validate';
-            return $this->icare->postRequest($endpoint, $data);
+        $endpoint = 'api/rs/validate';
+        return $this->icare->postRequest($endpoint, $data);
     }
 
+    // APLICARE
+    public function getReferensiKelas()
+    {
+        $endpoint = 'aplicaresws/rest/ref/kelas';
+        return $this->aplicare->getRequest($endpoint);
+    }
+
+    public function addRuangan($data)
+    {
+        $endpoint = 'aplicaresws/rest/bed/create/0801R002';
+        return $this->aplicare->postRequest($endpoint, $data);
+    }
 }

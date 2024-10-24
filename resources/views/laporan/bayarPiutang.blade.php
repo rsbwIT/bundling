@@ -58,12 +58,15 @@
                             <td>{{ $item->status_lanjut }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>
+                                {{$item->png_jawab }}
+                            </td>
+                            {{-- <td>
                                 @if ($item->png_jawab == $item->png_jawabCOB || $item->png_jawabCOB == null)
                                     {{ $item->png_jawab }}
                                 @else
                                     {{ $item->png_jawabCOB}} <b>COB</b> {{$item->png_jawab}}
                                 @endif
-                            </td>
+                            </td> --}}
                             <td>
                                 @foreach ($item->getNomorNota as $detail)
                                     {{ str_replace(':', '', $detail->nm_perawatan) }}

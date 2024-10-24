@@ -9,8 +9,8 @@
                                 <tr class="h4">
                                     <th style="width: 10px">#</th>
                                     <th width="60%">Kelas</th>
-                                    <th width="20" class="text-center">Progress</th>
-                                    <th width="20" class="text-center">Label</th>
+                                    <th width="20" class="text-center">Terisi</th>
+                                    <th width="20" class="text-center">Kosong</th>
                                 </tr>
                             </thead>
                             <tbody>
