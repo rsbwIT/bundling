@@ -50,7 +50,15 @@ class SettingKamar extends Component
                     ->get();
                 $item->getKamar->map(function ($item) {
                     $item->getBed = DB::table('bw_display_bad')
-                        ->select('bw_display_bad.id', 'bw_display_bad.ruangan', 'bw_display_bad.kamar', 'bw_display_bad.bad', 'bw_display_bad.status', 'bw_display_bad.kelas')
+                        ->select(
+                            'bw_display_bad.id',
+                            'bw_display_bad.ruangan',
+                            'bw_display_bad.kamar',
+                            'bw_display_bad.bad',
+                            'bw_display_bad.status',
+                            'bw_display_bad.kelas',
+                            'bw_display_bad.kd_kelas_bpjs'
+                        )
                         ->where('bw_display_bad.kamar', $item->kamar)
                         ->get();
                 });
@@ -59,7 +67,7 @@ class SettingKamar extends Component
         }
     }
 
-    public function actionIsi($status, $id)
+    public function actionIsi($status, $id, $kd_kelas_bpjs, $ruangan)
     {
         if ($status == '1') {
             $updateStatus = '0';
@@ -69,6 +77,8 @@ class SettingKamar extends Component
         DB::table('bw_display_bad')
             ->where('id', $id)
             ->update(['status' => $updateStatus]);
+
+        $this->UpdateKamarMJKN($kd_kelas_bpjs, $ruangan);
     }
 
     // TAMBAH KAMAR
@@ -105,5 +115,33 @@ class SettingKamar extends Component
             DB::table('bw_display_bad')->insert($tets);
             $lastNumber++;
         }
+    }
+
+    // UpdateKamar MJKN
+    public function UpdateKamarMJKN($kd_kelas_bpjs, $ruangan)
+    {
+        $udapteKamar =  DB::table('bw_display_bad')
+            ->select(
+                'bw_display_bad.ruangan',
+                'bw_display_bad.kd_kelas_bpjs',
+                DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
+            )
+            ->where('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs)
+            ->where('bw_display_bad.ruangan', $ruangan)
+            ->groupBy('bw_display_bad.kd_kelas_bpjs')
+            ->first();
+        $data = [
+            'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
+            'koderuang' =>  'RG2',
+            'namaruang' => 'R. GARUDA 2',
+            'kapasitas' => '5',
+            'tersedia' => '3',
+            'tersediapria' => '5',
+            'tersediawanita' => '5',
+            'tersediapriawanita' => '5',
+        ];
     }
 }

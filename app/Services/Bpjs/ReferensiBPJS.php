@@ -2,6 +2,7 @@
 
 namespace App\Services\Bpjs;
 
+use Dotenv\Dotenv;
 use App\Services\Bpjs\cUrl;
 use Bpjs\Bridging\Icare\BridgeIcare;
 use Bpjs\Bridging\Antrol\BridgeAntrol;
@@ -14,9 +15,13 @@ class ReferensiBPJS
     protected $antrol;
     protected $icare;
     protected $aplicare;
+    protected $kode_rs;
 
     public function __construct()
     {
+        $dotenv = Dotenv::createUnsafeImmutable(getcwd());
+        $dotenv->safeLoad();
+        $this->kode_rs = getenv('KODE_PPK_RS');
         $this->bridging = new BridgeVclaim();
         $this->antrol = new BridgeAntrol();
         $this->icare = new cUrl();
@@ -156,7 +161,17 @@ class ReferensiBPJS
 
     public function addRuangan($data)
     {
-        $endpoint = 'aplicaresws/rest/bed/create/0801R002';
+        $endpoint = 'aplicaresws/rest/bed/create/' . $this->kode_rs;
         return $this->aplicare->postRequest($endpoint, $data);
+    }
+    public function updateRuangan($data)
+    {
+        $endpoint = 'aplicaresws/rest/bed/update/' . $this->kode_rs;
+        return $this->aplicare->postRequest($endpoint, $data);
+    }
+    public function getRuangan()
+    {
+        $endpoint = 'aplicaresws/rest/bed/read/' . $this->kode_rs . '/1/100';
+        return $this->aplicare->getRequest($endpoint);
     }
 }

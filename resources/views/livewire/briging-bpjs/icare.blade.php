@@ -41,6 +41,7 @@
                         <th>No Rawat</th>
                         <th>Nama Pasien</th>
                         <th>Nama Dokter</th>
+                        <th>Jadwal Dokter</th>
                         <th>Poli</th>
                         <th>Np Sep</th>
                         <th>Act</th>
@@ -52,6 +53,11 @@
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_dokter }}</td>
+                            <td class="text-center">
+                                @foreach ($item->jadwal_dokter as $jadwal)
+                                <p class="m-0">{{ date('H:i', strtotime($jadwal->jam_mulai)) }} - {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
+                                @endforeach
+                            </td>
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->no_sep }}</td>
                             <td width="100px">

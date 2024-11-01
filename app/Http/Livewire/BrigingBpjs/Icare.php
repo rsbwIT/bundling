@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\BrigingBpjs;
 
 use Livewire\Component;
+use App\Services\DayListService;
 use Illuminate\Support\Facades\DB;
 use App\Services\Bpjs\ReferensiBPJS;
 use Illuminate\Support\Facades\Session;
@@ -39,6 +40,7 @@ class Icare extends Component
             ->select(
                 'pasien.nm_pasien',
                 'dokter.nm_dokter',
+                'dokter.kd_dokter',
                 'reg_periksa.no_rawat',
                 'poliklinik.nm_poli',
                 'maping_dokter_dpjpvclaim.kd_dokter_bpjs',
@@ -60,6 +62,13 @@ class Icare extends Component
                     ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
             })
             ->get();
+            $this->getPasien->map(function ($item) {
+                $item->jadwal_dokter = DB::table('jadwal')
+                    ->select('jadwal.jam_selesai', 'jadwal.jam_mulai', 'jadwal.hari_kerja')
+                    ->where('jadwal.hari_kerja', DayListService::hariKhanza(date('l')))
+                    ->where('jadwal.kd_dokter', $item->kd_dokter)
+                    ->get();
+            });
     }
     public $getriwayat;
     function riwayatIcare($no_ktp, $kd_dokter_bpjs, $key)
@@ -72,12 +81,13 @@ class Icare extends Component
         $this->getriwayat = $data;
         if (isset($this->getriwayat['metaData']) && $this->getriwayat['metaData']['code'] == 200) {
             Session::flash('sucsessGetUrl' . $key, $this->getriwayat['response']['url']);
-        }else{
+        } else {
             Session::flash('failedGetUrl' . $key, 'gagal');
         }
     }
 
-    public function sudahDibuka($no_rawat, $kd_dokter_bpjs) {
+    public function sudahDibuka($no_rawat, $kd_dokter_bpjs)
+    {
         try {
             DB::table('bw_validasi_icare')->insert([
                 'no_rawat' => $no_rawat,
@@ -85,7 +95,6 @@ class Icare extends Component
                 'status' => '1'
             ]);
         } catch (\Throwable $th) {
-
         }
     }
 }

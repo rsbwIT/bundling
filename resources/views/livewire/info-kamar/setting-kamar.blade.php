@@ -58,7 +58,7 @@
                                                                 <div class="card m-1 justify-content-center"
                                                                     style="background-color: {{ $baground }}; border:1px solid;">
                                                                     <button class="btn {{ $text }}"
-                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}')">
+                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{$bed->kd_kelas_bpjs}}', '{{$bed->ruangan}}')">
                                                                         <b>{{ substr($bed->bad, strlen($bed->bad) - 1, 1) }}</b>
                                                                     </button>
                                                                 </div>

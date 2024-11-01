@@ -23,22 +23,37 @@ class TestController extends Controller
     public function TestCari()
     {
         dd(json_decode($this->referensi->getReferensiKelas()));
+        // dd(json_decode($this->referensi->getRuangan()));
         // dd(json_decode($this->referensi->getFasilitasKesehatan('Bumi', '2')));
     }
     public function Test()
     {
         // dd(json_decode($this->referensi->getReferensiKelas()));
-        $data = [
-            'kodekelas' =>  'T',
-            'koderuang' =>  'T',
-            'namaruang' => 'T',
-            'kapasitas' => '0',
-            'tersedia' => '0',
-            'tersediapria' => '0',
-            'tersediawanita' => '0',
-            'tersediapriawanita' => '0',
-        ];
-        $data = json_decode($this->referensi->addRuangan(json_encode($data)));
-        dd($data);
+        // $data = [
+        //         'kodekelas' =>  'VVP',
+        //         'koderuang' =>  'RG2',
+        //         'namaruang' => 'R. GARUDA 2',
+        //         'kapasitas' => '5',
+        //         'tersedia' => '3',
+        //         'tersediapria' => '5',
+        //         'tersediawanita' => '5',
+        //         'tersediapriawanita' => '5',
+        //     ];
+        // $data = json_decode($this->referensi->updateRuangan(json_encode($data)));
+        // dd($data);
+
+        DB::table('bw_display_bad')
+            ->select(
+                'bw_display_bad.ruangan',
+                'bw_display_bad.kd_kelas_bpjs',
+                DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
+                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
+            )
+            ->where('bw_display_bad.kd_kelas_bpjs', $item->kd_kelas_bpjs)
+            ->where('bw_display_bad.ruangan', $item->ruangan)
+            ->groupBy('bw_display_bad.kd_kelas_bpjs')
+            ->get();
     }
 }
