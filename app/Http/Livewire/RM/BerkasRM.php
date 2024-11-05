@@ -20,12 +20,12 @@ class BerkasRM extends Component
     }
     public function render()
     {
-        switch ($this->jenis_berkas) {
-            case 'RESUMEDLL':
-                break;
-            case 'INACBG':
-                break;
-            case 'SCAN':
+        // switch ($this->jenis_berkas) {
+        //     case 'RESUMEDLL':
+        //         break;
+        //     case 'INACBG':
+        //         break;
+        //     case 'SCAN':
                 $getBerkasPasien = DB::table('bw_file_casemix_scan')
                     ->select('bw_file_casemix_scan.file', 'reg_periksa.no_rawat', 'pasien.nm_pasien', 'pasien.no_peserta', 'reg_periksa.tgl_registrasi', 'pasien.no_rkm_medis')
                     ->join('reg_periksa', 'bw_file_casemix_scan.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -38,12 +38,12 @@ class BerkasRM extends Component
                             ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
                     })
                     ->get();
-                break;
-            case 'HASIL':
-                break;
-            default:
-                break;
-        }
+            //     break;
+            // case 'HASIL':
+            //     break;
+            // default:
+            //     break;
+        // }
 
         return view('livewire.r-m.berkas-r-m', [
             'getBerkasPasien' => $getBerkasPasien,
