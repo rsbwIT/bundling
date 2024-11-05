@@ -130,4 +130,5 @@
             </tbody>
         </table>
     </div>
+    <span class="text-bold mt-5">jumlah data : {{count($getBerkasPasien)}}</span>
 </div>
