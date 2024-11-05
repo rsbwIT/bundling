@@ -24,11 +24,11 @@
                 <div class="form-group">
                     <div class="input-group input-group-xs">
                         <select class="form-control" wire:model.defer="jenis_berkas">
-                            <option value="">Semua Jenis Berkas</option>
+                            <option disabled value="">Semua Jenis Berkas</option>
                             <option value="SCAN">Berkas Scan</option>
-                            <option value="INACBG">Berkas Inacbg</option>
-                            <option value="RESUMEDLL">Berkas DB Khanza</option>
-                            <option value="HASIL">Berkas Gabungan</option>
+                            <option disabled value="INACBG">Berkas Inacbg</option>
+                            <option disabled value="RESUMEDLL">Berkas DB Khanza</option>
+                            <option disabled value="HASIL">Berkas Gabungan</option>
                         </select>
                     </div>
                 </div>
