@@ -70,62 +70,64 @@
             </div>
         </div>
     </section>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>No. Rkm Medis</th>
-                <th>No. Rawat</th>
-                <th>Nama Pasien
-                    {{ $status_lanjut == 'Ralan' ? 'Rawat Jalan' : ($status_lanjut == 'Ranap' ? 'Rawat Inap' : '') }}
-                </th>
-                <th class="text-center">Jenis Berkas</th>
-                <th class="text-center">Act</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if ($getBerkasPasien->isEmpty())
+    <div class="card-body table-responsive p-0" style="height: 500px;">
+        <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
+            <thead>
                 <tr>
-                    <td colspan="5" class="text-center">Data Tidak Ada / Silahkan Cari Data</td>
+                    <th>No. Rkm Medis</th>
+                    <th>No. Rawat</th>
+                    <th>Nama Pasien
+                        {{ $status_lanjut == 'Ralan' ? 'Rawat Jalan' : ($status_lanjut == 'Ranap' ? 'Rawat Inap' : '') }}
+                    </th>
+                    <th class="text-center">Jenis Berkas</th>
+                    <th class="text-center">Act</th>
                 </tr>
-            @else
-                @foreach ($getBerkasPasien as $key => $item)
-                    @php
-                        switch ($item->jenis_berkas) {
-                            case 'RESUMEDLL':
-                                $folder = 'storage/resume_dll/';
-                                $nama_file = 'Berkas Export Khanza';
-                                break;
-                            case 'INACBG':
-                                $folder = 'storage/file_inacbg/';
-                                $nama_file = 'Berkas Inacbg';
-                                break;
-                            case 'SCAN':
-                                $folder = 'storage/file_scan/';
-                                $nama_file = 'Berkas Scan';
-                                break;
-                            case 'HASIL':
-                                $folder = 'hasil_pdf/';
-                                $nama_file = 'Gabungan';
-                                break;
-                            default:
-                                $folder = env();
-                                $nama_file = '';
-                                break;
-                        }
-                    @endphp
+            </thead>
+            <tbody>
+                @if ($getBerkasPasien->isEmpty())
                     <tr>
-                        <td>{{ $item->no_rkm_medis }}</td>
-                        <td>{{ $item->no_rawat }}</td>
-                        <td>{{ $item->nm_pasien }}</td>
-                        <td class="text-center">{{ $nama_file }}</td>
-                        <td class="text-center">
-                            <a href="{{ url($folder . $item->file) }}" download class="text-success">
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </td>
+                        <td colspan="5" class="text-center">Data Tidak Ada / Silahkan Cari Data</td>
                     </tr>
-                @endforeach
-            @endif
-        </tbody>
-    </table>
+                @else
+                    @foreach ($getBerkasPasien as $key => $item)
+                        @php
+                            switch ($jenis_berkas) {
+                                case 'RESUMEDLL':
+                                    $folder = 'storage/resume_dll/';
+                                    $nama_file = 'Berkas Export Khanza';
+                                    break;
+                                case 'INACBG':
+                                    $folder = 'storage/file_inacbg/';
+                                    $nama_file = 'Berkas Inacbg';
+                                    break;
+                                case 'SCAN':
+                                    $folder = 'storage/file_scan/';
+                                    $nama_file = 'Berkas Scan';
+                                    break;
+                                case 'HASIL':
+                                    $folder = 'hasil_pdf/';
+                                    $nama_file = 'Gabungan';
+                                    break;
+                                default:
+                                    $folder = env();
+                                    $nama_file = '';
+                                    break;
+                            }
+                        @endphp
+                        <tr>
+                            <td>{{ $item->no_rkm_medis }}</td>
+                            <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->nm_pasien }}</td>
+                            <td class="text-center">{{ $nama_file }}</td>
+                            <td class="text-center">
+                                <a href="{{ url($folder . $item->file) }}" download class="text-success">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
+            </tbody>
+        </table>
+    </div>
 </div>
