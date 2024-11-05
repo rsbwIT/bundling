@@ -90,37 +90,13 @@
                     </tr>
                 @else
                     @foreach ($getBerkasPasien as $key => $item)
-                        @php
-                            switch ($jenis_berkas) {
-                                case 'RESUMEDLL':
-                                    $folder = 'storage/resume_dll/';
-                                    $nama_file = 'Berkas Export Khanza';
-                                    break;
-                                case 'INACBG':
-                                    $folder = 'storage/file_inacbg/';
-                                    $nama_file = 'Berkas Inacbg';
-                                    break;
-                                case 'SCAN':
-                                    $folder = 'storage/file_scan/';
-                                    $nama_file = 'Berkas Scan';
-                                    break;
-                                case 'HASIL':
-                                    $folder = 'hasil_pdf/';
-                                    $nama_file = 'Gabungan';
-                                    break;
-                                default:
-                                    $folder = env();
-                                    $nama_file = '';
-                                    break;
-                            }
-                        @endphp
                         <tr>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->nm_pasien }}</td>
-                            <td class="text-center">{{ $nama_file }}</td>
+                            <td class="text-center">{{ $item->nama_file }}</td>
                             <td class="text-center">
-                                <a href="{{ url($folder . $item->file) }}" download class="text-success">
+                                <a href="{{ url($item->folder . $item->file) }}" download class="text-success">
                                     <i class="fas fa-download"></i>
                                 </a>
                             </td>
