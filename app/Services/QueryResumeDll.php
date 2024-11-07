@@ -117,7 +117,7 @@ class QueryResumeDll
     // 3 Get Resume Ranap
     static function getResumeRanap($noRawat)
     {
-        return DB::table('resume_pasien_ranap')
+        $resumeRanap = DB::table('resume_pasien_ranap')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.umurdaftar',
@@ -183,6 +183,15 @@ class QueryResumeDll
             ->orderBy('reg_periksa.tgl_registrasi', 'asc')
             ->orderBy('reg_periksa.status_lanjut', 'asc')
             ->first();
+        if ($resumeRanap) {
+            $resumeRanap->dpjp_ranap = DB::table('dpjp_ranap')
+                ->select('dpjp_ranap.kd_dokter', 'dokter.nm_dokter')
+                ->join('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')
+                ->where('dpjp_ranap.no_rawat', '=', $resumeRanap->no_rawat)
+                ->where('dpjp_ranap.kd_dokter', '!=', $resumeRanap->kd_dokter)
+                ->get();
+        }
+        return $resumeRanap;
     }
 
     // 4 Get Resume Ralan
@@ -814,22 +823,22 @@ class QueryResumeDll
             ->first();
         if ($getTriaseIGD) {
             $getTriaseIGD->masterTriase = DB::table('master_triase_pemeriksaan')
-                ->select('master_triase_pemeriksaan.kode_pemeriksaan','data_triase_igddetail_skala3.no_rawat','master_triase_pemeriksaan.nama_pemeriksaan')
+                ->select('master_triase_pemeriksaan.kode_pemeriksaan', 'data_triase_igddetail_skala3.no_rawat', 'master_triase_pemeriksaan.nama_pemeriksaan')
                 ->join('master_triase_skala3', 'master_triase_pemeriksaan.kode_pemeriksaan', '=', 'master_triase_skala3.kode_pemeriksaan')
                 ->join('data_triase_igddetail_skala3', 'master_triase_skala3.kode_skala3', '=', 'data_triase_igddetail_skala3.kode_skala3')
                 ->where('data_triase_igddetail_skala3.no_rawat', '=', $getTriaseIGD->no_rawat)
                 ->groupBy('master_triase_pemeriksaan.kode_pemeriksaan')
                 ->orderBy('master_triase_pemeriksaan.kode_pemeriksaan', 'asc')
                 ->get();
-                $getTriaseIGD->masterTriase->map(function($item){
-                    $item->skala = DB::table('master_triase_skala3')
+            $getTriaseIGD->masterTriase->map(function ($item) {
+                $item->skala = DB::table('master_triase_skala3')
                     ->select('master_triase_skala3.pengkajian_skala3')
-                    ->join('data_triase_igddetail_skala3','master_triase_skala3.kode_skala3','=','data_triase_igddetail_skala3.kode_skala3')
+                    ->join('data_triase_igddetail_skala3', 'master_triase_skala3.kode_skala3', '=', 'data_triase_igddetail_skala3.kode_skala3')
                     ->where('master_triase_skala3.kode_pemeriksaan', $item->kode_pemeriksaan)
                     ->where('data_triase_igddetail_skala3.no_rawat', $item->no_rawat)
-                    ->orderBy('data_triase_igddetail_skala3.kode_skala3','asc')
+                    ->orderBy('data_triase_igddetail_skala3.kode_skala3', 'asc')
                     ->get();
-                });
+            });
         }
         return $getTriaseIGD;
     }

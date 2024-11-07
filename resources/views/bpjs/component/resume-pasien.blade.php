@@ -439,17 +439,23 @@
                     </table>
                     <table border="0px" width="1000px" class="mt-3" class="">
                         <tr>
+                            @if (count($getResume->dpjp_ranap) > 0)
+                            @else
+                                <td width="250px" class="text-center">
+                                </td>
+                            @endif
+                            @foreach ($getResume->dpjp_ranap as $dpjp)
+                                <td width="250px" class="text-center">
+                                    Dokter Penanggung Jawab2
+                                    <div class="barcode mt-1">
+                                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $dpjp->nm_dokter . ' ID ' . $dpjp->kd_dokter . ' ' . $getKamarInap->tgl_keluar, 'QRCODE') }}"
+                                            alt="barcode" width="80px" height="75px" />
+                                    </div>
+                                    {{ $dpjp->nm_dokter }}
+                                </td>
+                            @endforeach
                             <td width="250px" class="text-center">
                                 Dokter Penanggung Jawab
-                                <div class="barcode mt-1">
-                                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getKamarInap->tgl_keluar, 'QRCODE') }}"
-                                        alt="barcode" width="80px" height="75px" />
-                                </div>
-                                {{ $getResume->nm_dokter }}
-                            </td>
-                            <td width="150px"></td>
-                            <td width="250px" class="text-center">
-                                Dokter Penanggung Jawab2
                                 <div class="barcode mt-1">
                                     <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $getResume->nm_dokter . ' ID ' . $getResume->kd_dokter . ' ' . $getKamarInap->tgl_keluar, 'QRCODE') }}"
                                         alt="barcode" width="80px" height="75px" />
@@ -500,7 +506,8 @@
                                 $tanggal_lahir_obj = date_create($getResume->tgl_lahir);
                                 $today = date_create('today');
                                 $umur = date_diff($tanggal_lahir_obj, $today);
-                                $umur_text = $umur->y == 0 ? $umur->m . ' Bulan' : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
+                                $umur_text =
+                                    $umur->y == 0 ? $umur->m . ' Bulan' : $umur->y . ' Tahun, ' . $umur->m . ' Bulan';
                             @endphp
                             <td width="400px">: {{ $umur_text }}</td>
                             <td width="100px">Ruang</td>
