@@ -7,11 +7,11 @@
     <title>RSBW</title>
     <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="/dist/css/adminlte.min.css" />
-    <script type="text/javascript">
+    {{-- <script type="text/javascript">
         window.onload = function() {
             window.print();
         }
-    </script>
+    </script> --}}
 </head>
 <style>
     @media print {
@@ -19,7 +19,6 @@
             page-break-after: always;
         }
     }
-
 </style>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -134,6 +133,8 @@
                 @include('laporan.component.cetak-invoice-asuransi.template-cetak5')
             @elseif ($template == 'template6')
                 @include('laporan.component.cetak-invoice-asuransi.template-cetak6')
+            @elseif ($template == 'template7')
+                {{-- TERLAMPIR --}}
             @endif
             {{-- //TEMPLATE --}}
             <table border="0px" width="1000px" class="mt-4">
@@ -200,6 +201,10 @@
         @if ($template == 'template5')
             <div class="print">
                 @include('laporan.component.cetak-invoice-asuransi.template-cetak5-lampiran')
+            </div>
+        @elseif ($template == 'template7')
+            <div class="print">
+                @include('laporan.component.cetak-invoice-asuransi.template-cetak7-lampiran')
             </div>
         @endif
     </div>

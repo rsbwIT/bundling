@@ -66,11 +66,19 @@ class InvoiceAsuransi extends Controller
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('detail_piutang_pasien', 'detail_piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat') // Kode Baru
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            // KODE LAMA
+            // ->where(function ($query) use ( $kdPenjamin) {
+            //     if ($kdPenjamin) {
+            //         $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+            //     }
+            // })
+            // KDOE BARU
             ->where(function ($query) use ( $kdPenjamin) {
                 if ($kdPenjamin) {
-                    $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+                    $query->whereIn('detail_piutang_pasien.kd_pj', $kdPenjamin);
                 }
             })
             ->whereBetween('piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
@@ -267,6 +275,8 @@ class InvoiceAsuransi extends Controller
                 'reg_periksa.no_rawat',
                 'pasien.nm_pasien',
                 'reg_periksa.kd_pj',
+                'reg_periksa.umurdaftar',
+                'reg_periksa.sttsumur',
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.status_lanjut',
                 'piutang_pasien.sisapiutang AS total_biaya',
@@ -279,11 +289,17 @@ class InvoiceAsuransi extends Controller
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('detail_piutang_pasien', 'detail_piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat') // Kode Baru
             ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->where(function ($query) use ( $kdPenjamin) {
+            //     if ($kdPenjamin) {
+            //         $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+            //     }
+            // })
             ->where(function ($query) use ( $kdPenjamin) {
                 if ($kdPenjamin) {
-                    $query->whereIn('reg_periksa.kd_pj', $kdPenjamin);
+                    $query->whereIn('detail_piutang_pasien.kd_pj', $kdPenjamin);
                 }
             })
             ->whereBetween('piutang_pasien.tgltempo', [$getListInvoice->tanggl1, $getListInvoice->tanggl2])
