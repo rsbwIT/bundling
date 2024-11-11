@@ -467,6 +467,10 @@
                 </div>
             </div>
         @else
+            {{-- @foreach ($settingBundling as $item) --}}
+            {{-- @if ($item->nama_berkas == 'cppt-convert-resume-ralan') --}}
+            {{-- {{ $item->nama_berkas }} --}}
+            {{-- @else --}}
             {{-- BERKAS RESUME RALAN --}}
             <div class="card-body">
                 <div class="card py-4  d-flex justify-content-center align-items-center">
@@ -712,8 +716,10 @@
                     </table>
                 </div>
             </div>
-        @endif
+            {{-- @endif --}}
+        {{-- @endforeach --}}
     @endif
+@endif
 @else
-    {{-- NULL --}}
+{{-- NULL --}}
 @endif

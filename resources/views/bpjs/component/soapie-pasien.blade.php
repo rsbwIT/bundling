@@ -56,36 +56,49 @@
                     <tr>
                         <td>Dokter</td>
                         <td>: {{ $item->nm_dokter }}</td>
-                    @php
-                        $cacat_fisik = $item->cacat_fisik;
-                        switch ($cacat_fisik) {
-                            case 1:
-                                $cacat_fisik_text = '-';
-                                break;
-                            case 3:
-                                $cacat_fisik_text = 'Bisu';
-                                break;
-                            case 2:
-                                $cacat_fisik_text = 'Buta';
-                                break;
-                            case 8:
-                                $cacat_fisik_text = 'Lumpuh';
-                                break;
-                            case 5:
-                                $cacat_fisik_text = 'TIDAK ADA';
-                                break;
-                            case 4:
-                                $cacat_fisik_text = 'Tidak Punya Tangan Kanan';
-                                break;
-                            default:
-                                $cacat_fisik_text = 'Tidak Diketahui';
-                        }
-                    @endphp
+                        @php
+                            $cacat_fisik = $item->cacat_fisik;
+                            switch ($cacat_fisik) {
+                                case 1:
+                                    $cacat_fisik_text = '-';
+                                    break;
+                                case 3:
+                                    $cacat_fisik_text = 'Bisu';
+                                    break;
+                                case 2:
+                                    $cacat_fisik_text = 'Buta';
+                                    break;
+                                case 8:
+                                    $cacat_fisik_text = 'Lumpuh';
+                                    break;
+                                case 5:
+                                    $cacat_fisik_text = 'TIDAK ADA';
+                                    break;
+                                case 4:
+                                    $cacat_fisik_text = 'Tidak Punya Tangan Kanan';
+                                    break;
+                                default:
+                                    $cacat_fisik_text = 'Tidak Diketahui';
+                            }
+                        @endphp
                         <td>Cacat Fisik</td>
                         <td>: {{ $cacat_fisik_text }}</td>
                     </tr>
                 </table>
                 <table border="1px" width="1000px" class="mt-3">
+                    <tr>
+                        <td class="text-center" colspan="2"><b>Diagnosa</b></td>
+                    </tr>
+                    <tr>
+                        <td height="50px" style="vertical-align: top;" colspan="2">
+                            <ul class="m-0">
+                                @foreach ($item->getDiagnosa as $diagnosa)
+                                    <li>{{ $diagnosa->prioritas }}. {{ $diagnosa->kd_penyakit }} -
+                                        {{ $diagnosa->nm_penyakit }}</li>
+                                @endforeach
+                            </ul>
+                        </td>
+                    </tr>
                     <tr>
                         <td class="text-center" width="50%"><b>Subjek</b></td>
                         <td class="text-center" width="50%"><b>Objek</b></td>

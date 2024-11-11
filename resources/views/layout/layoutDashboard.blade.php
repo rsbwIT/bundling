@@ -649,6 +649,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('waktu-tunggu-pasien-bayar') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pasien Bayar</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         {{-- MENU KEPERAWATAN --}}
                         <li class="nav-item">{{-- menu-open --}}

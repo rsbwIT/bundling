@@ -175,6 +175,7 @@ Route::group(['middleware' => 'default'], function () {
 
         // RM
         Route::get('/berkas-rm', [BerkasRM::class, 'BerkasRM']);
+        Route::get('/waktu-tunggu-pasien-bayar', [BerkasRM::class, 'WaktuTungguPasienBayar']);
         Route::get('/laporan-borlosetc', [Borlos::class, 'Borlosetc']);
         Route::get('/laporan-bto', [Borlos::class, 'Bto']);
         Route::get('/anjungan-mandiri', [AnjunganMandiri::class, 'Anjungan'])->middleware('permision-rsbw:registrasi');

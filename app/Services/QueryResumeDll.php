@@ -695,7 +695,7 @@ class QueryResumeDll
     // GET SOAPIE RALAN
     public  static function getSoapieRalan($noRawat)
     {
-        return DB::table('pemeriksaan_ralan')
+        $soapiePasien = DB::table('pemeriksaan_ralan')
             ->select(
                 'pemeriksaan_ralan.no_rawat',
                 'pemeriksaan_ralan.tgl_perawatan',
@@ -739,11 +739,20 @@ class QueryResumeDll
             ->orderBy('pemeriksaan_ralan.tgl_perawatan', 'asc')
             ->orderBy('pemeriksaan_ralan.jam_rawat', 'asc')
             ->get();
+        $soapiePasien->map(function ($item) {
+            $item->getDiagnosa = DB::table('diagnosa_pasien')
+                ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
+                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+                ->where('diagnosa_pasien.no_rawat', $item->no_rawat)
+                ->orderBy('diagnosa_pasien.prioritas', 'asc')
+                ->get();
+        });
+        return $soapiePasien;
     }
     // GET SOAPIE RANAP
     public  static function getSoapieRanap($noRawat)
     {
-        return DB::table('pemeriksaan_ranap')
+        $soapiePasien = DB::table('pemeriksaan_ranap')
             ->select(
                 'pemeriksaan_ranap.tgl_perawatan',
                 'pemeriksaan_ranap.jam_rawat',
@@ -767,6 +776,7 @@ class QueryResumeDll
                 'dokter.nm_dokter',
                 'dokter.kd_dokter',
                 'pasien.nm_pasien',
+                'reg_periksa.no_rawat',
                 'reg_periksa.no_rkm_medis',
                 'pasien.alamat',
                 'pasien.jk',
@@ -786,6 +796,15 @@ class QueryResumeDll
             ->orderBy('pemeriksaan_ranap.jam_rawat', 'asc')
             ->take(1)
             ->get();
+        $soapiePasien->map(function ($item) {
+            $item->getDiagnosa = DB::table('diagnosa_pasien')
+                ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
+                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+                ->where('diagnosa_pasien.no_rawat', $item->no_rawat)
+                ->orderBy('diagnosa_pasien.prioritas', 'asc')
+                ->get();
+        });
+        return $soapiePasien;
     }
 
     // GET TRIASE IGD
