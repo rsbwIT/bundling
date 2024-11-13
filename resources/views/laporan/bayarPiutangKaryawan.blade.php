@@ -15,7 +15,7 @@
             <nav aria-label="Page navigation example">
                 {{-- {{ $piutangKaryawan->appends(request()->input())->links('pagination::bootstrap-4') }} --}}
             </nav>
-            <table class="table table-sm table-bordered table-striped text-xs mb-3" style="white-space: nowrap;"
+            <table class="table table-sm table-bordered table-hover text-xs mb-3" style="white-space: nowrap;"
                 id="tableToCopy">
                 <tbody class="expandable-body">
                     <tr>
@@ -33,7 +33,7 @@
                         <th>Tanggal Bayar</th>
                     </tr>
                     @foreach ($piutangKaryawan as $key => $item)
-                        <tr data-widget="expandable-table" aria-expanded="false">
+                        <tr>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nota_piutang }}</td>
