@@ -130,6 +130,7 @@
                                 <p>
                                     Keuangan
                                     <i class="right fas fa-angle-left"></i>
+                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
@@ -185,6 +186,14 @@
                                     <a href="{{ url('/cari-bayar-umum') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Umum</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/bayar-piutang-karyawan') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon text-danger"></i>
+                                        <p>Bayar Piutang Karyawan</p>
                                     </a>
                                 </li>
                             </ul>
@@ -527,7 +536,6 @@
                                 <p>
                                     Antrian Loket
                                     <i class="right fas fa-angle-left"></i>
-                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
                             @if (session('registrasi') === 'true')
@@ -536,7 +544,6 @@
                                         <a href="{{ url('anjungan-mandiri') }}" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Anjungan Mandiri</p>
-                                            <span class="badge badge-danger right">New</span>
                                         </a>
                                     </li>
                                 </ul>

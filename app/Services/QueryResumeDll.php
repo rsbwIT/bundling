@@ -77,7 +77,7 @@ class QueryResumeDll
     // 2 GET RESUME FISO
     static function  getResumeFiso($noRawat)
     {
-        $dokter = ValueENV::getENV();
+        $dokter = ValueENV::getDokterFiso();
         $resumeFiso = DB::table('pemeriksaan_ralan')
             ->select(
                 'pemeriksaan_ralan.no_rawat',

@@ -41,6 +41,7 @@ use App\Http\Controllers\DetailTindakan\RanapDokter2;
 use App\Http\Controllers\DetailTindakan\RanapDokter3;
 use App\Http\Controllers\Keperawatan\HomeKeperawatan;
 use App\Http\Controllers\Keperawatan\LaporanLogBook2;
+use App\Http\Controllers\Laporan\BayarPiutangKaryawan;
 use App\Http\Controllers\DetailTindakan\RalanParamedis;
 use App\Http\Controllers\DetailTindakan\RanapParamedis;
 use App\Http\Controllers\Farmasi\MinimalStokController;
@@ -129,6 +130,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-piutang-ralan', [PiutangRalan::class, 'CariPiutangRalan']);
         Route::get('/cari-piutang-ranap', [PiutangRanap::class, 'CariPiutangRanap']);
         Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
+        Route::get('/bayar-piutang-karyawan', [BayarPiutangKaryawan::class, 'bayarPiutangKaryawan']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
         Route::get('/invoice-asuransi', [InvoiceAsuransi::class, 'InvoiceAsuransi']);
