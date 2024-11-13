@@ -119,6 +119,7 @@ class QueryResumeDll
             $resumeFiso->dokter_fiso = $dokter; // Add 'dokter' value to the object
         }
         return $resumeFiso;
+        dd($resumeFiso);
     }
     // 3 Get Resume Ranap
     static function getResumeRanap($noRawat)

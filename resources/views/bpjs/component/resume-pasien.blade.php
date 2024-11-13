@@ -113,10 +113,10 @@
                         <td width="250px" class="text-center">
                             Dokter Penanggung Jawab
                             <div class="barcode mt-1">
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh dr. Sanjoto Santibudi, Sp.KFR ID ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh'.$getResume->dokter_fiso. $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
                                     alt="barcode" width="80px" height="75px" />
                             </div>
-                            dr. Sanjoto Santibudi, Sp.KFR
+                            {{$getResume->dokter_fiso}}
                         </td>
                     </tr>
                 </table>
