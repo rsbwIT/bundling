@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\ValueENV;
 use Illuminate\Support\Facades\DB;
 
 class QueryResumeDll
@@ -76,7 +77,8 @@ class QueryResumeDll
     // 2 GET RESUME FISO
     static function  getResumeFiso($noRawat)
     {
-        return DB::table('pemeriksaan_ralan')
+        $dokter = ValueENV::getENV();
+        $resumeFiso = DB::table('pemeriksaan_ralan')
             ->select(
                 'pemeriksaan_ralan.no_rawat',
                 'pemeriksaan_ralan.tgl_perawatan',
@@ -113,6 +115,10 @@ class QueryResumeDll
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
             ->first();
+        if ($resumeFiso) {
+            $resumeFiso->dokter_fiso = $dokter; // Add 'dokter' value to the object
+        }
+        return $resumeFiso;
     }
     // 3 Get Resume Ranap
     static function getResumeRanap($noRawat)
