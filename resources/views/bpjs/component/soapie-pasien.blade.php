@@ -87,14 +87,23 @@
                 </table>
                 <table border="1px" width="1000px" class="mt-3">
                     <tr>
-                        <td class="text-center" colspan="2"><b>Diagnosa</b></td>
+                        <td class="text-center"><b>Diagnosa</b></td>
+                        <td class="text-center"><b>Prosedur</b></td>
                     </tr>
                     <tr>
-                        <td height="50px" style="vertical-align: top;" colspan="2">
+                        <td height="50px" style="vertical-align: top;">
                             <ul class="m-0">
                                 @foreach ($item->getDiagnosa as $diagnosa)
                                     <li>{{ $diagnosa->prioritas }}. {{ $diagnosa->kd_penyakit }} -
                                         {{ $diagnosa->nm_penyakit }}</li>
+                                @endforeach
+                            </ul>
+                        </td>
+                        <td height="50px" style="vertical-align: top;">
+                            <ul class="m-0">
+                                @foreach ($item->getProcedure as $diagnosa)
+                                    <li>{{ $diagnosa->prioritas }}. {{ $diagnosa->kode }} -
+                                        {{ $diagnosa->deskripsi_pendek }}</li>
                                 @endforeach
                             </ul>
                         </td>

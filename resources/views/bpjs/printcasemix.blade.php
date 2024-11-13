@@ -75,6 +75,12 @@
         .card-body:last-child {
             page-break-after: auto;
         }
+        .m-0{
+            margin-bottom: 0px;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-top: 0px;
+        }
     </style>
 
 <body>
