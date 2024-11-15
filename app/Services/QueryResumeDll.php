@@ -828,55 +828,111 @@ class QueryResumeDll
     // GET TRIASE IGD
     public static function getTriaseIGD($noRawat)
     {
-        $getTriaseIGD = DB::table('data_triase_igdsekunder')
+        // $getTriaseIGD = DB::table('data_triase_igdsekunder')
+        //     ->select(
+        //         'data_triase_igdsekunder.anamnesa_singkat',
+        //         'data_triase_igdsekunder.catatan',
+        //         'data_triase_igdsekunder.plan',
+        //         'data_triase_igdsekunder.tanggaltriase',
+        //         'data_triase_igdsekunder.nik',
+        //         'data_triase_igd.tekanan_darah',
+        //         'data_triase_igd.nadi',
+        //         'data_triase_igd.pernapasan',
+        //         'data_triase_igd.suhu',
+        //         'data_triase_igd.saturasi_o2',
+        //         'data_triase_igd.nyeri',
+        //         'data_triase_igd.no_rawat',
+        //         'pasien.no_rkm_medis',
+        //         'pasien.nm_pasien',
+        //         'pasien.jk',
+        //         'pasien.tgl_lahir',
+        //         'pegawai.nama',
+        //         'data_triase_igd.tgl_kunjungan',
+        //         'data_triase_igd.cara_masuk',
+        //         'master_triase_macam_kasus.macam_kasus'
+        //     )
+        //     ->join('data_triase_igd', 'data_triase_igd.no_rawat', '=', 'data_triase_igdsekunder.no_rawat')
+        //     ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'data_triase_igd.no_rawat')
+        //     ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        //     ->join('pegawai', 'pegawai.nik', '=', 'data_triase_igdsekunder.nik')
+        //     ->join('master_triase_macam_kasus', 'master_triase_macam_kasus.kode_kasus', '=', 'data_triase_igd.kode_kasus')
+        //     ->where('data_triase_igd.no_rawat', '=', $noRawat)
+        //     ->first();
+        // if ($getTriaseIGD) {
+        //     $getTriaseIGD->detailTriaseSkala3 = DB::table('data_triase_igddetail_skala3')
+        //     ->select('master_triase_skala3.pengkajian_skala3', 'master_triase_pemeriksaan.nama_pemeriksaan')
+        //     ->join('master_triase_skala3','data_triase_igddetail_skala3.kode_skala3','=','master_triase_skala3.kode_skala3')
+        //     ->join('master_triase_pemeriksaan','master_triase_skala3.kode_pemeriksaan','=','master_triase_pemeriksaan.kode_pemeriksaan')
+        //     ->where('data_triase_igddetail_skala3.no_rawat', $noRawat)
+        //     ->get();
+        // }
+        $getTriaseIGD = DB::table('data_triase_igd')
             ->select(
-                'data_triase_igdsekunder.anamnesa_singkat',
-                'data_triase_igdsekunder.catatan',
-                'data_triase_igdsekunder.plan',
-                'data_triase_igdsekunder.tanggaltriase',
-                'data_triase_igdsekunder.nik',
+                'data_triase_igd.no_rawat',
+                'data_triase_igd.tgl_kunjungan',
+                'data_triase_igd.cara_masuk',
+                'data_triase_igd.alat_transportasi',
+                'data_triase_igd.alasan_kedatangan',
+                'data_triase_igd.keterangan_kedatangan',
+                'data_triase_igd.kode_kasus',
                 'data_triase_igd.tekanan_darah',
                 'data_triase_igd.nadi',
                 'data_triase_igd.pernapasan',
                 'data_triase_igd.suhu',
                 'data_triase_igd.saturasi_o2',
                 'data_triase_igd.nyeri',
-                'data_triase_igd.no_rawat',
-                'pasien.no_rkm_medis',
+                'master_triase_macam_kasus.macam_kasus',
                 'pasien.nm_pasien',
-                'pasien.jk',
                 'pasien.tgl_lahir',
-                'pegawai.nama',
-                'data_triase_igd.tgl_kunjungan',
-                'data_triase_igd.cara_masuk',
-                'master_triase_macam_kasus.macam_kasus'
+                'pasien.jk',
+                'reg_periksa.no_rkm_medis'
             )
-            ->join('data_triase_igd', 'data_triase_igd.no_rawat', '=', 'data_triase_igdsekunder.no_rawat')
-            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'data_triase_igd.no_rawat')
+            ->join('master_triase_macam_kasus', 'data_triase_igd.kode_kasus', '=', 'master_triase_macam_kasus.kode_kasus')
+            ->join('reg_periksa', 'data_triase_igd.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('pegawai', 'pegawai.nik', '=', 'data_triase_igdsekunder.nik')
-            ->join('master_triase_macam_kasus', 'master_triase_macam_kasus.kode_kasus', '=', 'data_triase_igd.kode_kasus')
-            ->where('data_triase_igd.no_rawat', '=', $noRawat)
-            ->first();
-        if ($getTriaseIGD) {
-            $getTriaseIGD->masterTriase = DB::table('master_triase_pemeriksaan')
-                ->select('master_triase_pemeriksaan.kode_pemeriksaan', 'data_triase_igddetail_skala3.no_rawat', 'master_triase_pemeriksaan.nama_pemeriksaan')
-                ->join('master_triase_skala3', 'master_triase_pemeriksaan.kode_pemeriksaan', '=', 'master_triase_skala3.kode_pemeriksaan')
-                ->join('data_triase_igddetail_skala3', 'master_triase_skala3.kode_skala3', '=', 'data_triase_igddetail_skala3.kode_skala3')
-                ->where('data_triase_igddetail_skala3.no_rawat', '=', $getTriaseIGD->no_rawat)
-                ->groupBy('master_triase_pemeriksaan.kode_pemeriksaan')
-                ->orderBy('master_triase_pemeriksaan.kode_pemeriksaan', 'asc')
+            ->where('data_triase_igd.no_rawat', $noRawat)
+            ->get();
+        $getTriaseIGD->map(function ($item) {
+            $item->triaseSekender = DB::table('data_triase_igdsekunder')
+                ->select(
+                    'data_triase_igdsekunder.no_rawat',
+                    'data_triase_igdsekunder.anamnesa_singkat as keluhan_utama',
+                    DB::raw("'-' as kebutuhan_khusus"),
+                    'data_triase_igdsekunder.catatan',
+                    'data_triase_igdsekunder.plan',
+                    'data_triase_igdsekunder.tanggaltriase',
+                    'data_triase_igdsekunder.nik',
+                    'pegawai.nama'
+                )
+                ->join('pegawai', 'data_triase_igdsekunder.nik', '=', 'pegawai.nik')
+                ->where('data_triase_igdsekunder.no_rawat', $item->no_rawat)
                 ->get();
-            $getTriaseIGD->masterTriase->map(function ($item) {
-                $item->skala = DB::table('master_triase_skala3')
-                    ->select('master_triase_skala3.pengkajian_skala3')
-                    ->join('data_triase_igddetail_skala3', 'master_triase_skala3.kode_skala3', '=', 'data_triase_igddetail_skala3.kode_skala3')
-                    ->where('master_triase_skala3.kode_pemeriksaan', $item->kode_pemeriksaan)
-                    ->where('data_triase_igddetail_skala3.no_rawat', $item->no_rawat)
-                    ->orderBy('data_triase_igddetail_skala3.kode_skala3', 'asc')
-                    ->get();
-            });
-        }
+            $item->triasePrimer = DB::table('data_triase_igdprimer')
+                ->select(
+                    'data_triase_igdprimer.no_rawat',
+                    'data_triase_igdprimer.keluhan_utama',
+                    'data_triase_igdprimer.kebutuhan_khusus',
+                    'data_triase_igdprimer.catatan',
+                    'data_triase_igdprimer.plan',
+                    'data_triase_igdprimer.tanggaltriase',
+                    'data_triase_igdprimer.nik',
+                    'pegawai.nama'
+                )
+                ->join('pegawai', 'data_triase_igdprimer.nik', '=', 'pegawai.nik')
+                ->where('data_triase_igdprimer.no_rawat', $item->no_rawat)
+                ->get();
+                $scales = [1, 2, 3, 4, 5];
+                foreach ($scales as $scale) {
+                    $item->{'data_triase_igddetail_skala' . $scale} = DB::table('data_triase_igddetail_skala' . $scale)
+                        ->select('master_triase_skala' . $scale . '.pengkajian_skala' . $scale, 'master_triase_pemeriksaan.nama_pemeriksaan')
+                        ->join('master_triase_skala' . $scale, 'data_triase_igddetail_skala' . $scale . '.kode_skala' . $scale, '=', 'master_triase_skala' . $scale . '.kode_skala' . $scale)
+                        ->join('master_triase_pemeriksaan', 'master_triase_skala' . $scale . '.kode_pemeriksaan', '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                        ->where('data_triase_igddetail_skala' . $scale . '.no_rawat', $item->no_rawat)
+                        ->get();
+                }
+
+        });
+
         return $getTriaseIGD;
     }
 }
