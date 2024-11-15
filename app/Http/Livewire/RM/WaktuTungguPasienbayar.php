@@ -90,7 +90,14 @@ class WaktuTungguPasienbayar extends Component
                     TIMESTAMPDIFF(DAY, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), ' hari, ',
                     MOD(TIMESTAMPDIFF(HOUR, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 24), ' jam, ',
                     MOD(TIMESTAMPDIFF(MINUTE, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 60), ' menit'
-                ) as time_difference
+                ) as time_difference_cppt
+            "),
+                    DB::raw("
+                CONCAT(
+                    TIMESTAMPDIFF(DAY, CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), ' hari, ',
+                    MOD(TIMESTAMPDIFF(HOUR, CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 24), ' jam, ',
+                    MOD(TIMESTAMPDIFF(MINUTE, CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 60), ' menit'
+                ) as time_difference_set_pulang
             ")
                 )
                 ->join('reg_periksa', 'pemeriksaan_ranap.no_rawat', '=', 'reg_periksa.no_rawat')

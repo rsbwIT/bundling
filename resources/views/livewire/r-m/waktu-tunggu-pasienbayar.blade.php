@@ -47,7 +47,8 @@
                         <th>Tanggal Nota</th>
                         <th>Jam Nota</th>
                         <th>Kamar</th>
-                        <th>Waktu Tunggu Bayar</th>
+                        <th>WTB (CPPT Dokter)</th>
+                        <th>WTB (Set Pulang)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -71,7 +72,12 @@
                             <td>{{ $item->nm_bangsal }} {{ $item->kd_kamar }}</td>
                             <td>
                                 @foreach ($item->waktu_tunggu as $waktu)
-                                    {{ $waktu->time_difference }}
+                                    {{ $waktu->time_difference_cppt }}
+                                @endforeach
+                            </td>
+                            <td>
+                                @foreach ($item->waktu_tunggu as $waktu)
+                                    {{ $waktu->time_difference_set_pulang }}
                                 @endforeach
                             </td>
                         </tr>
