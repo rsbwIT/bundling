@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3">
-                        <span class="btn btn-default btn-sm float-right" id="tableToCopy">
+                        <span class="btn btn-default btn-sm float-right" id="copyButton">
                             <i class='fas fa-copy'></i>
                         </span>
                     </div>
@@ -42,7 +42,7 @@
         </div>
         <div class="card-body table-responsive p-0" style="height: 500px;">
             <table class="table table-sm table-hover table-bordered  table-responsive text-xs mb-3"
-                style="white-space: nowrap;">
+                style="white-space: nowrap;" id="tableToCopy">
                 <thead>
                     <tr>
                         <th>RM</th>
