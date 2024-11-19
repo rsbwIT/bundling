@@ -32,11 +32,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-3">
+                        <span class="btn btn-default btn-sm float-right" id="tableToCopy">
+                            <i class='fas fa-copy'></i>
+                        </span>
+                    </div>
                 </div>
             </form>
         </div>
         <div class="card-body table-responsive p-0" style="height: 500px;">
-            <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
+            <table class="table table-sm table-hover table-bordered  table-responsive text-xs mb-3"
+                style="white-space: nowrap;">
                 <thead>
                     <tr>
                         <th>RM</th>
@@ -44,10 +50,12 @@
                         <th>Pasien</th>
                         <th>Tgl.Masuk</th>
                         <th>Tgl.Keluar</th>
+                        <th>CPPT Dokter</th>
+                        <th>CPPT Terakhir</th>
                         <th>Tanggal Nota</th>
-                        <th>Jam Nota</th>
                         <th>Kamar</th>
                         <th>WTB (CPPT Dokter)</th>
+                        <th>WTB (CPPT Terakhir)</th>
                         <th>WTB (Set Pulang)</th>
                     </tr>
                 </thead>
@@ -57,22 +65,34 @@
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->nm_pasien }}</td>
-                            <td>{{ $item->tgl_masuk }}</td>
-                            <td>{{ $item->tgl_keluar }}</td>
-                            <td>
+                            <td style="background-color: rgb(211, 233, 253)">{{ $item->tgl_masuk }}
+                                {{ $item->jam_masuk }} </td>
+                            <td style="background-color: rgb(255, 206, 206)">{{ $item->tgl_keluar }}
+                                {{ $item->jam_keluar }}</td>
+                            <td style="background-color: rgb(255, 248, 206)">
                                 @foreach ($item->waktu_tunggu as $waktu)
-                                    {{ $waktu->tanggal_nota }}
+                                    {{ $waktu->tgl_perawatan }} {{ $waktu->jam_rawat }}
                                 @endforeach
                             </td>
-                            <td>
+                            <td style="background-color: rgb(255, 206, 248)">
+                                @foreach ($item->waktu_tunggu_cppt_terakhir as $waktu)
+                                    {{ $waktu->tgl_perawatan }} {{ $waktu->jam_rawat }}
+                                @endforeach
+                            </td>
+                            <td style="background-color: rgb(216, 255, 207)">
                                 @foreach ($item->waktu_tunggu as $waktu)
-                                    {{ $waktu->jam_nota }}
+                                    {{ $waktu->tanggal_nota }} {{ $waktu->jam_nota }}
                                 @endforeach
                             </td>
                             <td>{{ $item->nm_bangsal }} {{ $item->kd_kamar }}</td>
                             <td>
                                 @foreach ($item->waktu_tunggu as $waktu)
                                     {{ $waktu->time_difference_cppt }}
+                                @endforeach
+                            </td>
+                            <td>
+                                @foreach ($item->waktu_tunggu_cppt_terakhir as $waktu)
+                                    {{ $waktu->time_difference_cppt_terakhir }}
                                 @endforeach
                             </td>
                             <td>
@@ -86,4 +106,24 @@
             </table>
         </div>
     </div>
+    <script>
+        document.getElementById("copyButton").addEventListener("click", function() {
+            copyTableToClipboard("tableToCopy");
+        });
+
+        function copyTableToClipboard(tableId) {
+            const table = document.getElementById(tableId);
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand("copy");
+                window.getSelection().removeAllRanges();
+                alert("Tabel telah berhasil disalin ke clipboard.");
+            } catch (err) {
+                console.error("Tidak dapat menyalin tabel:", err);
+            }
+        }
+    </script>
 </div>

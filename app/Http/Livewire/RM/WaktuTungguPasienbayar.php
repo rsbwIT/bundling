@@ -41,7 +41,9 @@ class WaktuTungguPasienbayar extends Component
                 'reg_periksa.status_lanjut',
                 'dokter.nm_dokter',
                 'kamar_inap.tgl_masuk',
+                'kamar_inap.jam_masuk',
                 'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar',
                 'kamar_inap.stts_pulang',
                 'kamar_inap.kd_kamar',
                 'bangsal.nm_bangsal'
@@ -103,6 +105,36 @@ class WaktuTungguPasienbayar extends Component
                 ->join('reg_periksa', 'pemeriksaan_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
                 ->join('dokter', 'pemeriksaan_ranap.nip', '=', 'dokter.kd_dokter')
+                ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->leftJoin('nota_inap', 'nota_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->where('pemeriksaan_ranap.no_rawat', '=', $item->no_rawat)
+                ->orderBy('pemeriksaan_ranap.tgl_perawatan', 'desc')
+                ->orderBy('pemeriksaan_ranap.jam_rawat', 'desc')
+                ->limit(1)
+                ->get();
+            $item->waktu_tunggu_cppt_terakhir = DB::table('pemeriksaan_ranap')
+                ->select(
+                    'pemeriksaan_ranap.no_rawat',
+                    'reg_periksa.kd_pj',
+                    'pemeriksaan_ranap.tgl_perawatan',
+                    'pemeriksaan_ranap.jam_rawat',
+                    'pasien.nm_pasien',
+                    'kamar_inap.tgl_masuk',
+                    'kamar_inap.jam_masuk',
+                    'kamar_inap.tgl_keluar',
+                    'kamar_inap.jam_keluar',
+                    'nota_inap.tanggal as tanggal_nota',
+                    'nota_inap.jam as jam_nota',
+                    DB::raw("
+                CONCAT(
+                    TIMESTAMPDIFF(DAY, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), ' hari, ',
+                    MOD(TIMESTAMPDIFF(HOUR, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 24), ' jam, ',
+                    MOD(TIMESTAMPDIFF(MINUTE, CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat), CONCAT(nota_inap.tanggal, ' ', nota_inap.jam)), 60), ' menit'
+                ) as time_difference_cppt_terakhir
+            ")
+                )
+                ->join('reg_periksa', 'pemeriksaan_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
                 ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->leftJoin('nota_inap', 'nota_inap.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->where('pemeriksaan_ranap.no_rawat', '=', $item->no_rawat)
