@@ -5,74 +5,28 @@ namespace App\Http\Livewire\Test;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use App\Services\Bpjs\ReferensiBPJS;
+use Illuminate\Support\Facades\Response;
 
 class Test extends Component
 {
-    public function mount()
-    {
-        $this->diagnosa = 'Cari Diagnosa';
-        $this->getSeting();
-        $this->getDataDiagnosa();
+    public $test;
+    public function mount() {
+        $this->test = '';
     }
     public function render()
     {
-        $this->getDataDiagnosa();
-        $this->getSeting();
         return view('livewire.test.test');
     }
 
-    // Search Dropdown ===============================================================
-    public $diagnosa;
-    public function setDiagnosa($diagnosa)
-    {
-        $this->diagnosa = $diagnosa;
-        $this->cariDiagnosa = '';
+    function generatePdfToBase64() {
+        $filepath = file_get_contents('storage/resume_dll/RESUMEDLL-20241119000175.pdf');
+        $test= base64_encode($filepath);
+        $this->test = $test;
     }
-    public $cariDiagnosa;
-    public $getDataDiagnosa;
-    public function getDataDiagnosa()
-    {
-        $getdiagnosa = new ReferensiBPJS;
-        if ($this->cariDiagnosa) {
-            try {
-                $data = json_decode($getdiagnosa->getDiagnosa($this->cariDiagnosa));
-                $this->getDataDiagnosa = $data->response->diagnosa ?? [];
-            } catch (\Throwable $th) {
-                $this->getDataDiagnosa = [];
-            }
-        } else {
-            $this->getDataDiagnosa = [];
-        }
-    }
-    // Search Dropdown ===============================================================
-
-    function submitButton() {
-        dd($this->diagnosa);
-    }
-
-    // final drag and drop ===============================================================
-    public $getSeting;
-    public function getSeting()
-    {
-        $this->getSeting = DB::table('bw_setting_bundling')
-            ->select('bw_setting_bundling.id', 'bw_setting_bundling.nama_berkas', 'bw_setting_bundling.status', 'bw_setting_bundling.urutan')
-            ->orderBy('bw_setting_bundling.urutan', 'asc')
-            ->get();
-    }
-
-    public function updateStatus($id, $value)
-    {
-        DB::table('bw_setting_bundling')
-            ->where('id', $id)
-            ->update(['status' => $value]);
-    }
-
-    public function updateOrder($item)
-    {
-        foreach ($item as $key => $value) {
-            DB::table('bw_setting_bundling')
-                ->where('id', $value)
-                ->update(['urutan' => $key + 1]);
-        }
+    function decodeBade64($test) {
+        $decodedContent = base64_decode($test);
+        $filepath = public_path('storage/resume_dll/file_encode.pdf');
+        file_put_contents($filepath, $decodedContent);
+        return Response::download($filepath, 'test.pdf')->deleteFileAfterSend(false);
     }
 }

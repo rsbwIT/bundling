@@ -42,18 +42,19 @@ class TestController extends Controller
         // $data = json_decode($this->referensi->updateRuangan(json_encode($data)));
         // dd($data);
 
-        DB::table('bw_display_bad')
-            ->select(
-                'bw_display_bad.ruangan',
-                'bw_display_bad.kd_kelas_bpjs',
-                DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
-            )
-            ->where('bw_display_bad.kd_kelas_bpjs', $item->kd_kelas_bpjs)
-            ->where('bw_display_bad.ruangan', $item->ruangan)
-            ->groupBy('bw_display_bad.kd_kelas_bpjs')
-            ->get();
+        // DB::table('bw_display_bad')
+        //     ->select(
+        //         'bw_display_bad.ruangan',
+        //         'bw_display_bad.kd_kelas_bpjs',
+        //         DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
+        //         DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
+        //         DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
+        //         DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
+        //     )
+        //     ->where('bw_display_bad.kd_kelas_bpjs', $item->kd_kelas_bpjs)
+        //     ->where('bw_display_bad.ruangan', $item->ruangan)
+        //     ->groupBy('bw_display_bad.kd_kelas_bpjs')
+        //     ->get();
+        return view('test.test');
     }
 }
