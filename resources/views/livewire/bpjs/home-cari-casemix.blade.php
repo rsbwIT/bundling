@@ -1,8 +1,8 @@
 <div>
-    <section class="content ">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="form-group">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-lg-3">
                     <div class="input-group input-group-xs">
                         <input type="search" wire:model.lazy="cariNorawat" class="form-control form-control-xs"
                             placeholder="Cari RM, No.Rawat, No.SEP">
@@ -10,9 +10,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-2">
-                <div class="form-group">
+                <div class="col-lg-2">
                     <div class="input-group input-group-xs">
                         <div class="input-group-append">
                             <button wire:click="getPasien()" class="btn btn-md btn-primary">
@@ -30,11 +28,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <div class="card">
-        <div class="card-header bg-primary">
-            <h3 class="card-title">Pasien</h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -57,7 +50,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($getPasien->isEmpty())
+                    @if ($getPasien == null)
                         <tr>
                             <td colspan="7" class="text-center">Data tidak tersedia</td>
                         </tr>
@@ -68,39 +61,27 @@
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->no_rawat }}</td>
                                 <td>{{ $item->no_sep }}</td>
-                                <td>{{ $item->jnspelayanan == '1' ? 'Rawat Inap' : 'Rawat Jalan' }}</td>
+                                <td>{{ $item->status_lanjut == 'Ranap' ? 'Rawat Inap' : 'Rawat Jalan' }}</td>
                                 <td>{{ $item->tgl_registrasi }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        @php
-                                            // $color = isset($cekBerkas[$item->no_rawat]) ? 'bg-success' : 'bg-primary';
-                                            $color = 'bg-primary';
-                                        @endphp
                                         <form action="{{ url('cariNorawat-ClaimBpjs') }}" method="">
                                             @csrf
                                             <input name="cariNoSep" value="{{ $item->no_sep }}" hidden>
                                             <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
-                                            <button class="badge {{ $color }}">
+                                            <button class="badge bg-primary">
                                                 <i class="fas fa-upload"> File Scan</i>
                                             </button>
                                         </form>
-
-                                        @php
-                                            // $color2 = isset($cekBerkasKhanza[$item->no_rawat]) ? 'bg-success' : 'bg-primary';
-                                            $color2 = 'bg-primary';
-                                        @endphp
                                         <form action="{{ url('carinorawat-casemix') }}" method="" class="">
                                             @csrf
                                             <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
                                             <input name="cariNoSep" value="{{ $item->no_sep }}" hidden>
-                                            <button class="badge {{ $color2 }} mx-2">
+                                            <button class="badge bg-primary mx-2">
                                                 <i class="fas fa-save"> Khanza</i>
                                             </button>
                                         </form>
 
-                                        @php
-                                            $color3 = isset($cekBerkasHasil[$item->no_rawat]) ? 'bg-success' : 'bg-primary';
-                                        @endphp
                                         <form action="{{ url('gabung-berkas-casemix') }}" method="">
                                             @csrf
                                             <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
@@ -110,7 +91,7 @@
                                             <input name="tgl2" value="{{ session('tgl2') }}" hidden>
                                             {{-- <input name="page" value="{{ session('page') }}" hidden> --}}
                                             <input name="statusLanjut" value="{{ session('statusLanjut') }}" hidden>
-                                            <button class="badge {{ $color3 }}">
+                                            <button class="badge bg-primary">
                                                 <i class="fas fa-save"> Gabung</i>
                                             </button>
                                         </form>

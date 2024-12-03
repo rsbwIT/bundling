@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />
     <link rel="stylesheet" href="/plugins/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css" />
-    <script src="/js/plotly-latest.min.js"></script> {{-- CHART  --}}
+    <script src="/js/plotly-latest.min.js"></script>
     <script src="/plugins/jquery/jquery.min.js"></script>
     {{-- DUALIS --}}
     <link rel="stylesheet" href="/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
