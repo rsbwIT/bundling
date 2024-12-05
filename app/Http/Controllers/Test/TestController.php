@@ -28,7 +28,7 @@ class TestController extends Controller
     }
     public function Test()
     {
-        // dd(json_decode($this->referensi->getReferensiKelas()));
+        dd(json_decode($this->referensi->getReferensiKelas()));
         // $data = [
         //         'kodekelas' =>  'VVP',
         //         'koderuang' =>  'RG2',
@@ -55,6 +55,6 @@ class TestController extends Controller
         //     ->where('bw_display_bad.ruangan', $item->ruangan)
         //     ->groupBy('bw_display_bad.kd_kelas_bpjs')
         //     ->get();
-        return view('test.test');
+        // return view('test.test');
     }
 }

@@ -135,13 +135,14 @@ class SettingKamar extends Component
             ->first();
         $data = [
             'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
-            'koderuang' =>  'RG2',
-            'namaruang' => 'R. GARUDA 2',
-            'kapasitas' => '5',
-            'tersedia' => '3',
-            'tersediapria' => '5',
-            'tersediawanita' => '5',
-            'tersediapriawanita' => '5',
+            'koderuang' =>   $udapteKamar->ruangan,
+            'namaruang' => 'R '.$udapteKamar->ruangan,
+            'kapasitas' => $udapteKamar->kapasitas,
+            'tersedia' => $udapteKamar->tersedia,
+            'tersediapria' => 0,
+            'tersediawanita' => 0,
+            'tersediapriawanita' => 0,
         ];
+        dd($data);
     }
 }

@@ -103,7 +103,7 @@
                         <div class="col-md-2">
                             <div class="input-group">
                                 <select class="form-control" wire:model.lazy="input_kelas">
-                                    <option value="-">-</option>
+                                    <option value="Non Kelas">Non Kelas</option>
                                     <option value="Kelas 1">Kelas 1</option>
                                     <option value="Kelas 2">Kelas 2</option>
                                     <option value="Kelas 3">Kelas 3</option>
