@@ -11,6 +11,7 @@
                         <th>Nama Display</th>
                         <th class="text-center">Display Poli</th>
                         <th class="text-center">Panggilan</th>
+                        <th class="text-center">Download autorun</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,6 +47,15 @@
                                         @endforeach
                                     </div>
                                 </div>
+                            </td>
+                            <td class="text-center">
+                                <form action="{{ url('antrian-poli-download') }}" method="">
+                                    @csrf
+                                    <input name="kd_display" value="{{ $item->kd_display }}" hidden>
+                                    <button class="" style="background: none; border: none;">
+                                        <i class="nav-icon fas fa-download"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach

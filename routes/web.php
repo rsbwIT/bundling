@@ -166,6 +166,7 @@ Route::group(['middleware' => 'default'], function () {
 
         // ANTRIAN POLI
         Route::get('/antrian-poli', [AntrianPoli::class, 'AntrianPoli']);
+        Route::get('/antrian-poli-download', [AntrianPoli::class, 'downloadAutorun']);
         Route::get('/panggil-poli', [AntrianPoli::class, 'panggilpoli']);
         Route::get('/setting-antrian-poli', [AntrianPoli::class, 'settingPoli']);
         Route::get('/jadwal-dokter', [BwJadwaldokter::class, 'BwJadwaldokter']);
