@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\AntrianPoli;
 
 use Livewire\Component;
+use App\Events\SendMessage;
 use Illuminate\Http\Request;
 use App\Services\DayListService;
 use Illuminate\Support\Facades\DB;
@@ -62,5 +63,9 @@ class Panggilpoli extends Component
         DB::table('bw_log_antrian_poli')
             ->where('no_rawat', $no_rawat)
             ->delete();
+    }
+
+    public function PanggilPusher() {
+        event(new SendMessage('tes', 'feri'));
     }
 }

@@ -34,6 +34,7 @@
                                 onclick="playSequentialSounds(['{{ $item->no_reg }}','{{ $item->kd_dokter }}','{{ $kd_ruang_poli }}'])"
                                 class="btn btn-sm btn-primary" role="button" aria-disabled="true"><i class="fas fa-bullhorn"></i> Panggil
                             </button>
+                            <button class="btn btn-sm btn-primary mx-2" role="button" aria-disabled="true" wire:click='PanggilPusher'>  Panggil 2 </button>
                             <button wire:click="handleLog('{{ $item->kd_dokter }}', '{{ $item->no_rawat }}', '{{ $kd_ruang_poli }}', 'ada')"
                                 class="btn btn-sm btn-success ml-2" aria-disabled="true"><i class="fas fa-check"></i> Ada</button>
                             <button wire:click="handleLog('{{ $item->kd_dokter }}', '{{ $item->no_rawat }}', '{{ $kd_ruang_poli }}', 'tidakada')"
