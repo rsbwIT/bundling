@@ -166,7 +166,6 @@ Route::group(['middleware' => 'default'], function () {
 
         // ANTRIAN POLI
         Route::get('/antrian-poli', [AntrianPoli::class, 'AntrianPoli']);
-        Route::get('/display', [AntrianPoli::class, 'display']);
         Route::get('/panggil-poli', [AntrianPoli::class, 'panggilpoli']);
         Route::get('/setting-antrian-poli', [AntrianPoli::class, 'settingPoli']);
         Route::get('/jadwal-dokter', [BwJadwaldokter::class, 'BwJadwaldokter']);
@@ -202,6 +201,8 @@ Route::group(['middleware' => 'default'], function () {
         // LAB
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
     });
+    // diplay
+    Route::get('/display', [AntrianPoli::class, 'display']);
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
     Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
     Route::get('/display-petugas', [AntrianPendaftaran::class, 'DisplayPetugas']);

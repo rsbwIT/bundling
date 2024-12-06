@@ -139,7 +139,7 @@ class OperasiAndVK extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->groupBy('operasi.no_rawat', 'operasi.tgl_operasi')
+            ->groupBy('operasi.no_rawat', 'operasi.tgl_operasi', 'bayar_piutang.besar_cicilan')
             ->orderBy('penjab.kd_pj', 'asc')
             ->get();
         $OperasiAndVK->map(function ($item) {
