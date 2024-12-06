@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     @stack('styles')
     <script type="text/javascript">
-        setTimeout(function(){
+        setTimeout(function() {
             location.reload();
         }, 900000); // 30,000 milidetik (30 detik)
     </script>
@@ -42,7 +42,8 @@
     }
 </style>
 
-<body>
+<body onclick="openFullscreen();">
+
     <div class="container-fluid">
         @yield('konten')
     </div>
@@ -50,10 +51,22 @@
 
 
     @stack('scripts')
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="/dist/js/adminlte.js"></script>
-
+    <script>
+        var elem = document.documentElement;
+        function openFullscreen() {
+            console.log('test');
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+    </script>
 </body>
 
 </html>
