@@ -78,7 +78,7 @@ class SettingKamar extends Component
             ->where('id', $id)
             ->update(['status' => $updateStatus]);
 
-        $this->UpdateKamarMJKN($kd_kelas_bpjs, $ruangan);
+        // $this->UpdateKamarMJKN($kd_kelas_bpjs, $ruangan);
     }
 
     // TAMBAH KAMAR
@@ -143,6 +143,6 @@ class SettingKamar extends Component
             'tersediawanita' => 0,
             'tersediapriawanita' => 0,
         ];
-        dd($data);
+        // dd($data);
     }
 }
