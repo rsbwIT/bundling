@@ -63,6 +63,9 @@
         });
         var channel = pusher.subscribe('messages' +kdRuangPoli);
         channel.bind('message', function(data) {
+            console.log(data['message']['kd_dokter']);
+            console.log(data['message']['no_reg']);
+
             function playAudioSequentially(audioFiles, index = 0) {
                 if (index < audioFiles.length) {
                     var audio = new Audio(audioFiles[index]);
