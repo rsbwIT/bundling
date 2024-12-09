@@ -10,36 +10,30 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SendMessage
+class PanggilPoliEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
     public $message;
-    public $user;
 
-    public function __construct($message, $user)
+    public function __construct($no_rawat,  $kd_dokter, $kd_ruang_poli, $no_reg, $kd_display)
     {
-        $this->message = $message;
-        $this->user = $user;
+        $this->message = [
+            'no_rawat' => $no_rawat,
+            'kd_dokter' => $kd_dokter,
+            'kd_ruang_poli' => $kd_ruang_poli,
+            'kd_display' => $kd_display,
+            'no_reg' => $no_reg,
+        ];
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
     public function broadcastOn()
     {
-        return new Channel('messages');
+        return new Channel('messages'.$this->message['kd_display']);
     }
 
     public function broadcastAs()
     {
-        return 'send.message';
+        return 'message';
     }
 }

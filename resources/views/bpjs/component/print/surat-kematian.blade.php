@@ -1,5 +1,5 @@
 @if ($getSudartKematian)
-    <div class="">
+    <div class="card-body">
         <table width="700px">
             <tr>
                 <td rowspan="3"> <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"

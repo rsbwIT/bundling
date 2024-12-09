@@ -38,7 +38,8 @@
                                         </tr>
                                         <tr>
                                             <td class="text-center">
-                                                <h3 class="font-weight-bold">Jam Mulai : {{ date('H:i', strtotime($item->jam_mulai)) }}</h3>
+                                                <h3 class="font-weight-bold">Jam Mulai :
+                                                    {{ date('H:i', strtotime($item->jam_mulai)) }}</h3>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -51,3 +52,32 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const kdRuangPoli = urlParams.get('kd_display');
+        var pusher = new Pusher('f8c2a21c58f812f99944', {
+            cluster: 'ap1'
+        });
+        var channel = pusher.subscribe('messages' +kdRuangPoli);
+        channel.bind('message', function(data) {
+            function playAudioSequentially(audioFiles, index = 0) {
+                if (index < audioFiles.length) {
+                    var audio = new Audio(audioFiles[index]);
+                    audio.play();
+                    audio.onended = function() {
+                        playAudioSequentially(audioFiles, index +
+                            1);
+                    };
+                }
+            }
+            const audioFiles = [
+                '/sound/noreg/'+data['message']['no_reg']+'.mp3',
+                '/sound/dokter/'+data['message']['kd_dokter']+'.mp3',
+            ];
+            playAudioSequentially(audioFiles);
+        });
+    </script>
+@endpush

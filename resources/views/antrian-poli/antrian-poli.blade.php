@@ -38,6 +38,7 @@
                                             <form action="{{ url('panggil-poli') }}" method="">
                                                 <div class="dropdown-item">
                                                     @csrf
+                                                    <input name="kd_display" value="{{ $item->kd_display }}" hidden>
                                                     <input name="kd_ruang_poli" value="{{ $data->kd_ruang_poli }}" hidden>
                                                     <button class="btn btn-block btn-flat btn-primary">
                                                         {{ $data->nama_ruang_poli }}

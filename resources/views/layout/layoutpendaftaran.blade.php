@@ -9,7 +9,6 @@
     {{-- <meta http-equiv="refresh" content="10"> --}}
     <link rel="stylesheet" href="/dist/css/adminlte.min.css" />
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
     @stack('styles')
     <script type="text/javascript">
         setTimeout(function() {
@@ -55,7 +54,6 @@
     <script>
         var elem = document.documentElement;
         function openFullscreen() {
-            console.log('test');
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
             } else if (elem.webkitRequestFullscreen) {

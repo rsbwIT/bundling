@@ -1,6 +1,7 @@
 <div>
     <div class="card mb-4 box-shadow">
         <div class="card-header text-center">
+            {{$kd_display}}
             <h2 class="my-0 font-weight-bold">Perawat / Petugas Poli {{ $kd_ruang_poli }}</h2>
             {{count($getPasien)}}
         </div>
@@ -30,11 +31,12 @@
                             <audio id="{{ $item->no_reg }}" src="/sound/noreg/{{ $item->no_reg }}.mp3"></audio>
                             <audio id="{{ $item->kd_dokter }}"src="/sound/dokter/{{ $item->kd_dokter }}.mp3"></audio>
                             <audio id="{{ $kd_ruang_poli }}" src="/sound/loket/{{ $kd_ruang_poli }}.mp3"></audio>
-                            <button
+                            {{-- <button
                                 onclick="playSequentialSounds(['{{ $item->no_reg }}','{{ $item->kd_dokter }}','{{ $kd_ruang_poli }}'])"
                                 class="btn btn-sm btn-primary" role="button" aria-disabled="true"><i class="fas fa-bullhorn"></i> Panggil
-                            </button>
-                            <button class="btn btn-sm btn-primary mx-2" role="button" aria-disabled="true" wire:click='PanggilPusher'>  Panggil 2 </button>
+                            </button> --}}
+                            <button wire:click="panggilLog('{{$item->no_rawat}}','{{ $item->kd_dokter }}', '{{$kd_ruang_poli}}', '{{$item->no_reg}}', '{{$kd_display}}')"
+                                class="btn btn-sm btn-primary" role="button" aria-disabled="true"><i class="fas fa-bullhorn"></i> Panggil</button>
                             <button wire:click="handleLog('{{ $item->kd_dokter }}', '{{ $item->no_rawat }}', '{{ $kd_ruang_poli }}', 'ada')"
                                 class="btn btn-sm btn-success ml-2" aria-disabled="true"><i class="fas fa-check"></i> Ada</button>
                             <button wire:click="handleLog('{{ $item->kd_dokter }}', '{{ $item->no_rawat }}', '{{ $kd_ruang_poli }}', 'tidakada')"
