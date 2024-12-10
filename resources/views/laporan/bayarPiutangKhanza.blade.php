@@ -94,6 +94,9 @@
                     </div>
                 </div>
             </form>
+            <nav aria-label="Page navigation example">
+                {{ $bayarPiutang->appends(request()->input())->links('pagination::bootstrap-4') }}
+            </nav>
             <table class="table table-sm table-bordered table-striped text-xs mb-3" style="white-space: nowrap;"
                 id="tableToCopy">
                 <tbody>
@@ -131,4 +134,24 @@
             </table>
         </div>
     </div>
+    <script>
+        document.getElementById("copyButton").addEventListener("click", function() {
+            copyTableToClipboard("tableToCopy");
+        });
+
+        function copyTableToClipboard(tableId) {
+            const table = document.getElementById(tableId);
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand("copy");
+                window.getSelection().removeAllRanges();
+                alert("Tabel telah berhasil disalin ke clipboard.");
+            } catch (err) {
+                console.error("Tidak dapat menyalin tabel:", err);
+            }
+        }
+    </script>
 @endsection

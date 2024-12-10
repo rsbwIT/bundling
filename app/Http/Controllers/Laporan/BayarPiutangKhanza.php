@@ -54,7 +54,7 @@ class BayarPiutangKhanza extends Controller
             })
             ->orderBy('bayar_piutang.tgl_bayar', 'asc')
             ->orderBy('bayar_piutang.no_rkm_medis', 'asc')
-            ->get();
+            ->paginate(1000);
         $bayarPiutang->map(function ($item) {
             $item->getNomorNota = DB::table('billing')
                 ->select('nm_perawatan')
