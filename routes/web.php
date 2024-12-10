@@ -35,6 +35,7 @@ use App\Http\Controllers\DetailTindakan\RanapDokter;
 use App\Http\Controllers\Farmasi\BundlingResepobat2;
 use App\Http\Controllers\Farmasi\SepResepController;
 use App\Http\Controllers\Keperawatan\LaporanLogBook;
+use App\Http\Controllers\Laporan\BayarPiutangKhanza;
 use App\Http\Controllers\Regperiksa\AnjunganMandiri;
 use App\Http\Controllers\DetailTindakan\OperasiAndVK;
 use App\Http\Controllers\DetailTindakan\RanapDokter2;
@@ -130,6 +131,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-piutang-ralan', [PiutangRalan::class, 'CariPiutangRalan']);
         Route::get('/cari-piutang-ranap', [PiutangRanap::class, 'CariPiutangRanap']);
         Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
+        Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza']);
         Route::get('/bayar-piutang-karyawan', [BayarPiutangKaryawan::class, 'bayarPiutangKaryawan']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);

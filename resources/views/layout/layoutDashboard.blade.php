@@ -175,6 +175,14 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('/bayar-piutang-khanza') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Bayar Piutang <span class="text-xs">(Khanza)</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('/cari-cob-bayar-piutang') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>COB</p>
