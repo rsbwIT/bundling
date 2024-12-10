@@ -130,7 +130,6 @@
                                 <p>
                                     Keuangan
                                     <i class="right fas fa-angle-left"></i>
-                                    <span class="badge badge-warning right">1</span>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
@@ -200,7 +199,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/bayar-piutang-karyawan') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon text-danger"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Piutang Karyawan</p>
                                     </a>
                                 </li>
