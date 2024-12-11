@@ -55,10 +55,48 @@
                 </tr>
                 <tr>
                     @php
-                        $jnsKunjungan =
-                            $getSEP->tujuankunjungan == 0
-                                ? '-Konsultasi dokter(Pertama)'
-                                : 'Kunjungan Kontrol(ulangan)';
+                        $penunjangOptions = [
+                            1 => '- Radioterapi',
+                            2 => '- Kemoterapi',
+                            3 => '- Rehabilitasi Medik',
+                            4 => '- Rehabilitasi Psikososial',
+                            5 => '- Transfusi Darah',
+                            6 => '- Pelayanan Gigi',
+                            7 => '- Laboratorium',
+                            8 => '- USG',
+                            9 => '- Farmasi',
+                            10 => '- Lain-Lain',
+                            11 => '- MRI',
+                            12 => '- HEMODIALISA',
+                        ];
+                        $flagProsedurOptions = [
+                            0 => '- Prosedur Tidak Berkelanjutan',
+                            1 => '- Prosedur dan Terapi Berkelanjutan',
+                        ];
+                        $assesmentPelOptions = [
+                            1 => '- Poli spesialis tidak tersedia pada hari sebelumnya',
+                            2 => '- Jam Poli telah berakhir pada hari sebelumnya',
+                            3 => '- Dokter Spesialis yang dimaksud tidak praktek pada hari sebelumnya',
+                            4 => '- Atas Instruksi RS',
+                            5 => '- Tujuan Kontrol',
+                        ];
+                        $jnsKunjunganOptions = [
+                            0 => '- Konsultasi Dokter (Pertama)',
+                            1 => '- Kunjungan Kontrol (Ulang)',
+                            2 => '- Kunjungan Kontrol (Ulang)',
+                        ];
+                        $jnsKunjungan = isset($jnsKunjunganOptions[$getSEP->tujuankunjungan])
+                            ? $jnsKunjunganOptions[$getSEP->tujuankunjungan]
+                            : '';
+                        $flagProcedure = isset($flagProsedurOptions[$getSEP->flagprosedur])
+                            ? $flagProsedurOptions[$getSEP->flagprosedur]
+                            : '';
+                        $penunjang = isset($penunjangOptions[$getSEP->penunjang])
+                            ? $penunjangOptions[$getSEP->penunjang]
+                            : '';
+                        $assesment = isset($assesmentPelOptions[$getSEP->asesmenpelayanan])
+                            ? $assesmentPelOptions[$getSEP->asesmenpelayanan]
+                            : '';
                     @endphp
                     <td>Tgl. Lahir</td>
                     <td>: {{ date('d/m/Y', strtotime($getSEP->tanggal_lahir)) }}
@@ -67,18 +105,14 @@
                     <td class="text-xs">: {{ $jnsKunjungan }}</td>
                 </tr>
                 <tr>
-                    @php
-                        $Prosedur =
-                            $getSEP->flagprosedur == 0
-                                ? '-Prosedur Tidak Berkelanjutan'
-                                : ($getSEP->flagprosedur == 1
-                                    ? '- Prosedur dan Terapi Tidak Berkelanjutan'
-                                    : '');
-                    @endphp
                     <td style="vertical-align: top;">No. Telpon</td>
                     <td style="vertical-align: top;">: {{ $getSEP->notelep }}</td>
                     <td></td>
-                    <td class="text-xs">{{ $Prosedur }}</td>
+                    <td class="text-xs">
+                        {{ $flagProcedure }}
+                        {{ $penunjang }}
+                        {{ $assesment }}
+                    </td>
                 </tr>
                 <tr>
                     <td>Sub/Spesialis</td>
