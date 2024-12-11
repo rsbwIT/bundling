@@ -41,12 +41,14 @@ class Panggilpoli extends Component
                 'bw_ruangpoli_dokter.kd_ruang_poli',
                 'bw_ruangpoli_dokter.nama_dokter',
                 'pasien.nm_pasien',
-                'bw_log_antrian_poli.status'
+                'bw_log_antrian_poli.status',
+                'penjab.png_jawab'
             )
             ->leftJoin('bw_log_antrian_poli', 'bw_log_antrian_poli.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('bw_ruangpoli_dokter', 'reg_periksa.kd_dokter', '=', 'bw_ruangpoli_dokter.kd_dokter')
             ->join('jadwal', 'bw_ruangpoli_dokter.kd_dokter', '=', 'jadwal.kd_dokter')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
             ->where('reg_periksa.tgl_registrasi', date('Y-m-d'))
             ->where('jadwal.hari_kerja', $hari)
             ->where('bw_ruangpoli_dokter.kd_ruang_poli', $this->kd_ruang_poli)

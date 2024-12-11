@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class FuntionKhanza
 {
-    public static function noRegistrasi($kd_dokter, $kdPoli)
+    public static function noRegistrasi($kd_dokter, $kdPoli) // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN noRegistrasi($kd_dokter, $kdPoli, $penjab)
     {
         $nextNoReg = DB::table('reg_periksa')
             ->where('kd_poli', $kdPoli)
             ->where('kd_dokter', $kd_dokter)
+            // ->where('kd_pj', $penjab) // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
             ->where('tgl_registrasi', Carbon::now()->format('Y-m-d'))
             ->max(DB::raw('CONVERT(no_reg, SIGNED)'));
         return $nextNoReg = str_pad(is_null($nextNoReg) ? 1 : $nextNoReg + 1, 3, '0', STR_PAD_LEFT);

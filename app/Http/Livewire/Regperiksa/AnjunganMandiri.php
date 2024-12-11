@@ -183,14 +183,21 @@ class AnjunganMandiri extends Component
     public $penjab;
     function pilihDokter($kd_dokter, $kdPoli, $nm_dokter, $nm_poli)
     {
+        // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
+        // $this->kd_dokter = $kd_dokter;
+        // $this->kdPoli = $kdPoli;
+        // $this->nm_dokter = $nm_dokter;
+        // $this->nm_poli = $nm_poli;
         $this->getDokter();
         $this->stts_daftar = $this->getpasien[0]['namakeluarga'] == Carbon::now()->format('Y-m-d') ? "Baru" : "Lama";
         $this->namakeluarga = $this->getpasien[0]['namakeluarga'];
         $this->keluarga = $this->getpasien[0]['keluarga'];
         $this->alamat = $this->getpasien[0]['alamat'];
         $this->penjab = $this->getpasien[0]['kd_pj'];
+        // $this->penjab = $this->penjab; // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
         try {
             $data = [
+                // 'no_reg' => FuntionKhanza::noRegistrasi($kd_dokter, $kdPoli, $this->penjab), // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
                 'no_reg' => FuntionKhanza::noRegistrasi($kd_dokter, $kdPoli),
                 'no_rawat' => FuntionKhanza::noRawat(),
                 'tgl_registrasi' => Carbon::now()->format('Y-m-d'),
@@ -208,6 +215,13 @@ class AnjunganMandiri extends Component
             $this->registrasi = null;
         }
     }
+    // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
+    // public $kd_dokter;
+    // public $nm_dokter;
+    // public function updatedPenjab()
+    // {
+    //     $this->pilihDokter($this->kd_dokter, $this->kdPoli, $this->nm_dokter, $this->nm_poli);
+    // }
 
 
     public $getRegistrasi;
@@ -215,6 +229,7 @@ class AnjunganMandiri extends Component
     {
         try {
             $data = [
+                // 'no_reg' => FuntionKhanza::noRegistrasi($this->registrasi['kd_dokter'], $this->registrasi['kd_poli'], $this->penjab), // JIKA INGIN NOMOR REG BERDASARKAN PENJAMIN
                 'no_reg' => FuntionKhanza::noRegistrasi($this->registrasi['kd_dokter'], $this->registrasi['kd_poli']),
                 'no_rawat' => FuntionKhanza::noRawat(),
                 'tgl_registrasi' => $this->registrasi['tgl_registrasi'],

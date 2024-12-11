@@ -61,7 +61,7 @@
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->no_rawat }}</td>
                                 <td>{{ $item->no_sep }}</td>
-                                <td>{{ $item->status_lanjut == 'Ranap' ? 'Rawat Inap' : 'Rawat Jalan' }}</td>
+                                <td>{{ $item->jnspelayanan == '1' ? 'Rawat Inap' : ($item->jnspelayanan == '2' ? 'Rawat Jalan' : '-') }}</td>
                                 <td>{{ $item->tgl_registrasi }}</td>
                                 <td>
                                     <div class="btn-group">

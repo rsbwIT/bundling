@@ -36,6 +36,7 @@ class HomeCariCasemix extends Component
                     'pasien.nm_pasien',
                     'pasien.jk',
                     DB::raw('COALESCE(bridging_sep.no_sep, "-") as no_sep'),
+                    DB::raw('COALESCE(bridging_sep.jnspelayanan, "-") as jnspelayanan'),
                     'reg_periksa.status_lanjut'
                 )
                 ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
