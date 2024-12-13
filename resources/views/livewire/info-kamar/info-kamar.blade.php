@@ -38,8 +38,7 @@
                                                     <div class="col-md-{{ $colom }}">
                                                         <div class="card m-1 justify-content-center"
                                                             style="background-color: {{ $baground }}; border:1px solid;">
-                                                            <span class="badge {{ $text }} badge-xs"
-                                                                wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}')">
+                                                            <span class="badge {{ $text }} badge-xs">
                                                                 <b>{{ substr($bed->bad, strlen($bed->bad) - 1, 1) }}</b>
                                                             </span>
                                                         </div>

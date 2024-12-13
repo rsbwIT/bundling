@@ -37,7 +37,7 @@
                                             <div class="col-md-3">
                                                 <div class="card mt-2 mb-2" style="border: 1px solid">
                                                     <h6 class="mb-"><b>{{ $kamar->kamar }} </b>
-                                                        ({{ $kamar->kelas }})
+                                                        ({{ $kamar->kelas }}) {{$kamar->nm_ruangan_bpjs}}
                                                     </h6>
                                                     <hr class="m-1" style="border: 1px solid">
                                                     <div class="row">
@@ -58,7 +58,7 @@
                                                                 <div class="card m-1 justify-content-center"
                                                                     style="background-color: {{ $baground }}; border:1px solid;">
                                                                     <button class="btn {{ $text }}"
-                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{$bed->kd_kelas_bpjs}}', '{{$bed->ruangan}}')">
+                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{$bed->kd_kelas_bpjs}}', '{{$bed->nm_ruangan_bpjs}}')">
                                                                         <b>{{ substr($bed->bad, strlen($bed->bad) - 1, 1) }}</b>
                                                                     </button>
                                                                 </div>

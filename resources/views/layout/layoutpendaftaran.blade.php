@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {{-- <meta http-equiv="refresh" content="10"> --}}
     <link rel="stylesheet" href="/dist/css/adminlte.min.css" />
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css" />
     <!-- Bootstrap CSS -->
     @stack('styles')
     <script type="text/javascript">

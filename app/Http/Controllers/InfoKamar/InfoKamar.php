@@ -25,6 +25,12 @@ class InfoKamar extends Controller
             'getSetting' => $getSetting
         ]);
     }
+    function InfoKamar3() {
+        $getSetting = $this->cacheService->getSetting();
+        return view('display.info-kamar3',[
+            'getSetting' => $getSetting
+        ]);
+    }
     function InfoKamarRuangan() {
         return view('display.info-kamar-ruangan');
     }

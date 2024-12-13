@@ -32,7 +32,7 @@ class InfoKamar extends Component
                     ->select(
                         'bw_display_bad.kamar',
                         'bw_display_bad.kelas',
-                        'bw_display_bad.kelas'
+                        'bw_display_bad.ruangan'
                     )
                     ->where('bw_display_bad.ruangan', $item->ruangan)
                     ->groupBy('bw_display_bad.kamar')
@@ -61,19 +61,6 @@ class InfoKamar extends Component
             });
         } catch (\Throwable $th) {
         }
-    }
-    public function actionIsi($status, $id, $kd_kelas_bpjs, $ruangan)
-    {
-        if ($status == '1') {
-            $updateStatus = '0';
-        } else {
-            $updateStatus = '1';
-        }
-        DB::table('bw_display_bad')
-            ->where('id', $id)
-            ->update(['status' => $updateStatus]);
-
-
     }
 
 

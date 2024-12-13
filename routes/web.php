@@ -206,7 +206,8 @@ Route::group(['middleware' => 'default'], function () {
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);
+    Route::get('/display-petugas', [AntrianPendaftaran::class, 'DisplayPetugas']);
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
     Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
-    Route::get('/display-petugas', [AntrianPendaftaran::class, 'DisplayPetugas']);
+    Route::get('/info-kamar3', [InfoKamar::class, 'InfoKamar3']);
 });

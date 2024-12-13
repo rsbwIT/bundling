@@ -44,7 +44,7 @@ class SettingKamar extends Component
                 ->get();
             $this->getRuangan->map(function ($item) {
                 $item->getKamar = DB::table('bw_display_bad')
-                    ->select('bw_display_bad.kamar', 'bw_display_bad.kelas', 'bw_display_bad.kelas')
+                    ->select('bw_display_bad.kamar', 'bw_display_bad.kelas', 'bw_display_bad.kelas', 'bw_display_bad.nm_ruangan_bpjs')
                     ->where('bw_display_bad.ruangan', $item->ruangan)
                     ->groupBy('bw_display_bad.kamar')
                     ->get();
@@ -57,7 +57,8 @@ class SettingKamar extends Component
                             'bw_display_bad.bad',
                             'bw_display_bad.status',
                             'bw_display_bad.kelas',
-                            'bw_display_bad.kd_kelas_bpjs'
+                            'bw_display_bad.kd_kelas_bpjs',
+                            'bw_display_bad.nm_ruangan_bpjs'
                         )
                         ->where('bw_display_bad.kamar', $item->kamar)
                         ->get();
@@ -67,7 +68,7 @@ class SettingKamar extends Component
         }
     }
 
-    public function actionIsi($status, $id, $kd_kelas_bpjs, $ruangan)
+    public function actionIsi($status, $id, $kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
         if ($status == '1') {
             $updateStatus = '0';
@@ -78,7 +79,7 @@ class SettingKamar extends Component
             ->where('id', $id)
             ->update(['status' => $updateStatus]);
 
-        // $this->UpdateKamarMJKN($kd_kelas_bpjs, $ruangan);
+        $this->UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs);
     }
 
     // TAMBAH KAMAR
@@ -118,11 +119,13 @@ class SettingKamar extends Component
     }
 
     // UpdateKamar MJKN
-    public function UpdateKamarMJKN($kd_kelas_bpjs, $ruangan)
+    public function UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
         $udapteKamar =  DB::table('bw_display_bad')
             ->select(
                 'bw_display_bad.ruangan',
+                'bw_display_bad.nm_ruangan_bpjs',
+                'bw_display_bad.kd_ruang',
                 'bw_display_bad.kd_kelas_bpjs',
                 DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
                 DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
@@ -130,18 +133,18 @@ class SettingKamar extends Component
                 DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
             )
             ->where('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs)
-            ->where('bw_display_bad.ruangan', $ruangan)
+            ->where('bw_display_bad.nm_ruangan_bpjs', $nm_ruangan_bpjs)
             ->groupBy('bw_display_bad.kd_kelas_bpjs')
             ->first();
         $data = [
             'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
-            'koderuang' =>   $udapteKamar->ruangan,
-            'namaruang' => 'R '.$udapteKamar->ruangan,
+            'koderuang' =>   $udapteKamar->kd_ruang,
+            'namaruang' => 'R '.$udapteKamar->nm_ruangan_bpjs,
             'kapasitas' => $udapteKamar->kapasitas,
             'tersedia' => $udapteKamar->tersedia,
             'tersediapria' => 0,
             'tersediawanita' => 0,
-            'tersediapriawanita' => 0,
+            'tersediapriawanita' => $udapteKamar->tersedia,
         ];
         // dd($data);
     }
