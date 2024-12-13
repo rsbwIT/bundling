@@ -587,6 +587,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/info-kamar3') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Info Kamar 3 <span class="text-xs">(MJKN)</span></p>
+                                    </a>
+                                </li>
+                            </ul>
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
