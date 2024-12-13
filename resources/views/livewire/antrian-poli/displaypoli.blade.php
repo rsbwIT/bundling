@@ -61,26 +61,64 @@
         var pusher = new Pusher('f8c2a21c58f812f99944', {
             cluster: 'ap1'
         });
-        var channel = pusher.subscribe('messages' +kdRuangPoli);
+        var channel = pusher.subscribe('messages' + kdRuangPoli);
         channel.bind('message', function(data) {
-            console.log(data['message']['kd_dokter']);
             console.log(data['message']['no_reg']);
 
-            function playAudioSequentially(audioFiles, index = 0) {
-                if (index < audioFiles.length) {
-                    var audio = new Audio(audioFiles[index]);
-                    audio.play();
-                    audio.onended = function() {
-                        playAudioSequentially(audioFiles, index +
-                            1);
-                    };
+            // MANUAL SPEACH
+            // function playAudioSequentially(audioFiles, index = 0) {
+            //     if (index < audioFiles.length) {
+            //         var audio = new Audio(audioFiles[index]);
+            //         audio.play();
+            //         audio.onended = function() {
+            //             playAudioSequentially(audioFiles, index +
+            //                 1);
+            //         };
+            //     }
+            // }
+            // const audioFiles = [
+            //     '/sound/noreg/' + data['message']['no_reg'] + '.mp3',
+            //     '/sound/dokter/' + data['message']['kd_dokter'] + '.mp3',
+            // ];
+            // playAudioSequentially(audioFiles);
+
+            // TEXT TO SPEACH
+            function numberToText(number) {
+                const ones = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"];
+                const teens = ["sepuluh", "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas",
+                    "enam belas", "tujuh belas", "delapan belas", "sembilan belas"
+                ];
+                const tens = ["", "puluh", "dua puluh", "tiga puluh", "empat puluh", "lima puluh", "enam puluh",
+                    "tujuh puluh", "delapan puluh", "sembilan puluh"
+                ];
+                const hundreds = ["", "seratus", "dua ratus", "tiga ratus", "empat ratus", "lima ratus",
+                    "enam ratus", "tujuh ratus", "delapan ratus", "sembilan ratus"
+                ];
+
+                number = parseInt(number); // Menghilangkan awalan nol dan mengonversi ke integer
+
+                if (number < 10) return ones[number];
+                if (number < 20) return teens[number - 10];
+                if (number < 100) return tens[Math.floor(number / 10)] + (number % 10 ? " " + ones[number % 10] :
+                    "");
+                return hundreds[Math.floor(number / 100)] + (number % 100 ? " " + numberToText(number % 100) : "");
+            }
+
+            function speakText(data) {
+                if ('speechSynthesis' in window) {
+                    var speech = new SpeechSynthesisUtterance(data);
+                    speech.lang = 'id-ID';
+                    speech.pitch = 1; // Nada suara
+                    speech.rate = 1.1; // Kecepatan suara
+                    speech.volume = 1; // Volume suara
+                    window.speechSynthesis.speak(speech);
+                } else {
+                    alert("Browser Anda tidak mendukung teks ke suara.");
                 }
             }
-            const audioFiles = [
-                '/sound/noreg/'+data['message']['no_reg']+'.mp3',
-                '/sound/dokter/'+data['message']['kd_dokter']+'.mp3',
-            ];
-            playAudioSequentially(audioFiles);
+            speakText('antrian ' + numberToText(data['message']['no_reg']));
+            speakText('atas nama ' + data['message']['nm_pasien']);
+            speakText(data['message']['nm_poli']);
         });
     </script>
 @endpush

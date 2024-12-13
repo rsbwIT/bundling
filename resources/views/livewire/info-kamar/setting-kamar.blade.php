@@ -9,13 +9,28 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-1 ml-5">
-                    <button class="form-control btn btn-xs text-white ml-5"
-                        style="background-color: rgb(0, 26, 109);"><b>Terisi</b></button>
+                <div class="col-1">
+                    <button class="form-control btn btn-xs text-white"
+                        style="background-color: rgb(0, 26, 109);"><b>Terisi</b>
+                    </button>
                 </div>
                 <div class="col-1">
-                    <button class="form-control btn btn-xs ml-5"
-                        style="background-color: rgb(255, 255, 255);  border: 1px solid;"><b>Kosong</b></button>
+                    <button class="form-control btn btn-xs"
+                        style="background-color: rgb(255, 255, 255);  border: 1px solid;"><b>Kosong</b>
+                    </button>
+                </div>
+                <div class="col-6">
+                    @if ($respone)
+                        @if ($respone['code'] == 1)
+                            <span class="float-right mx-2 text-success">
+                                <i class="fas fa-check mr-1"></i> Data Kamar Berhasil Update Ke JKN
+                            </span>
+                        @else
+                            <span class="float-right mx-2 text-danger">
+                                <i class="fas fa-ban mr-1"></i> Data Kamar Gagal Update Ke JKN
+                            </span>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
@@ -37,7 +52,8 @@
                                             <div class="col-md-3">
                                                 <div class="card mt-2 mb-2" style="border: 1px solid">
                                                     <h6 class="mb-"><b>{{ $kamar->kamar }} </b>
-                                                        ({{ $kamar->kelas }}) {{$kamar->nm_ruangan_bpjs}}
+                                                        ({{ $kamar->kelas }})
+                                                        {{ $kamar->nm_ruangan_bpjs }}
                                                     </h6>
                                                     <hr class="m-1" style="border: 1px solid">
                                                     <div class="row">
@@ -58,7 +74,7 @@
                                                                 <div class="card m-1 justify-content-center"
                                                                     style="background-color: {{ $baground }}; border:1px solid;">
                                                                     <button class="btn {{ $text }}"
-                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{$bed->kd_kelas_bpjs}}', '{{$bed->nm_ruangan_bpjs}}')">
+                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{ $bed->kd_kelas_bpjs }}', '{{ $bed->nm_ruangan_bpjs }}')">
                                                                         <b>{{ substr($bed->bad, strlen($bed->bad) - 1, 1) }}</b>
                                                                     </button>
                                                                 </div>

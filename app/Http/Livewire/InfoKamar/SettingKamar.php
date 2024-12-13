@@ -5,9 +5,17 @@ namespace App\Http\Livewire\InfoKamar;
 use Livewire\Component;
 use App\Services\BulanRomawi;
 use Illuminate\Support\Facades\DB;
+use App\Services\Bpjs\ReferensiBPJS;
 
 class SettingKamar extends Component
 {
+
+    protected $referensi;
+    public function __construct()
+    {
+        $this->referensi = new ReferensiBPJS;
+    }
+
     public $select_kamar;
     public function mount()
     {
@@ -119,33 +127,39 @@ class SettingKamar extends Component
     }
 
     // UpdateKamar MJKN
+    public $respone;
     public function UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
-        $udapteKamar =  DB::table('bw_display_bad')
-            ->select(
-                'bw_display_bad.ruangan',
-                'bw_display_bad.nm_ruangan_bpjs',
-                'bw_display_bad.kd_ruang',
-                'bw_display_bad.kd_kelas_bpjs',
-                DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
-                DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
-            )
-            ->where('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs)
-            ->where('bw_display_bad.nm_ruangan_bpjs', $nm_ruangan_bpjs)
-            ->groupBy('bw_display_bad.kd_kelas_bpjs')
-            ->first();
-        $data = [
-            'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
-            'koderuang' =>   $udapteKamar->kd_ruang,
-            'namaruang' => 'R '.$udapteKamar->nm_ruangan_bpjs,
-            'kapasitas' => $udapteKamar->kapasitas,
-            'tersedia' => $udapteKamar->tersedia,
-            'tersediapria' => 0,
-            'tersediawanita' => 0,
-            'tersediapriawanita' => $udapteKamar->tersedia,
-        ];
-        // dd($data);
+        try {
+            $udapteKamar =  DB::table('bw_display_bad')
+                ->select(
+                    'bw_display_bad.ruangan',
+                    'bw_display_bad.nm_ruangan_bpjs',
+                    'bw_display_bad.kd_ruang',
+                    'bw_display_bad.kd_kelas_bpjs',
+                    DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
+                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
+                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
+                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
+                )
+                ->where('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs)
+                ->where('bw_display_bad.nm_ruangan_bpjs', $nm_ruangan_bpjs)
+                ->groupBy('bw_display_bad.kd_kelas_bpjs')
+                ->first();
+            $data = [
+                'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
+                'koderuang' =>   $udapteKamar->kd_ruang,
+                'namaruang' => 'R ' . $udapteKamar->nm_ruangan_bpjs,
+                'kapasitas' => $udapteKamar->kapasitas,
+                'tersedia' => $udapteKamar->tersedia,
+                'tersediapria' => 0,
+                'tersediawanita' => 0,
+                'tersediapriawanita' => $udapteKamar->tersedia,
+            ];
+            $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
+            $this->respone = (array)$respone->metadata;
+        } catch (\Throwable $th) {
+            $this->respone = null;
+        }
     }
 }

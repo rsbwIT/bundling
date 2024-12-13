@@ -16,12 +16,12 @@ class PanggilPoliEvent implements ShouldBroadcast
 
     public $message;
 
-    public function __construct($no_rawat,  $kd_dokter, $kd_ruang_poli, $no_reg, $kd_display)
+    public function __construct($nm_pasien, $kd_ruang_poli, $nm_poli, $no_reg, $kd_display)
     {
         $this->message = [
-            'no_rawat' => $no_rawat,
-            'kd_dokter' => $kd_dokter,
+            'nm_pasien' => $nm_pasien,
             'kd_ruang_poli' => $kd_ruang_poli,
+            'nm_poli' => $nm_poli,
             'kd_display' => $kd_display,
             'no_reg' => $no_reg,
         ];

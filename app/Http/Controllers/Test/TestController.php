@@ -20,15 +20,19 @@ class TestController extends Controller
     {
         $this->referensi = new ReferensiBPJS;
     }
-    public function TestCari()
+    public function TestDelete()
     {
-        dd(json_decode($this->referensi->getReferensiKelas()));
+        // $data = [
+        //     "kodekelas" => "SAL",
+        //     "koderuang" => "RPERI"
+        // ];
+        // dd(json_decode($this->referensi->deleteRuang(json_encode($data))));
         // dd(json_decode($this->referensi->getRuangan()));
         // dd(json_decode($this->referensi->getFasilitasKesehatan('Bumi', '2')));
     }
     public function Test()
     {
-        dd(json_decode($this->referensi->getReferensiKelas()));
+        dd(json_decode($this->referensi->getRuangan()));
         // $data = [
         //         'kodekelas' =>  'VVP',
         //         'koderuang' =>  'RG2',

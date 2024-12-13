@@ -169,6 +169,11 @@ class ReferensiBPJS
         $endpoint = 'aplicaresws/rest/bed/update/' . $this->kode_rs;
         return $this->aplicare->postRequest($endpoint, $data);
     }
+    public function deleteRuang($data)
+    {
+        $endpoint = 'aplicaresws/rest/bed/delete/' . $this->kode_rs;
+        return $this->aplicare->postRequest($endpoint, $data);
+    }
     public function getRuangan()
     {
         $endpoint = 'aplicaresws/rest/bed/read/' . $this->kode_rs . '/1/100';
