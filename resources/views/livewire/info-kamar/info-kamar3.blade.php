@@ -61,7 +61,7 @@
                                                 <table border="0" class="my-2" width='100%'>
                                                     <tr class="p-2">
                                                         <td class="text-center text-bold " colspan="3">
-                                                            {{ $kamar->nm_ruangan_bpjs }}
+                                                           <span style="text-transform: uppercase; font-size: 16px"> {{ $kamar->nm_ruangan_bpjs }} </span>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -94,7 +94,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td width='10%'>
-                                                            <i class="fas fa-venus"></i>
+                                                            <i class="fas fa-bed"></i>
                                                         </td>
                                                         <td width='70%'>Pria & Wanita</td>
                                                         <td width='20%'>{{ $kamar->tersedia_pria_wanita }}</td>
