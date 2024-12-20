@@ -108,7 +108,7 @@
                                             data-target="#KirimDataLIS{{ $key }}">Kirim ke SOFTMEDIX</a>
                                     </li>
                                     <li><button class="dropdown-item"
-                                            wire:click="getDataLIS('{{ $data->noorder }}', '{{ $data->kd_dokter }}', '{{ $data->nm_dokter }}', '{{$nik}}', '{{$user}}')"
+                                            wire:click="getDataLIS('{{ $data->noorder }}', '{{ $data->kd_dokter }}', '{{ $data->nm_dokter }}', '{{ $nik }}', '{{ $user }}')"
                                             data-toggle="modal" data-target="#DetailDataLIS{{ $key }}">Tarik
                                             Data Sotfmedix</a>
                                     </li>
@@ -116,7 +116,7 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                @endforeach
             </tbody>
         </table>
         @foreach ($getDatakhanza as $key => $item)
@@ -313,7 +313,8 @@
                                                                     </li>
                                                                     @if ($getDokter)
                                                                         @if ($getDokter->IsEmpty())
-                                                                            <li wire:loading.remove wire:target="cariDokter">
+                                                                            <li wire:loading.remove
+                                                                                wire:target="cariDokter">
                                                                                 Tidak Tersedia
                                                                             </li>
                                                                         @else
@@ -349,7 +350,8 @@
                                                                 id="CariPetugas{{ $key }}"
                                                                 aria-expanded="true"
                                                                 @click="open = ! open; $nextTick(() => $refs.cariPetugas.focus());">
-                                                                <span class="float-left">{{$set_nama_petugas}}</span>
+                                                                <span
+                                                                    class="float-left">{{ $set_nama_petugas }}</span>
                                                                 <span class="float-right">
                                                                     <i class="fas fa-angle-down"></i>
                                                                 </span>
@@ -366,7 +368,8 @@
                                                                     </li>
                                                                     @if ($getPetugas)
                                                                         @if ($getPetugas->IsEmpty())
-                                                                            <li wire:loading.remove wire:target="cariPetugas">
+                                                                            <li wire:loading.remove
+                                                                                wire:target="cariPetugas">
                                                                                 Tidak Tersedia
                                                                             </li>
                                                                         @else
@@ -437,7 +440,10 @@
 
                                             <button type="button" class="btn btn-primary btn-lg btn-block"
                                                 wire:click='getTestLAB("{{ $key }}")'>getTestLab</button>
-
+                                            @if ($testok == true)
+                                                <br>
+                                                <h3>Tersimpan</h3>
+                                            @endif
                                             <table border="0px" width="1000px" class="mt-2">
                                                 <tr>
                                                     <td class="text-xs"><b>Catatan :</b> Jika ada keragu-raguan

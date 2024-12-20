@@ -23,6 +23,7 @@ class BridgingalatlatLis extends Component
     public $set_kd_dokter_penerima;
     public $set_nama_petugas;
     public $set_nip_petugas;
+    public $testok;
     public function mount(Request $request)
     {
         $this->carinomor =  ($request->no_rawat) ? $request->no_rawat : '';
@@ -38,6 +39,7 @@ class BridgingalatlatLis extends Component
         $this->set_kd_dokter_penerima = '';
         $this->set_nama_petugas = 'Pilih Petugas';
         $this->set_nip_petugas = '';
+        $this->testok = false;
     }
     public function render()
     {
@@ -282,7 +284,7 @@ class BridgingalatlatLis extends Component
         // dd($this->detailDataLis['response']['sampel']['result_test']);
 
         foreach ($resultDetailPeriksaLab as $item) {
-            DB::connection('db_con2')->table('detail_periksa_lab')->insert([
+            DB::table('detail_periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
                 'kd_jenis_prw' => $item['kd_jenis_prw'],
                 'tgl_periksa' => $item['tgl_periksa'],
@@ -352,7 +354,7 @@ class BridgingalatlatLis extends Component
         });
         // dd($resultPeriksaLab, $resultDetailPeriksaLab);
         foreach ($resultPeriksaLab as $item) {
-            DB::connection('db_con2')->table('periksa_lab')->insert([
+            DB::table('periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
                 'nip' => $item['nip'],
                 'kd_jenis_prw' => $item['kode_paket'],
@@ -372,6 +374,7 @@ class BridgingalatlatLis extends Component
                 'kategori' => $item['kategori'],
             ]);
         }
+        $this->testok = true;
     }
 
     // TEST ========================================================================================================================
