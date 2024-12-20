@@ -289,26 +289,7 @@ class BridgingalatlatLis extends Component
             return $item;
         });
 
-        foreach ($resultDetailPeriksaLab as $item) {
-            DB::table('detail_periksa_lab')->insert([
-                'no_rawat' => $item['no_rawat'],
-                'kd_jenis_prw' => $item['kd_jenis_prw'],
-                'tgl_periksa' => $item['tgl_periksa'],
-                'jam' => $item['jam'],
-                'id_template' => $item['id_template'],
-                'nilai' => $item['hasil'],
-                'nilai_rujukan' => $item['nilai_normal'],
-                'keterangan' => $item['Pemeriksaan'],
-                'bagian_rs' => $item['bagian_rs'],
-                'bhp' => $item['bhp'],
-                'bagian_perujuk' => $item['bagian_perujuk'],
-                'bagian_dokter' => $item['bagian_dokter'],
-                'bagian_laborat' => $item['bagian_laborat'],
-                'kso' => $item['kso'],
-                'menejemen' => $item['menejemen'],
-                'biaya_item' => $item['biaya_item'],
-            ]);
-        }
+
 
         // ================================================================================================================================================
         // 2 PERIKSA LAB
@@ -378,6 +359,26 @@ class BridgingalatlatLis extends Component
                 'kd_dokter' => $item['kd_dokter'],
                 'status' => $item['status'],
                 'kategori' => $item['kategori'],
+            ]);
+        }
+        foreach ($resultDetailPeriksaLab as $item) {
+            DB::table('detail_periksa_lab')->insert([
+                'no_rawat' => $item['no_rawat'],
+                'kd_jenis_prw' => $item['kd_jenis_prw'],
+                'tgl_periksa' => $item['tgl_periksa'],
+                'jam' => $item['jam'],
+                'id_template' => $item['id_template'],
+                'nilai' => $item['hasil'],
+                'nilai_rujukan' => $item['nilai_normal'],
+                'keterangan' => $item['Pemeriksaan'],
+                'bagian_rs' => $item['bagian_rs'],
+                'bhp' => $item['bhp'],
+                'bagian_perujuk' => $item['bagian_perujuk'],
+                'bagian_dokter' => $item['bagian_dokter'],
+                'bagian_laborat' => $item['bagian_laborat'],
+                'kso' => $item['kso'],
+                'menejemen' => $item['menejemen'],
+                'biaya_item' => $item['biaya_item'],
             ]);
         }
         $this->testok = true;
