@@ -278,14 +278,14 @@ class BridgingalatlatLis extends Component
             // $item['kso'] = (int)$khanza->kso ?? '-';
             // $item['menejemen'] = (int)$khanza->menejemen ?? '-';
             // $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
-            $item['bagian_rs'] = 0;
-            $item['bhp'] =
-            $item['bagian_perujuk'] = 0;
-            $item['bagian_dokter'] = 0;
-            $item['bagian_laborat'] = 0;
-            $item['kso'] = 0;
-            $item['menejemen'] = 0;
-            $item['biaya_item'] = 0;
+            $item['bagian_rs'] =  $khanza ? $khanza->bagian_rs : 0;
+            $item['bhp'] = $khanza ? $khanza->bhp : 0;
+            $item['bagian_perujuk'] = $khanza ? $khanza->bagian_perujuk : 0;
+            $item['bagian_dokter'] = $khanza ? $khanza->bagian_dokter : 0;
+            $item['bagian_laborat'] = $khanza ? $khanza->bagian_laborat : 0;
+            $item['kso'] = $khanza ? $khanza->kso : 0;
+            $item['menejemen'] = $khanza ? $khanza->menejemen : 0;
+            $item['biaya_item'] = $khanza ? $khanza->biaya_item : 0;
             return $item;
         });
 
@@ -326,20 +326,20 @@ class BridgingalatlatLis extends Component
             $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
             $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
             $item['dokter_perujuk'] = $this->getDatakhanza[$key]['kd_dr_perujuk'] ?? '-';
-            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? '0';
-            $item['bhp'] = (int)$khanza->bhp ?? '0';
-            $item['tarif_perujuk'] = (int)$khanza->tarif_perujuk ?? '0';
-            $item['tarif_tindakan_dokter'] = (int)$khanza->tarif_tindakan_dokter ?? '0';
-            $item['tarif_tindakan_petugas'] = (int)$khanza->tarif_tindakan_petugas ?? '0';
-            $item['kso'] = (int)$khanza->kso ?? '0';
-            $item['menejemen'] = (int)$khanza->menejemen ?? '0';
-            $item['biaya'] = (int)$khanza->total_byr ?? '0';
+            $item['bagian_rs'] = $khanza ? $khanza->bagian_rs : 0;
+            $item['bhp'] = $khanza ? $khanza->bhp : 0;
+            $item['tarif_perujuk'] = $khanza ? $khanza->tarif_perujuk : 0;
+            $item['tarif_tindakan_dokter'] = $khanza ? $khanza->tarif_tindakan_dokter : 0;
+            $item['tarif_tindakan_petugas'] = $khanza ? $khanza->tarif_tindakan_petugas : 0;
+            $item['kso'] = $khanza ? $khanza->kso : 0;
+            $item['menejemen'] = $khanza ? $khanza->menejemen : 0;
+            $item['biaya'] = $khanza ? $khanza->total_byr : 0;
             $item['kd_dokter'] = $this->set_kd_dokter_penerima == '' ? '-' : $this->set_kd_dokter_penerima;
             $item['status'] = $this->getDatakhanza[$key]['status_lanjut'] ?? '-';
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        // dd($resultPeriksaLab, $resultDetailPeriksaLab);
+// dd($resultDetailPeriksaLab, $resultPeriksaLab);
         foreach ($resultPeriksaLab as $item) {
             DB::table('periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
