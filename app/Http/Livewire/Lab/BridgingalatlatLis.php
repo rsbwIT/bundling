@@ -279,28 +279,28 @@ class BridgingalatlatLis extends Component
         });
 
         // dd($this->detailDataLis['response']['sampel']['result_test']);
-        // dd($resultDetailPeriksaLab);
+        dd($resultDetailPeriksaLab);
 
-        foreach ($resultDetailPeriksaLab as $item) {
-            DB::connection('db_con2')->table('detail_periksa_lab')->insert([
-                'no_rawat' => $item['no_rawat'],
-                'kd_jenis_prw' => $item['kd_jenis_prw'],
-                'tgl_periksa' => $item['tgl_periksa'],
-                'jam' => $item['jam'],
-                'id_template' => $item['id_template'],
-                'nilai' => $item['hasil'],
-                'nilai_rujukan' => $item['nilai_normal'],
-                'keterangan' => $item['Pemeriksaan'],
-                'bagian_rs' => $item['bagian_rs'],
-                'bhp' => $item['bhp'],
-                'bagian_perujuk' => $item['bagian_perujuk'],
-                'bagian_dokter' => $item['bagian_dokter'],
-                'bagian_laborat' => $item['bagian_laborat'],
-                'kso' => $item['kso'],
-                'menejemen' => $item['menejemen'],
-                'biaya_item' => $item['biaya_item'],
-            ]);
-        }
+        // foreach ($resultDetailPeriksaLab as $item) {
+        //     DB::connection('db_con2')->table('detail_periksa_lab')->insert([
+        //         'no_rawat' => $item['no_rawat'],
+        //         'kd_jenis_prw' => $item['kd_jenis_prw'],
+        //         'tgl_periksa' => $item['tgl_periksa'],
+        //         'jam' => $item['jam'],
+        //         'id_template' => $item['id_template'],
+        //         'nilai' => $item['hasil'],
+        //         'nilai_rujukan' => $item['nilai_normal'],
+        //         'keterangan' => $item['Pemeriksaan'],
+        //         'bagian_rs' => $item['bagian_rs'],
+        //         'bhp' => $item['bhp'],
+        //         'bagian_perujuk' => $item['bagian_perujuk'],
+        //         'bagian_dokter' => $item['bagian_dokter'],
+        //         'bagian_laborat' => $item['bagian_laborat'],
+        //         'kso' => $item['kso'],
+        //         'menejemen' => $item['menejemen'],
+        //         'biaya_item' => $item['biaya_item'],
+        //     ]);
+        // }
 
         // ================================================================================================================================================
         // 2 PERIKSA LAB
@@ -350,28 +350,28 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        // dd($resultPeriksaLab);
-        foreach ($resultPeriksaLab as $item) {
-            DB::connection('db_con2')->table('periksa_lab')->insert([
-                'no_rawat' => $item['no_rawat'],
-                'nip' => $item['nip'],
-                'kd_jenis_prw' => $item['kode_paket'],
-                'tgl_periksa' => $item['tgl_periksa'],
-                'jam' => $item['jam'],
-                'dokter_perujuk' => $item['dokter_perujuk'],
-                'bagian_rs' => $item['bagian_rs'],
-                'bhp' => $item['bhp'],
-                'tarif_perujuk' => $item['tarif_perujuk'],
-                'tarif_tindakan_dokter' => $item['tarif_tindakan_dokter'],
-                'tarif_tindakan_petugas' => $item['tarif_tindakan_petugas'],
-                'kso' => $item['kso'],
-                'menejemen' => $item['menejemen'],
-                'biaya' => $item['biaya'],
-                'kd_dokter' => $item['kd_dokter'],
-                'status' => $item['status'],
-                'kategori' => $item['kategori'],
-            ]);
-        }
+        dd($resultPeriksaLab);
+        // foreach ($resultPeriksaLab as $item) {
+        //     DB::connection('db_con2')->table('periksa_lab')->insert([
+        //         'no_rawat' => $item['no_rawat'],
+        //         'nip' => $item['nip'],
+        //         'kd_jenis_prw' => $item['kode_paket'],
+        //         'tgl_periksa' => $item['tgl_periksa'],
+        //         'jam' => $item['jam'],
+        //         'dokter_perujuk' => $item['dokter_perujuk'],
+        //         'bagian_rs' => $item['bagian_rs'],
+        //         'bhp' => $item['bhp'],
+        //         'tarif_perujuk' => $item['tarif_perujuk'],
+        //         'tarif_tindakan_dokter' => $item['tarif_tindakan_dokter'],
+        //         'tarif_tindakan_petugas' => $item['tarif_tindakan_petugas'],
+        //         'kso' => $item['kso'],
+        //         'menejemen' => $item['menejemen'],
+        //         'biaya' => $item['biaya'],
+        //         'kd_dokter' => $item['kd_dokter'],
+        //         'status' => $item['status'],
+        //         'kategori' => $item['kategori'],
+        //     ]);
+        // }
     }
 
     // TEST ========================================================================================================================
