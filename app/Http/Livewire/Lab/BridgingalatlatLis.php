@@ -279,7 +279,6 @@ class BridgingalatlatLis extends Component
         });
 
         // dd($this->detailDataLis['response']['sampel']['result_test']);
-        dd($resultDetailPeriksaLab);
 
         // foreach ($resultDetailPeriksaLab as $item) {
         //     DB::connection('db_con2')->table('detail_periksa_lab')->insert([
@@ -350,7 +349,7 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        dd($resultPeriksaLab);
+        dd($resultPeriksaLab, $resultDetailPeriksaLab);
         // foreach ($resultPeriksaLab as $item) {
         //     DB::connection('db_con2')->table('periksa_lab')->insert([
         //         'no_rawat' => $item['no_rawat'],
