@@ -270,18 +270,24 @@ class BridgingalatlatLis extends Component
             $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
             $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
             $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
-            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? 0;
-            $item['bhp'] = (int)$khanza->bhp ?? '-';
-            $item['bagian_perujuk'] = (int)$khanza->bagian_perujuk ?? '-';
-            $item['bagian_dokter'] = (int)$khanza->bagian_dokter ?? '-';
-            $item['bagian_laborat'] = (int)$khanza->bagian_laborat ?? '-';
-            $item['kso'] = (int)$khanza->kso ?? '-';
-            $item['menejemen'] = (int)$khanza->menejemen ?? '-';
-            $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
+            // $item['bagian_rs'] = (int)$khanza->bagian_rs ?? 0;
+            // $item['bhp'] = (int)$khanza->bhp ?? '-';
+            // $item['bagian_perujuk'] = (int)$khanza->bagian_perujuk ?? '-';
+            // $item['bagian_dokter'] = (int)$khanza->bagian_dokter ?? '-';
+            // $item['bagian_laborat'] = (int)$khanza->bagian_laborat ?? '-';
+            // $item['kso'] = (int)$khanza->kso ?? '-';
+            // $item['menejemen'] = (int)$khanza->menejemen ?? '-';
+            // $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
+            $item['bagian_rs'] = 0;
+            $item['bhp'] =
+            $item['bagian_perujuk'] = 0;
+            $item['bagian_dokter'] = 0;
+            $item['bagian_laborat'] = 0;
+            $item['kso'] = 0;
+            $item['menejemen'] = 0;
+            $item['biaya_item'] = 0;
             return $item;
         });
-
-        // dd($this->detailDataLis['response']['sampel']['result_test']);
 
         foreach ($resultDetailPeriksaLab as $item) {
             DB::table('detail_periksa_lab')->insert([
