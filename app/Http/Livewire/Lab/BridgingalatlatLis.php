@@ -21,6 +21,8 @@ class BridgingalatlatLis extends Component
     public $cito;
     public $set_dokter_penerima;
     public $set_kd_dokter_penerima;
+    public $set_nama_petugas;
+    public $set_nip_petugas;
     public function mount(Request $request)
     {
         $this->carinomor =  ($request->no_rawat) ? $request->no_rawat : '';
@@ -31,26 +33,30 @@ class BridgingalatlatLis extends Component
         $this->getDataKhanza();
         $this->Setting();
         $this->getDokter();
+        $this->getPetugas();
         $this->set_dokter_penerima = 'Pilih Dokter';
         $this->set_kd_dokter_penerima = '';
+        $this->set_nama_petugas = 'Pilih Petugas';
+        $this->set_nip_petugas = '';
     }
     public function render()
     {
         $this->getDokter();
+        $this->getPetugas();
         $this->getDataKhanza();
         $this->Setting();
         return view('livewire.lab.bridgingalatlat-lis');
     }
 
-    // Dropdown Manual
+    // ===========================================================================================================
+    // Dropdown Manual DOKTER
     public function setDokterPenerima($kd_dokter, $nm_dokter)
     {
         $this->set_dokter_penerima = $nm_dokter;
         $this->set_kd_dokter_penerima = $kd_dokter;
         $this->cariDokter = '';
     }
-    // Dropdown Manual
-
+    // Dropdown Manual DOKTER
     public $cariDokter;
     public $getDokter;
     public function getDokter()
@@ -73,6 +79,37 @@ class BridgingalatlatLis extends Component
             $this->getDokter = [];
         }
     }
+    //  Dropdown Manual PETUGAS
+    public function setPetugasPenerima($nip, $nama)
+    {
+        $this->set_nama_petugas = $nama;
+        $this->set_nip_petugas = $nip;
+        $this->cariPetugas = '';
+    }
+    //  Dropdown Manual PETUGAS
+    public $cariPetugas;
+    public $getPetugas;
+    public function getPetugas()
+    {
+        $cariPetugas = $this->cariPetugas;
+        if ($cariPetugas) {
+            try {
+                $this->getPetugas = DB::table('petugas')
+                    ->select('petugas.nip', 'petugas.nama')
+                    ->where('petugas.status', '=', '1')
+                    ->where(function ($query) use ($cariPetugas) {
+                        $query->orwhere('petugas.nip', 'LIKE', "%$cariPetugas%")
+                            ->orwhere('petugas.nama', 'LIKE', "%$cariPetugas%");
+                    })
+                    ->get();
+            } catch (\Throwable $th) {
+                $this->getPetugas = [];
+            }
+        } else {
+            $this->getPetugas = [];
+        }
+    }
+    // ===========================================================================================================
 
     public $Setting;
     function Setting()
@@ -167,12 +204,13 @@ class BridgingalatlatLis extends Component
     }
 
     public $detailDataLis;
-    public function getDataLIS($noorder)
+    public function getDataLIS($noorder, $kd_dokter, $nm_dokter, $id_user, $user)
     {
         try {
             $Service = new  ServiceSoftmedik();
             $data = $Service->ServiceSoftmedixGet($noorder);
             $this->detailDataLis = $data;
+            $this->detailDataLis['response']['kd_dokter'] = $kd_dokter;
             $this->detailDataLis['response']['sampel']['result_test'] = collect($this->detailDataLis['response']['sampel']['result_test'])->map(function ($item) {
                 $khanza = DB::table('template_laboratorium')
                     ->select('template_laboratorium.id_template', 'template_laboratorium.Pemeriksaan')
@@ -181,9 +219,13 @@ class BridgingalatlatLis extends Component
                     ->first();
                 $item['id_template'] = $khanza->id_template ?? '-';
                 $item['Pemeriksaan'] = $khanza->Pemeriksaan ?? '-';
+                $item['kd_dokter'] = $kd_dokter ?? '';
                 return $item;
             });
-            // dd($this->detailDataLis);
+            $this->set_dokter_penerima = $nm_dokter;
+            $this->set_kd_dokter_penerima = $kd_dokter;
+            $this->set_nama_petugas = $user;
+            $this->set_nip_petugas = $id_user;
         } catch (\Throwable $th) {
             $this->detailDataLis = [];
         }
@@ -198,6 +240,9 @@ class BridgingalatlatLis extends Component
                 $resultDetailPeriksaLab[] = [
                     'kode_paket' => $item['kode_paket'],
                     'id_template' => $item['id_template'],
+                    'hasil' => $item['hasil'],
+                    'nilai_normal' => $item['nilai_normal'],
+                    'Pemeriksaan' => $item['Pemeriksaan'],
                 ];
                 $uniqueTests[] = $item['nama_test'];
             }
@@ -233,27 +278,29 @@ class BridgingalatlatLis extends Component
             return $item;
         });
 
+        // dd($this->detailDataLis['response']['sampel']['result_test']);
+        // dd($resultDetailPeriksaLab);
 
-        // foreach ($test as $item) {
-        //     DB::connection('db_con2')->table('detail_periksa_lab')->insert([
-        //         'no_rawat' => $item['no_rawat'],
-        //         'kd_jenis_prw' => $item['kd_jenis_prw'],
-        //         'tgl_periksa' => $item['tgl_periksa'],
-        //         'jam' => $item['jam'],
-        //         'id_template' => $item['id_template'],
-        //         'nilai' => $item['nilai'],
-        //         'nilai_rujukan' => $item['nilai_rujukan'],
-        //         'keterangan' => $item['keterangan'],
-        //         'bagian_rs' => $item['bagian_rs'],
-        //         'bhp' => $item['bhp'],
-        //         'bagian_perujuk' => $item['bagian_perujuk'],
-        //         'bagian_dokter' => $item['bagian_dokter'],
-        //         'bagian_laborat' => $item['bagian_laborat'],
-        //         'kso' => $item['kso'],
-        //         'menejemen' => $item['menejemen'],
-        //         'biaya_item' => $item['biaya_item'],
-        //     ]);
-        // }
+        foreach ($resultDetailPeriksaLab as $item) {
+            DB::connection('db_con2')->table('detail_periksa_lab')->insert([
+                'no_rawat' => $item['no_rawat'],
+                'kd_jenis_prw' => $item['kd_jenis_prw'],
+                'tgl_periksa' => $item['tgl_periksa'],
+                'jam' => $item['jam'],
+                'id_template' => $item['id_template'],
+                'nilai' => $item['hasil'],
+                'nilai_rujukan' => $item['nilai_normal'],
+                'keterangan' => $item['Pemeriksaan'],
+                'bagian_rs' => $item['bagian_rs'],
+                'bhp' => $item['bhp'],
+                'bagian_perujuk' => $item['bagian_perujuk'],
+                'bagian_dokter' => $item['bagian_dokter'],
+                'bagian_laborat' => $item['bagian_laborat'],
+                'kso' => $item['kso'],
+                'menejemen' => $item['menejemen'],
+                'biaya_item' => $item['biaya_item'],
+            ]);
+        }
 
         // ================================================================================================================================================
         // 2 PERIKSA LAB
@@ -285,7 +332,7 @@ class BridgingalatlatLis extends Component
                 ->where('jns_perawatan_lab.kd_jenis_prw', $item['kode_paket'])
                 ->first();
             $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
-            $item['nip'] = 'DARI FORMMMMMMMMMMMMMMMMMMMMMMMMMM' ?? '-';
+            $item['nip'] = $this->set_nip_petugas == '' ? '-' : $this->set_nip_petugas;;
             $item['nm_perawatan'] = $khanza->nm_perawatan ?? '-';
             $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
             $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
@@ -298,33 +345,33 @@ class BridgingalatlatLis extends Component
             $item['kso'] = (int)$khanza->kso ?? '0';
             $item['menejemen'] = (int)$khanza->menejemen ?? '0';
             $item['biaya'] = (int)$khanza->total_byr ?? '0';
-            $item['kd_dokter'] = $this->set_kd_dokter_penerima ?? '-';
+            $item['kd_dokter'] = $this->set_kd_dokter_penerima == '' ? '-' : $this->set_kd_dokter_penerima;
             $item['status'] = $this->getDatakhanza[$key]['status_lanjut'] ?? '-';
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        dd($resultPeriksaLab);
-        // foreach ($resultPeriksaLab as $item) {
-        //     DB::connection('db_con2')->table('periksa_lab')->insert([
-        //         'no_rawat' => $item['no_rawat'],
-        //         'nip' => $item['nip'],
-        //         'kd_jenis_prw' => $item['kode_paket'],
-        //         'tgl_periksa' => $item['tgl_periksa'],
-        //         'jam' => $item['jam'],
-        //         'dokter_perujuk' => $item['dokter_perujuk'],
-        //         'bagian_rs' => $item['bagian_rs'],
-        //         'bhp' => $item['bhp'],
-        //         'tarif_perujuk' => $item['tarif_perujuk'],
-        //         'tarif_tindakan_dokter' => $item['tarif_tindakan_dokter'],
-        //         'tarif_tindakan_petugas' => $item['tarif_tindakan_petugas'],
-        //         'kso' => $item['kso'],
-        //         'menejemen' => $item['menejemen'],
-        //         'biaya' => $item['biaya'],
-        //         'kd_dokter' => $item['kd_dokter'],
-        //         'status' => $item['status'],
-        //         'kategori' => $item['kategori'],
-        //     ]);
-        // }
+        // dd($resultPeriksaLab);
+        foreach ($resultPeriksaLab as $item) {
+            DB::connection('db_con2')->table('periksa_lab')->insert([
+                'no_rawat' => $item['no_rawat'],
+                'nip' => $item['nip'],
+                'kd_jenis_prw' => $item['kode_paket'],
+                'tgl_periksa' => $item['tgl_periksa'],
+                'jam' => $item['jam'],
+                'dokter_perujuk' => $item['dokter_perujuk'],
+                'bagian_rs' => $item['bagian_rs'],
+                'bhp' => $item['bhp'],
+                'tarif_perujuk' => $item['tarif_perujuk'],
+                'tarif_tindakan_dokter' => $item['tarif_tindakan_dokter'],
+                'tarif_tindakan_petugas' => $item['tarif_tindakan_petugas'],
+                'kso' => $item['kso'],
+                'menejemen' => $item['menejemen'],
+                'biaya' => $item['biaya'],
+                'kd_dokter' => $item['kd_dokter'],
+                'status' => $item['status'],
+                'kategori' => $item['kategori'],
+            ]);
+        }
     }
 
     // TEST ========================================================================================================================

@@ -167,7 +167,7 @@
                     <td>Diagnosa Awal</td>
                     <td>: {{ $getSEP->nmdiagnosaawal }}</td>
                     <td>Penjamin</td>
-                    <td>: BPJS Kesehatan</td>
+                    <td>: {{ $getSEP->png_jawab }}</td>
                 </tr>
                 <tr>
                     <td>Catatan</td>

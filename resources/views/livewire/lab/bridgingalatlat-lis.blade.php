@@ -1,4 +1,8 @@
 <div>
+    @php
+        $nik = session('auth')['id_user'];
+        $user = session('user')->nama;
+    @endphp
     @push('styles')
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @endpush
@@ -103,7 +107,8 @@
                                     <li><button class="dropdown-item" data-toggle="modal"
                                             data-target="#KirimDataLIS{{ $key }}">Kirim ke SOFTMEDIX</a>
                                     </li>
-                                    <li><button class="dropdown-item" wire:click="getDataLIS('{{ $data->noorder }}')"
+                                    <li><button class="dropdown-item"
+                                            wire:click="getDataLIS('{{ $data->noorder }}', '{{ $data->kd_dokter }}', '{{ $data->nm_dokter }}', '{{$nik}}', '{{$user}}')"
                                             data-toggle="modal" data-target="#DetailDataLIS{{ $key }}">Tarik
                                             Data Sotfmedix</a>
                                     </li>
@@ -111,7 +116,7 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                    @endforeach
             </tbody>
         </table>
         @foreach ($getDatakhanza as $key => $item)
@@ -238,7 +243,7 @@
                                                     </td>
                                                 </tr>
                                             </table>
-                                            <table border="0px" width="1000px">
+                                            <table border="1px" width="1000px">
                                                 <tr style="vertical-align: top;">
                                                     <td width="130px">No.RM</td>
                                                     <td width="300px">:
@@ -282,7 +287,8 @@
                                                     </td>
                                                     <td width="130px">Penerima </td>
                                                     <td width="200px">
-                                                        <div class="form-group dropdown" x-data="{ open: false }">
+                                                        <div class="form-group dropdown m-0 p-0"
+                                                            x-data="{ open: false }">
                                                             <button
                                                                 class="btn btn-default btn-block btn-sm dropdown dropdown-hover"
                                                                 data-bs-auto-close="outside"
@@ -307,8 +313,8 @@
                                                                     </li>
                                                                     @if ($getDokter)
                                                                         @if ($getDokter->IsEmpty())
-                                                                            <li wire:loading.remove>
-                                                                                    Tidak Tersedia
+                                                                            <li wire:loading.remove wire:target="cariDokter">
+                                                                                Tidak Tersedia
                                                                             </li>
                                                                         @else
                                                                             <li wire:loading.remove
@@ -331,6 +337,61 @@
                                                             </div>
                                                         </div>
                                                     </td>
+                                                </tr>
+                                                <tr style="vertical-align: top;">
+                                                    <td width="130px">Petugas </td>
+                                                    <td width="300px">
+                                                        <div class="form-group dropdown m-0 p-0 col-8"
+                                                            x-data="{ open: false }">
+                                                            <button
+                                                                class="btn btn-default btn-block btn-sm dropdown dropdown-hover"
+                                                                data-bs-auto-close="outside"
+                                                                id="CariPetugas{{ $key }}"
+                                                                aria-expanded="true"
+                                                                @click="open = ! open; $nextTick(() => $refs.cariPetugas.focus());">
+                                                                <span class="float-left">{{$set_nama_petugas}}</span>
+                                                                <span class="float-right">
+                                                                    <i class="fas fa-angle-down"></i>
+                                                                </span>
+                                                            </button>
+                                                            <div x-show="open" x-transition>
+                                                                <ul aria-labelledby="CariPetugas{{ $key }}"
+                                                                    style="width: 100%;background-color: rgb(230, 230, 230);"
+                                                                    class="dropdown-menu border-0 shadow p-2 show">
+                                                                    <li>
+                                                                        <input type="text"
+                                                                            class="form-control form-control-sm"
+                                                                            x-ref="cariPetugas"
+                                                                            wire:model='cariPetugas'>
+                                                                    </li>
+                                                                    @if ($getPetugas)
+                                                                        @if ($getPetugas->IsEmpty())
+                                                                            <li wire:loading.remove wire:target="cariPetugas">
+                                                                                Tidak Tersedia
+                                                                            </li>
+                                                                        @else
+                                                                            <li wire:loading.remove
+                                                                                style="margin-top: 10px; max-height: 200px; overflow-y: auto; padding: 5px; border: 1px solid #7ab8fb; border-radius: 5px;">
+                                                                                @foreach ($getPetugas as $item)
+                                                                                    <div @click="open = ! open">
+                                                                                        <button class="dropdown-item"
+                                                                                            wire:click='setPetugasPenerima("{{ $item->nip }}", "{{ $item->nama }}")'>{{ $item->nama }}</button>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </li>
+                                                                        @endif
+                                                                    @endif
+                                                                    <li wire:loading wire:target="cariPetugas">
+                                                                        <button class="dropdown-item">
+                                                                            Processing Payment...
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td width="130px"></td>
+                                                    <td width="200px"></td>
                                                 </tr>
                                             </table>
                                             <table border="1px" width="1000px" class="mt-2">

@@ -2,9 +2,10 @@
 
 namespace App\Http\Livewire\Bpjs;
 
+use GuzzleHttp\Client;
 use Livewire\Component;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeCariCasemix extends Component
 {
@@ -27,6 +28,11 @@ class HomeCariCasemix extends Component
     }
     public function getPasien()
     {
+        // $client = new Client();
+        // $response = $client->request('GET', 'http://localhost:8001/casemix/1');
+        // $data = json_decode($response->getBody()->getContents())->data;
+        // // dd($data);
+        // $this->getPasien = $data;
         if ($this->cariNorawat) {
             $this->getPasien = DB::table('reg_periksa')
                 ->select(

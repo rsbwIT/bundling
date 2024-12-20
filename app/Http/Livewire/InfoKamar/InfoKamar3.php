@@ -61,6 +61,7 @@ class InfoKamar3 extends Component
                 $item->getkamar = DB::table('bw_display_bad')
                     ->select(
                         'nm_ruangan_bpjs',
+                        'times_update',
                         DB::raw('COUNT(status) AS kapasitas'),
                         DB::raw('COUNT(CASE WHEN status = 0 THEN 0 END) AS tersedia'),
                         DB::raw("'0' AS tersedia_wanita"),

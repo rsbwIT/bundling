@@ -68,36 +68,36 @@
                                                         <td width='10%'>
                                                             <i class="fas fa-hospital"></i>
                                                         </td>
-                                                        <td width='70%'>Total Tempat Tidur</td>
-                                                        <td width='20%'>{{ $kamar->kapasitas }}</td>
+                                                        <td width='45%'>Total Tempat Tidur</td>
+                                                        <td width='45%' class="text-right">{{ $kamar->kapasitas }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td width='10%'>
-                                                            <i class="fas fa-heartbeat"></i>
+                                                        <td>
+                                                            <i class="fas fa-check"></i>
                                                         </td>
-                                                        <td width='70%'>Tersedia</td>
-                                                        <td width='20%'>{{ $kamar->tersedia }}</td>
+                                                        <td>Tersedia</td>
+                                                        <td class="text-right">{{ $kamar->tersedia }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td width='10%'>
+                                                        <td>
                                                             <i class="fas fa-mars"></i>
                                                         </td>
-                                                        <td width='70%'>Pria</td>
-                                                        <td width='20%'>{{ $kamar->tersedia_pria }}</td>
+                                                        <td>Pria</td>
+                                                        <td class="text-right">{{ $kamar->tersedia_pria }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td width='10%'>
+                                                        <td>
                                                             <i class="fas fa-venus"></i>
                                                         </td>
-                                                        <td width='70%'>Wanita</td>
-                                                        <td width='20%'>{{ $kamar->tersedia_wanita }}</td>
+                                                        <td>Wanita</td>
+                                                        <td class="text-right">{{ $kamar->tersedia_wanita }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td width='10%'>
-                                                            <i class="fas fa-bed"></i>
+                                                        <td>
+                                                            <i class="fas fa-calendar"></i>
                                                         </td>
-                                                        <td width='70%'>Pria & Wanita</td>
-                                                        <td width='20%'>{{ $kamar->tersedia_pria_wanita }}</td>
+                                                        <td>Diperbarui</td>
+                                                        <td class="text-right">{{date('Y', strtotime($kamar->times_update))}}-{{ \App\Services\BulanRomawi::BulanIndo2(date('m', strtotime($kamar->times_update)))}}-{{date('d', strtotime($kamar->times_update))}} {{date('H:i:s', strtotime($kamar->times_update))}}</td>
                                                     </tr>
                                                 </table>
                                             </div>

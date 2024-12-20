@@ -66,9 +66,11 @@ class QueryResumeDll
                 'bridging_sep.penunjang',
                 'bridging_sep.asesmenpelayanan',
                 'bridging_sep.kddpjplayanan',
-                'bridging_sep.nmdpjplayanan'
+                'bridging_sep.nmdpjplayanan',
+                'penjab.png_jawab'
             )
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
+            ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
             ->where('bridging_sep.no_rawat', '=', $noRawat)
             ->where('bridging_sep.no_sep', '=', $noSep)
             ->first();

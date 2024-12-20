@@ -78,6 +78,7 @@ class SettingKamar extends Component
 
     public function actionIsi($status, $id, $kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
+        date_default_timezone_set('Asia/Jakarta');
         if ($status == '1') {
             $updateStatus = '0';
         } else {
@@ -86,6 +87,10 @@ class SettingKamar extends Component
         DB::table('bw_display_bad')
             ->where('id', $id)
             ->update(['status' => $updateStatus]);
+        DB::table('bw_display_bad')
+            ->where('nm_ruangan_bpjs', $nm_ruangan_bpjs)
+            ->where('kd_kelas_bpjs', $kd_kelas_bpjs)
+            ->update(['times_update' => now()]);
 
         $this->UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs);
     }
@@ -156,6 +161,7 @@ class SettingKamar extends Component
                 'tersediawanita' => 0,
                 'tersediapriawanita' => $udapteKamar->tersedia,
             ];
+            // dd($data);
             $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
             $this->respone = (array)$respone->metadata;
         } catch (\Throwable $th) {

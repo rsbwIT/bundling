@@ -45,6 +45,7 @@
                         <th>Tidak Terbayar(Rp)</th>
                         <th>Catatan</th>
                         <th>No.Rawat/No.Tagihan</th>
+                        <th>No.Sep</th>
                         <th>Status</th>
                     </tr>
                     @php
@@ -155,6 +156,11 @@
                             <td>{{ $item->tidak_terbayar }}</td>
                             <td>{{ $item->catatan }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>
+                                @foreach ($item->getNoSep as $detail)
+                                    {{ $detail->no_sep }}
+                                @endforeach
+                            </td>
                             <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach
@@ -264,7 +270,7 @@
                                 return $item->tidak_terbayar;
                             }) }}
                         </th>
-                        <th colspan="3"></th>
+                        <th colspan="4"></th>
                     </tr>
                 </tbody>
             </table>

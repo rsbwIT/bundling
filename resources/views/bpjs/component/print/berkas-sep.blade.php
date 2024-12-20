@@ -167,7 +167,7 @@
                     <td style="vertical-align: top;">Diagnosa Awal</td>
                     <td>: {{ $getSEP->nmdiagnosaawal }}</td>
                     <td style="vertical-align: top;">Penjamin</td>
-                    <td style="vertical-align: top;">: BPJS Kesehatan</td>
+                    <td style="vertical-align: top;">: {{ $getSEP->png_jawab }}</td>
                 </tr>
                 <tr>
                     <td>Catatan</td>

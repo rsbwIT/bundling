@@ -81,6 +81,18 @@ class BayarPiutang extends Controller
             ->paginate(1000);
         $bayarPiutang->map(function ($item) {
             // NOMOR NOTA
+            $item->getNoSep = DB::table('bridging_sep')
+                ->select('no_sep')
+                ->where('no_rawat', $item->no_rawat)
+                ->where(function ($query) use ($item) {
+                    if ($item->status_lanjut == 'Ralan') {
+                       $query->where('jnspelayanan', '=' , '2');
+                    } else {
+                        $query->where('jnspelayanan', '=' , '1');
+                    }
+                })
+                ->get();
+            // NOMOR NOTA
             $item->getNomorNota = DB::table('billing')
                 ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
