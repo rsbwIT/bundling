@@ -270,7 +270,7 @@ class BridgingalatlatLis extends Component
             $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
             $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
             $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
-            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? '-';
+            $item['bagian_rs'] = (int)$khanza->bagian_rs ?? 0;
             $item['bhp'] = (int)$khanza->bhp ?? '-';
             $item['bagian_perujuk'] = (int)$khanza->bagian_perujuk ?? '-';
             $item['bagian_dokter'] = (int)$khanza->bagian_dokter ?? '-';
