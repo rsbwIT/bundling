@@ -143,9 +143,10 @@ class BridgingalatlatLis extends Component
             if (count($dataLab) > 1) {
                 $order_test[] = $permintaan['kd_jenis_prw'];
             } else {
-                $order_test[] = $dataLab->isEmpty() ? null : (string)$dataLab[0]->id_template;
+                $order_test[] = $dataLab->isEmpty() ? null : (string)$dataLab[0]->kd_jenis_prw;
             }
         }
+        // dd($order_test);
         $sendToLis = [
             'order' => [
                 'msh' => [
@@ -236,6 +237,62 @@ class BridgingalatlatLis extends Component
 
     function getTestLAB($key)
     {
+        // TESTTT====================================================================================================================================
+        // $uniqueTests = [];
+        // $resultDetailPeriksaLabTest = [];
+        // foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
+        //     $resultDetailPeriksaLabTest[] = [
+        //         'kode_paket' => $item['kode_paket'],
+        //         'id_template' => $item['id_template'],
+        //         'hasil' => $item['hasil'],
+        //         'nilai_normal' => $item['nilai_normal'],
+        //         'Pemeriksaan' => $item['Pemeriksaan'],
+        //         'nama_test'=>$item['nama_test'],
+        //         'test_id'=>$item['test_id'],
+        //     ];
+        // }
+        // $resultDetailPeriksaLabTest = collect($resultDetailPeriksaLabTest)->map(function ($item) use ($key) {
+        //     $khanza = DB::table('template_laboratorium')
+        //         ->select(
+        //             'template_laboratorium.id_template as id_template_khanza',
+        //         )
+        //         ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        //         ->where('template_laboratorium.kd_jenis_prw', $item['kode_paket'])
+        //         ->where('template_laboratorium.id_template', $item['id_template'])
+        //         ->first();
+        //     $item['id_template_khanza'] = $khanza->id_template_khanza ?? '-';
+        //     return $item;
+        // });
+        // $a = [];
+        // $hasil = [];
+        // foreach ($resultDetailPeriksaLabTest as  $item) {
+        //     if (!in_array($item['nama_test'], $a) && $item['test_id'] == $item['id_template_khanza']) {
+        //         $hasil[] = [
+        //             'kode_paket' => $item['kode_paket'],
+        //             'id_template' => $item['id_template'],
+        //             'hasil' => $item['hasil'],
+        //             'nilai_normal' => $item['nilai_normal'],
+        //             'Pemeriksaan' => $item['Pemeriksaan'],
+        //             'id_template_khanza' => $item['id_template_khanza'],
+        //         ];
+        //         $a[] = $item['nama_test'];
+        //     }
+        // }
+        // dd($hasil);
+        // dd($resultDetailPeriksaLabTest);
+
+        // TESTTT====================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+        // 1 ================================================================================================================================================
         $uniqueTests = [];
         $resultDetailPeriksaLab = [];
         foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
@@ -288,10 +345,10 @@ class BridgingalatlatLis extends Component
             $item['biaya_item'] = $khanza ? $khanza->biaya_item : 0;
             return $item;
         });
+        // dd($resultDetailPeriksaLab);
 
 
-
-        // ================================================================================================================================================
+        // 2 ================================================================================================================================================
         // 2 PERIKSA LAB
         $uniqueKodePaket = [];
         $resultPeriksaLab = [];
@@ -303,6 +360,7 @@ class BridgingalatlatLis extends Component
                 $uniqueKodePaket[] = $item['kode_paket'];
             }
         }
+        // dd($resultPeriksaLab);
         $resultPeriksaLab = collect($resultPeriksaLab)->map(function ($item) use ($key) {
             $khanza = DB::table('jns_perawatan_lab')
                 ->select(
@@ -339,7 +397,10 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-// dd($resultDetailPeriksaLab, $resultPeriksaLab);
+        // dd($resultPeriksaLab);
+        // dd($resultDetailPeriksaLab, $resultPeriksaLab);
+
+        // =======================================================================================================
         foreach ($resultPeriksaLab as $item) {
             DB::table('periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
