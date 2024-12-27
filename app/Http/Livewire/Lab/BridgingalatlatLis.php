@@ -140,12 +140,13 @@ class BridgingalatlatLis extends Component
                 ->select('template_laboratorium.kd_jenis_prw', 'template_laboratorium.id_template')
                 ->where('template_laboratorium.kd_jenis_prw', $permintaan['kd_jenis_prw'])
                 ->get();
-            if (count($dataLab) > 1) {
+            // if (count($dataLab) > 1) {
                 $order_test[] = $permintaan['kd_jenis_prw'];
-            } else {
-                $order_test[] = $dataLab->isEmpty() ? null : (string)$dataLab[0]->id_template;
-            }
+            // } else {
+            //     $order_test[] = $dataLab->isEmpty() ? null : (string)$dataLab[0]->kd_jenis_prw;
+            // }
         }
+        dd($order_test);
         $sendToLis = [
             'order' => [
                 'msh' => [
@@ -193,8 +194,8 @@ class BridgingalatlatLis extends Component
                 ],
             ],
         ];
-        $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
-        // dd($sendToLis);
+        // $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
+        dd($sendToLis);
         if ($this->response) {
             if ($this->response['response']['code'] === "200") {
                 session()->flash('response200', $this->response['response']['message']);
