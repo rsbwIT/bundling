@@ -424,6 +424,9 @@ class BridgingalatlatLis extends Component
         // dd($resultDetailPeriksaLab, $resultPeriksaLab);
 
         // =======================================================================================================
+        try {
+            //code...
+
         foreach ($resultPeriksaLab as $item) {
             DB::connection('db_con2')->table('periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
@@ -465,6 +468,9 @@ class BridgingalatlatLis extends Component
                 'biaya_item' => $item['biaya_item'],
             ]);
         }
+    } catch (\Throwable $th) {
+        //throw $th;
+    }
         $this->testok = true;
     }
 

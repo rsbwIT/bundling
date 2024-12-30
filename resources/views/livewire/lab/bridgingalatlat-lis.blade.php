@@ -440,10 +440,10 @@
 
                                             <button type="button" class="btn btn-primary btn-lg btn-block"
                                                 wire:click='getTestLAB("{{ $key }}")'>getTestLab</button>
-                                            @if ($testok == true)
+                                            {{-- @if ($testok == true)
                                                 <br>
                                                 <h3>Tersimpan</h3>
-                                            @endif
+                                            @endif --}}
                                             <table border="0px" width="1000px" class="mt-2">
                                                 <tr>
                                                     <td class="text-xs"><b>Catatan :</b> Jika ada keragu-raguan
