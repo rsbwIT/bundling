@@ -146,7 +146,6 @@ class BridgingalatlatLis extends Component
             foreach ($dataLab as $value) {
                 $order_test[] = (string)$value->id_template;
             }
-        }
         // dd($order_test);
         $sendToLis = [
             'order' => [
@@ -204,8 +203,8 @@ class BridgingalatlatLis extends Component
                 session()->flash('response500', $this->response['response']['message']);
             }
         }
-        // } catch (\Throwable $th) {
-        // }
+        } catch (\Throwable $th) {
+        }
     }
 
     public $detailDataLis;
