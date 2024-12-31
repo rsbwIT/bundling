@@ -132,20 +132,22 @@ class BridgingalatlatLis extends Component
     public function sendDataToLIS($key)
     {
         $Service = new  ServiceSoftmedik();
-        // try {
-        $data = $this->getDatakhanza;
-        $order_test = [];
-        foreach ($data[$key]['Permintaan'] as $permintaan) {
-            $dataLab =  DB::table('template_laboratorium')
-                ->select('template_laboratorium.kd_jenis_prw', 'template_laboratorium.id_template')
-                ->where('template_laboratorium.kd_jenis_prw', $permintaan['kd_jenis_prw'])
+        try {
+            $data = $this->getDatakhanza;
+            $kd_jenis_prw = [];
+            foreach ($data[$key]['Permintaan'] as $permintaan) {
+                $kd_jenis_prw[] = $permintaan['kd_jenis_prw'];
+            }
+            $dataLab = DB::table('template_laboratorium')
+                ->select('kd_jenis_prw', 'id_template')
+                ->whereIn('kd_jenis_prw', $kd_jenis_prw)
                 ->get();
-            if (count($dataLab) > 1) {
-                $order_test[] = $permintaan['kd_jenis_prw'];
-            } else {
-                $order_test[] = $dataLab->isEmpty() ? null : (string)$dataLab[0]->kd_jenis_prw;
+            $order_test = [];
+            foreach ($dataLab as $value) {
+                $order_test[] = (string)$value->id_template;
             }
         }
+        // dd($order_test);
         $sendToLis = [
             'order' => [
                 'msh' => [
@@ -193,8 +195,8 @@ class BridgingalatlatLis extends Component
                 ],
             ],
         ];
-        // $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
-        dd($sendToLis);
+        $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
+        // dd($sendToLis);
         if ($this->response) {
             if ($this->response['response']['code'] === "200") {
                 session()->flash('response200', $this->response['response']['message']);
@@ -236,128 +238,78 @@ class BridgingalatlatLis extends Component
 
     function getTestLAB($key)
     {
-        // TESTTT====================================================================================================================================
-        $resultDetailPeriksaLabTest = [];
+        $filter_kode_paket = [];
+        $filterasiLIS = [];
         foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
-            $resultDetailPeriksaLabTest[] = [
-                'kode_paket' => $item['kode_paket'],
-                'id_template' => $item['id_template'],
-                'hasil' => $item['hasil'],
-                'nilai_normal' => $item['nilai_normal'],
-                'Pemeriksaan' => $item['Pemeriksaan'],
-                'nama_test'=>$item['nama_test'],
-                'test_id'=>$item['test_id'],
-            ];
-        }
-        $resultDetailPeriksaLabTest = collect($resultDetailPeriksaLabTest)->map(function ($item) use ($key) {
-            $khanza = DB::table('template_laboratorium')
-                ->select(
-                    'template_laboratorium.id_template as id_template_khanza',
-                )
-                ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
-                ->where('template_laboratorium.kd_jenis_prw', $item['kode_paket'])
-                ->where('template_laboratorium.id_template', $item['id_template'])
-                ->first();
-            $item['id_template_khanza'] = $khanza->id_template_khanza ?? '-';
-            return $item;
-        });
-        $uniqueTests = [];
-        $hasil = [];
-        foreach ($resultDetailPeriksaLabTest as  $item) {
-            if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template_khanza']) {
-                $hasil[] = [
+            if (!in_array($item['kode_paket'], $filter_kode_paket)) {
+                $filterasiLIS[] = [
                     'kode_paket' => $item['kode_paket'],
-                    'id_template' => $item['id_template'],
                     'hasil' => $item['hasil'],
                     'nilai_normal' => $item['nilai_normal'],
                     'Pemeriksaan' => $item['Pemeriksaan'],
-                    'id_template_khanza' => $item['id_template_khanza'],
+                    'nama_test' => $item['nama_test'],
+                    'test_id' => $item['test_id'],
                 ];
-                $uniqueTests[] = $item['nama_test'];
+                $filter_kode_paket[] = $item['kode_paket'];
             }
         }
-        dd($uniqueTests);
+        $filterasiLIS = collect($filterasiLIS)->map(function ($item) use ($key) {
+            $khanza = DB::table('template_laboratorium')
+                ->select(
+                    'template_laboratorium.kd_jenis_prw'
+                )
+                ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+                ->where('template_laboratorium.id_template', $item['kode_paket'])
+                ->first();
+            $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
+            return $item;
+        });
 
-        // TESTTT====================================================================================================================================
+        // 1 DETAIL PERIKSA LAB ================================================================================================================================================
+        $hasilDetailPeriksaLab = collect($filterasiLIS)->map(function ($item) use ($key) {
+            $khanza = DB::table('template_laboratorium')
+                ->select(
+                    'template_laboratorium.kd_jenis_prw',
+                    'template_laboratorium.bagian_rs',
+                    'template_laboratorium.bhp',
+                    'template_laboratorium.id_template',
+                    'template_laboratorium.bagian_perujuk',
+                    'template_laboratorium.bagian_dokter',
+                    'template_laboratorium.bagian_laborat',
+                    'template_laboratorium.kso',
+                    'template_laboratorium.menejemen',
+                    'template_laboratorium.biaya_item'
+                )
+                ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+                ->where('template_laboratorium.id_template', $item['kode_paket'])
+                ->first();
+            $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
+            $item['id_template'] = $khanza->id_template ?? '-';
+            $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
+            $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
+            $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
+            $item['bagian_rs'] =  $khanza ? $khanza->bagian_rs : 0;
+            $item['bhp'] = $khanza ? $khanza->bhp : 0;
+            $item['bagian_perujuk'] = $khanza ? $khanza->bagian_perujuk : 0;
+            $item['bagian_dokter'] = $khanza ? $khanza->bagian_dokter : 0;
+            $item['bagian_laborat'] = $khanza ? $khanza->bagian_laborat : 0;
+            $item['kso'] = $khanza ? $khanza->kso : 0;
+            $item['menejemen'] = $khanza ? $khanza->menejemen : 0;
+            $item['biaya_item'] = $khanza ? $khanza->biaya_item : 0;
+            return $item;
+        });
 
-
-
-
-
-
-
-
-
-
-        // 1 ================================================================================================================================================
-        // $uniqueTests = [];
-        // $resultDetailPeriksaLab = [];
-        // foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
-        //     if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template']) {
-        //         $resultDetailPeriksaLab[] = [
-        //             'kode_paket' => $item['kode_paket'],
-        //             'id_template' => $item['id_template'],
-        //             'hasil' => $item['hasil'],
-        //             'nilai_normal' => $item['nilai_normal'],
-        //             'Pemeriksaan' => $item['Pemeriksaan'],
-        //         ];
-        //         $uniqueTests[] = $item['nama_test'];
-        //     }
-        // }
-        // $resultDetailPeriksaLab = collect($resultDetailPeriksaLab)->map(function ($item) use ($key) {
-        //     $khanza = DB::table('template_laboratorium')
-        //         ->select(
-        //             'template_laboratorium.kd_jenis_prw',
-        //             'template_laboratorium.bagian_rs',
-        //             'template_laboratorium.bhp',
-        //             'template_laboratorium.bagian_perujuk',
-        //             'template_laboratorium.bagian_dokter',
-        //             'template_laboratorium.bagian_laborat',
-        //             'template_laboratorium.kso',
-        //             'template_laboratorium.menejemen',
-        //             'template_laboratorium.biaya_item'
-        //         )
-        //         ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
-        //         ->where('template_laboratorium.kd_jenis_prw', $item['kode_paket'])
-        //         ->first();
-        //     $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
-        //     $item['kd_jenis_prw'] = $khanza->kd_jenis_prw ?? '-';
-        //     $item['tgl_periksa'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('Y-m-d') ?? '-';
-        //     $item['jam'] = Carbon::parse($this->detailDataLis['response']['sampel']['acc_date'])->format('h:m:s') ?? '-';
-        //     // $item['bagian_rs'] = (int)$khanza->bagian_rs ?? 0;
-        //     // $item['bhp'] = (int)$khanza->bhp ?? '-';
-        //     // $item['bagian_perujuk'] = (int)$khanza->bagian_perujuk ?? '-';
-        //     // $item['bagian_dokter'] = (int)$khanza->bagian_dokter ?? '-';
-        //     // $item['bagian_laborat'] = (int)$khanza->bagian_laborat ?? '-';
-        //     // $item['kso'] = (int)$khanza->kso ?? '-';
-        //     // $item['menejemen'] = (int)$khanza->menejemen ?? '-';
-        //     // $item['biaya_item'] = (int)$khanza->biaya_item ?? '-';
-        //     $item['bagian_rs'] =  $khanza ? $khanza->bagian_rs : 0;
-        //     $item['bhp'] = $khanza ? $khanza->bhp : 0;
-        //     $item['bagian_perujuk'] = $khanza ? $khanza->bagian_perujuk : 0;
-        //     $item['bagian_dokter'] = $khanza ? $khanza->bagian_dokter : 0;
-        //     $item['bagian_laborat'] = $khanza ? $khanza->bagian_laborat : 0;
-        //     $item['kso'] = $khanza ? $khanza->kso : 0;
-        //     $item['menejemen'] = $khanza ? $khanza->menejemen : 0;
-        //     $item['biaya_item'] = $khanza ? $khanza->biaya_item : 0;
-        //     return $item;
-        // });
-        // dd($resultDetailPeriksaLab);
-
-
-        // 2 ================================================================================================================================================
-        // 2 PERIKSA LAB
+        // 2 PERIKSA LAB================================================================================================================================================
         $uniqueKodePaket = [];
         $resultPeriksaLab = [];
-        foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
-            if (!in_array($item['kode_paket'], $uniqueKodePaket)) {
+        foreach ($filterasiLIS as  $item) {
+            if (!in_array($item['kd_jenis_prw'], $uniqueKodePaket)) {
                 $resultPeriksaLab[] = [
-                    'kode_paket' => $item['kode_paket']
+                    'kd_jenis_prw' => $item['kd_jenis_prw']
                 ];
-                $uniqueKodePaket[] = $item['kode_paket'];
+                $uniqueKodePaket[] = $item['kd_jenis_prw'];
             }
         }
-        // dd($resultPeriksaLab);
         $resultPeriksaLab = collect($resultPeriksaLab)->map(function ($item) use ($key) {
             $khanza = DB::table('jns_perawatan_lab')
                 ->select(
@@ -373,7 +325,7 @@ class BridgingalatlatLis extends Component
                     'jns_perawatan_lab.total_byr',
                     'jns_perawatan_lab.kategori'
                 )
-                ->where('jns_perawatan_lab.kd_jenis_prw', $item['kode_paket'])
+                ->where('jns_perawatan_lab.kd_jenis_prw', $item['kd_jenis_prw'])
                 ->first();
             $item['no_rawat'] = $this->getDatakhanza[$key]['no_rawat'] ?? '-';
             $item['nip'] = $this->set_nip_petugas == '' ? '-' : $this->set_nip_petugas;;
@@ -394,15 +346,16 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        // dd($resultPeriksaLab);
+        // dd($hasilDetailPeriksaLab);
         // dd($resultDetailPeriksaLab, $resultPeriksaLab);
 
-        // =======================================================================================================
+        // SAVE TO DATABASE =======================================================================================================
+        try {
         foreach ($resultPeriksaLab as $item) {
-            DB::connection('db_con2')->table('periksa_lab')->insert([
+            DB::table('periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
                 'nip' => $item['nip'],
-                'kd_jenis_prw' => $item['kode_paket'],
+                'kd_jenis_prw' => $item['kd_jenis_prw'],
                 'tgl_periksa' => $item['tgl_periksa'],
                 'jam' => $item['jam'],
                 'dokter_perujuk' => $item['dokter_perujuk'],
@@ -419,8 +372,8 @@ class BridgingalatlatLis extends Component
                 'kategori' => $item['kategori'],
             ]);
         }
-        foreach ($resultDetailPeriksaLab as $item) {
-            DB::connection('db_con2')->table('detail_periksa_lab')->insert([
+        foreach ($hasilDetailPeriksaLab as $item) {
+            DB::table('detail_periksa_lab')->insert([
                 'no_rawat' => $item['no_rawat'],
                 'kd_jenis_prw' => $item['kd_jenis_prw'],
                 'tgl_periksa' => $item['tgl_periksa'],
@@ -428,7 +381,7 @@ class BridgingalatlatLis extends Component
                 'id_template' => $item['id_template'],
                 'nilai' => $item['hasil'],
                 'nilai_rujukan' => $item['nilai_normal'],
-                'keterangan' => $item['Pemeriksaan'],
+                'keterangan' => '-',
                 'bagian_rs' => $item['bagian_rs'],
                 'bhp' => $item['bhp'],
                 'bagian_perujuk' => $item['bagian_perujuk'],
@@ -439,8 +392,10 @@ class BridgingalatlatLis extends Component
                 'biaya_item' => $item['biaya_item'],
             ]);
         }
-        $this->testok = true;
+            $this->testok = 'ok';
+        } catch (\Throwable $th) {
+            $this->testok = 'gagal';
+        }
     }
-
     // TEST ========================================================================================================================
 }

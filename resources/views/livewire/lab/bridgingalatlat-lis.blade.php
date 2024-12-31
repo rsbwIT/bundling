@@ -214,6 +214,8 @@
                         <div class="modal-body">
                             <div class="card-body">
                                 <div class="card py-3  d-flex justify-content-center align-items-center">
+                                    <span class="spinner-grow spinner-grow" role="status" aria-hidden="true"
+                                        wire:loading></span>
                                     @if ($detailDataLis)
                                         @if ($detailDataLis['response']['code'] == '200')
                                             <table border="0px" width="1000px">
@@ -402,7 +404,7 @@
                                                     <th>test_id</th>
                                                     <th>nama_test</th>
                                                     <th>id_template(BW)</th>
-                                                    <th>nama_test(Bw)</th>
+                                                    {{-- <th>nama_test(Bw)</th> --}}
                                                     <th>jenis_hasil</th>
                                                     <th>hasil</th>
                                                     <th>satuan</th>
@@ -416,12 +418,12 @@
                                                 @endphp
 
                                                 @foreach ($detailDataLis['response']['sampel']['result_test'] as $check => $item)
-                                                    @if (!in_array($item['nama_test'], $uniqueTests) && $item['test_id'] == $item['id_template'])
+                                                    @if (!in_array($item['kode_paket'], $uniqueTests))
                                                         <tr>
                                                             <td>{{ $item['test_id'] }}</td>
                                                             <td>{{ $item['nama_test'] }}</td>
                                                             <td>{{ $item['id_template'] }}</td>
-                                                            <td>{{ $item['Pemeriksaan'] }}</td>
+                                                            {{-- <td>{{ $item['Pemeriksaan'] }}</td> --}}
                                                             <td>{{ $item['jenis_hasil'] }}</td>
                                                             <td>{{ $item['hasil'] }}</td>
                                                             <td>{{ $item['satuan'] }}</td>
@@ -431,18 +433,29 @@
                                                             <td>{{ $item['reserve4'] }}</td>
                                                         </tr>
                                                         @php
-                                                            $uniqueTests[] = $item['nama_test'];
+                                                            $uniqueTests[] = $item['kode_paket'];
                                                         @endphp
                                                     @endif
                                                 @endforeach
 
                                             </table>
-
-                                            <button type="button" class="btn btn-primary btn-lg btn-block"
-                                                wire:click='getTestLAB("{{ $key }}")'>getTestLab</button>
-                                            @if ($testok == true)
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-lg btn-block mt-2"
+                                                        wire:click='getTestLAB("{{ $key }}")'>getTestLab
+                                                        <span class="spinner-grow spinner-grow-sm" role="status"
+                                                            aria-hidden="true" wire:loading
+                                                            wire:target='getTestLAB("{{ $key }}")'></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            @if ($testok == 'ok')
                                                 <br>
-                                                <h3>Tersimpan</h3>
+                                                <h3 class="text-success">Tersimpan</h3>
+                                            @elseif($testok == 'gagal')
+                                                <br>
+                                                <h3 class="text-danger">Gagall</h3>
                                             @endif
                                             <table border="0px" width="1000px" class="mt-2">
                                                 <tr>
@@ -478,55 +491,6 @@
                                             </table>
                                         @endif
                                     @endif
-                                    {{-- @if ($detailDataLis)
-                                        {{$Setting['nama_instansi']}}
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>test_id</th>
-                                                        <th>nama_test</th>
-                                                        <th>jenis_hasil</th>
-                                                        <th>hasil</th>
-                                                        <th>satuan</th>
-                                                        <th>nilai_normal</th>
-                                                        <th>flag</th>
-                                                        <th>kode_paket</th>
-                                                        <th>reserve4</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if ($detailDataLis['response']['code'])
-                                                        {{ $detailDataLis['response']['sampel']['pid'] }}
-                                                        {{ $detailDataLis['response']['sampel']['pname'] }}
-                                                        {{ $detailDataLis['response']['sampel']['sex'] }}
-                                                        {{ $detailDataLis['response']['sampel']['birth_dt'] }}
-                                                        {{ $detailDataLis['response']['sampel']['clinician_name'] }}
-                                                        {{ $detailDataLis['response']['sampel']['bangsal_name'] }}
-                                                        {{ $detailDataLis['response']['sampel']['order_lab'] }}
-                                                        {{ $detailDataLis['response']['sampel']['reg_no'] }}
-                                                        {{ $detailDataLis['response']['sampel']['lis_sampel'] }}
-                                                        {{ $detailDataLis['response']['sampel']['acc_by'] }}
-                                                        {{ $detailDataLis['response']['sampel']['acc_date'] }}
-                                                        {{ $detailDataLis['response']['sampel']['reserve1'] }}
-                                                        {{ $detailDataLis['response']['sampel']['reserve2'] }}
-                                                        {{ $detailDataLis['response']['sampel']['reserve3'] }}
-                                                        @foreach ($detailDataLis['response']['sampel']['result_test'] as $item)
-                                                            <tr>
-                                                                <td>{{ $item['test_id'] }}</td>
-                                                                <td>{{ $item['nama_test'] }}</td>
-                                                                <td>{{ $item['jenis_hasil'] }}</td>
-                                                                <td>{{ $item['hasil'] }}</td>
-                                                                <td>{{ $item['satuan'] }}</td>
-                                                                <td>{{ $item['nilai_normal'] }}</td>
-                                                                <td>{{ $item['flag'] }}</td>
-                                                                <td>{{ $item['kode_paket'] }}</td>
-                                                                <td>{{ $item['reserve4'] }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                    @endif --}}
                                 </div>
                             </div>
                         </div>
