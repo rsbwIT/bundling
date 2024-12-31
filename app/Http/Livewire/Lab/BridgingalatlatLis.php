@@ -237,7 +237,6 @@ class BridgingalatlatLis extends Component
     function getTestLAB($key)
     {
         // TESTTT====================================================================================================================================
-        $uniqueTests = [];
         $resultDetailPeriksaLabTest = [];
         foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
             $resultDetailPeriksaLabTest[] = [
@@ -277,8 +276,7 @@ class BridgingalatlatLis extends Component
                 $uniqueTests[] = $item['nama_test'];
             }
         }
-        dd($hasil);
-        dd($resultDetailPeriksaLabTest);
+        dd($uniqueTests);
 
         // TESTTT====================================================================================================================================
 
