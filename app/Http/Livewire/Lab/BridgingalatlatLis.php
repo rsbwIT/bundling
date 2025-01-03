@@ -194,8 +194,8 @@ class BridgingalatlatLis extends Component
                 ],
             ],
         ];
-        $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
         // dd($sendToLis);
+        $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
         if ($this->response) {
             if ($this->response['response']['code'] === "200") {
                 session()->flash('response200', $this->response['response']['message']);

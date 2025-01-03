@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
     <script src="/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
     {{-- TEST --}}
-    <link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">
+    {{-- <link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css"> --}}
     <style>
         u {
             border-bottom: 2px solid black;
@@ -67,7 +67,7 @@
     <script src="/dist/js/pages/dashboard.js"></script>
     <script src="/js/sidebarmenu.js"></script>
     <script src="/plugins/sweetalert2/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.metroui.org.ua/dev/metro.css">
+    {{-- <link rel="stylesheet" href="https://cdn.metroui.org.ua/dev/metro.css"> --}}
     <script src="dist/kioskboard-aio-2.3.0.min.js"></script>
     {{-- TEST --}}
     <script src="https://cdn.metroui.org.ua/current/metro.js"></script>
