@@ -107,6 +107,7 @@ class ServiceSoftmedik
                     ],
                 ],
             ];
+            // dd($order_test);
 
             $response = $this->client->post(self::url() . '/wslis/bridging/order', [
                 'json' => $sendToLis,

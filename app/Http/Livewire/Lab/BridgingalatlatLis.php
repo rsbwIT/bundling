@@ -286,7 +286,6 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        // HALO
         // dd($hasilDetailPeriksaLab);
         // dd($resultDetailPeriksaLab, $resultPeriksaLab);
 
