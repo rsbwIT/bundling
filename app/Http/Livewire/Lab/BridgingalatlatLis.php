@@ -160,7 +160,7 @@ class BridgingalatlatLis extends Component
                     'pname' => $data[$key]['nm_pasien'],
                     'sex' => $data[$key]['jk'],
                     'birth_dt' => Carbon::parse($data[$key]['tgl_lahir'])->format('d.m.Y'),
-                    'address' => $data[$key]['alamat'],
+                    'address' => str_replace(' ', '', $data[$key]['alamat']),
                     'no_tlp' => $data[$key]['no_tlp'],
                     'no_hp' => $data[$key]['no_tlp'],
                     'email' => ($data[$key]['email']) ? $data[$key]['email'] : '-',
@@ -193,7 +193,7 @@ class BridgingalatlatLis extends Component
                 ],
             ],
         ];
-        // dd($sendToLis);
+        // dd(json_encode($sendToLis));
         $this->response = $Service->ServiceSoftmedixPOST($sendToLis);
         if ($this->response) {
             if ($this->response['response']['code'] === "200") {
