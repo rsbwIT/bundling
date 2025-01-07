@@ -49,7 +49,7 @@ class BridgingalatlatLis extends Component
         $this->Setting();
         return view('livewire.lab.bridgingalatlat-lis');
     }
-
+//
     // ===========================================================================================================
     // Dropdown Manual DOKTER
     public function setDokterPenerima($kd_dokter, $nm_dokter)
