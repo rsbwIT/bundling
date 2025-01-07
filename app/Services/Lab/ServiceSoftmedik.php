@@ -44,11 +44,6 @@ class ServiceSoftmedik
         return $this->key;
     }
 
-    function trimDokterName($fullName) {
-        $fullName = preg_replace('/^dr\.?\s*/i', '', $fullName);
-        $nameParts = explode(' ', $fullName);
-        return'dr. '. $nameParts[0];
-    }
 
     public function ServiceSoftmedixPOST($data, $key)
     {
@@ -94,7 +89,7 @@ class ServiceSoftmedik
                         'provider_name' => $data[$key]['png_jawab'],
                         'order_date' => Carbon::parse($data[$key]['tgl_permintaan'])->format('d.m.Y') . ' ' . Carbon::parse($data[$key]['jam_permintaan'])->format('h:m:s'),
                         'clinician_id' => $data[$key]['kd_dr_perujuk'],
-                        'clinician_name' => self::trimDokterName($data[$key]['dr_perujuk']),
+                        'clinician_name' => $data[$key]['dr_perujuk'],
                         'bangsal_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['kd_poli'] : $data[$key]['kd_bangsal'],
                         'bangsal_name' => ($data[$key]['status_lanjut'] === 'Ralan') ? $data[$key]['nm_poli'] : $data[$key]['nm_bangsal'],
                         'bed_id' => ($data[$key]['status_lanjut'] === 'Ralan') ? '0000' : $data[$key]['kd_bangsal'],
