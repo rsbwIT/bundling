@@ -190,6 +190,14 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('/cob-harian') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pasien COB <span class="text-xs">(Harian)</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('/cari-bayar-umum') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Umum</p>

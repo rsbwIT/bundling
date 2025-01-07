@@ -35,7 +35,6 @@
                     <th>Kamar+Service</th>
                     <th>Potongan</th>
                     <th>Total</th>
-
                     <th>Penjamin</th>
                     <th>Jumlah</th>
                 </thead>
