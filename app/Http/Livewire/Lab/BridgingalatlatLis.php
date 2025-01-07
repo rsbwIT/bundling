@@ -292,7 +292,7 @@ class BridgingalatlatLis extends Component
         // SAVE TO DATABASE =======================================================================================================
         try {
             foreach ($resultPeriksaLab as $item) {
-                DB::connection('db_con2')->table('periksa_lab')->insert([
+                DB::table('periksa_lab')->insert([
                     'no_rawat' => $item['no_rawat'],
                     'nip' => $item['nip'],
                     'kd_jenis_prw' => $item['kd_jenis_prw'],
@@ -313,7 +313,7 @@ class BridgingalatlatLis extends Component
                 ]);
             }
             foreach ($hasilDetailPeriksaLab as $item) {
-                DB::connection('db_con2')->table('detail_periksa_lab')->insert([
+                DB::table('detail_periksa_lab')->insert([
                     'no_rawat' => $item['no_rawat'],
                     'kd_jenis_prw' => $item['kd_jenis_prw'],
                     'tgl_periksa' => $item['tgl_periksa'],
@@ -333,7 +333,7 @@ class BridgingalatlatLis extends Component
                 ]);
             }
 
-            DB::connection('db_con2')->table('permintaan_lab')
+            DB::table('permintaan_lab')
             ->where('noorder', $this->getDatakhanza[$key]['noorder'])
             ->update([
                 'tgl_hasil' => Carbon::now()->format('Y-m-d'),
