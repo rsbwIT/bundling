@@ -135,6 +135,12 @@ class BridgingalatlatLis extends Component
         try {
             $data = $this->getDatakhanza;
             $this->response = $Service->ServiceSoftmedixPOST($data, $key);
+            DB::table('permintaan_lab')
+                ->where('noorder', $this->getDatakhanza[$key]['noorder'])
+                ->update([
+                    'tgl_sampel' => Carbon::now()->format('Y-m-d'),
+                    'jam_sampel' => Carbon::now()->format('H:i:s'),
+                ]);
             if ($this->response) {
                 if ($this->response['response']['code'] === "200") {
                     session()->flash('response200', $this->response['response']['message']);
@@ -178,6 +184,7 @@ class BridgingalatlatLis extends Component
     // JSON FROM LIS TO DB KHANZA ============================================================================================================
     function getTestLAB($key)
     {
+        // dd($this->detailDataLis);
         $filter_kode_paket = [];
         $filterasiLIS = [];
         foreach ($this->detailDataLis['response']['sampel']['result_test'] as  $item) {
@@ -334,11 +341,11 @@ class BridgingalatlatLis extends Component
             }
 
             DB::table('permintaan_lab')
-            ->where('noorder', $this->getDatakhanza[$key]['noorder'])
-            ->update([
-                'tgl_hasil' => Carbon::now()->format('Y-m-d'),
-                'jam_hasil' => Carbon::now()->format('H:i:s'),
-            ]);
+                ->where('noorder', $this->getDatakhanza[$key]['noorder'])
+                ->update([
+                    'tgl_hasil' => Carbon::now()->format('Y-m-d'),
+                    'jam_hasil' => Carbon::now()->format('H:i:s'),
+                ]);
             $this->testok = 'ok';
         } catch (\Throwable $th) {
             $this->testok = 'gagal';
