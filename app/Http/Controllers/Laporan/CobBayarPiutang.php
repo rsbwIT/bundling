@@ -26,7 +26,6 @@ class CobBayarPiutang extends Controller
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
 
-        $status = ($request->statusLunas == "Lunas") ? "Lunas" : (($request->statusLunas == "Belum Lunas") ? "Belum Lunas" : "");
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
 
         $getCob = DB::table('bayar_piutang')
@@ -52,13 +51,13 @@ class CobBayarPiutang extends Controller
             ->leftJoin('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($status, $kdPenjamin) {
-                if ($status) {
-                    $query->where('piutang_pasien.status', $status);
-                }
+            ->where(function ($query) use ($kdPenjamin, $cariNomor) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
+                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
             ->groupBy('bayar_piutang.no_rawat')
             ->havingRaw('COUNT(*) > 1')
@@ -166,13 +165,11 @@ class CobBayarPiutang extends Controller
                     ->where('no_rawat', $item->no_rawat)
                     ->where('status', '=', 'Kamar')
                     ->get();
-            });
-            $getCob->map(function ($item) {
-                $item->getDetailCob = DB::table('detail_piutang_pasien')
-                ->select('penjab.png_jawab', 'detail_piutang_pasien.totalpiutang', 'detail_piutang_pasien.sisapiutang')
-                ->join('penjab','detail_piutang_pasien.kd_pj','=','penjab.kd_pj')
-                ->where('detail_piutang_pasien.no_rawat',$item->no_rawat)
-                ->get();
+                    $item->getDetailCob = DB::table('detail_piutang_pasien')
+                    ->select('penjab.png_jawab', 'detail_piutang_pasien.totalpiutang', 'detail_piutang_pasien.sisapiutang')
+                    ->join('penjab','detail_piutang_pasien.kd_pj','=','penjab.kd_pj')
+                    ->where('detail_piutang_pasien.no_rawat',$item->no_rawat)
+                    ->get();
             });
 
         return view('laporan.cobBayarPiutang', [

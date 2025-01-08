@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Pasien COB ')
+@section('title', 'Pasien COB (Harian)')
 
 @section('konten')
     <div class="card">
@@ -89,7 +89,6 @@
                         <th>Tambahan</th>
                         <th>Kamar+Service</th>
                         <th>Potongan</th>
-                        <th>Uang Muka</th>
                         <th>Total</th>
                         <th class="text-center" colspan="2">Penjamin</th>
                     </tr>
@@ -160,9 +159,6 @@
                         <td>
                             {{ $item->getPotongan->sum('totalbiaya') }}
                         </td>
-                        <td>
-                            {{ $item->uangmuka }}
-                        </td>
                         <td class="text-bold">
                             {{ $item->getRegistrasi->sum('totalbiaya') +
                                 $item->getObat->sum('totalbiaya') +
@@ -179,8 +175,7 @@
                                 $item->getRadiologi->sum('totalbiaya') +
                                 $item->getTambahan->sum('totalbiaya') +
                                 $item->getKamarInap->sum('totalbiaya') +
-                                $item->getPotongan->sum('totalbiaya') +
-                                $item->uangmuka }}
+                                $item->getPotongan->sum('totalbiaya')  }}
                         </td>
                         @foreach ($item->getPenjabCOB as $penjab)
                             <td>

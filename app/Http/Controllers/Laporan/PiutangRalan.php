@@ -34,25 +34,23 @@ class PiutangRalan extends Controller
                 'dokter.nm_dokter',
                 'penjab.png_jawab',
                 'piutang_pasien.uangmuka',
-                'piutang_pasien.totalpiutang')
+                'piutang_pasien.totalpiutang',
+                'bridging_sep.no_sep')
             ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
             ->join('dokter','reg_periksa.kd_dokter','=','dokter.kd_dokter')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
             ->join('piutang_pasien','piutang_pasien.no_rawat','=','reg_periksa.no_rawat')
+            ->leftJoin('bridging_sep','reg_periksa.no_rawat','=','bridging_sep.no_rawat')
             ->where('reg_periksa.status_lanjut','=','Ralan')
             ->whereBetween('reg_periksa.tgl_registrasi',[$tanggl1 , $tanggl2])
-            ->where(function ($query) use ($status) {
+            ->where(function ($query) use ($status,$kdPenjamin, $cariNomor) {
                 if ($status) {
                     $query->where('piutang_pasien.status', $status);
                 }
-            })
-            ->where(function ($query) use ($kdPenjamin) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
-            })
-            ->where(function($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');

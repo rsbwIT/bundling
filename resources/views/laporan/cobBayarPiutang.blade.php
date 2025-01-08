@@ -4,7 +4,53 @@
 @section('konten')
     <div class="card">
         <div class="card-body">
-            @include('laporan.component.search-bayarPiutang')
+            <form action="{{ url($url) }}">
+                @csrf
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="input-group input-group-xs">
+                                <input type="text" name="cariNomor" class="form-control form-control-xs"
+                                    placeholder="Cari Nama/RM/No Rawat">
+                                <div class="input-group-append">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="input-group input-group-xs">
+                                <input type="date" name="tgl1" class="form-control form-control-xs"
+                                    value="{{ request('tgl1', now()->format('Y-m-d')) }}">
+                                <div class="input-group-append">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="input-group input-group-xs">
+                                <input type="date" name="tgl2" class="form-control form-control-xs"
+                                    value="{{ request('tgl2', now()->format('Y-m-d')) }}">
+                                <div class="input-group-append">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="input-group input-group-xs">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-md btn-primary">
+                                        <i class="fa fa-search"></i> Cari
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
             Jumlah Data : {{ count($getCob) }}
             <div class="row no-print">
                 <div class="col-12">
@@ -34,39 +80,36 @@
                     <th>Tambahan</th>
                     <th>Kamar+Service</th>
                     <th>Potongan</th>
+                    <th>Uang Muka</th>
                     <th>Total</th>
-                    <th>Penjamin</th>
-                    <th>Jumlah</th>
+                    <th colspan="2">Penjamin</th>
                 </thead>
                 <tbody>
                     @foreach ($getCob as $key => $item)
-                        @php
-                            $rowspan = count($item->getDetailCob) + 1;
-                        @endphp
                         <tr>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $key + 1 }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $item->tgl_bayar }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $item->no_rkm_medis }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $item->no_rawat }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $item->nm_pasien }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">{{ $item->status_lanjut }}
+                            <td style="vertical-align: middle;">{{ $key + 1 }}</td>
+                            <td style="vertical-align: middle;">{{ $item->tgl_bayar }}</td>
+                            <td style="vertical-align: middle;">{{ $item->no_rkm_medis }}</td>
+                            <td style="vertical-align: middle;">{{ $item->no_rawat }}</td>
+                            <td style="vertical-align: middle;">{{ $item->nm_pasien }}</td>
+                            <td style="vertical-align: middle;">{{ $item->status_lanjut }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 @foreach ($item->getNomorNota as $detail)
                                     {{ str_replace(':', '', $detail->nm_perawatan) }}
                                 @endforeach
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getRegistrasi->sum('totalbiaya') }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getObat->sum('totalbiaya') }}</td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getReturObat->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getResepPulang->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getRalanDokter->sum('totalbiaya') +
                                     $item->getRalanParamedis->sum('totalbiaya') +
                                     $item->getRalanDrParamedis->sum('totalbiaya') +
@@ -91,49 +134,51 @@
                                     </div>
                                 </div>
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getOprasi->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getLaborat->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getRadiologi->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getTambahan->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getKamarInap->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">
                                 {{ $item->getPotongan->sum('totalbiaya') }}
                             </td>
-                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                    {{ $item->getRegistrasi->sum('totalbiaya') +
-                                        $item->getObat->sum('totalbiaya') +
-                                        $item->getReturObat->sum('totalbiaya') +
-                                        $item->getResepPulang->sum('totalbiaya') +
-                                        $item->getRalanDokter->sum('totalbiaya') +
-                                        $item->getRalanParamedis->sum('totalbiaya') +
-                                        $item->getRalanDrParamedis->sum('totalbiaya') +
-                                        $item->getRanapDokter->sum('totalbiaya') +
-                                        $item->getRanapDrParamedis->sum('totalbiaya') +
-                                        $item->getRanapParamedis->sum('totalbiaya') +
-                                        $item->getOprasi->sum('totalbiaya') +
-                                        $item->getLaborat->sum('totalbiaya') +
-                                        $item->getRadiologi->sum('totalbiaya') +
-                                        $item->getTambahan->sum('totalbiaya') +
-                                        $item->getKamarInap->sum('totalbiaya') +
-                                        $item->getPotongan->sum('totalbiaya') }}
+                            <td style="vertical-align: middle;">
+                                {{ $item->uangmuka }}
                             </td>
+                            <td style="vertical-align: middle;">
+                                {{ $item->getRegistrasi->sum('totalbiaya') +
+                                    $item->getObat->sum('totalbiaya') +
+                                    $item->getReturObat->sum('totalbiaya') +
+                                    $item->getResepPulang->sum('totalbiaya') +
+                                    $item->getRalanDokter->sum('totalbiaya') +
+                                    $item->getRalanParamedis->sum('totalbiaya') +
+                                    $item->getRalanDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapDokter->sum('totalbiaya') +
+                                    $item->getRanapDrParamedis->sum('totalbiaya') +
+                                    $item->getRanapParamedis->sum('totalbiaya') +
+                                    $item->getOprasi->sum('totalbiaya') +
+                                    $item->getLaborat->sum('totalbiaya') +
+                                    $item->getRadiologi->sum('totalbiaya') +
+                                    $item->getTambahan->sum('totalbiaya') +
+                                    $item->getKamarInap->sum('totalbiaya') +
+                                    $item->getPotongan->sum('totalbiaya') }}
+                            </td>
+                            @foreach ($item->getDetailCob as $penjab)
+                                <td>
+                                    <span class="mx-1">{{ $penjab->png_jawab }} (Rp. {{ $penjab->totalpiutang }})</span>
+                                </td>
+                            @endforeach
                         </tr>
-                        @foreach ($item->getDetailCob as $cob)
-                            <tr>
-                                <td class="m-0 py-0 px-2">{{ $cob->png_jawab }}</td>
-                                <td class="m-0 p-0  px-2">{{ $cob->totalpiutang }}</td>
-                            </tr>
-                        @endforeach
                     @endforeach
 
                 </tbody>

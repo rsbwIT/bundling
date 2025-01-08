@@ -35,13 +35,15 @@ class PiutangRanap extends Controller
                 'kamar.kd_kamar',
                 'bangsal.nm_bangsal',
                 'piutang_pasien.uangmuka',
-                'piutang_pasien.totalpiutang'
+                'piutang_pasien.totalpiutang',
+                'bridging_sep.no_sep'
             )
             ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
             ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->leftJoin('bridging_sep','reg_periksa.no_rawat','=','bridging_sep.no_rawat')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar', [$tanggl1, $tanggl2])
             ->where(function ($query) use ($status, $kdPenjamin) {

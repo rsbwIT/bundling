@@ -5,6 +5,7 @@
     <div class="card">
         <div class="card-body">
             @include('laporan.component.search-piutangRalan')
+            Jumlah Data : {{ count($piutangRalan) }}
             <div class="row no-print">
                 <div class="col-12">
                     <button type="button" class="btn btn-default float-right" id="copyButton">
@@ -19,6 +20,7 @@
                         <tr>
                             <th>Tanggal</th>
                             <th>No.Rawat</th>
+                            <th>No.Sep</th>
                             <th>No.Nota</th>
                             <th>No.RM</th>
                             <th>Nama Pasien</th>
@@ -45,6 +47,7 @@
                             <tr>
                                 <td>{{ $item->tgl_registrasi }}</td>
                                 <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_sep }}</td>
                                 <td>
                                     @foreach ($item->getNomorNota as $detail)
                                         {{ $detail->no_nota }}
