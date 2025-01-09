@@ -85,7 +85,7 @@ class PrintPdfService
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
 
             // LAPORAN OPERASI
-            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
+            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat, $statusLanjut->status_lanjut);
 
             // 12 SOAPIE PASIEN
             if ($statusLanjut->status_lanjut === 'Ranap') {
