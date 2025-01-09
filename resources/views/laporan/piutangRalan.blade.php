@@ -51,7 +51,11 @@
                                 <tr>
                                     <td>{{ $item->tgl_registrasi }}</td>
                                     <td>{{ $item->no_rawat }}</td>
-                                    <td>{{ $item->no_sep }}</td>
+                                    <td>
+                                        @foreach ($item->getNoSep as $detail)
+                                            {{ $detail->no_sep }}
+                                        @endforeach
+                                    </td>
                                     <td>
                                         @foreach ($item->getNomorNota as $detail)
                                             {{ $detail->no_nota }}

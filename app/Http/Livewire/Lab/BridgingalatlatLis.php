@@ -294,7 +294,7 @@ class BridgingalatlatLis extends Component
             return $item;
         });
         // dd($resultPeriksaLab);
-        // dd($resultDetailPeriksaLab, $resultPeriksaLab);
+        // dd($hasilDetailPeriksaLab, $resultPeriksaLab);
 
         // SAVE TO DATABASE =======================================================================================================
         try {

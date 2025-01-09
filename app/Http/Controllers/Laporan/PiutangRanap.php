@@ -36,14 +36,13 @@ class PiutangRanap extends Controller
                 'bangsal.nm_bangsal',
                 'piutang_pasien.uangmuka',
                 'piutang_pasien.totalpiutang',
-                'bridging_sep.no_sep'
+                'reg_periksa.status_lanjut'
             )
             ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
             ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-            ->leftJoin('bridging_sep','reg_periksa.no_rawat','=','bridging_sep.no_rawat')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar', [$tanggl1, $tanggl2])
             ->where(function ($query) use ($status, $kdPenjamin) {
@@ -64,6 +63,18 @@ class PiutangRanap extends Controller
             ->groupBy('kamar_inap.no_rawat')
             ->get();
         $piutangRanap->map(function ($item) {
+            // NOMOR SEP
+            $item->getNoSep = DB::table('bridging_sep')
+                ->select('no_sep')
+                ->where('no_rawat', $item->no_rawat)
+                ->where(function ($query) use ($item) {
+                    if ($item->status_lanjut == 'Ralan') {
+                        $query->where('jnspelayanan', '=', '2');
+                    } else {
+                        $query->where('jnspelayanan', '=', '1');
+                    }
+                })
+                ->get();
             // NOMOR NOTA
             $item->getNomorNota = DB::table('nota_inap')
                 ->select('no_nota')
