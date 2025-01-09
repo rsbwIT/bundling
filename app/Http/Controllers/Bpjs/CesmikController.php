@@ -94,7 +94,7 @@ class CesmikController extends Controller
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
 
             // 11 LAPORAN OPERASi
-            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
+            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat, $statusLanjut->status_lanjut);
 
             // 12 SOAPIE PASIEN
             if ($statusLanjut->status_lanjut === 'Ranap') {

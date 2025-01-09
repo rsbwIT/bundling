@@ -70,7 +70,7 @@ class QueryResumeDll
                 'penjab.png_jawab'
             )
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-            ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('bridging_sep.no_rawat', '=', $noRawat)
             ->where('bridging_sep.no_sep', '=', $noSep)
             ->first();
@@ -485,7 +485,7 @@ class QueryResumeDll
     }
 
     // 10 Get Laporan Operasi RANAP
-    static function getLaporanOprasi($noRawat)
+    static function getLaporanOprasi($noRawat, $status_lanjut)
     {
         $laporanOprasi =  DB::table('operasi')
             ->select(
@@ -571,30 +571,56 @@ class QueryResumeDll
             ->leftJoin('dokter AS dokter7', 'dokter7.kd_dokter', '=', 'operasi.dokter_umum')
             ->where('operasi.no_rawat', $noRawat)
             ->get();
-        $laporanOprasi->map(function ($item) {
-            $item->pemeriksaanRanap = DB::table('pemeriksaan_ranap')
-                ->select(
-                    'pemeriksaan_ranap.no_rawat',
-                    'pemeriksaan_ranap.tgl_perawatan',
-                    'pemeriksaan_ranap.jam_rawat',
-                    'pemeriksaan_ranap.suhu_tubuh',
-                    'pemeriksaan_ranap.tensi',
-                    'pemeriksaan_ranap.nadi',
-                    'pemeriksaan_ranap.respirasi',
-                    'pemeriksaan_ranap.tinggi',
-                    'pemeriksaan_ranap.berat',
-                    'pemeriksaan_ranap.gcs',
-                    'pemeriksaan_ranap.keluhan',
-                    'pemeriksaan_ranap.pemeriksaan',
-                    'pemeriksaan_ranap.alergi',
-                    'pemeriksaan_ranap.rtl',
-                    'pemeriksaan_ranap.penilaian'
-                )
-                ->where('pemeriksaan_ranap.no_rawat', $item->no_rawat)
-                ->whereRaw("CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat) <= '$item->tgl_operasi'")
-                ->orderByDesc('pemeriksaan_ranap.tgl_perawatan')
-                ->orderByDesc('pemeriksaan_ranap.jam_rawat')
-                ->first();
+        $laporanOprasi->map(function ($item) use ($status_lanjut) {
+            if ($status_lanjut == 'Ranap') {
+                $item->pemeriksaanRanap = DB::table('pemeriksaan_ranap')
+                    ->select(
+                        'pemeriksaan_ranap.no_rawat',
+                        'pemeriksaan_ranap.tgl_perawatan',
+                        'pemeriksaan_ranap.jam_rawat',
+                        'pemeriksaan_ranap.suhu_tubuh',
+                        'pemeriksaan_ranap.tensi',
+                        'pemeriksaan_ranap.nadi',
+                        'pemeriksaan_ranap.respirasi',
+                        'pemeriksaan_ranap.tinggi',
+                        'pemeriksaan_ranap.berat',
+                        'pemeriksaan_ranap.gcs',
+                        'pemeriksaan_ranap.keluhan',
+                        'pemeriksaan_ranap.pemeriksaan',
+                        'pemeriksaan_ranap.alergi',
+                        'pemeriksaan_ranap.rtl',
+                        'pemeriksaan_ranap.penilaian'
+                    )
+                    ->where('pemeriksaan_ranap.no_rawat', $item->no_rawat)
+                    ->whereRaw("CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ', pemeriksaan_ranap.jam_rawat) <= '$item->tgl_operasi'")
+                    ->orderByDesc('pemeriksaan_ranap.tgl_perawatan')
+                    ->orderByDesc('pemeriksaan_ranap.jam_rawat')
+                    ->first();
+            } else {
+                $item->pemeriksaanRanap = DB::table('pemeriksaan_ralan')
+                    ->select(
+                        'pemeriksaan_ralan.no_rawat',
+                        'pemeriksaan_ralan.tgl_perawatan',
+                        'pemeriksaan_ralan.jam_rawat',
+                        'pemeriksaan_ralan.suhu_tubuh',
+                        'pemeriksaan_ralan.tensi',
+                        'pemeriksaan_ralan.nadi',
+                        'pemeriksaan_ralan.respirasi',
+                        'pemeriksaan_ralan.tinggi',
+                        'pemeriksaan_ralan.berat',
+                        'pemeriksaan_ralan.gcs',
+                        'pemeriksaan_ralan.keluhan',
+                        'pemeriksaan_ralan.pemeriksaan',
+                        'pemeriksaan_ralan.alergi',
+                        'pemeriksaan_ralan.rtl',
+                        'pemeriksaan_ralan.penilaian'
+                    )
+                    ->where('pemeriksaan_ralan.no_rawat', $item->no_rawat)
+                    ->whereRaw("CONCAT(pemeriksaan_ralan.tgl_perawatan, ' ', pemeriksaan_ralan.jam_rawat) <= '$item->tgl_operasi'")
+                    ->orderByDesc('pemeriksaan_ralan.tgl_perawatan')
+                    ->orderByDesc('pemeriksaan_ralan.jam_rawat')
+                    ->first();
+            }
         });
         return $laporanOprasi;
     }
@@ -923,16 +949,15 @@ class QueryResumeDll
                 ->join('pegawai', 'data_triase_igdprimer.nik', '=', 'pegawai.nik')
                 ->where('data_triase_igdprimer.no_rawat', $item->no_rawat)
                 ->get();
-                $scales = [1, 2, 3, 4, 5];
-                foreach ($scales as $scale) {
-                    $item->{'data_triase_igddetail_skala' . $scale} = DB::table('data_triase_igddetail_skala' . $scale)
-                        ->select('master_triase_skala' . $scale . '.pengkajian_skala' . $scale, 'master_triase_pemeriksaan.nama_pemeriksaan')
-                        ->join('master_triase_skala' . $scale, 'data_triase_igddetail_skala' . $scale . '.kode_skala' . $scale, '=', 'master_triase_skala' . $scale . '.kode_skala' . $scale)
-                        ->join('master_triase_pemeriksaan', 'master_triase_skala' . $scale . '.kode_pemeriksaan', '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
-                        ->where('data_triase_igddetail_skala' . $scale . '.no_rawat', $item->no_rawat)
-                        ->get();
-                }
-
+            $scales = [1, 2, 3, 4, 5];
+            foreach ($scales as $scale) {
+                $item->{'data_triase_igddetail_skala' . $scale} = DB::table('data_triase_igddetail_skala' . $scale)
+                    ->select('master_triase_skala' . $scale . '.pengkajian_skala' . $scale, 'master_triase_pemeriksaan.nama_pemeriksaan')
+                    ->join('master_triase_skala' . $scale, 'data_triase_igddetail_skala' . $scale . '.kode_skala' . $scale, '=', 'master_triase_skala' . $scale . '.kode_skala' . $scale)
+                    ->join('master_triase_pemeriksaan', 'master_triase_skala' . $scale . '.kode_pemeriksaan', '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                    ->where('data_triase_igddetail_skala' . $scale . '.no_rawat', $item->no_rawat)
+                    ->get();
+            }
         });
 
         return $getTriaseIGD;
