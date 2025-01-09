@@ -192,7 +192,7 @@ class BridgingalatlatLis extends Component
                 $filterasiLIS[] = [
                     'kode_paket' => $item['kode_paket'],
                     'hasil' => $item['hasil'],
-                    'nilai_normal' => $item['nilai_normal'],
+                    'nilai_normal' => $item['nilai_normal'] ?? ' ',
                     'Pemeriksaan' => $item['Pemeriksaan'],
                     'nama_test' => $item['nama_test'],
                     'test_id' => $item['test_id'],
@@ -293,7 +293,7 @@ class BridgingalatlatLis extends Component
             $item['kategori'] = $khanza->kategori ?? '-';
             return $item;
         });
-        // dd($hasilDetailPeriksaLab);
+        // dd($resultPeriksaLab);
         // dd($resultDetailPeriksaLab, $resultPeriksaLab);
 
         // SAVE TO DATABASE =======================================================================================================
@@ -328,7 +328,7 @@ class BridgingalatlatLis extends Component
                     'id_template' => $item['id_template'],
                     'nilai' => $item['hasil'],
                     'nilai_rujukan' => $item['nilai_normal'],
-                    'keterangan' => '-',
+                    'keterangan' => ' ',
                     'bagian_rs' => $item['bagian_rs'],
                     'bhp' => $item['bhp'],
                     'bagian_perujuk' => $item['bagian_perujuk'],
