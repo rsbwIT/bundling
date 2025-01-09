@@ -56,8 +56,8 @@
                                         <td>{{ $item->no_rawat }}</td>
                                         <td>
                                             @foreach ($item->getNoSep as $detail)
-                                            {{ $detail->no_sep }}
-                                        @endforeach
+                                                {{ $detail->no_sep }}
+                                            @endforeach
                                         </td>
                                         <td>
                                             @foreach ($item->getNomorNota as $detail)
