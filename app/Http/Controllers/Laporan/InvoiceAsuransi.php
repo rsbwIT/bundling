@@ -36,6 +36,8 @@ class InvoiceAsuransi extends Controller
                 'bw_maping_asuransi.nama_perusahaan',
                 'bw_maping_asuransi.alamat_asuransi',
                 'bw_maping_asuransi.kd_surat',
+                'tf_rekening_rs',
+                'nm_tf_rekening_rs'
             )
             ->leftJoin('bw_maping_asuransi', 'penjab.kd_pj', '=', 'bw_maping_asuransi.kd_pj')
             ->where('penjab.kd_pj', $kdPenjamin)
@@ -263,7 +265,9 @@ class InvoiceAsuransi extends Controller
                 'penjab.no_telp',
                 'penjab.status',
                 'bw_maping_asuransi.nama_perusahaan',
-                'bw_maping_asuransi.alamat_asuransi'
+                'bw_maping_asuransi.alamat_asuransi',
+                'tf_rekening_rs',
+                'nm_tf_rekening_rs'
             )
             ->leftJoin('bw_maping_asuransi', 'penjab.kd_pj', '=', 'bw_maping_asuransi.kd_pj')
             ->where('penjab.kd_pj', $getListInvoice->kode_asuransi)

@@ -180,10 +180,10 @@
                     <td>Mohon pelunasan dilaksanakan melalui transfer ke rekening</td>
                 </tr>
                 <tr>
-                    <td>Atas Nama Rumah Sakit Bumi Waras No.Rekening. 0071-488-404</td>
+                    <td>Atas Nama Rumah Sakit Bumi Waras No.Rekening. {{$getDetailAsuransi->tf_rekening_rs}}</td>
                 </tr>
                 <tr>
-                    <td>Di Bank BNI Jl. Kartini Bandar Lampung</td>
+                    <td>Di {{$getDetailAsuransi->nm_tf_rekening_rs}}</td>
                 </tr>
                 <tr>
                     <td>(Kami mohon rincian data nama-nama pasien yang dibayar harap diemailkan ke</td>

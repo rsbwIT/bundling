@@ -22,6 +22,8 @@
                 <th>Nama Perusahaan/Asuransi</th>
                 <th>Alamat Asuransi</th>
                 <th>Kode Surat</th>
+                <th>Tf Ke Rekening</th>
+                <th>Nama Almt Tf</th>
                 <th>Act</th>
             </tr>
         </thead>
@@ -34,6 +36,8 @@
                         <td>{{ $asuransi->nama_perusahaan }}</td>
                         <td>{{ $asuransi->alamat_asuransi }}</td>
                         <td width="100px">{{ $asuransi->kd_surat }}</td>
+                        <td>{{ $asuransi->tf_rekening_rs }}</td>
+                        <td>{{ $asuransi->nm_tf_rekening_rs }}</td>
                         <td>
                             <div class="badge-group">
                                 <a data-toggle="modal" data-target="#ModalkeyAsuransi{{ $keyAsuransi }}"
@@ -77,6 +81,24 @@
                                                             <textarea type="text" class="form-control" required
                                                                 placeholder="Enter ..."
                                                                 wire:model.defer="getAsuransi.{{ $keyAsuransi }}.alamat_asuransi"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Tf Ke Rekening
+                                                            </label>
+                                                            <input type="text" class="form-control" required
+                                                                placeholder="Enter ..."
+                                                                wire:model.defer="getAsuransi.{{ $keyAsuransi }}.tf_rekening_rs"></input>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Nama Tf Ke Rekening
+                                                            </label>
+                                                            <textarea type="text" class="form-control" required
+                                                                placeholder="Enter ..."
+                                                                wire:model.defer="getAsuransi.{{ $keyAsuransi }}.nm_tf_rekening_rs"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
