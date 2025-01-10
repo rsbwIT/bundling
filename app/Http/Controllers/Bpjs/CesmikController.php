@@ -106,6 +106,9 @@ class CesmikController extends Controller
             // 13 TRIASE PASIEN
             $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
 
+            // 14 SURAT PRI BPJS
+            $getSuratPriBpjs = QueryResumeDll::suratPriBpjs($noRawat);
+
         } else {
             $getSetting = '';
             $settingBundling = '';
@@ -123,6 +126,7 @@ class CesmikController extends Controller
             $getLaporanOprasi = '';
             $getSoapie = '';
             $getTriaseIGD = '';
+            $getSuratPriBpjs = '';
         }
 
         // VIEW
@@ -143,6 +147,7 @@ class CesmikController extends Controller
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,
             'getTriaseIGD' => $getTriaseIGD,
+            'getSuratPriBpjs' => $getSuratPriBpjs,
         ]);
     }
 }

@@ -96,6 +96,10 @@ class PrintPdfService
 
             // 13 TRIASE PASIEN
             $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
+
+            // 14 SURAT PRI BPJS
+            $getSuratPriBpjs = QueryResumeDll::suratPriBpjs($noRawat);
+
         } else {
             $settingBundling = '';
             $getSetting = '';
@@ -112,6 +116,7 @@ class PrintPdfService
             $getLaporanOprasi = '';
             $getSoapie = '';
             $getTriaseIGD = '';
+            $getSuratPriBpjs = '';
         }
 
 
@@ -132,6 +137,7 @@ class PrintPdfService
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,
             'getTriaseIGD' => $getTriaseIGD,
+            'getSuratPriBpjs' => $getSuratPriBpjs,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);
