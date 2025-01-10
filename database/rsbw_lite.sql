@@ -11,7 +11,7 @@
  Target Server Version : 100432 (10.4.32-MariaDB)
  File Encoding         : 65001
 
- Date: 10/01/2025 08:20:34
+ Date: 10/01/2025 11:01:51
 */
 
 SET NAMES utf8mb4;
@@ -658,12 +658,14 @@ INSERT INTO `bw_setting_bundling` VALUES ('BUN002', 'resume-pasien', '1', 2);
 INSERT INTO `bw_setting_bundling` VALUES ('BUN003', 'rincian-biaya', '1', 3);
 INSERT INTO `bw_setting_bundling` VALUES ('BUN004', 'berkas-laborat', '1', 5);
 INSERT INTO `bw_setting_bundling` VALUES ('BUN005', 'berkas-radiologi', '1', 4);
-INSERT INTO `bw_setting_bundling` VALUES ('BUN006', 'awal-medis', '1', 6);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN006', 'awal-medis', '0', 6);
 INSERT INTO `bw_setting_bundling` VALUES ('BUN007', 'surat-kematian', '1', 8);
-INSERT INTO `bw_setting_bundling` VALUES ('BUN008', 'berkas-laporan-operasi', '1', 7);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN008', 'berkas-laporan-operasi', '0', 7);
 INSERT INTO `bw_setting_bundling` VALUES ('BUN009', 'soapie-pasien', '1', 9);
-INSERT INTO `bw_setting_bundling` VALUES ('BUN010', 'hasil-pemeriksaan-ekg', '1', 10);
-INSERT INTO `bw_setting_bundling` VALUES ('BUN011', 'berkas-triase-igdsekunder', '1', 11);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN010', 'hasil-pemeriksaan-ekg', '0', 11);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN011', 'berkas-triase-igdsekunder', '1', 10);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN012', 'cppt-convert-resume-ralan', '0', 12);
+INSERT INTO `bw_setting_bundling` VALUES ('BUN013', 'surat-pri-bpjs', '1', 13);
 
 -- ----------------------------
 -- Table structure for bw_skala_upah
