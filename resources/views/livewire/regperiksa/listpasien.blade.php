@@ -42,7 +42,7 @@
                 </div>
             </form>
         </div>
-        <div class="card-body table-responsive p-0" style="height: 500px;">
+        <div class="card-body table-responsive p-0" style="height: 65vh; overflow: auto;">
             <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
                 <thead>
                     <tr>
@@ -63,8 +63,8 @@
                     @foreach ($getPasien as $key => $item)
                         <tr wire:key='{{ $key }}'>
                             <td>
-                                <button id="dropdownSubMenu1{{$key}}" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false"
+                                <button id="dropdownSubMenu1{{ $key }}" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false"
                                     class="btn btn-default btn-sm dropdown-toggle dropdown dropdown-hover py-0"></button>
                                 @include('regperiksa.component.menu')
 

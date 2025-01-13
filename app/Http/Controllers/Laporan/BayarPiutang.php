@@ -80,7 +80,7 @@ class BayarPiutang extends Controller
             ->orderBy('bayar_piutang.no_rawat', 'asc')
             ->paginate(1000);
         $bayarPiutang->map(function ($item) {
-            // NOMOR NOTA
+            // NOMOR SEP
             $item->getNoSep = DB::table('bridging_sep')
                 ->select('no_sep')
                 ->where('no_rawat', $item->no_rawat)

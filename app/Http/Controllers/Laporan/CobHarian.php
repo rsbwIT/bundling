@@ -3,82 +3,51 @@
 namespace App\Http\Controllers\Laporan;
 
 use Illuminate\Http\Request;
-use App\Services\CacheService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class PiutangRanap extends Controller
+class CobHarian extends Controller
 {
-    protected $cacheService;
-    public function __construct(CacheService $cacheService)
+    public function CobHarian(Request $request)
     {
-        $this->cacheService = $cacheService;
-    }
-    public function CariPiutangRanap(Request $request)
-    {
-        $pencarian = '/cari-piutang-ranap';
-        $penjab = $this->cacheService->getPenjab();
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
-        $status = ($request->statusLunas == "Lunas") ? "Lunas" : (($request->statusLunas == "Belum Lunas") ? "Belum Lunas" : "");
-        $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
-
-        $piutangRanap = DB::table('kamar_inap')
+        $stsLanjut = $request->stsLanjut;
+        $getCobHarian =  DB::table('detail_piutang_pasien')
             ->select(
-                'kamar_inap.no_rawat',
-                'reg_periksa.no_rkm_medis',
+                'detail_piutang_pasien.no_rawat',
                 'pasien.nm_pasien',
-                'kamar_inap.tgl_keluar',
-                'penjab.png_jawab',
-                'kamar_inap.stts_pulang',
-                'kamar.kd_kamar',
-                'bangsal.nm_bangsal',
+                'poliklinik.nm_poli',
+                'reg_periksa.kd_dokter',
+                'dokter.nm_dokter',
                 'piutang_pasien.uangmuka',
-                'piutang_pasien.totalpiutang',
+                'piutang_pasien.sisapiutang',
+                'piutang_pasien.STATUS',
                 'reg_periksa.status_lanjut'
             )
-            ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('reg_periksa', 'detail_piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-            ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->whereBetween('kamar_inap.tgl_keluar', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($status, $kdPenjamin) {
-                if ($status) {
-                    $query->where('piutang_pasien.status', $status);
-                }
-                if ($kdPenjamin) {
-                    $query->whereIn('penjab.kd_pj', $kdPenjamin);
-                }
-            })
+            ->join('piutang_pasien', 'reg_periksa.no_rawat', '=', 'piutang_pasien.no_rawat')
+            ->whereBetween('detail_piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
+            ->where('reg_periksa.status_lanjut', $stsLanjut)
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->orderBy('kamar_inap.tgl_keluar')
-            ->orderBy('kamar_inap.jam_keluar')
-            ->groupBy('kamar_inap.no_rawat')
+            ->groupBy('detail_piutang_pasien.no_rawat')
+            ->having(DB::raw('COUNT(detail_piutang_pasien.no_rawat)'), '>', 1)
+            ->orderBy('detail_piutang_pasien.no_rawat', 'ASC')
             ->get();
-        $piutangRanap->map(function ($item) {
-            // NOMOR SEP
-            $item->getNoSep = DB::table('bridging_sep')
-                ->select('no_sep')
-                ->where('no_rawat', $item->no_rawat)
-                ->where(function ($query) use ($item) {
-                    if ($item->status_lanjut == 'Ralan') {
-                        $query->where('jnspelayanan', '=', '2');
-                    } else {
-                        $query->where('jnspelayanan', '=', '1');
-                    }
-                })
-                ->get();
+        $getCobHarian->map(function ($item) {
             // NOMOR NOTA
-            $item->getNomorNota = DB::table('nota_inap')
-                ->select('no_nota')
+            $item->getNomorNota = DB::table('billing')
+                ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
+                ->where('no', '=', 'No.Nota')
                 ->get();
             // REGISTRASI
             $item->getRegistrasi = DB::table('billing')
@@ -176,24 +145,16 @@ class PiutangRanap extends Controller
                 ->where('no_rawat', $item->no_rawat)
                 ->where('status', '=', 'Kamar')
                 ->get();
-            // Harian
-            $item->getHarian = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Harian')
+            // GET PENJAB (COB)
+            $item->getPenjabCOB = DB::table('detail_piutang_pasien')
+                ->select('penjab.png_jawab', 'detail_piutang_pasien.totalpiutang')
+                ->join('penjab', 'detail_piutang_pasien.kd_pj', '=', 'penjab.kd_pj')
+                ->where('detail_piutang_pasien.no_rawat', '=', $item->no_rawat)
                 ->get();
-            // SUDAH DIBAYAR / DISKON / TIDAK TERBAYAR
-            $item->getSudahBayar = DB::table('bayar_piutang')
-                ->select('besar_cicilan', 'diskon_piutang', 'tidak_terbayar')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
-            return $item;
         });
 
-        return view('laporan.piutangRanap', [
-            'pencarian' => $pencarian,
-            'penjab' => $penjab,
-            'piutangRanap' => $piutangRanap,
+        return view('laporan.cob-harian', [
+            'getCobHarian' => $getCobHarian,
         ]);
     }
 }

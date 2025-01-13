@@ -20,7 +20,6 @@ class AuthController extends Controller
     function Login(){
         $getSetting = $this->cacheService->getSetting();
         // Session::flush();
-        // DefaultService::authService();
         return view('auth.login',[
             'getSetting' => $getSetting
         ]);

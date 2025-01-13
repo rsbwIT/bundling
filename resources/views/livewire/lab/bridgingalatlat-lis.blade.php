@@ -61,7 +61,7 @@
                     <th>No. Rawat</th>
                     <th>Pasien</th>
                     <th>Tanggal Lahir</th>
-                    <th>NIP</th>
+                    <th>S.Lanjut</th>
                     <th>Penjab</th>
                     <th>Dokter</th>
                     <th>dr_perujuk</th>
@@ -91,7 +91,7 @@
                         <td>{{ $data->no_rawat }}</td>
                         <td>{{ $data->nm_pasien }} - {{ $data->no_rkm_medis }} - ({{ $data->jk }})</td>
                         <td>{{ $data->tgl_lahir }}</td>
-                        <td>{{ $data->nip }}</td>
+                        <td>{{ $data->status_lanjut }}</td>
                         <td>{{ $data->png_jawab }}</td>
                         <td>{{ $data->nm_dokter }}</td>
                         <td>{{ $data->dr_perujuk }}</td>

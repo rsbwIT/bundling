@@ -94,7 +94,7 @@ class CesmikController extends Controller
             $getSudartKematian = QueryResumeDll::getSuratKematian($noRawat);
 
             // 11 LAPORAN OPERASi
-            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat);
+            $getLaporanOprasi = QueryResumeDll::getLaporanOprasi($noRawat, $statusLanjut->status_lanjut);
 
             // 12 SOAPIE PASIEN
             if ($statusLanjut->status_lanjut === 'Ranap') {
@@ -105,6 +105,9 @@ class CesmikController extends Controller
 
             // 13 TRIASE PASIEN
             $getTriaseIGD = QueryResumeDll::getTriaseIGD($noRawat);
+
+            // 14 SURAT PRI BPJS
+            $getSuratPriBpjs = QueryResumeDll::suratPriBpjs($noRawat);
 
         } else {
             $getSetting = '';
@@ -123,6 +126,7 @@ class CesmikController extends Controller
             $getLaporanOprasi = '';
             $getSoapie = '';
             $getTriaseIGD = '';
+            $getSuratPriBpjs = '';
         }
 
         // VIEW
@@ -143,6 +147,7 @@ class CesmikController extends Controller
             'getLaporanOprasi' => $getLaporanOprasi,
             'getSoapie' => $getSoapie,
             'getTriaseIGD' => $getTriaseIGD,
+            'getSuratPriBpjs' => $getSuratPriBpjs,
         ]);
     }
 }

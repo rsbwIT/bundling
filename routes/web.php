@@ -10,6 +10,7 @@ use App\Http\Controllers\Bpjs\HomeCasemix;
 use App\Http\Controllers\Bpjs\SettingBpjs;
 use App\Http\Controllers\Bpjs\GabungBerkas;
 use App\Http\Controllers\Laporan\BayarUmum;
+use App\Http\Controllers\Laporan\CobHarian;
 use App\Http\Controllers\Bpjs\BpjsController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
@@ -143,6 +144,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/invoice-asuransi', [InvoiceAsuransi::class, 'InvoiceAsuransi']);
         Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
+        Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);

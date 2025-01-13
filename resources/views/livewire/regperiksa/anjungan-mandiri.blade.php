@@ -149,7 +149,7 @@
                     <button style="position: fixed; top: 20px; right: 20px; z-index: 1000;" type="button"
                         class="btn btn-danger" wire:click='ResertShow("{{ 2 }}")'>X</button>
                 </div>
-                <div class="col-md-12">
+                {{-- <div class="col-md-12"> --}}
                     <div class="row justify-content-center">
                         <div class="col-md-6">
                             <h4 class="text-center display-5">Pilih Dokter</h4>
@@ -226,7 +226,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                {{-- </div> --}}
             </div>
         @endif
     @endif
