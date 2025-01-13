@@ -250,7 +250,7 @@
                 <div class="col-12">
                     <div class="row justify-content-center">
                         <div class="col-5">
-                            <div class="card card-primary card-outline" style="height: 280px">
+                            <div class="card card-primary card-outline">
                                 <div class="card-body box-profile">
                                     <div class="text-center">
                                         <img class="img-circle elevation-1 mb-2" src="/img/user.jpg"
@@ -272,7 +272,7 @@
                             </div>
                         </div>
                         <div class="col-7">
-                            <div class="card card-primary card-outline" style="height: 280px">
+                            <div class="card card-primary card-outline" >
                                 @if (session()->has('messageRegistrasi'))
                                     <div class="ribbon-wrapper">
                                         <div class="ribbon bg-success">
@@ -383,7 +383,6 @@
 
                     </div>
                 </div>
-
             </div>
         </div>
     @endif
