@@ -112,6 +112,7 @@
                         <th>Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Penanggung Jawab</th>
+                        <th>Status Lanjut</th>
                         <th></th>
                     </tr>
                     @foreach ($results as $key => $item)
@@ -121,6 +122,7 @@
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->png_jawab }}</td>
+                            <td>{{ $item->status_lanjut }}</td>
 
                             </td>
                         </tr>

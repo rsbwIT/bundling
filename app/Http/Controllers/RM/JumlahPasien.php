@@ -25,7 +25,8 @@ class JumlahPasien extends Controller
         'reg_periksa.tgl_registrasi',
         'reg_periksa.no_rkm_medis',
         'pasien.nm_pasien',
-        'penjab.png_jawab'
+        'penjab.png_jawab',
+        'reg_periksa.status_lanjut'
     )
     ->whereBetween('reg_periksa.tgl_registrasi', [$request->tgl1, $request->tgl2])
     ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
