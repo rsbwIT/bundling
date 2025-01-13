@@ -95,6 +95,7 @@ class SettingPosisiDokter extends Component
                 ->update(['foto' => $file_name]);
         } catch (\Throwable $th) {
         }
+        $this->getListDokter();
     }
 
     // TAMBAH KUOTA
