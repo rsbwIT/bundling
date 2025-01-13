@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RM\Borlos;
 use App\Http\Controllers\RM\BerkasRM;
+use App\Http\Controllers\RM\PasienRawatJalan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Bpjs\DataInacbg;
@@ -63,6 +64,10 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaran;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaRadiologiUm;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterParamedisUm;
 use App\Http\Controllers\DetailTindakanUmum\RanapDokterParamedisUm;
+use App\Http\Controllers\RM\KunjunganRalan;
+use App\Http\Controllers\RM\PasienPulangRanap;
+use App\Http\Controllers\RM\StatusDataRm;
+use App\Http\Controllers\RM\JumlahPasien;
 
 /*
 |--------------------------------------------------------------------------
@@ -184,6 +189,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/laporan-bto', [Borlos::class, 'Bto']);
         Route::get('/anjungan-mandiri', [AnjunganMandiri::class, 'Anjungan'])->middleware('permision-rsbw:registrasi');
         Route::get('/anjungan-mandiri-print/{noRawat}', [AnjunganMandiri::class, 'Print'])->middleware('permision-rsbw:registrasi');
+        Route::get('/rawat-jalan', [PasienRawatJalan::class,'PasienRawatJalan']);
+        Route::get('/kunjungan-ralan', [KunjunganRalan::class,'KunjunganRalan']);
+        Route::get('/status-data-rm', [StatusDataRm::class,'StatusDataRm']);
+        Route::get('/pasien-pulang-ranap', [PasienPulangRanap::class,'PasienPulangRanap']);
+        Route::get('/jumlah-pasien', [JumlahPasien::class,'JumlahPasien']);
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
