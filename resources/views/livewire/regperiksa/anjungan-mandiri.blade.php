@@ -290,27 +290,27 @@
                                 <div class="card-body">
                                     <form class="form-horizontal mt-0">
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName" class="col-sm-4 "> Dituju</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName" class="col-4 "> Dituju</span>
+                                            <div class="col-8">
                                                 : {{ $registrasi['nm_dokter'] }}
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName" class="col-sm-4">Unit/Poliklinik</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName" class="col-4">Unit/Poliklinik</span>
+                                            <div class="col-8">
                                                 : {{ $registrasi['nm_poli'] }}
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName2" class="col-sm-4">Penanggung Jawab</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName2" class="col-4">Penanggung Jawab</span>
+                                            <div class="col-8">
                                                 <input type="text" class="form-control form-control-sm"
                                                     wire:model='namakeluarga' placeholder="Name">
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Hubungan PJ</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputSkills" class="col-4">Hubungan PJ</span>
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='keluarga'>
                                                     @foreach ($getKeluarga as $item)
                                                         <option value="{{ $item->keluarga }}">
@@ -320,17 +320,17 @@
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName2" class="col-sm-4">Alamat
+                                            <span for="inputName2" class="col-4">Alamat
                                             </span>
-                                            <div class="col-sm-8">
+                                            <div class="col-8">
                                                 <input type="text" class="form-control form-control-sm"
                                                     wire:model='alamat' placeholder="Name">
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Status
+                                            <span for="inputSkills" class="col-4">Status
                                                 Pasien</span>
-                                            <div class="col-sm-8">
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='stts_daftar'>
                                                     <option value="Baru">Baru</option>
                                                     <option value="Lama">Lama</option>
@@ -338,8 +338,8 @@
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Penjamin</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputSkills" class="col-4">Penjamin</span>
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='penjab'>
                                                     @foreach ($getPenjab as $item)
                                                         <option value="{{ $item->kd_pj }}">
