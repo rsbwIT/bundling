@@ -46,12 +46,17 @@ class PiutangRalan extends Controller
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($status, $kdPenjamin, $cariNomor) {
+            ->where(function ($query) use ($status, $kdPenjamin) {
                 if ($status) {
                     $query->where('piutang_pasien.status', $status);
                 }
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
+                }
+            })
+            ->where(function ($query) use ($status, $cariNomor) {
+                if ($status) {
+                    $query->where('piutang_pasien.status', $status);
                 }
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
