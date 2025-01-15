@@ -38,6 +38,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <select class="form-control form-control-sm" name="status_lanjut">
+                                <option value="Ralan">Ralan</option>
+                                <option value="Ranap">Ranap</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-2">
                         <div class="form-group">
                             <div class="input-group input-group-xs">
