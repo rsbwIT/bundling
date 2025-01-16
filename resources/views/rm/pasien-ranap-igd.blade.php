@@ -64,19 +64,17 @@
                 <tbody>
                     <tr>
                         <th>No</th>
-                        <th>Tanggal Periksa</th>
                         <th>No Rawat</th>
                         <th>No RM</th>
                         <th>Nama Pasien</th>
                         <th>Poli</th>
-                        <th>Instruksi</th>
-                        <th>Evaluasi</th>
-                        <th>RTL</th>
-                        <th>Penilaian</th>
+                        <th>Tanggal Periksa</th>
+                        <th>Tanggal SOAP</th>
+                        <th>Nama User</th>
+                        <th>Diagnosa Awal</th>
                         <th>Keluhan</th>
                         <th>Pemeriksaan</th>
                         <th>Kesadaran</th>
-                        <th>Tanggal SOAP</th>
                         <th>Suhu Tubuh</th>
                         <th>Tensi</th>
                         <th>Nadi</th>
@@ -87,27 +85,26 @@
                         <th>GCS</th>
                         <th>Alergi</th>
                         <th>Lingkar Perut</th>
-                        <th>Nama User</th>
-
-
+                        <th>Penilaian</th>
+                        <th>Instruksi</th>
+                        <th>Evaluasi</th>
+                        <th>RTL</th>
                         <th></th>
                     </tr>
                     @foreach ($results as $key => $item)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td>{{ $item->tanggal_registrasi }}</td>
                             <td>{{ $item->nomor_rawat }}</td>
                             <td>{{ $item->nomor_rm }}</td>
                             <td>{{ $item->nama_pasien }}</td>
                             <td>{{ $item->poli }}</td>
-                            <td>{{ $item->instruksi }}</td>
-                            <td>{{ $item->evaluasi }}</td>
-                            <td>{{ $item->rtl }}</td>
-                            <td>{{ $item->penilaian }}</td>
+                            <td>{{ $item->tanggal_registrasi }}</td>
+                            <td>{{ $item->tanggal_SOAP }}</td>
+                            <td>{{ $item->nama }}</td>
+                            <td>{{ $item->diagnosa_awal }}</td>
                             <td>{{ $item->keluhan }}</td>
                             <td>{{ $item->pemeriksaan }}</td>
                             <td>{{ $item->kesadaran }}</td>
-                            <td>{{ $item->tanggal_SOAP }}</td>
                             <td>{{ $item->suhu_tubuh }}</td>
                             <td>{{ $item->tensi }}</td>
                             <td>{{ $item->nadi }}</td>
@@ -118,7 +115,16 @@
                             <td>{{ $item->gcs }}</td>
                             <td>{{ $item->alergi }}</td>
                             <td>{{ $item->lingkar_perut }}</td>
-                            <td>{{ $item->nama }}</td>
+                            <td>{{ $item->penilaian }}</td>
+                            <td>{{ $item->instruksi }}</td>
+                            <td>{{ $item->evaluasi }}</td>
+                            <td>{{ $item->rtl }}</td>
+
+
+
+
+
+
 
 
                             </td>

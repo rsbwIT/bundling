@@ -47,11 +47,13 @@ class PasienRanapIgd extends Controller
                 'pemeriksaan_ralan.rtl',
                 'pemeriksaan_ralan.penilaian',
                 'pemeriksaan_ralan.instruksi',
+                'kamar_inap.diagnosa_awal',
                 'pemeriksaan_ralan.evaluasi',
                 'pegawai.nama'
             )
             ->whereBetween('reg_periksa.tgl_registrasi', [$request->tgl1, $request->tgl2])
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pemeriksaan_ralan', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pegawai', 'pemeriksaan_ralan.nip', '=', 'pegawai.nik')
             ->where('reg_periksa.kd_pj', '=', 'bpj')
