@@ -69,6 +69,7 @@ use App\Http\Controllers\RM\KunjunganRalan;
 use App\Http\Controllers\RM\PasienPulangRanap;
 use App\Http\Controllers\RM\StatusDataRm;
 use App\Http\Controllers\RM\JumlahPasien;
+use App\Http\Controllers\RM\PasienRanapIgd;
 
 /*
 |--------------------------------------------------------------------------
@@ -196,6 +197,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/status-data-rm', [StatusDataRm::class,'StatusDataRm']);
         Route::get('/pasien-pulang-ranap', [PasienPulangRanap::class,'PasienPulangRanap']);
         Route::get('/jumlah-pasien', [JumlahPasien::class,'JumlahPasien']);
+        Route::get('/pasien-ranap-igd', [PasienRanapIgd::class,'PasienRanapIgd']);
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
