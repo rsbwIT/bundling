@@ -90,7 +90,7 @@
                         <th>Kamar+Service</th>
                         <th>Potongan</th>
                         <th>Total</th>
-                        <th class="text-center" colspan="2">Penjamin</th>
+                        <th class="text-center" colspan="4">Penjamin</th>
                     </tr>
                 </thead>
                 @forelse ($getCobHarian as $item)
@@ -175,11 +175,14 @@
                                 $item->getRadiologi->sum('totalbiaya') +
                                 $item->getTambahan->sum('totalbiaya') +
                                 $item->getKamarInap->sum('totalbiaya') +
-                                $item->getPotongan->sum('totalbiaya')  }}
+                                $item->getPotongan->sum('totalbiaya') }}
                         </td>
                         @foreach ($item->getPenjabCOB as $penjab)
                             <td>
-                                <span class="mx-1">{{ $penjab->png_jawab }} (Rp. {{$penjab->totalpiutang}})</span>
+                                {{ $penjab->png_jawab }}
+                            </td>
+                            <td>
+                                {{ $penjab->totalpiutang }}
                             </td>
                         @endforeach
                     </tr>

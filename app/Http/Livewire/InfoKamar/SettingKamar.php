@@ -162,6 +162,7 @@ class SettingKamar extends Component
                 'tersediapriawanita' => $udapteKamar->tersedia,
             ];
             // dd($data);
+            // $respone = json_decode($this->referensi->addRuangan(json_encode($data)));
             $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
             $this->respone = (array)$respone->metadata;
         } catch (\Throwable $th) {

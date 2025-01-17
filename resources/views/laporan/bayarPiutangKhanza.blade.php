@@ -94,6 +94,13 @@
                     </div>
                 </div>
             </form>
+            <div class="row no-print">
+                <div class="col-12">
+                    <button type="button" class="btn btn-default float-right" id="copyButton">
+                        <i class="fas fa-copy"></i> Copy table
+                    </button>
+                </div>
+            </div>
             <nav aria-label="Page navigation example">
                 {{ $bayarPiutang->appends(request()->input())->links('pagination::bootstrap-4') }}
             </nav>

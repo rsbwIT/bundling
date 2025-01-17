@@ -23,8 +23,8 @@ class TestController extends Controller
     public function TestDelete()
     {
         // $data = [
-        //     "kodekelas" => "SAL",
-        //     "koderuang" => "RPERI"
+        //     "kodekelas" => "ICU",
+        //     "koderuang" => "INTSNV"
         // ];
         // dd(json_decode($this->referensi->deleteRuang(json_encode($data))));
         // dd(json_decode($this->referensi->getRuangan()));

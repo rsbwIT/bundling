@@ -2,9 +2,9 @@
     {{-- 1. CARI RM --}}
     @if ($showItem == 1)
         <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="row justify-content-center">
-                    <div class="col-md-3">
+                    <div class="col-3">
                         <h2 class="text-center display-5">Cari Nomor</h2>
                         <form wire:submit.prevent="setPasien">
                             <div class="input-group">
@@ -35,9 +35,9 @@
                         </form>
                     </div>
                 </div>
-                <div class="col-md-12">
+                <div class="col-12">
                     <div class="row justify-content-center">
-                        <div class="col-md-3">
+                        <div class="col-3">
                             <div class="card p-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <button type="button" class="btn btn-outline-primary btn-lg px-5"
@@ -104,10 +104,10 @@
                     class="btn btn-danger" wire:click='ResertShow("{{ 1 }}")'>X</button>
             </div>
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-8">
                     <h4 class="text-center display-5">Pilih Poliklinik</h4>
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-8">
                             @if ($getpasien)
                                 <table>
                                     @foreach ($getpasien as $item)
@@ -126,7 +126,7 @@
                     </div>
                     <div class="row">
                         @foreach ($getPoli as $item)
-                            <div class="col-md-3 m-0" style="cursor: pointer;"
+                            <div class="col-3 m-0" style="cursor: pointer;"
                                 wire:click='setDokter("{{ $item->kd_poli }}","{{ $item->nm_poli }}")'>
                                 <div class="card card-primary card-outline m-0">
                                     <div class="card-body box-profile">
@@ -149,15 +149,15 @@
                     <button style="position: fixed; top: 20px; right: 20px; z-index: 1000;" type="button"
                         class="btn btn-danger" wire:click='ResertShow("{{ 2 }}")'>X</button>
                 </div>
-                {{-- <div class="col-md-12"> --}}
+                {{-- <div class="col-12"> --}}
                     <div class="row justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <h4 class="text-center display-5">Pilih Dokter</h4>
                             @php
                                 $center = count($getDokter) > 1 ? '' : 'justify-content-center';
                             @endphp
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-12">
                                     @if ($getpasien)
                                         <table>
                                             @foreach ($getpasien as $item)
@@ -176,7 +176,7 @@
                             </div>
                             <div class="row {{ $center }}">
                                 @foreach ($getDokter as $dokter)
-                                    <div class="col-md-6 m-0">
+                                    <div class="col-6 m-0">
                                         <div class="card card-primary card-outline m-0">
                                             @if ($dokter->terdaftar >= $dokter->total_kuota)
                                                 <div class="ribbon-wrapper">
@@ -247,10 +247,10 @@
             </div>
             <h4 class="text-center display-5 mt-0">Form Daftar</h4>
             <div class="row justify-content-center">
-                <div class="col-md-12">
+                <div class="col-12">
                     <div class="row justify-content-center">
-                        <div class="col-md-5">
-                            <div class="card card-primary card-outline" style="height: 280px">
+                        <div class="col-5">
+                            <div class="card card-primary card-outline">
                                 <div class="card-body box-profile">
                                     <div class="text-center">
                                         <img class="img-circle elevation-1 mb-2" src="/img/user.jpg"
@@ -271,8 +271,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="card card-primary card-outline" style="height: 280px">
+                        <div class="col-7">
+                            <div class="card card-primary card-outline" >
                                 @if (session()->has('messageRegistrasi'))
                                     <div class="ribbon-wrapper">
                                         <div class="ribbon bg-success">
@@ -290,27 +290,27 @@
                                 <div class="card-body">
                                     <form class="form-horizontal mt-0">
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName" class="col-sm-4 "> Dituju</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName" class="col-4 "> Dituju</span>
+                                            <div class="col-8">
                                                 : {{ $registrasi['nm_dokter'] }}
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName" class="col-sm-4">Unit/Poliklinik</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName" class="col-4">Unit/Poliklinik</span>
+                                            <div class="col-8">
                                                 : {{ $registrasi['nm_poli'] }}
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName2" class="col-sm-4">Penanggung Jawab</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputName2" class="col-4">Penanggung Jawab</span>
+                                            <div class="col-8">
                                                 <input type="text" class="form-control form-control-sm"
                                                     wire:model='namakeluarga' placeholder="Name">
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Hubungan PJ</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputSkills" class="col-4">Hubungan PJ</span>
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='keluarga'>
                                                     @foreach ($getKeluarga as $item)
                                                         <option value="{{ $item->keluarga }}">
@@ -320,17 +320,17 @@
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputName2" class="col-sm-4">Alamat
+                                            <span for="inputName2" class="col-4">Alamat
                                             </span>
-                                            <div class="col-sm-8">
+                                            <div class="col-8">
                                                 <input type="text" class="form-control form-control-sm"
                                                     wire:model='alamat' placeholder="Name">
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Status
+                                            <span for="inputSkills" class="col-4">Status
                                                 Pasien</span>
-                                            <div class="col-sm-8">
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='stts_daftar'>
                                                     <option value="Baru">Baru</option>
                                                     <option value="Lama">Lama</option>
@@ -338,8 +338,8 @@
                                             </div>
                                         </div>
                                         <div class="form-group row" style="margin: 5px">
-                                            <span for="inputSkills" class="col-sm-4">Penjamin</span>
-                                            <div class="col-sm-8">
+                                            <span for="inputSkills" class="col-4">Penjamin</span>
+                                            <div class="col-8">
                                                 <select class="form-control form-control-sm" wire:model='penjab'>
                                                     @foreach ($getPenjab as $item)
                                                         <option value="{{ $item->kd_pj }}">
@@ -353,11 +353,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <button type="button" class="form-control btn btn-block btn-primary"
                                 wire:click='Registrasi'><i class="fas fa-save"></i> Daftar</button>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-6">
                             @php
                                 if ($getRegistrasi) {
                                     $dislabelPrint = '';
@@ -383,7 +383,6 @@
 
                     </div>
                 </div>
-
             </div>
         </div>
     @endif
