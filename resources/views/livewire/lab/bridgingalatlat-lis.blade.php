@@ -260,7 +260,7 @@
 
                                                     <td width="130px">Tgl. Periksa </td>
                                                     <td width="200px">:
-                                                        {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['order_lab'])) }}
+                                                        {{ date('d-m-Y', strtotime($detailDataLis['response']['sampel']['acc_date'])) }}
                                                     </td>
                                                 </tr>
                                                 <tr style="vertical-align: top;">
