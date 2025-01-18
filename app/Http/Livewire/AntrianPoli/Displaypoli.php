@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\AntrianPoli;
 
 use Livewire\Component;
+use App\Services\ValueENV;
 use Illuminate\Http\Request;
 use App\Services\DayListService;
 use Illuminate\Support\Facades\DB;
@@ -10,10 +11,12 @@ use Illuminate\Support\Facades\DB;
 class Displaypoli extends Component
 {
     public $kd_display;
+    public $pusher_key;
     public function mount(Request $request)
     {
         $this->kd_display = $request->kd_display;
         $this->getDisplay();
+        $this->pusher_key = ValueENV::getPusherKey();
     }
     public function render()
     {
