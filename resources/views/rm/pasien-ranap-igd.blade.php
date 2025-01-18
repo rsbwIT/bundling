@@ -119,14 +119,6 @@
                             <td>{{ $item->instruksi }}</td>
                             <td>{{ $item->evaluasi }}</td>
                             <td>{{ $item->rtl }}</td>
-
-
-
-
-
-
-
-
                             </td>
                         </tr>
                     @endforeach
