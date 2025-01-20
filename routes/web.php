@@ -2,23 +2,30 @@
 
 use App\Http\Controllers\RM\Borlos;
 use App\Http\Controllers\RM\BerkasRM;
-use App\Http\Controllers\RM\PasienRawatJalan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Bpjs\DataInacbg;
+use App\Http\Controllers\RM\JumlahPasien;
+use App\Http\Controllers\RM\StatusDataRm;
 use App\Http\Controllers\Bpjs\HomeCasemix;
 use App\Http\Controllers\Bpjs\SettingBpjs;
 use App\Http\Controllers\Bpjs\GabungBerkas;
 use App\Http\Controllers\Laporan\BayarUmum;
 use App\Http\Controllers\Laporan\CobHarian;
+use App\Http\Controllers\RM\KunjunganRalan;
+use App\Http\Controllers\RM\PasienRanapIgd;
+use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\Bpjs\BpjsController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
+use App\Http\Controllers\RM\PasienPerEpisode;
+use App\Http\Controllers\RM\PasienRawatJalan;
 use App\Http\Controllers\Test\TestController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Laporan\BayarPiutang;
 use App\Http\Controllers\Laporan\PiutangRalan;
 use App\Http\Controllers\Laporan\PiutangRanap;
+use App\Http\Controllers\RM\PasienPulangRanap;
 use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\Regperiksa\Listpasien;
@@ -65,11 +72,6 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaran;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaRadiologiUm;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterParamedisUm;
 use App\Http\Controllers\DetailTindakanUmum\RanapDokterParamedisUm;
-use App\Http\Controllers\RM\KunjunganRalan;
-use App\Http\Controllers\RM\PasienPulangRanap;
-use App\Http\Controllers\RM\StatusDataRm;
-use App\Http\Controllers\RM\JumlahPasien;
-use App\Http\Controllers\RM\PasienRanapIgd;
 
 /*
 |--------------------------------------------------------------------------
@@ -198,6 +200,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-pulang-ranap', [PasienPulangRanap::class,'PasienPulangRanap']);
         Route::get('/jumlah-pasien', [JumlahPasien::class,'JumlahPasien']);
         Route::get('/pasien-ranap-igd', [PasienRanapIgd::class,'PasienRanapIgd']);
+        Route::get('/pasien-per-episode', [PasienPerEpisode::class,'PasienPerEpisode']);
+        Route::get('/pasien-meinggal', [PasienMeninggal::class,'getPasienMeninggal']);
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
