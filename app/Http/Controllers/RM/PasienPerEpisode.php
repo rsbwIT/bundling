@@ -56,6 +56,7 @@ class PasienPerEpisode extends Controller
             ->leftJoin('poliklinik as pl', 'rp.kd_poli', '=', 'pl.kd_poli')
             ->whereNotIn('rp.kd_poli', ['U0057', 'U0066', 'U022I', 'FIS', 'U014I', 'FISI', 'U0061', 'U017I'])
             ->whereBetween('rp.tgl_registrasi', [$request->tgl1, $request->tgl2])
+            ->orderBy('ps.nm_pasien', 'asc')
             ->whereIn('rp.no_rkm_medis', $reg_periksa->pluck('no_rkm_medis'));
 
         // ->get();
