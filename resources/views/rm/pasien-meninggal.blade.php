@@ -6,7 +6,6 @@
 @section('konten')
     <div class="card">
         <div class="card-body">
-
             <form action="{{ url('/pasien-meninggal') }}" action="POST">
                 @csrf
                 <div class="row">
