@@ -68,7 +68,6 @@
                         <th>Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Nama Poli</th>
-                        <th>Status Bayar</th>
                         <th>Status Lanjut</th>
                         <th>Jenis Bayar</th>
                         <th>Dokter</th>
@@ -82,7 +81,6 @@
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
-                            <td>{{ $item->status_bayar }}</td>
                             <td>{{ $item->status_lanjut }}</td>
                             <td>{{ $item->kd_pj }}</td>
                             <td>{{ $item->nm_dokter_reg }}</td>

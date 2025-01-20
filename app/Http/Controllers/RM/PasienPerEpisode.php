@@ -25,7 +25,6 @@ class PasienPerEpisode extends Controller
                 'rp.no_rkm_medis'
             ])
             ->whereBetween('rp.tgl_registrasi', [$request->tgl1, $request->tgl2])
-            ->whereNotIn('rp.kd_poli', ['U0057', 'U0066', 'U022I', 'FIS', 'U014I', 'FISI', 'U0061', 'U017I'])
             ->where('rp.status_bayar', ['Sudah Bayar'])
             ->where('rp.kd_pj', 'bpj')
             ->groupBy('rp.no_rkm_medis')
@@ -55,6 +54,7 @@ class PasienPerEpisode extends Controller
             ->leftJoin('dpjp_ranap as drp', 'rp.no_rawat', '=', 'drp.no_rawat')
             ->leftJoin('dokter as dr_dpjp', 'drp.kd_dokter', '=', 'dr_dpjp.kd_dokter')
             ->leftJoin('poliklinik as pl', 'rp.kd_poli', '=', 'pl.kd_poli')
+            ->whereNotIn('rp.kd_poli', ['U0057', 'U0066', 'U022I', 'FIS', 'U014I', 'FISI', 'U0061', 'U017I'])
             ->whereBetween('rp.tgl_registrasi', [$request->tgl1, $request->tgl2])
             ->whereIn('rp.no_rkm_medis', $reg_periksa->pluck('no_rkm_medis'));
 
