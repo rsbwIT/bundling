@@ -92,7 +92,11 @@
                     @endforeach
                 </tbody>
             </table>
+            <nav aria-label="Page navigation example">
+                {{ $results->appends(request()->input())->links('pagination::bootstrap-4') }}
+            </nav>
         </div>
+
     </div>
     <script>
         document.getElementById("copyButton").addEventListener("click", function() {

@@ -60,7 +60,7 @@ class PasienPerEpisode extends Controller
 
         // ->get();
         // dd($episode);
-        $results = $episode->get();
+        $results = $episode->paginate(1000);
 
 
         return  view("rm.pasien-per-episode", [
