@@ -72,7 +72,6 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaran;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaRadiologiUm;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterParamedisUm;
 use App\Http\Controllers\DetailTindakanUmum\RanapDokterParamedisUm;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -201,7 +200,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/jumlah-pasien', [JumlahPasien::class,'JumlahPasien']);
         Route::get('/pasien-ranap-igd', [PasienRanapIgd::class,'PasienRanapIgd']);
         Route::get('/pasien-per-episode', [PasienPerEpisode::class,'PasienPerEpisode']);
-        Route::get('/pasien-meinggal', [PasienMeninggal::class,'getPasienMeninggal']);
+        Route::get('/pasien-meninggal', [PasienMeninggal::class,'PasienMeninggal']);
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);

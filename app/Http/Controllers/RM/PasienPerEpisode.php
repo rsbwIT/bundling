@@ -26,6 +26,7 @@ class PasienPerEpisode extends Controller
             ])
             ->whereBetween('rp.tgl_registrasi', [$request->tgl1, $request->tgl2])
             ->whereNotIn('rp.kd_poli', ['U0057', 'U0066', 'U022I', 'FIS', 'U014I', 'FISI', 'U0061', 'U017I'])
+            ->where('rp.status_bayar', ['Sudah Bayar'])
             ->where('rp.kd_pj', 'bpj')
             ->groupBy('rp.no_rkm_medis')
             ->having(DB::raw('COUNT(rp.no_rkm_medis)'), '>', 1)
@@ -35,7 +36,7 @@ class PasienPerEpisode extends Controller
                 'rp.tgl_registrasi',
                 'rp.no_rkm_medis',
                 'rp.kd_poli',
-                'rp.stts',
+                'rp.status_bayar',
                 'pl.nm_poli',
                 'ps.nm_pasien',
                 'rp.kd_dokter as kd_dokter_reg',
@@ -59,7 +60,7 @@ class PasienPerEpisode extends Controller
 
         // ->get();
         // dd($episode);
-        $results = $episode->get();
+        $results = $episode->paginate(1000);
 
 
         return  view("rm.pasien-per-episode", [
