@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Pasien Per Episode')
+@section('title', 'Pasien Meninggal')
 @push('styles')
     @livewireStyles
 @endpush

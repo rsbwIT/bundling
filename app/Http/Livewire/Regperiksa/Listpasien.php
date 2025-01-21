@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Regperiksa;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
+use App\Services\Keuangan\BillingPasien;
 
 class Listpasien extends Component
 {
@@ -18,6 +19,10 @@ class Listpasien extends Component
     public $status_lanjut;
     public $status_pulang;
     public $carinomor;
+    public $no_rawat;
+    public $key_modal;
+    public $getBillingPasien;
+
     public function mount()
     {
         $this->tanggal1 = date('Y-m-d');
@@ -107,5 +112,12 @@ class Listpasien extends Component
         } else {
             $this->getPasien = $this->Ranap();
         }
+    }
+
+    // 2 Set Modal ===================
+    public function SetmodalBilling($key, $no_rawat, $status_lanjut) {
+        $this->no_rawat = $no_rawat;
+        $this->key_modal = $key;
+        $this->getBillingPasien = BillingPasien::getBillingPasien($no_rawat, $status_lanjut);
     }
 }

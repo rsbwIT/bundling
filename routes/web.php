@@ -34,6 +34,7 @@ use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
 use App\Http\Controllers\Laporan\InvoiceAsuransi;
+use App\Http\Controllers\Laporan\PasienTerdaftar;
 use App\Http\Controllers\Laporan\PembayaranRalan;
 use App\Http\Controllers\BriggingBpjs\KirimTaskId;
 use App\Http\Controllers\Laporan\PasienController;
@@ -147,6 +148,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
+        Route::get('/pasien-terdaftar', [PasienTerdaftar::class, 'PasienTerdaftar']);
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);

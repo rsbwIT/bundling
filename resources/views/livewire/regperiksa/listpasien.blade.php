@@ -67,7 +67,6 @@
                                     aria-haspopup="true" aria-expanded="false"
                                     class="btn btn-default btn-sm dropdown-toggle dropdown dropdown-hover py-0"></button>
                                 @include('regperiksa.component.menu')
-
                             </td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->no_rawat }}</td>
@@ -85,4 +84,30 @@
             </table>
         </div>
     </div>
+    {{-- <div class="modal fade" id="BillingPasien" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-lg" role="document">
+            @if ($getBillingPasien)
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+
+                        <h6 class="modal-title">Billing Pasien :
+                            <u>
+                                {{ $getBillingPasien[0]->nm_pasien }}
+                            </u>
+                        </h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                {{ $getBillingPasien}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div> --}}
 </div>
