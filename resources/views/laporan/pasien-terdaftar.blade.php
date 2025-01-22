@@ -57,6 +57,7 @@
                         <th class="text-center">BPJS</th>
                         <th class="text-center">Asuransi</th>
                         <th class="text-center">Piutang Pasien</th>
+                        <th>Belum Cetak Bil</th>
                         <th>Sudah Cetak Bil</th>
                         <th>Batal</th>
                         <th class="text-center">Opname</th>
@@ -95,6 +96,12 @@
                             </td>
                             <td>
                                 @if (count($item->getBilling) > 0)
+                                @else
+                                    1
+                                @endif
+                            </td>
+                            <td>
+                                @if (count($item->getBilling) > 0)
                                     1
                                 @endif
                             </td>
@@ -111,7 +118,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot>
+                {{-- <tfoot>
                     <th colspan="8">Total</th>
                     <th>
                         {{ $getPasien->sum(function ($item) {
@@ -140,6 +147,11 @@
                     </th>
                     <th>
                         {{ $getPasien->sum(function ($item) {
+                            return count($item->getBilling);
+                        }) }}
+                    </th>
+                    <th>
+                        {{ $getPasien->sum(function ($item) {
                             return count($item->getPasienBatal);
                         }) }}
                     </th>
@@ -148,7 +160,7 @@
                             return count($item->getPasienOpname);
                         }) }}
                     </th>
-                </tfoot>
+                </tfoot> --}}
             </table>
         </div>
         <div class="card-footer">

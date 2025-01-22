@@ -35,7 +35,7 @@ class PasienTerdaftar extends Controller
             })
             ->orderBy('reg_periksa.jam_reg', 'asc')
             ->get();
-        $getPasien->map(function ($item) {
+        $getPasien->map(function ($item) use($tanggl1, $tanggl2){
             $item->getPasienUmum = DB::table('reg_periksa')
                 ->select('reg_periksa.no_rawat')
                 ->where('reg_periksa.no_rawat', '=', $item->no_rawat)
@@ -59,6 +59,7 @@ class PasienTerdaftar extends Controller
                 ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
                 ->where('no', '=', 'No.Nota')
+                ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
                 ->get();
             $item->getPasienBatal = DB::table('reg_periksa')
                 ->select('reg_periksa.no_rawat')
