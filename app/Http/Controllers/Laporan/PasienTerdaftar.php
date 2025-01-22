@@ -10,6 +10,9 @@ class PasienTerdaftar extends Controller
 {
     public function PasienTerdaftar(Request $request)
     {
+        $cariNomor = $request->cariNomor;
+        $tanggl1 = $request->tgl1;
+        $tanggl2 = $request->tgl2;
         $getPasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rawat',
@@ -24,7 +27,12 @@ class PasienTerdaftar extends Controller
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->whereBetween('reg_periksa.tgl_registrasi', ['2025-01-21', '2025-01-21'])
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->where(function($query) use ($cariNomor) {
+                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+            })
             ->orderBy('reg_periksa.jam_reg', 'asc')
             ->get();
         $getPasien->map(function ($item) {

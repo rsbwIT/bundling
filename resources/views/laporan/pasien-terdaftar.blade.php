@@ -3,16 +3,45 @@
 
 @section('konten')
     <div class="card">
-        <div class="card-body">
-            Jumlah Data : {{ count($getPasien) }}
-            <div class="row no-print">
-                <div class="col-12">
-                    <button type="button" class="btn btn-default float-right" id="copyButton">
-                        <i class="fas fa-copy"></i> Copy table
-                    </button>
+        <div class="card-header">
+            <form action="{{ url('/pasien-terdaftar') }}">
+                @csrf
+                <div class="row">
+                    <div class="col-md-2">
+                        <input type="text" name="cariNomor" class="form-control form-control-sm"
+                            placeholder="Cari Nama/RM/No Rawat">
+                        <div class="input-group-append">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="tgl1" class="form-control form-control-sm"
+                            value="{{ request('tgl1', now()->format('Y-m-d')) }}">
+                        <div class="input-group-append">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="tgl2" class="form-control form-control-sm"
+                            value="{{ request('tgl2', now()->format('Y-m-d')) }}">
+                        <div class="input-group-append">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-md btn-primary btn-sm">
+                                <i class="fa fa-search"></i> Cari
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-default btn-sm float-right" id="copyButton">
+                            <i class="fas fa-copy"></i> Copy table
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <table class="table table-sm table-hover table-bordered table-responsive text-xs mb-3"
+            </form>
+        </div>
+        <div class="card-body table-responsive p-0" style="height: 65vh; overflow: auto;">
+            <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-xs"
                 style="white-space: nowrap;" id="tableToCopy">
                 <thead>
                     <tr>
@@ -122,25 +151,29 @@
                 </tfoot>
             </table>
         </div>
-        <script>
-            document.getElementById("copyButton").addEventListener("click", function() {
-                copyTableToClipboard("tableToCopy");
-            });
+        <div class="card-footer">
+            Jumlah Data : {{ count($getPasien) }}
+        </div>
+    </div>
+    <script>
+        document.getElementById("copyButton").addEventListener("click", function() {
+            copyTableToClipboard("tableToCopy");
+        });
 
-            function copyTableToClipboard(tableId) {
-                const table = document.getElementById(tableId);
-                const range = document.createRange();
-                range.selectNode(table);
+        function copyTableToClipboard(tableId) {
+            const table = document.getElementById(tableId);
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand("copy");
                 window.getSelection().removeAllRanges();
-                window.getSelection().addRange(range);
-                try {
-                    document.execCommand("copy");
-                    window.getSelection().removeAllRanges();
-                    alert("Tabel telah berhasil disalin ke clipboard.");
-                } catch (err) {
-                    console.error("Tidak dapat menyalin tabel:", err);
-                }
+                alert("Tabel telah berhasil disalin ke clipboard.");
+            } catch (err) {
+                console.error("Tidak dapat menyalin tabel:", err);
             }
-        </script>
+        }
+    </script>
     </div>
 @endsection
