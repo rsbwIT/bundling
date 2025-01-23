@@ -95,7 +95,8 @@
                                 @endif
                             </td>
                             <td>
-                                @if (count($item->getBilling) > 0 && count($item->getPasienOpname) > 0)
+                                @if (count($item->getBilling) > 0)
+                                @elseif (count($item->getPasienOpname) > 0)
                                 @else
                                     1
                                 @endif
