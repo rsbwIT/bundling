@@ -90,7 +90,7 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                @if (count($item->getPiutangPasien) > 0 && count($item->getPasienOpname) > 0 && count($item->getPasienBpjs) > 0 && count($item->getPasienAsuransi) > 0)
+                                @if (count($item->getPiutangPasien) > 0 && count($item->getPasienOpname) > 0)
                                 @else
                                 1
                                 @endif
