@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Laporan pasien')
+@section('title', 'Pasien Rajal Terdaftar')
 
 @section('konten')
     <div class="card">
