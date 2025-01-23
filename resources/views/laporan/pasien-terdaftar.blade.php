@@ -97,6 +97,7 @@
                             <td>
                                 @if (count($item->getBilling) > 0)
                                 @elseif (count($item->getPasienOpname) > 0)
+                                @elseif (count($item->getPasienBatal) > 0)
                                 @else
                                     1
                                 @endif
