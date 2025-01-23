@@ -91,7 +91,9 @@
                             </td>
                             <td class="text-center">
                                 @if (count($item->getPiutangPasien) > 0)
-                                    1
+                                1
+                                @elseif (count($item->getPasienOpname) > 0)
+                                @else
                                 @endif
                             </td>
                             <td>
