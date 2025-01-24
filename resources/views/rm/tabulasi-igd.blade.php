@@ -68,6 +68,7 @@
                         <th>No Rawat</th>
                         <th>Rekam Medis</th>
                         <th>Nama Pasien</th>
+                        <th>Obat</th>
                         <th>Pemeriksaan Lab</th>
                         <th>Pemeriksaan Radiologi</th>
                         <th></th>
@@ -79,8 +80,10 @@
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
+                            <td>{{ $item->nama_obat }}</td>
                             <td>{{ $item->pemeriksaan_lab }}</td>
                             <td>{{ $item->pemeriksaan_radiologi }}</td>
+
 
                             </td>
                         </tr>
