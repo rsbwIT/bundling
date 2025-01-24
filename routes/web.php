@@ -72,6 +72,7 @@ use App\Http\Controllers\RM\JumlahPasien;
 use App\Http\Controllers\RM\PasienPerEpisode;
 use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
+use App\Http\Controllers\RM\TabulasiIGD;
 
 /*
 |--------------------------------------------------------------------------
@@ -202,6 +203,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-ranap-igd', [PasienRanapIgd::class,'PasienRanapIgd']);
         Route::get('/pasien-per-episode', [PasienPerEpisode::class,'PasienPerEpisode']);
         Route::get('/pasien-meninggal', [PasienMeninggal::class,'PasienMeninggal']);
+        Route::get('/tabulasi-igd', [TabulasiIGD::class,'TabulasiIGD']);
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
