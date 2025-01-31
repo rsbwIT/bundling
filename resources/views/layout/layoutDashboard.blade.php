@@ -767,14 +767,6 @@
                                     </a>
                                 </li>
                             </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('pasien-meinggal') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pasien Meninggal</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
                         {{-- MENU KEPERAWATAN --}}
                         <li class="nav-item">{{-- menu-open --}}

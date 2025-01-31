@@ -2,30 +2,23 @@
 
 use App\Http\Controllers\RM\Borlos;
 use App\Http\Controllers\RM\BerkasRM;
+use App\Http\Controllers\RM\PasienRawatJalan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Bpjs\DataInacbg;
-use App\Http\Controllers\RM\JumlahPasien;
-use App\Http\Controllers\RM\StatusDataRm;
 use App\Http\Controllers\Bpjs\HomeCasemix;
 use App\Http\Controllers\Bpjs\SettingBpjs;
 use App\Http\Controllers\Bpjs\GabungBerkas;
 use App\Http\Controllers\Laporan\BayarUmum;
 use App\Http\Controllers\Laporan\CobHarian;
-use App\Http\Controllers\RM\KunjunganRalan;
-use App\Http\Controllers\RM\PasienRanapIgd;
-use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\Bpjs\BpjsController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
-use App\Http\Controllers\RM\PasienPerEpisode;
-use App\Http\Controllers\RM\PasienRawatJalan;
 use App\Http\Controllers\Test\TestController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Laporan\BayarPiutang;
 use App\Http\Controllers\Laporan\PiutangRalan;
 use App\Http\Controllers\Laporan\PiutangRanap;
-use App\Http\Controllers\RM\PasienPulangRanap;
 use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\Regperiksa\Listpasien;
@@ -34,7 +27,6 @@ use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
 use App\Http\Controllers\Laporan\InvoiceAsuransi;
-use App\Http\Controllers\Laporan\PasienTerdaftar;
 use App\Http\Controllers\Laporan\PembayaranRalan;
 use App\Http\Controllers\BriggingBpjs\KirimTaskId;
 use App\Http\Controllers\Laporan\PasienController;
@@ -73,7 +65,6 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaran;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaRadiologiUm;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterParamedisUm;
 use App\Http\Controllers\DetailTindakanUmum\RanapDokterParamedisUm;
-<<<<<<< HEAD
 use App\Http\Controllers\RM\KunjunganRalan;
 use App\Http\Controllers\RM\PasienPulangRanap;
 use App\Http\Controllers\RM\StatusDataRm;
@@ -83,8 +74,6 @@ use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\RM\TabulasiIGD;
 
-=======
->>>>>>> merge-repoB
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -160,7 +149,6 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
-        Route::get('/pasien-terdaftar', [PasienTerdaftar::class, 'PasienTerdaftar']);
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);
