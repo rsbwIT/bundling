@@ -1,6 +1,11 @@
 <div>
     <ul aria-labelledby="dropdownSubMenu1{{ $key }}" class="dropdown-menu border-0 shadow">
         <li><a href="#" class="dropdown-item">Some other action</a></li>
+        {{-- <li class="dropdown-divider"></li>
+        <li data-toggle="modal" data-target="#BillingPasien">
+            <button href="#" class="dropdown-item"
+                wire:click="SetmodalBilling('{{ $key }}','{{ $item->no_rawat }}', '{{$item->status_lanjut}}')">Billing (Read Only)</button>
+        </li> --}}
         <li class="dropdown-divider"></li>
         {{-- LAB --}}
         <li class="dropdown-submenu dropdown-hover">

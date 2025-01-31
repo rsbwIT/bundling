@@ -58,7 +58,8 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const kdRuangPoli = urlParams.get('kd_display');
-        var pusher = new Pusher('f8c2a21c58f812f99944', {
+        const pusherKey = @json($pusher_key);
+        var pusher = new Pusher(pusherKey, {
             cluster: 'ap1'
         });
         var channel = pusher.subscribe('messages' + kdRuangPoli);

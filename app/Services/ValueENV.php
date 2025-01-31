@@ -8,4 +8,9 @@ class ValueENV
     {
        return env('SET_DOKTER_FISO');
     }
+
+    public static function getPusherKey()
+    {
+       return env('PUSHER_APP_KEY');
+    }
 }
