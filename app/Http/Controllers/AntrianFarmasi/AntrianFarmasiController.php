@@ -58,7 +58,7 @@ class AntrianFarmasiController extends Controller
             ->max('nomor_antrian');
 
         // Tentukan awalan nomor antrian dan urutan berikutnya
-        $prefix = ($jenisObat == 'racik') ? 'A' : 'B';
+        $prefix = ($jenisObat == 'RACIK') ? 'A' : 'B';
         $nomorAntrian = $nomorAntrian ? $nomorAntrian : $prefix . '000';
 
         // Generate nomor antrian berikutnya
@@ -114,7 +114,7 @@ class AntrianFarmasiController extends Controller
     public function getNextAntrian($jenisObat)
     {
         $today = now()->format('Y-m-d');
-        $prefix = ($jenisObat == 'non_racik') ? 'A' : 'B';
+        $prefix = ($jenisObat == 'NON_RACIK') ? 'A' : 'B';
 
         // Ambil nomor antrian terbesar berdasarkan jenis obat dan tanggal
         $nomorAntrian = DB::table('antrian')

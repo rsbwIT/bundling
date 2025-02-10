@@ -55,7 +55,7 @@
                 <label class="block text-lg font-semibold">Jenis Obat</label>
                 <select name="racik_non_racik" id="racik_non_racik" class="w-full p-2 mt-2 border border-gray-300 text-center" required onchange="updateNomorAntrian()">
                     <option value="RACIK" {{ old('racik_non_racik') == 'RACIK' ? 'selected' : '' }}>Racik</option>
-                    <option value="NONRACIK" {{ old('racik_non_racik') == 'NON RACIK' ? 'selected' : '' }}>Non-Racik</option>
+                    <option value="NON_RACIK" {{ old('racik_non_racik') == 'NON_RACIK' ? 'selected' : '' }}>Non-Racik</option>
                 </select>
             </div>
 
