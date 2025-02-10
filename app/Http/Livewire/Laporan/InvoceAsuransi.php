@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Laporan;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+
 class InvoceAsuransi extends Component
 {
     public function mount() {

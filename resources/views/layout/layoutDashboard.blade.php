@@ -656,7 +656,24 @@
                                 </li>
                             </ul>
                         </li>
-                        {{-- MENU RM --}}
+                        {{-- ANTRIAN POLI --}}
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-pills"></i>
+                                <p>
+                                    Antrian Farmasi
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('form-antrian') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ambil Antrian</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            {{-- MENU RM --}}
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-file"></i>

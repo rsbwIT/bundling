@@ -73,6 +73,8 @@ use App\Http\Controllers\RM\PasienPerEpisode;
 use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\RM\TabulasiIGD;
+use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -204,6 +206,18 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-per-episode', [PasienPerEpisode::class,'PasienPerEpisode']);
         Route::get('/pasien-meninggal', [PasienMeninggal::class,'PasienMeninggal']);
         Route::get('/tabulasi-igd', [TabulasiIGD::class,'TabulasiIGD']);
+
+        //AntrianFarmasi
+        Route::get('form-antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
+        Route::post('ambil-antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian');
+        Route::get('fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']);
+
+
+
+
+
+
+
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
