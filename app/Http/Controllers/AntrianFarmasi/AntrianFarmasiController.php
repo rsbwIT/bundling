@@ -5,6 +5,8 @@ namespace App\Http\Controllers\AntrianFarmasi;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AntrianFarmasiController extends Controller
 {
@@ -13,20 +15,29 @@ class AntrianFarmasiController extends Controller
     {
         $today = now()->format('Y-m-d');
 
-        // Cek apakah ada antrian untuk hari ini
-        $existingAntrian = DB::table('antrian')->where('tanggal', $today)->first();
+        // Mengambil nomor antrian terbesar hari ini berdasarkan jenis
+        $nomorAntrianRacik = DB::table('antrian')->where('tanggal', $today)->where('racik_non_racik', 'RACIK')->max('nomor_antrian');
+        $nomorAntrianNonRacik = DB::table('antrian')->where('tanggal', $today)->where('racik_non_racik', 'NON RACIK')->max('nomor_antrian');
 
-        // Jika tidak ada antrian hari ini, set nomor antrian ke 1
-        if (!$existingAntrian) {
-            $nomorAntrian = 1;
-        } else {
-            // Jika ada, ambil nomor antrian terbesar dan tambah 1
-            $nomorAntrian = DB::table('antrian')
-                ->where('tanggal', $today)
-                ->max('nomor_antrian') + 1;
-        }
+        // Jika belum ada nomor antrian, set ke A000 atau B000
+        $nomorAntrianRacik = $nomorAntrianRacik ? $nomorAntrianRacik : 'A000';
+        $nomorAntrianNonRacik = $nomorAntrianNonRacik ? $nomorAntrianNonRacik : 'B000';
 
-        return view("antrian-farmasi.form-antrian", compact('nomorAntrian'));
+        return view('antrian-farmasi.form-antrian', compact('nomorAntrianRacik', 'nomorAntrianNonRacik'));
+    }
+
+    public function up()
+    {
+        Schema::table('antrian', function (Blueprint $table) {
+            $table->string('racik_non_racik')->nullable(); // Kolom untuk Racik / Non-Racik
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('antrian', function (Blueprint $table) {
+            $table->dropColumn('racik_non_racik');
+        });
     }
 
     // Menyimpan data antrian
@@ -35,34 +46,46 @@ class AntrianFarmasiController extends Controller
         $request->validate([
             'rekamMedik' => 'required|string|max:50',
             'namaPasien' => 'required|string|max:100',
+            'racik_non_racik' => 'required|string',
         ]);
 
         $today = now()->format('Y-m-d');
+        $jenisObat = $request->racik_non_racik;
 
-        // Cek apakah ada antrian untuk hari ini
-        $existingAntrian = DB::table('antrian')->where('tanggal', $today)->first();
+        // Ambil nomor antrian terbesar berdasarkan jenis obat (racik atau non-racik)
+        $nomorAntrian = DB::table('antrian')->where('tanggal', $today)
+            ->where('racik_non_racik', $jenisObat)
+            ->max('nomor_antrian');
 
-        // Jika tidak ada antrian hari ini, set nomor antrian ke 1
-        if (!$existingAntrian) {
-            $nomorAntrian = 1;
-        } else {
-            // Jika ada, ambil nomor antrian terbesar dan tambah 1
-            $nomorAntrian = DB::table('antrian')
-                ->where('tanggal', $today)
-                ->max('nomor_antrian') + 1;
-        }
+        // Tentukan awalan nomor antrian dan urutan berikutnya
+        $prefix = ($jenisObat == 'racik') ? 'A' : 'B';
+        $nomorAntrian = $nomorAntrian ? $nomorAntrian : $prefix . '000';
+
+        // Generate nomor antrian berikutnya
+        $nomorAntrianNext = $this->generateNextAntrianNumber($nomorAntrian);
 
         // Menyimpan data antrian ke database
         DB::table('antrian')->insert([
-            'nomor_antrian' => $nomorAntrian,
+            'nomor_antrian' => $nomorAntrianNext,
             'rekam_medik' => $request->rekamMedik,
             'nama_pasien' => $request->namaPasien,
             'tanggal' => $today,
+            'racik_non_racik' => $jenisObat,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('antrian.form')->with('status', 'Nomor Antrian Anda: ' . $nomorAntrian);
+        return response()->json(['nomorAntrian' => $nomorAntrianNext]); // Mengembalikan nomor antrian
+    }
+
+    // Fungsi untuk menghasilkan nomor antrian berikutnya
+    private function generateNextAntrianNumber($nomorAntrian)
+    {
+        $prefix = substr($nomorAntrian, 0, 1); // Ambil huruf awalan (A atau B)
+        $number = (int)substr($nomorAntrian, 1); // Ambil angka setelah awalan
+        $nextNumber = str_pad($number + 1, 3, '0', STR_PAD_LEFT); // Menambah nomor dengan 1 dan padding 3 digit
+
+        return $prefix . $nextNumber; // Gabungkan kembali awalan dan nomor antrian
     }
 
     // Mendapatkan data pasien berdasarkan nomor rekam medis
@@ -74,10 +97,37 @@ class AntrianFarmasiController extends Controller
             ->select('pasien.nm_pasien')
             ->first();
 
-        if ($pasien) {
-            return response()->json(['nama_pasien' => $pasien->nm_pasien]);
-        } else {
-            return response()->json(['nama_pasien' => null]);
-        }
+        return response()->json(['nama_pasien' => $pasien->nm_pasien ?? null]);
     }
+
+    public function cetakAntrian($nomorAntrian)
+    {
+        $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
+        $setting = DB::table('setting')->first();
+
+        if (!$antrian) {
+            return redirect()->route('antrian.form')->with('error', 'Nomor Antrian tidak ditemukan.');
+        }
+
+        return view('antrian-farmasi.cetak', compact('antrian', 'setting'));
+    }
+    public function getNextAntrian($jenisObat)
+    {
+        $today = now()->format('Y-m-d');
+        $prefix = ($jenisObat == 'non_racik') ? 'A' : 'B';
+
+        // Ambil nomor antrian terbesar berdasarkan jenis obat dan tanggal
+        $nomorAntrian = DB::table('antrian')
+            ->where('tanggal', $today)
+            ->where('racik_non_racik', $jenisObat)
+            ->max('nomor_antrian');
+
+        // Tentukan nomor antrian berikutnya
+        $nomorAntrian = $nomorAntrian ? $nomorAntrian : $prefix . '000';
+        $nextNomorAntrian = $this->generateNextAntrianNumber($nomorAntrian);
+
+        return response()->json(['nomorAntrian' => $nextNomorAntrian]);
+    }
+
+
 }

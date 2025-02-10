@@ -197,25 +197,29 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/laporan-bto', [Borlos::class, 'Bto']);
         Route::get('/anjungan-mandiri', [AnjunganMandiri::class, 'Anjungan'])->middleware('permision-rsbw:registrasi');
         Route::get('/anjungan-mandiri-print/{noRawat}', [AnjunganMandiri::class, 'Print'])->middleware('permision-rsbw:registrasi');
-        Route::get('/rawat-jalan', [PasienRawatJalan::class,'PasienRawatJalan']);
-        Route::get('/kunjungan-ralan', [KunjunganRalan::class,'KunjunganRalan']);
-        Route::get('/status-data-rm', [StatusDataRm::class,'StatusDataRm']);
-        Route::get('/pasien-pulang-ranap', [PasienPulangRanap::class,'PasienPulangRanap']);
-        Route::get('/jumlah-pasien', [JumlahPasien::class,'JumlahPasien']);
-        Route::get('/pasien-ranap-igd', [PasienRanapIgd::class,'PasienRanapIgd']);
-        Route::get('/pasien-per-episode', [PasienPerEpisode::class,'PasienPerEpisode']);
-        Route::get('/pasien-meninggal', [PasienMeninggal::class,'PasienMeninggal']);
-        Route::get('/tabulasi-igd', [TabulasiIGD::class,'TabulasiIGD']);
+        Route::get('/rawat-jalan', [PasienRawatJalan::class, 'PasienRawatJalan']);
+        Route::get('/kunjungan-ralan', [KunjunganRalan::class, 'KunjunganRalan']);
+        Route::get('/status-data-rm', [StatusDataRm::class, 'StatusDataRm']);
+        Route::get('/pasien-pulang-ranap', [PasienPulangRanap::class, 'PasienPulangRanap']);
+        Route::get('/jumlah-pasien', [JumlahPasien::class, 'JumlahPasien']);
+        Route::get('/pasien-ranap-igd', [PasienRanapIgd::class, 'PasienRanapIgd']);
+        Route::get('/pasien-per-episode', [PasienPerEpisode::class, 'PasienPerEpisode']);
+        Route::get('/pasien-meninggal', [PasienMeninggal::class, 'PasienMeninggal']);
+        Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
         //AntrianFarmasi
         Route::get('form-antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
         Route::post('ambil-antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian');
         Route::get('fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']);
+        Route::get('antrian-cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian.cetak');
+        // Route untuk menampilkan form antrian
+        Route::get('/antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
+        // Route untuk menyimpan data antrian
+        Route::post('/antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian');
 
-
-
-
-
+        // Route untuk menampilkan halaman cetak antrian
+        Route::get('/cetak-antrian/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('cetak.antrian');
+        Route::get('/get-next-antrian/{jenisObat}', [AntrianFarmasiController::class, 'getNextAntrian']);
 
 
 
