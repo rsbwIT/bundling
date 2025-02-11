@@ -74,6 +74,7 @@ use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\RM\TabulasiIGD;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
+use App\Http\Controllers\AntrianFarmasi\DisplayController;
 
 
 /*
@@ -208,19 +209,14 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
         //AntrianFarmasi
-        Route::get('form-antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
-        Route::post('ambil-antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian');
-        Route::get('fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']);
-        Route::get('antrian-cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian.cetak');
-        // Route untuk menampilkan form antrian
-        Route::get('/antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
-        // Route untuk menyimpan data antrian
-        Route::post('/antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian');
+        Route::get('form-antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form'); //tampilan form
+        Route::post('ambil-antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian'); //tombol ambil antrian
+        Route::get('fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']); //ambil rekam medis
+        Route::get('/fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']);
 
-        // Route untuk menampilkan halaman cetak antrian
-        Route::get('/cetak-antrian/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('cetak.antrian');
-        Route::get('/get-next-antrian/{jenisObat}', [AntrianFarmasiController::class, 'getNextAntrian']);
-
+                // Route untuk menampilkan halaman cetak antrian
+        Route::get('/cetak-antrian/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('cetak.antrian'); //cetak antrian
+        Route::get('/get-next-antrian/{jenisObat}', [AntrianFarmasiController::class, 'getNextAntrian']); //nomor otomatis
 
 
         // KEPERAWATAN

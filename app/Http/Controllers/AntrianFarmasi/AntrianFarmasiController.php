@@ -26,6 +26,7 @@ class AntrianFarmasiController extends Controller
         return view('antrian-farmasi.form-antrian', compact('nomorAntrianRacik', 'nomorAntrianNonRacik'));
     }
 
+    // Menambahkan kolom racik_non_racik pada tabel antrian
     public function up()
     {
         Schema::table('antrian', function (Blueprint $table) {
@@ -33,6 +34,7 @@ class AntrianFarmasiController extends Controller
         });
     }
 
+    // Menghapus kolom racik_non_racik dari tabel antrian
     public function down()
     {
         Schema::table('antrian', function (Blueprint $table) {
@@ -43,6 +45,7 @@ class AntrianFarmasiController extends Controller
     // Menyimpan data antrian
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'rekamMedik' => 'required|string|max:50',
             'namaPasien' => 'required|string|max:100',
@@ -100,6 +103,7 @@ class AntrianFarmasiController extends Controller
         return response()->json(['nama_pasien' => $pasien->nm_pasien ?? null]);
     }
 
+    // Mencetak antrian berdasarkan nomor antrian
     public function cetakAntrian($nomorAntrian)
     {
         $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
@@ -111,10 +115,14 @@ class AntrianFarmasiController extends Controller
 
         return view('antrian-farmasi.cetak', compact('antrian', 'setting'));
     }
+
+    // Mendapatkan nomor antrian berikutnya berdasarkan jenis obat
     public function getNextAntrian($jenisObat)
     {
         $today = now()->format('Y-m-d');
-        $prefix = ($jenisObat == 'NON_RACIK') ? 'A' : 'B';
+
+        // Tentukan prefix berdasarkan jenis obat
+        $prefix = ($jenisObat == 'RACIK') ? 'A' : 'B'; // FIXED: 'RACIK' gets 'A', 'NON_RACIK' gets 'B'
 
         // Ambil nomor antrian terbesar berdasarkan jenis obat dan tanggal
         $nomorAntrian = DB::table('antrian')
@@ -128,6 +136,4 @@ class AntrianFarmasiController extends Controller
 
         return response()->json(['nomorAntrian' => $nextNomorAntrian]);
     }
-
-
 }
