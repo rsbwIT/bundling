@@ -2,138 +2,159 @@
 
 namespace App\Http\Controllers\AntrianFarmasi;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class AntrianFarmasiController extends Controller
 {
-    // Menampilkan form antrian
-    public function showForm()
+    // Menampilkan halaman antrian
+    public function index()
     {
-        $today = now()->format('Y-m-d');
+        $antrian = DB::table('antrian')
+            ->where('tanggal', Carbon::today()->toDateString()) // Hanya tampilkan antrian hari ini
+            ->orderBy('nomor_antrian', 'asc')
+            ->get();
 
-        // Mengambil nomor antrian terbesar hari ini berdasarkan jenis
-        $nomorAntrianRacik = DB::table('antrian')->where('tanggal', $today)->where('racik_non_racik', 'RACIK')->max('nomor_antrian');
-        $nomorAntrianNonRacik = DB::table('antrian')->where('tanggal', $today)->where('racik_non_racik', 'NON RACIK')->max('nomor_antrian');
-
-        // Jika belum ada nomor antrian, set ke A000 atau B000
-        $nomorAntrianRacik = $nomorAntrianRacik ? $nomorAntrianRacik : 'A000';
-        $nomorAntrianNonRacik = $nomorAntrianNonRacik ? $nomorAntrianNonRacik : 'B000';
-
-        return view('antrian-farmasi.form-antrian', compact('nomorAntrianRacik', 'nomorAntrianNonRacik'));
+        return view('antrian-farmasi.index', compact('antrian'));
     }
 
-    // Menambahkan kolom racik_non_racik pada tabel antrian
-    public function up()
+    // Mengambil antrian farmasi
+    public function ambilAntrian(Request $request)
     {
-        Schema::table('antrian', function (Blueprint $table) {
-            $table->string('racik_non_racik')->nullable(); // Kolom untuk Racik / Non-Racik
-        });
-    }
+        $today = Carbon::today()->toDateString();
+        $noRkmMedis = $request->no_rkm_medis;
 
-    // Menghapus kolom racik_non_racik dari tabel antrian
-    public function down()
-    {
-        Schema::table('antrian', function (Blueprint $table) {
-            $table->dropColumn('racik_non_racik');
-        });
-    }
-
-    // Menyimpan data antrian
-    public function store(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'rekamMedik' => 'required|string|max:50',
-            'namaPasien' => 'required|string|max:100',
-            'racik_non_racik' => 'required|string',
-        ]);
-
-        $today = now()->format('Y-m-d');
-        $jenisObat = $request->racik_non_racik;
-
-        // Ambil nomor antrian terbesar berdasarkan jenis obat (racik atau non-racik)
-        $nomorAntrian = DB::table('antrian')->where('tanggal', $today)
-            ->where('racik_non_racik', $jenisObat)
-            ->max('nomor_antrian');
-
-        // Tentukan awalan nomor antrian dan urutan berikutnya
-        $prefix = ($jenisObat == 'RACIK') ? 'A' : 'B';
-        $nomorAntrian = $nomorAntrian ? $nomorAntrian : $prefix . '000';
-
-        // Generate nomor antrian berikutnya
-        $nomorAntrianNext = $this->generateNextAntrianNumber($nomorAntrian);
-
-        // Menyimpan data antrian ke database
-        DB::table('antrian')->insert([
-            'nomor_antrian' => $nomorAntrianNext,
-            'rekam_medik' => $request->rekamMedik,
-            'nama_pasien' => $request->namaPasien,
-            'tanggal' => $today,
-            'racik_non_racik' => $jenisObat,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return response()->json(['nomorAntrian' => $nomorAntrianNext]); // Mengembalikan nomor antrian
-    }
-
-    // Fungsi untuk menghasilkan nomor antrian berikutnya
-    private function generateNextAntrianNumber($nomorAntrian)
-    {
-        $prefix = substr($nomorAntrian, 0, 1); // Ambil huruf awalan (A atau B)
-        $number = (int)substr($nomorAntrian, 1); // Ambil angka setelah awalan
-        $nextNumber = str_pad($number + 1, 3, '0', STR_PAD_LEFT); // Menambah nomor dengan 1 dan padding 3 digit
-
-        return $prefix . $nextNumber; // Gabungkan kembali awalan dan nomor antrian
-    }
-
-    // Mendapatkan data pasien berdasarkan nomor rekam medis
-    public function fetchPatient($rekamMedik)
-    {
-        $pasien = DB::table('reg_periksa')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->where('reg_periksa.no_rkm_medis', $rekamMedik)
-            ->select('pasien.nm_pasien')
+        // Cek apakah pasien terdaftar hari ini
+        $pasien = DB::table('pasien')
+            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->where('pasien.no_rkm_medis', $noRkmMedis)
+            ->where('reg_periksa.tgl_registrasi', $today)
             ->first();
 
-        return response()->json(['nama_pasien' => $pasien->nm_pasien ?? null]);
-    }
-
-    // Mencetak antrian berdasarkan nomor antrian
-    public function cetakAntrian($nomorAntrian)
-    {
-        $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
-        $setting = DB::table('setting')->first();
-
-        if (!$antrian) {
-            return redirect()->route('antrian.form')->with('error', 'Nomor Antrian tidak ditemukan.');
+        if (!$pasien) {
+            return redirect()->back()->with('error', 'Pasien tidak ditemukan atau tidak terdaftar hari ini!');
         }
 
-        return view('antrian-farmasi.cetak', compact('antrian', 'setting'));
-    }
+        // Tentukan kategori obat
+        if ($request->racik_non_racik == 'B') {
+            $kategoriObat = 'B';
+            $kategoriKeterangan = 'RACIKAN';
+        } else {
+            $kategoriObat = 'A';
+            $kategoriKeterangan = 'NON RACIK';
+        }
 
-    // Mendapatkan nomor antrian berikutnya berdasarkan jenis obat
-    public function getNextAntrian($jenisObat)
-    {
-        $today = now()->format('Y-m-d');
-
-        // Tentukan prefix berdasarkan jenis obat
-        $prefix = ($jenisObat == 'RACIK') ? 'A' : 'B'; // FIXED: 'RACIK' gets 'A', 'NON_RACIK' gets 'B'
-
-        // Ambil nomor antrian terbesar berdasarkan jenis obat dan tanggal
-        $nomorAntrian = DB::table('antrian')
+        // Ambil nomor antrian terakhir berdasarkan kategori
+        $lastAntrian = DB::table('antrian')
             ->where('tanggal', $today)
-            ->where('racik_non_racik', $jenisObat)
-            ->max('nomor_antrian');
+            ->where('racik_non_racik', $kategoriObat)
+            ->orderBy('nomor_antrian', 'desc')
+            ->first();
 
         // Tentukan nomor antrian berikutnya
-        $nomorAntrian = $nomorAntrian ? $nomorAntrian : $prefix . '000';
-        $nextNomorAntrian = $this->generateNextAntrianNumber($nomorAntrian);
+        $nomorAntrian = $lastAntrian ? (int)substr($lastAntrian->nomor_antrian, 1) + 1 : 1;
+        $nomorAntrian = $kategoriObat . str_pad($nomorAntrian, 3, '0', STR_PAD_LEFT);
 
-        return response()->json(['nomorAntrian' => $nextNomorAntrian]);
+        // Simpan antrian dengan keterangan kategori obat
+        DB::table('antrian')->insert([
+            'nomor_antrian'   => $nomorAntrian,
+            'rekam_medik'     => $pasien->no_rkm_medis,
+            'nama_pasien'     => $pasien->nm_pasien,
+            'no_rawat'        => $pasien->no_rawat,
+            'tanggal'         => $today,
+            'racik_non_racik' => $kategoriObat,
+            'keterangan'      => $kategoriKeterangan,
+            'status'          => 'MENUNGGU',
+            'created_at'      => now(),
+            'updated_at'      => now()
+        ]);
+
+        // Kirim data pasien ke session (bukan hanya string)
+        return redirect()->route('antrian-farmasi.index')
+            ->with('success', "Antrian berhasil diambil! Nomor Anda: $nomorAntrian ($kategoriKeterangan)")
+            ->with('nomorAntrian', $nomorAntrian)
+            ->with('kategoriKeterangan', $kategoriKeterangan)
+            ->with('pasien', $pasien);  // Mengirimkan objek pasien lengkap ke session
+    }
+    // Update status antrian menjadi "SELESAI"
+    public function updateStatus($id)
+    {
+        DB::table('antrian')
+            ->where('id', $id)
+            ->update([
+                'status' => 'SELESAI',
+                'updated_at' => now()
+            ]);
+
+        return redirect()->route('antrian-farmasi.index')->with('success', 'Status antrian diperbarui!');
+    }
+
+    // Ambil data pasien berdasarkan nomor rekam medis
+    public function getPasien($no_rkm_medis)
+    {
+        $pasien = DB::table('reg_periksa')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->where('reg_periksa.tgl_registrasi', Carbon::today()->toDateString())
+            ->where('reg_periksa.no_rkm_medis', $no_rkm_medis)
+            ->first();
+
+        if ($pasien) {
+            return response()->json([
+                'nama_pasien' => $pasien->nm_pasien,
+                'no_rawat'    => $pasien->no_rawat
+            ]);
+        } else {
+            return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
+        }
+    }
+
+    // // Menampilkan halaman cetak antrian
+    // public function cetakAntrian($nomorAntrian)
+    // {
+    //     // Mengambil data antrian berdasarkan nomor antrian
+    //     $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
+    //     $setting = DB::table('setting')->first();
+
+    //     // Jika data antrian tidak ditemukan, redirect kembali dengan error
+    //     if (!$antrian) {
+    //         return redirect()->route('antrian.index')->with('error', 'Nomor Antrian tidak ditemukan.');
+    //     }
+
+    //     // Mengembalikan view cetak dengan data antrian dan setting
+    //     return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
+    // }
+
+    public function cetakAntrian($nomorAntrian)
+    {
+        // Mengambil data antrian berdasarkan nomor antrian
+        $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
+
+        // Cek jika data antrian tidak ditemukan
+        if (!$antrian) {
+            return redirect()->route('antrian-farmasi.index')->with('error', 'Nomor Antrian tidak ditemukan.');
+        }
+
+        // Mengambil data pasien berdasarkan nomor rekam medis yang ada di antrian
+        $pasien = DB::table('pasien')
+            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->where('reg_periksa.no_rkm_medis', $antrian->rekam_medik)
+            ->first();
+
+        // Mengambil data setting dari database
+        $setting = DB::table('setting')->first();
+
+        // Cek jika data pasien tidak ditemukan
+        if (!$pasien) {
+            return redirect()->route('antrian-farmasi.index')->with('error', 'Pasien tidak ditemukan.');
+        }
+
+        // Mengembalikan view cetak dengan data antrian, pasien, dan setting
+        return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
     }
 }

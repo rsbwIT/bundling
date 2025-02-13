@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cetak Antrian</title>
+    <title>Cetak Antrian Farmasi</title>
     <script>
         function printPage() {
             window.print();
@@ -16,7 +16,6 @@
         window.onload = printPage;
     </script>
 </head>
-
 <style>
     @media print {
         @page {
@@ -84,7 +83,7 @@
         </tr>
         <tr>
             <td class="text-center">
-                BUKTI REGISTRASI PENDAFTARAN
+                BUKTI ANTRIAN FARMASI
             </td>
         </tr>
     </table>
@@ -93,7 +92,7 @@
         <tr>
             <td class="small-text v-top" width="100px">Tanggal</td>
             <td class="small-text v-top">:</td>
-            <td class="small-text">{{ \Carbon\Carbon::parse($antrian->created_at)->format('d-m-Y H:i:s') }}</td>
+            <td class="small-text">{{ \Carbon\Carbon::parse($antrian->tanggal)->format('d-m-Y') . ' ' . \Carbon\Carbon::parse($antrian->created_at)->format('H:i:s') }}</td>
         </tr>
         <tr>
             <td class="small-text v-top">No. Antrian</td>
@@ -103,17 +102,12 @@
         <tr>
             <td class="small-text v-top">Nama </td>
             <td class="small-text v-top">:</td>
-            <td class="small-text">{{ $antrian->nama_pasien }}</td>
+            <td class="small-text">{{ $pasien->nm_pasien }}</td>
         </tr>
         <tr>
             <td class="small-text v-top">No RM </td>
             <td class="small-text v-top">:</td>
-            <td class="small-text">{{ $antrian->rekam_medik }}</td>
-        </tr>
-        <tr>
-            <td class="small-text v-top">Jenis Obat </td>
-            <td class="small-text v-top">:</td>
-            <td class="small-text">{{ $antrian->racik_non_racik }}</td>
+            <td class="small-text">{{ $pasien->no_rkm_medis }}</td>
         </tr>
     </table>
 
