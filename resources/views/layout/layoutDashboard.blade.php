@@ -656,7 +656,7 @@
                                 </li>
                             </ul>
                         </li>
-                        {{-- ANTRIAN POLI --}}
+                        {{-- ANTRIAN FARMASI --}}
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-pills"></i>
@@ -667,7 +667,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('form-antrian') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ambil Antrian</p>
                                     </a>

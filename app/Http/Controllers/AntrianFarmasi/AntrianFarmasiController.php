@@ -114,47 +114,39 @@ class AntrianFarmasiController extends Controller
         }
     }
 
-    // // Menampilkan halaman cetak antrian
-    // public function cetakAntrian($nomorAntrian)
-    // {
-    //     // Mengambil data antrian berdasarkan nomor antrian
-    //     $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
-    //     $setting = DB::table('setting')->first();
+     // Menampilkan halaman cetak antrian
 
-    //     // Jika data antrian tidak ditemukan, redirect kembali dengan error
-    //     if (!$antrian) {
-    //         return redirect()->route('antrian.index')->with('error', 'Nomor Antrian tidak ditemukan.');
-    //     }
+     public function cetakAntrian($nomorAntrian)
+     {
+         $today = Carbon::today()->toDateString(); // Ambil tanggal hari ini
 
-    //     // Mengembalikan view cetak dengan data antrian dan setting
-    //     return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
-    // }
+         // Mengambil data antrian berdasarkan nomor antrian dan tanggal hari ini
+         $antrian = DB::table('antrian')
+             ->where('nomor_antrian', $nomorAntrian)
+             ->where('tanggal', $today)
+             ->first();
 
-    public function cetakAntrian($nomorAntrian)
-    {
-        // Mengambil data antrian berdasarkan nomor antrian
-        $antrian = DB::table('antrian')->where('nomor_antrian', $nomorAntrian)->first();
+         // Cek jika data antrian tidak ditemukan
+         if (!$antrian) {
+             return redirect()->route('antrian-farmasi.index')->with('error', 'Nomor Antrian tidak ditemukan atau bukan antrian hari ini.');
+         }
 
-        // Cek jika data antrian tidak ditemukan
-        if (!$antrian) {
-            return redirect()->route('antrian-farmasi.index')->with('error', 'Nomor Antrian tidak ditemukan.');
-        }
+         // Mengambil data pasien berdasarkan nomor rekam medis yang ada di antrian
+         $pasien = DB::table('pasien')
+             ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+             ->where('reg_periksa.no_rawat', $antrian->no_rawat)
+             ->where('reg_periksa.tgl_registrasi', $today) // Hanya ambil data pasien yang terdaftar hari ini
+             ->first();
 
-        // Mengambil data pasien berdasarkan nomor rekam medis yang ada di antrian
-        $pasien = DB::table('pasien')
-            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->where('reg_periksa.no_rkm_medis', $antrian->rekam_medik)
-            ->first();
+         // Mengambil data setting dari database
+         $setting = DB::table('setting')->first();
 
-        // Mengambil data setting dari database
-        $setting = DB::table('setting')->first();
+         // Cek jika data pasien tidak ditemukan
+         if (!$pasien) {
+             return redirect()->route('antrian-farmasi.index')->with('error', 'Pasien tidak ditemukan.');
+         }
 
-        // Cek jika data pasien tidak ditemukan
-        if (!$pasien) {
-            return redirect()->route('antrian-farmasi.index')->with('error', 'Pasien tidak ditemukan.');
-        }
-
-        // Mengembalikan view cetak dengan data antrian, pasien, dan setting
-        return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
-    }
+         // Mengembalikan view cetak dengan data antrian, pasien, dan setting
+         return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
+     }
 }

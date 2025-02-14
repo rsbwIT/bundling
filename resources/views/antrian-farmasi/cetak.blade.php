@@ -109,6 +109,11 @@
             <td class="small-text v-top">:</td>
             <td class="small-text">{{ $pasien->no_rkm_medis }}</td>
         </tr>
+        <tr>
+            <td class="small-text v-top">Keterangan</td>
+            <td class="small-text v-top">:</td>
+            <td class="small-text">{{ $antrian->keterangan }}</td>
+        </tr>
     </table>
 
     <table width="350px">
