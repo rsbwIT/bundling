@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('rekam_medik', 50);
             $table->string('nama_pasien', 100);
             $table->date('tanggal');
+            $table->enum('status', ['MENUNGGU', 'DIPANGGIL', 'SELESAI'])->default('MENUNGGU');
             $table->timestamps();
         });
     }
@@ -21,4 +22,5 @@ return new class extends Migration {
     {
         Schema::dropIfExists('antrian');
     }
+
 };

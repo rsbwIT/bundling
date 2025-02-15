@@ -114,39 +114,100 @@ class AntrianFarmasiController extends Controller
         }
     }
 
-     // Menampilkan halaman cetak antrian
+    // Menampilkan halaman cetak antrian
 
-     public function cetakAntrian($nomorAntrian)
-     {
-         $today = Carbon::today()->toDateString(); // Ambil tanggal hari ini
+    public function cetakAntrian($nomorAntrian)
+    {
+        $today = Carbon::today()->toDateString(); // Ambil tanggal hari ini
 
-         // Mengambil data antrian berdasarkan nomor antrian dan tanggal hari ini
-         $antrian = DB::table('antrian')
-             ->where('nomor_antrian', $nomorAntrian)
-             ->where('tanggal', $today)
-             ->first();
+        // Mengambil data antrian berdasarkan nomor antrian dan tanggal hari ini
+        $antrian = DB::table('antrian')
+            ->where('nomor_antrian', $nomorAntrian)
+            ->where('tanggal', $today)
+            ->first();
 
-         // Cek jika data antrian tidak ditemukan
-         if (!$antrian) {
-             return redirect()->route('antrian-farmasi.index')->with('error', 'Nomor Antrian tidak ditemukan atau bukan antrian hari ini.');
-         }
+        // Cek jika data antrian tidak ditemukan
+        if (!$antrian) {
+            return redirect()->route('antrian-farmasi.index')->with('error', 'Nomor Antrian tidak ditemukan atau bukan antrian hari ini.');
+        }
 
-         // Mengambil data pasien berdasarkan nomor rekam medis yang ada di antrian
-         $pasien = DB::table('pasien')
-             ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-             ->where('reg_periksa.no_rawat', $antrian->no_rawat)
-             ->where('reg_periksa.tgl_registrasi', $today) // Hanya ambil data pasien yang terdaftar hari ini
-             ->first();
+        // Mengambil data pasien berdasarkan nomor rekam medis yang ada di antrian
+        $pasien = DB::table('pasien')
+            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->where('reg_periksa.no_rawat', $antrian->no_rawat)
+            ->where('reg_periksa.tgl_registrasi', $today) // Hanya ambil data pasien yang terdaftar hari ini
+            ->first();
 
-         // Mengambil data setting dari database
-         $setting = DB::table('setting')->first();
+        // Mengambil data setting dari database
+        $setting = DB::table('setting')->first();
 
-         // Cek jika data pasien tidak ditemukan
-         if (!$pasien) {
-             return redirect()->route('antrian-farmasi.index')->with('error', 'Pasien tidak ditemukan.');
-         }
+        // Cek jika data pasien tidak ditemukan
+        if (!$pasien) {
+            return redirect()->route('antrian-farmasi.index')->with('error', 'Pasien tidak ditemukan.');
+        }
 
-         // Mengembalikan view cetak dengan data antrian, pasien, dan setting
-         return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
-     }
+        // Mengembalikan view cetak dengan data antrian, pasien, dan setting
+        return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
+    }
+
+
+    //  ====================================
+    // Menampilkan display antrian
+    public function displayAntrian()
+    {
+        return view('antrian-farmasi.display');
+    }
+
+    // Mengambil antrian yang sedang dipanggil
+    public function getAntrian()
+    {
+        $today = Carbon::today()->toDateString();
+
+        $antrian = DB::table('antrian')
+            ->whereDate('tanggal', $today)
+            ->where('status', 'DIPANGGIL')
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        if (!$antrian) {
+            return response()->json(['nomor_antrian' => 'Belum ada antrian']);
+        }
+
+        return response()->json([
+            'nomor_antrian' => $antrian->nomor_antrian,
+            'rekam_medik' => $antrian->rekam_medik,
+            'nama_pasien' => $antrian->nama_pasien,
+            'status' => $antrian->status,
+            'keterangan' => $antrian->keterangan
+        ]);
+    }
+
+    // Panggil antrian berikutnya
+    public function panggilAntrian()
+    {
+        $today = Carbon::today()->toDateString();
+
+        $antrian = DB::table('antrian')
+            ->whereDate('tanggal', $today)
+            ->where('status', 'MENUNGGU')
+            ->orderBy('nomor_antrian', 'asc')
+            ->first();
+
+        if (!$antrian) {
+            return response()->json(['error' => 'Tidak ada antrian yang menunggu'], 404);
+        }
+
+        DB::table('antrian')
+            ->where('id', $antrian->id)
+            ->update([
+                'status' => 'DIPANGGIL',
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'nomor_antrian' => $antrian->nomor_antrian,
+            'nama_pasien' => $antrian->nama_pasien
+        ]);
+    }
 }

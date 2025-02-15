@@ -80,9 +80,30 @@
     <footer
         class="fixed bottom-0 left-0 right-0 bg-blue-800 text-white text-sm py-2 px-4 flex justify-between items-center">
         <div>
-            <i class="far fa-calendar-alt"></i> {{ now()->translatedFormat('l, d F Y') }}
-            <i class="far fa-clock"></i> {{ now()->format('h:i:s A') }}
+            <i class="far fa-calendar-alt"></i> <span id="tanggal"></span>
+            <i class="far fa-clock"></i> <span id="jam"></span>
         </div>
+
+        <script>
+            function updateTime() {
+                let now = new Date();
+
+                // Format tanggal dalam bahasa Indonesia
+                let options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+                let tanggal = now.toLocaleDateString('id-ID', options);
+
+                // Format jam
+                let jam = now.toLocaleTimeString('id-ID', { hour12: true });
+
+                document.getElementById('tanggal').innerText = tanggal;
+                document.getElementById('jam').innerText = jam;
+            }
+
+            // Jalankan update pertama kali
+            updateTime();
+            // Perbarui setiap detik
+            setInterval(updateTime, 1000);
+        </script>
         <div>
             Made with <i class="fas fa-hospital text-red-500"></i> rsbumiwaras.co.id
         </div>

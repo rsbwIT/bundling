@@ -208,66 +208,21 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-meninggal', [PasienMeninggal::class, 'PasienMeninggal']);
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
-        //         //AntrianFarmasi
-        //         Route::get('form-antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form'); //tampilan form
-        //         Route::post('ambil-antrian', [AntrianFarmasiController::class, 'store'])->name('ambil.antrian'); //tombol ambil antrian
-        //         Route::get('fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']); //ambil rekam medis
-        //         Route::get('/fetch-patient/{rekamMedik}', [AntrianFarmasiController::class, 'fetchPatient']);
-        //         Route::get('/cetak-antrian', [AntrianFarmasiController::class, 'cetak']);
-
-        //                 // Route untuk menampilkan halaman cetak antrian
-        //         Route::get('/cetak-antrian/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('cetak.antrian'); //cetak antrian
-        //         Route::get('/get-next-antrian/{jenisObat}', [AntrianFarmasiController::class, 'getNextAntrian']); //nomor otomatis
-        //         Route::get('/display-antrian', function () { return view('antrian.display');});
-        //         Route::get('/panggil', function () {return view('antrian-farmasi.panggil');});
-
-        //         Route::get('/display-antrian', [AntrianFarmasiController::class, 'displayAntrian'])->name('display.antrian');
-        //         Route::get('/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('panggil.antrian');
-
-        //         Route::get('/antrian/display', [AntrianFarmasiController::class, 'displayAntrian'])->name('antrian.display');
-        // Route::get('/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('panggil.antrian');
-        // Route::get('/get-next-antrian/{jenisObat}', [AntrianFarmasiController::class, 'getNextAntrian'])->name('get.next.antrian');
-
-
-
-        // Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
-        // Route::get('/antrian-farmasi/ambil', [AntrianFarmasiController::class, 'ambilAntrian'])->name('antrian-farmasi.ambil');
-        // Route::get('/antrian-farmasi/update/{id}', [AntrianFarmasiController::class, 'updateStatus'])->name('antrian-farmasi.updateStatus');
-        // Route::get('/api/pasien/{no_rkm_medis}', [AntrianFarmasiController::class, 'getPasien']);
-        // Menampilkan halaman antrian
-        // Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
-
-        // // Menambahkan pasien ke antrian farmasi
-        // Route::post('/antrian-farmasi/ambil', [AntrianFarmasiController::class, 'ambilAntrian'])->name('antrian-farmasi.ambil');
-
-        // // Mengubah status antrian menjadi "SELESAI"
-        // Route::get('/antrian-farmasi/update-status/{id}', [AntrianFarmasiController::class, 'updateStatus'])->name('antrian-farmasi.update-status');
+        //AntrianFarmasi
 
         Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
         Route::post('/antrian-farmasi/ambil', [AntrianFarmasiController::class, 'ambilAntrian'])->name('antrian-farmasi.ambilAntrian');
         Route::patch('/antrian-farmasi/update/{id}', [AntrianFarmasiController::class, 'updateStatus'])->name('antrian-farmasi.updateStatus');
         Route::get('/antrian-farmasi/pasien/{no_rkm_medis}', [AntrianFarmasiController::class, 'getPasien'])->name('antrian-farmasi.getPasien');
-        // Route::get('/antrian-farmasi/cetak/{id}', [AntrianFarmasiController::class, 'cetak'])->name('antrian-farmasi.cetak');
-        // Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('cetak.antrian'); //cetak antrian
         Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian-farmasi.cetak');
 
+        // tesstt
 
-
-
-
-
-
-        // routes/web.php
-
-        // use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
-
-        // Route::get('/antrian', [AntrianFarmasiController::class, 'showForm'])->name('antrian.form');
-        // Route::post('/antrian/store', [AntrianFarmasiController::class, 'store'])->name('antrian.store');
-        // Route::get('/antrian/display', [AntrianFarmasiController::class, 'displayAntrian'])->name('antrian.display');
-        // Route::get('/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('panggil.antrian');
-        // Route::put('/antrian/{id}/selesai', [AntrianFarmasiController::class, 'updateStatusSelesai'])->name('antrian.selesai');
-        // Route::get('/antrian/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian.cetak');
-
+        Route::get('/admin/antrian', [AntrianFarmasiController::class, 'index'])->name('admin.antrian');
+        Route::post('/admin/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('admin.panggil');
+        Route::get('/antrian/display', [AntrianFarmasiController::class, 'displayAntrian'])->name('display.antrian');
+Route::get('/antrian/get', [AntrianFarmasiController::class, 'getAntrian'])->name('display.getAntrian');
+Route::post('/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('antrian.panggil');
 
 
         // KEPERAWATAN
