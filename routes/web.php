@@ -76,6 +76,10 @@ use App\Http\Controllers\RM\TabulasiIGD;
 // use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
 use App\Http\Controllers\AntrianFarmasi\DisplayController;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
+use App\Http\Controllers\AntrianFarmasi\PanggilanAntrianController;
+use App\Http\Controllers\AntrianFarmasi\PanggilPasien;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -216,13 +220,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/antrian-farmasi/pasien/{no_rkm_medis}', [AntrianFarmasiController::class, 'getPasien'])->name('antrian-farmasi.getPasien');
         Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian-farmasi.cetak');
 
-        // tesstt
+        //tess
+        Route::get('/display-farmasi', [PanggilanAntrianController::class, 'panggilanDisplay'])->name('antrian.view'); //tampilan farmasi
+        Route::post('/antrian-farmasi/panggil', [PanggilanAntrianController::class, 'panggilAntrian'])->name('antrian-farmasi.antrian');
 
-        Route::get('/admin/antrian', [AntrianFarmasiController::class, 'index'])->name('admin.antrian');
-        Route::post('/admin/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('admin.panggil');
-        Route::get('/antrian/display', [AntrianFarmasiController::class, 'displayAntrian'])->name('display.antrian');
-Route::get('/antrian/get', [AntrianFarmasiController::class, 'getAntrian'])->name('display.getAntrian');
-Route::post('/antrian/panggil', [AntrianFarmasiController::class, 'panggilAntrian'])->name('antrian.panggil');
 
 
         // KEPERAWATAN
