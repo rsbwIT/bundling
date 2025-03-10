@@ -78,6 +78,7 @@ use App\Http\Controllers\AntrianFarmasi\DisplayController;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
 use App\Http\Controllers\AntrianFarmasi\PanggilanAntrianController;
 use App\Http\Controllers\AntrianFarmasi\PanggilPasien;
+use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi1;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -191,6 +192,12 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/setting-antrian-poli', [AntrianPoli::class, 'settingPoli']);
         Route::get('/jadwal-dokter', [BwJadwaldokter::class, 'BwJadwaldokter']);
 
+        //tes farmasi
+        Route::get('/antrian-farmasi1', [AntrianFarmasi1::class, 'AntrianFarmasi1']);
+        Route::get('/antrian-farmasi-download', [AntrianFarmasi1::class, 'downloadAutorunfarmasi']);
+        Route::get('/panggil-farmasi1', [AntrianFarmasi1::class, 'panggilfarmasi']);
+
+        Route::get('/tes', [AntrianFarmasi1::class, 'PanggilFarmasi1']);
         //DISPLAY
         Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
 

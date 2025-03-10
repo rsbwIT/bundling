@@ -39,7 +39,7 @@ class CesmikController extends Controller
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS') { // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'U0085' || $statusLanjut->kd_poli === 'U0085') { // U0061 = FisoTerapi
                 // 3 BERKAS RESUME FISO
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
                 $getKamarInap = '';
@@ -108,7 +108,6 @@ class CesmikController extends Controller
 
             // 14 SURAT PRI BPJS
             $getSuratPriBpjs = QueryResumeDll::suratPriBpjs($noRawat);
-
         } else {
             $getSetting = '';
             $settingBundling = '';

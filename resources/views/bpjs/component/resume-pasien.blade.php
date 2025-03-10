@@ -1,5 +1,5 @@
 @if ($getResume && $statusLanjut)
-    @if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS')
+    @if ($statusLanjut->kd_poli === 'U0085' || $statusLanjut->kd_poli === 'U0085')
         {{-- BERKAS RESUME FISIO --}}
         <div class="card-body">
             <div class="card p-4 d-flex justify-content-center align-items-center">
