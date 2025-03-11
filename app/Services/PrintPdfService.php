@@ -38,7 +38,7 @@ class PrintPdfService
             $getSEP = QueryResumeDll::getSEP($noRawat, $cariNoSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FIS') { // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'U0085' || $statusLanjut->kd_poli === 'U0085') { // U0061 = FisoTerapi
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
                 $getKamarInap = '';
             } else {
