@@ -81,6 +81,9 @@ use App\Http\Controllers\AntrianFarmasi\PanggilPasien;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi1;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Http\Controllers\AI\AIChat;
+use App\Http\Controllers\AI\AIChatController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -142,6 +145,18 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/minimal-stok-obat', [MinimalStokController::class, 'MinimalStokObat']);
         Route::get('/list-pasien-farmasi2', [BundlingResepobat2::class, 'Listpasien2']);
         Route::get('/view-sep-resep2', [ViewSepResepController2::class, 'ViewSepResepController2']);
+
+        // AIChat
+
+
+// Route::post('/ai/chat', [AIChatController::class, 'AIChat'])->name('ai.chat');
+// Route::match(['get', 'post'], '/ai/chat', [AIChatController::class, 'AIChat'])->name('ai.chat');
+// Route::post('/ai/chat', [AIChat::class, 'AIChat'])->name('ai.chat');
+// Route::post('/ai/chat', [AIChat::class, 'AIChat'])->name('ai.chat'); // Pastikan hanya POST
+// Route::match(['get', 'post'], '/ai/chat', [AIChat::class, 'AIChat'])->name('ai.chat');
+Route::get('/chat', function () {
+    return view('ai.aichat'); // Menggunakan titik sebagai pemisah folder dalam view()
+});
 
         // LAPORAN / KEUANGAN
         Route::get('/pembayaran-ralan', [PembayaranRalan::class, 'PembayaranRanal']);
