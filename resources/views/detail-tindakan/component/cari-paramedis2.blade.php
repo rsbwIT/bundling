@@ -1,6 +1,18 @@
 <form action2="{{ url($action) }}">
     @csrf
     <div class="row">
+        <div class="col-md-10">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
+                    <input type="text" name="cariNomor" class="form-control form-control-xs"
+                        placeholder="Cari Nama/RM/No Rawat">
+                    <div class="input-group-append">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
@@ -24,9 +36,9 @@
         {{-- <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
-                    <select class="form-control" name="statusLanjut" id="">
-                        <option value="Ralan">Ralan</option>
-                        <option value="Ranap">Ranap</option>
+                    <select class="form-control" name="statusLunas" id="">
+                        <option value="Lunas">Lunas</option>
+                        <option value="Belum Lunas">Belum Lunas</option>
                     </select>
                 </div>
             </div>
@@ -81,7 +93,7 @@
                         class="btn btn-default form-control form-control-xs d-flex justify-content-between"
                         data-toggle="modal" data-target="#modal-lg2">
                         <p>Pilih Petugas</p>
-                        <p><i class="nav-icon fas fa-user-nurse"></i></p>
+                        <p><i class="nav-icon fas fa-hospital-user"></i></p>
                     </button>
                 </div>
                 <div class="modal fade" id="modal-lg2">
@@ -117,58 +129,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-2">
+        <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
-                    <button type="button"
-                        class="btn btn-default form-control form-control-xs d-flex justify-content-between"
-                        data-toggle="modal" data-target="#modal-lg3">
-                        <p>Pilih Dokter</p>
-                        <p><i class="nav-icon fas fa-hospital-user"></i></p>
-                    </button>
-                </div>
-                <div class="modal fade" id="modal-lg3">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">Pilih Dokter</h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <select multiple="multiple" size="10" name="duallistbox3[]">
-                                    @foreach ($dokter as $item)
-                                        <option value="{{ $item->kd_dokter }}">{{ $item->nm_dokter }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="hidden" name="kdDokter">
-                                <script>
-                                    var demo1 = $('select[name="duallistbox3[]"]').bootstrapDualListbox();
-                                    $('form').submit(function(e) {
-                                        e.preventDefault();
-                                        $('input[name="kdDokter"]').val($('select[name="duallistbox3[]"]').val().join(','));
-                                        this.submit();
-                                    });
-                                </script>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group">
-                <div class="input-group input-group-xs">
-                    <input type="text" name="cariNomor" class="form-control form-control-xs"
-                        placeholder="Cari Nama/RM/No Rawat">
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-md btn-primary">
                             <i class="fa fa-search"></i> Cari
                         </button>
                     </div>

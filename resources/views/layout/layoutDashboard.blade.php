@@ -233,7 +233,7 @@
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-hospital-user"></i>
-                                <p class="class="btn btn-app">
+                                <p class="class="btn btn-app>
                                     Detail Tindakan <span class="text-xs">(Asuransi)</span>
                                 </p>
                                 <i class="right fas fa-angle-left"></i>
@@ -243,14 +243,6 @@
                                     <a href="{{ url('/ralan-dokter') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter2') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Ralan Dokter (Seluruh)</p>
                                     </a>
                                 </li>
                             </ul>
@@ -310,11 +302,44 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                        <li class="nav-item">{{-- menu-open --}}
+                            <a href="#" class="nav-link">{{-- active --}}
+                                <i class="nav-icon fas fa-hospital-user"></i>
+                                <p class="class="btn btn-app>
+                                    Detail Tindakan <span class="text-xs">(Bulanan)</span>
+                                </p>
+                                <i class="right fas fa-angle-left"></i>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-dokter2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Dokter</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-paramedis2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-dokter-paramedis2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Dokter Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi2') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Periksa Rad (Seluruh)</p>
+                                        <p>Periksa Rad</p>
                                     </a>
                                 </li>
                             </ul>
@@ -324,7 +349,7 @@
                             <li class="nav-item">{{-- menu-open --}}
                                 <a href="#" class="nav-link">{{-- active --}}
                                     <i class="nav-icon fas fa-hospital-user"></i>
-                                    <p class="class="btn btn-app">
+                                    <p class="class="btn btn-app>
                                         Detail Tindakan <span class="text-xs">(Umum)</span>
                                     </p>
                                     <i class="right fas fa-angle-left"></i>
