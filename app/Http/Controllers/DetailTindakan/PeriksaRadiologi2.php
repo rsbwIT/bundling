@@ -27,7 +27,8 @@ class PeriksaRadiologi2 extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
-        // $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
+        $status_lanjut = $request->statusLanjut ?? null;
+
 
         // $getPeriksaRadiologi = DB::table('periksa_radiologi')
         //     ->select(
@@ -117,7 +118,7 @@ class PeriksaRadiologi2 extends Controller
                 'periksa_radiologi.menejemen',
                 'reg_periksa.status_lanjut',
                 'periksa_radiologi.biaya',
-                DB::raw("IF(periksa_radiologi.status = 'Ralan',
+                DB::raw("IF(reg_periksa.status_lanjut = 'ralan',
             (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli = reg_periksa.kd_poli),
             (SELECT bangsal.nm_bangsal FROM kamar_inap
              INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
@@ -138,9 +139,8 @@ class PeriksaRadiologi2 extends Controller
 
             // Hanya menggunakan tgl_registrasi sebagai patokan utama
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
-            // ->where('reg_periksa.status_lanjut', 'Ralan')
 
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status_lanjut, $kdDokter) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -149,6 +149,10 @@ class PeriksaRadiologi2 extends Controller
                 }
                 if ($kdDokter) {
                     $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
+                }
+                // Filter hanya jika status_lanjut tidak null
+                if (!is_null($status_lanjut)) {
+                    $query->where('reg_periksa.status_lanjut', strtolower($status_lanjut));
                 }
             })
             ->where(function ($query) use ($cariNomor) {

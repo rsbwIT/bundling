@@ -21,16 +21,16 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-md-2">
+        <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
-                    <select class="form-control" name="statusLunas" id="">
-                        <option value="Lunas">Lunas</option>
-                        <option value="Belum Lunas">Belum Lunas</option>
+                    <select class="form-control" name="statusLanjut" id="">
+                        <option value="Ralan">Ralan</option>
+                        <option value="Ranap">Ranap</option>
                     </select>
                 </div>
             </div>
-        </div> --}}
+        </div>
         <div class="col-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
