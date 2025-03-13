@@ -302,6 +302,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/periksa-radiologi2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Periksa Rad (Seluruh)</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         {{-- DETAIL TINDAKAN UMUM --}}
                         @if (session('edit_registrasi') === 'true')

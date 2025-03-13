@@ -52,6 +52,7 @@ use App\Http\Controllers\Keperawatan\LaporanLogbokKaru;
 use App\Http\Controllers\Returobat\ReturObatController;
 use App\Http\Controllers\Farmasi\ViewSepResepController;
 use App\Http\Controllers\DetailTindakan\PeriksaRadiologi;
+use App\Http\Controllers\DetailTindakan\PeriksaRadiologi2;
 use App\Http\Controllers\Farmasi\ViewSepResepController2;
 use App\Http\Controllers\Keperawatan\PengawasKeperawatan;
 use App\Http\Controllers\DetailTindakanUmum\RalanDokterUm;
@@ -184,6 +185,7 @@ Route::get('/chat', function () {
         Route::get('/ranap-paramedis', [RanapParamedis::class, 'RanapParamedis']);
         Route::get('/ranap-dokter-paramedis', [RanapDokterParamedis::class, 'RanapDokterParamedis']);
         Route::get('/periksa-radiologi', [PeriksaRadiologi::class, 'PeriksaRadiologi']);
+        Route::get('/periksa-radiologi2', [PeriksaRadiologi2::class, 'PeriksaRadiologi2']);
 
         // DETAIL TINDAKAN Umum
         Route::get('/ralan-dokter-umum', [RalanDokterUm::class, 'RalanDokterUm']);
