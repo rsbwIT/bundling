@@ -33,6 +33,7 @@ use App\Http\Controllers\Laporan\PasienController;
 use App\Http\Controllers\AntrianPoli\BwJadwaldokter;
 use App\Http\Controllers\Bpjs\PrintCesmikController;
 use App\Http\Controllers\DetailTindakan\RalanDokter;
+use App\Http\Controllers\DetailTindakan\RalanDokter2;
 use App\Http\Controllers\DetailTindakan\RanapDokter;
 use App\Http\Controllers\Farmasi\BundlingResepobat2;
 use App\Http\Controllers\Farmasi\SepResepController;
@@ -176,6 +177,7 @@ Route::get('/chat', function () {
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);
+        Route::get('/ralan-dokter2', [RalanDokter2::class, 'RalanDokter2']);
         Route::get('/ralan-paramedis', [RalanParamedis::class, 'RalanParamedis']);
         Route::get('/ralan-dokter-paramedis', [RalanDokterParamedis::class, 'RalanDokterParamedis']);
         Route::get('/operasi-and-vk', [OperasiAndVK::class, 'OperasiAndVK']);
