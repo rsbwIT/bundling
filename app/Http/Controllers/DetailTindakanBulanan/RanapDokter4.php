@@ -55,7 +55,7 @@ class RanapDokter4 extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_inap_dr.no_rawat')
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
             ->where(function ($query) use ($kdPenjamin, $kdDokter) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
@@ -108,7 +108,7 @@ class RanapDokter4 extends Controller
             ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_dr.no_rawat')
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut', 'Ranap')
             ->where(function ($query) use ($kdPenjamin, $kdDokter) {
                 if ($kdPenjamin) {
