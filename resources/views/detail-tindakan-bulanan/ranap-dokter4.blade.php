@@ -1,10 +1,10 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Ranap Dokter Paramedis')
+@section('title', 'Ranap Dokter')
 
 @section('konten')
     <div class="card">
         <div class="card-body">
-            @include('detail-tindakan.component.cari-dokter-paramedis2')
+            @include('detail-tindakan-bulanan.component.cari-dokter2')
             <div class="row no-print">
                 <div class="col-12">
                     <button type="button" class="btn btn-default float-right" id="copyButton">
@@ -22,31 +22,26 @@
                         <th>Kode Jenis Perawatan</th>
                         <th>Nama Perawatan</th>
                         <th>Kode Dokter</th>
-                        <th>Nama Dokter</th>
-                        <th>NIP Petugas</th>
-                        <th>Nama Petugas</th>
-                        <th>Tanggal Perawatan</th>
-                        <th>Jam Rawat</th>
-                        <th>Penanggung Jawab</th>
-                        <th>Nama Bangsal</th>
-                        <th>Material</th>
-                        <th>BHP</th>
-                        <th>Tarif Tindakan DR</th>
-                        <th>Tarif Tindakan PR</th>
+                        <th>Dokter Yg Menangani</th>
+                        <th>Tanggal</th>
+                        <th>Jam</th>
+                        <th>Cara Bayar</th>
+                        <th>Ruang</th>
+                        <th>Jasa Sarana</th>
+                        <th>Paket BHP</th>
+                        <th>JM Dokter</th>
                         <th>KSO</th>
                         <th>Manajemen</th>
-                        <th>Biaya Rawat</th>
-                        <th>Tanggal Bayar</th>
+                        <th>Total</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $mergedData = $RanapDRParamedis->merge($RalanDRParamedis);
+                        $mergedData = $ranapDokter4->merge($RalanDokter4);
                         $sortedData = $mergedData->sortBy('no_rawat');
                     @endphp
-
-                    @foreach ($sortedData as $item)
+                    @foreach ($sortedData as $key => $item)
                         <tr>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
@@ -55,21 +50,16 @@
                             <td>{{ $item->nm_perawatan }}</td>
                             <td>{{ $item->kd_dokter }}</td>
                             <td>{{ $item->nm_dokter }}</td>
-                            <td>{{ $item->nip }}</td>
-                            <td>{{ $item->nama }}</td>
                             <td>{{ $item->tgl_perawatan }}</td>
                             <td>{{ $item->jam_rawat }}</td>
                             <td>{{ $item->png_jawab }}</td>
-                            <td>{{ $item->nm_bangsal ?? $item->nm_poli }}</td>
-                            <!-- Tampilkan nama bangsal jika ada, jika tidak, tampilkan nama poli -->
+                            <td>{{ $item->ruang ?? $item->nm_poli }}</td>
                             <td>{{ round($item->material) }}</td>
                             <td>{{ round($item->bhp) }}</td>
                             <td>{{ round($item->tarif_tindakandr) }}</td>
-                            <td>{{ round($item->tarif_tindakanpr) }}</td>
                             <td>{{ round($item->kso) }}</td>
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach

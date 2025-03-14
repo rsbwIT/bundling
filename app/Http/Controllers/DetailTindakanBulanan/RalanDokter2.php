@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\DetailTindakan;
+namespace App\Http\Controllers\DetailTindakanBulanan;
 
 use Illuminate\Http\Request;
 use App\Services\CacheService;
@@ -136,7 +136,7 @@ class RalanDokter2 extends Controller
             ->get();
 
 
-        return view('detail-tindakan.ralan-dokter2', [
+        return view('detail-tindakan-bulanan.ralan-dokter2', [
             'actionCari2' => $actionCari2,
             'penjab' => $penjab,
             'dokter' => $dokter,

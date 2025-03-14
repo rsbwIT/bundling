@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\DetailTindakan;
+namespace App\Http\Controllers\DetailTindakanBulanan;
 
 use Illuminate\Http\Request;
 use App\Services\CacheService;
@@ -82,7 +82,7 @@ class RalanParamedis2 extends Controller
             // ->groupBy('rawat_jl_pr.no_rawat','rawat_jl_pr.kd_jenis_prw','rawat_jl_pr.jam_rawat','rawat_jl_pr.tarif_tindakanpr','rawat_jl_pr.tgl_perawatan')
             ->orderBy('rawat_jl_pr.no_rawat','desc')
             ->get();
-        return view('detail-tindakan.ralan-paramedis2',[
+        return view('detail-tindakan-bulanan.ralan-paramedis2',[
             'action'=> $action2,
             'penjab'=> $penjab,
             'petugas'=> $petugas,

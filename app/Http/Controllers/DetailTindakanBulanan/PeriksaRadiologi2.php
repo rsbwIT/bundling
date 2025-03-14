@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\DetailTindakan;
+namespace App\Http\Controllers\DetailTindakanBulanan;
 
 use Illuminate\Http\Request;
 use App\Services\CacheService;
@@ -165,7 +165,7 @@ class PeriksaRadiologi2 extends Controller
 
 
 
-        return view('detail-tindakan.periksa-radiologi2', [
+        return view('detail-tindakan-bulanan.periksa-radiologi2', [
             'action' => $action2,
             'penjab' => $penjab,
             'petugas' => $petugas,

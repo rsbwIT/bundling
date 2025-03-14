@@ -4,7 +4,7 @@
 @section('konten')
     <div class="card">
         <div class="card-body">
-            @include('detail-tindakan.component.cari-dokter-paramedis2')
+            @include('detail-tindakan-bulanan.component.cari-dokter-paramedis2')
             Jumlah Data : {{ count($getPeriksaRadiologi
             ) }}
             <div class="row no-print">

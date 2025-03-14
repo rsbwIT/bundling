@@ -337,9 +337,41 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('/ranap-dokter4') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Dokter</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ranap-paramedis2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ranap-dokter-paramedis2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Dokter Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi2') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Periksa Rad</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/operasi-and-vk1') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Operasi & VK</p>
                                     </a>
                                 </li>
                             </ul>

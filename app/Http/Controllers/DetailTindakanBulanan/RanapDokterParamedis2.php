@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\DetailTindakan;
+namespace App\Http\Controllers\DetailTindakanBulanan;
 
 use Illuminate\Http\Request;
 use App\Services\CacheService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class RanapDokterParamedis extends Controller
+class RanapDokterParamedis2 extends Controller
 {
     protected $cacheService;
     public function __construct(CacheService $cacheService)
     {
         $this->cacheService = $cacheService;
     }
-    function RanapDokterParamedis(Request $request)
+    function RanapDokterParamedis2(Request $request)
     {
-        $action = '/ranap-dokter-paramedis';
+        $action2 = '/ranap-dokter-paramedis2';
         $penjab = $this->cacheService->getPenjab();
         $petugas = $this->cacheService->getPetugas();
         $dokter = $this->cacheService->getDokter();
@@ -27,9 +27,9 @@ class RanapDokterParamedis extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
-        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
+        // $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
-        $RanapDRParamedis = DB::table('pasien')
+        $RanapDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_inap_drpr.no_rawat',
                 'reg_periksa.no_rkm_medis',
@@ -70,7 +70,8 @@ class RanapDokterParamedis extends Controller
             ->join('petugas', 'rawat_inap_drpr.nip', '=', 'petugas.nip')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_inap_drpr.no_rawat')
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -80,13 +81,13 @@ class RanapDokterParamedis extends Controller
                 if ($kdDokter) {
                     $query->whereIn('rawat_inap_drpr.kd_dokter', $kdDokter);
                 }
-                if ($status == "Lunas") {
-                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                        ->where('piutang_pasien.status', 'Lunas');
-                } elseif ($status == "Belum Lunas") {
-                    $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                        ->where('piutang_pasien.status', 'Belum Lunas');
-                }
+                // if ($status == "Lunas") {
+                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                //         ->where('piutang_pasien.status', 'Lunas');
+                // } elseif ($status == "Belum Lunas") {
+                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+                //         ->where('piutang_pasien.status', 'Belum Lunas');
+                // }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
@@ -96,7 +97,7 @@ class RanapDokterParamedis extends Controller
             // ->groupBy('rawat_inap_drpr.no_rawat','rawat_inap_drpr.kd_jenis_prw','rawat_inap_drpr.jam_rawat','rawat_inap_drpr.tarif_tindakanpr','rawat_inap_drpr.tgl_perawatan')
             ->orderBy('rawat_inap_drpr.no_rawat', 'DESC')
             ->get();
-        $RalanDRParamedis = DB::table('pasien')
+        $RalanDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_jl_drpr.no_rawat',
                 'reg_periksa.no_rkm_medis',
@@ -130,8 +131,9 @@ class RanapDokterParamedis extends Controller
             ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut', 'Ranap')
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -141,13 +143,13 @@ class RanapDokterParamedis extends Controller
                 if ($kdDokter) {
                     $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
                 }
-                if ($status == "Lunas") {
-                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                        ->where('piutang_pasien.status', 'Lunas');
-                } elseif ($status == "Belum Lunas") {
-                    $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                        ->where('piutang_pasien.status', 'Belum Lunas');
-                }
+                // if ($status == "Lunas") {
+                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                //         ->where('piutang_pasien.status', 'Lunas');
+                // } elseif ($status == "Belum Lunas") {
+                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+                //         ->where('piutang_pasien.status', 'Belum Lunas');
+                // }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
@@ -158,13 +160,13 @@ class RanapDokterParamedis extends Controller
             ->orderBy('rawat_jl_drpr.no_rawat', 'desc')
             ->get();
 
-        return view('detail-tindakan.ranap-dokter-paramedis', [
-            'action' => $action,
+        return view('detail-tindakan-bulanan.ranap-dokter-paramedis2', [
+            'action' => $action2,
             'penjab' => $penjab,
             'petugas' => $petugas,
             'dokter' => $dokter,
-            'RanapDRParamedis' => $RanapDRParamedis,
-            'RalanDRParamedis' => $RalanDRParamedis,
+            'RanapDRParamedis2' => $RanapDRParamedis2,
+            'RalanDRParamedis2' => $RalanDRParamedis2,
         ]);
     }
 }
