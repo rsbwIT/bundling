@@ -363,7 +363,7 @@
                                 <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi2') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Periksa Rad</p>
+                                        <p>Periksa Radiologi</p>
                                     </a>
                                 </li>
                             </ul>
