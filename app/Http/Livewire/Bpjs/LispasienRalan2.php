@@ -79,6 +79,7 @@ class LispasienRalan2 extends Component
     {
         try {
             $no_rawatSTR = str_replace('/', '', $no_rawat);
+
             $file_name = 'INACBG' . '-' . $no_rawatSTR . '.' . $this->upload_file_inacbg[$key]->getClientOriginalExtension();
 
             $this->upload_file_inacbg[$key]->storeAs('file_inacbg',  $file_name, 'public');
@@ -108,28 +109,37 @@ class LispasienRalan2 extends Component
     }
     public $upload_file_scan = [];
     public function UploadScan($key, $no_rawat, $no_rkm_medis)
-    {
-        $no_rawatSTR = str_replace('/', '', $no_rawat);
-        $file_name = 'SCAN' . '-' . $no_rawatSTR . '.' . $this->upload_file_scan[$key]->getClientOriginalExtension();
-
-        $this->upload_file_scan[$key]->storeAs('file_scan',  $file_name, 'public');
-        $livewire_tmp_file = 'livewire-tmp/' . $this->upload_file_scan[$key]->getFileName();
-        Storage::delete($livewire_tmp_file);
-        try {
-            $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)
-                ->exists();
-            if (!$cekBerkas) {
-                DB::table('bw_file_casemix_scan')->insert([
-                    'no_rkm_medis' => $no_rkm_medis,
-                    'no_rawat' => $no_rawat,
-                    'file' => $file_name,
-                ]);
-            }
-            session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
-        } catch (\Throwable $th) {
-            session()->flash('errorBundling', 'Gagal!! Upload File Scan');
-        }
+{
+    // CEK apakah file-nya ada
+    if (!isset($this->upload_file_scan[$key])) {
+        session()->flash('errorBundling', 'Gagal! File scan belum dipilih.');
+        return;
     }
+
+    try {
+        $no_rawatSTR = str_replace('/', '', $no_rawat);
+        $file = $this->upload_file_scan[$key];
+
+        $file_name = 'SCAN' . '-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('file_scan', $file_name, 'public');
+
+        Storage::delete('livewire-tmp/' . $file->getFileName());
+
+        $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->exists();
+
+        if (!$cekBerkas) {
+            DB::table('bw_file_casemix_scan')->insert([
+                'no_rkm_medis' => $no_rkm_medis,
+                'no_rawat' => $no_rawat,
+                'file' => $file_name,
+            ]);
+        }
+
+        session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
+    } catch (\Throwable $th) {
+        session()->flash('errorBundling', 'Gagal!! Upload File Scan');
+    }
+}
 
     // 3 PROSES SIMPAN KHANZA ==================================================================================
     public function SimpanKhanza($no_rawat, $no_sep)

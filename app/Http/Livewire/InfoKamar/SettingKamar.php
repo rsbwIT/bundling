@@ -163,10 +163,14 @@ class SettingKamar extends Component
             ];
             // dd($data);
             // $respone = json_decode($this->referensi->addRuangan(json_encode($data)));
+
+
             $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
             $this->respone = (array)$respone->metadata;
         } catch (\Throwable $th) {
             $this->respone = null;
         }
     }
+
+
 }
