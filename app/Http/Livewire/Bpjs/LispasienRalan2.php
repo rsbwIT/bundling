@@ -112,7 +112,7 @@ class LispasienRalan2 extends Component
 {
     // CEK apakah file-nya ada
     if (!isset($this->upload_file_scan[$key])) {
-        session()->flash('errorBundling', 'Gagal! File scan belum dipilih.');
+        session()->flash('errorBundling', 'File Sudah Ada/ FIle Terlalu Besar!!!');
         return;
     }
 
