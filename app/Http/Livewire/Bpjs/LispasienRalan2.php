@@ -137,7 +137,7 @@ class LispasienRalan2 extends Component
 
         session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
     } catch (\Throwable $th) {
-        session()->flash('errorBundling', 'Gagal!! Upload File Scan');
+        session()->flash('errorBundling', 'Gagal!! File Scan Sudah Ada!!!');
     }
 }
 
