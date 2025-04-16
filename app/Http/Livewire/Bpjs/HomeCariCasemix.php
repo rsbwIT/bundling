@@ -60,6 +60,8 @@ class HomeCariCasemix extends Component
 
     public function getPasien()
 {
+
+    ini_set('max_execution_time', 10);
     if ($this->cariNorawat) {
         $this->getPasien = DB::table('reg_periksa')
             ->select(
@@ -116,6 +118,7 @@ class HomeCariCasemix extends Component
             ->whereIn('reg_periksa.status_lanjut', ['Ranap', 'Ralan'])
             ->orderByRaw("CASE WHEN reg_periksa.status_lanjut = 'Ranap' THEN 1 ELSE 2 END") // Prioritaskan pasien rawat inap
             ->orderBy('reg_periksa.tgl_registrasi', 'desc') // Urutkan berdasarkan tanggal registrasi terbaru
+            ->limit(10) // Batasi hasil maksimal 20 data
             ->get();
         } else {
             $this->getPasien = [];
