@@ -957,10 +957,10 @@
     <script src="/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="/plugins/summernote/summernote-bs4.min.js"></script>
     <script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-    <script src="/dist/js/adminlte.js"></script>
-    <script src="/dist/js/pages/dashboard.js"></script>
-    <script src="/js/sidebarmenu.js"></script>
-    <script src="/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="/dist/js/adminlte.js" defer></script>
+    <script src="/dist/js/pages/dashboard.js" defer></script>
+    <script src="/js/sidebarmenu.js" defer></script>
+    <script src="/plugins/sweetalert2/sweetalert2.min.js" defer></script>
     {{-- DUALIST --}}
     {{-- TEST --}}
 

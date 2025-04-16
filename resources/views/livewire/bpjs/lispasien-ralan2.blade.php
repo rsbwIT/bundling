@@ -140,12 +140,19 @@
                                                 wire:click="SimpanKhanza('{{ $item->no_rawat }}', '{{ $item->no_sep }}')">
                                                 <i class="nav-icon fas fa-save"></i> Simpan Khanza
                                             </button>
-                                            <form action="{{ url('carinorawat-casemix') }}" method=""
+                                            {{-- <form action="{{ url('carinorawat-casemix') }}" method=""
                                                 class="">
                                                 @csrf
                                                 <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
                                                 <input name="cariNoSep" value="{{ $item->no_sep }}" hidden>
-                                                <button type="submit" class="dropdown-item"">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="nav-icon fas fa-eye"></i> Detail Khanza
+                                                </button>
+                                            </form> --}}
+                                            <form action="{{ url('carinorawat-casemix') }}" method="GET" target="_blank" class="">
+                                                <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
+                                                <input name="cariNoSep" value="{{ $item->no_sep }}" hidden>
+                                                <button type="submit" class="dropdown-item">
                                                     <i class="nav-icon fas fa-eye"></i> Detail Khanza
                                                 </button>
                                             </form>
