@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="/plugins/summernote/summernote-bs4.min.css" />
     <script src="/js/plotly-latest.min.js"></script>
     <script src="/plugins/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     {{-- DUALIS --}}
     <link rel="stylesheet" href="/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
     <script src="/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
@@ -121,6 +123,16 @@
                                 </p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/chat') }}" class="nav-link">
+                                <i class="nav-icon fas fa-robot"></i>
+                                <p>
+                                    AI Chat
+                                    {{-- <span class="right badge badge-danger">New</span> --}}
+                                </p>
+                            </a>
+                        </li>
+
                         {{-- MENU KEUANGAN --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Transaksi</li>
