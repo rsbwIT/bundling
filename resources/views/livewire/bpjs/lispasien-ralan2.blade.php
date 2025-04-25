@@ -88,15 +88,15 @@
         <div class="card-body table-responsive p-0" style="height: 450px;">
             <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
                 <thead>
-                    <tr>
-                        <th width="25%">#</th>
+                    <tr class="text-center">
+                        <th width="25%">Pilihan</th>
                         <th>RM</th>
                         <th>No.Rawat</th>
                         <th>No.Sep</th>
                         <th>Pasien</th>
                         <th>Poli</th>
                         <th>Tgl.Sep</th>
-                        <th>Resume</th>
+                        <th>Kelengkapan Berkas</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -150,7 +150,8 @@
                                                     <i class="nav-icon fas fa-eye"></i> Detail Khanza
                                                 </button>
                                             </form> --}}
-                                            <form action="{{ url('carinorawat-casemix') }}" method="GET" target="_blank" class="">
+                                            <form action="{{ url('carinorawat-casemix') }}" method="GET"
+                                                target="_blank" class="">
                                                 <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
                                                 <input name="cariNoSep" value="{{ $item->no_sep }}" hidden>
                                                 <button type="submit" class="dropdown-item">
@@ -191,8 +192,28 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
-                            <td class="border px-4 py-2 text-center">
-                                {!! $item->sudah_resume ? '✔️' : '❌' !!}
+                            <td class="border px-4 py-2 text-right">
+                                <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 20px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
+                                        <strong style="margin-bottom: 4px;">Resume</strong>
+                                        <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
+                                        <strong style="margin-bottom: 4px;">Triase</strong>
+                                        <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }}>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
+                                        <strong style="margin-bottom: 4px;">S.O.A.P</strong>
+                                        <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }}>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
+                                        <strong style="margin-bottom: 4px;">Meninggal</strong>
+                                        <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }}>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
