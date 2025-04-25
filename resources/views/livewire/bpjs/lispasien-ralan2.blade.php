@@ -96,7 +96,10 @@
                         <th>Pasien</th>
                         <th>Poli</th>
                         <th>Tgl.Sep</th>
-                        <th>Kelengkapan Berkas</th>
+                        <th>Resume</th>
+                        <th>Triase</th>
+                        <th>S.O.A.P</th>
+                        <th>Meninggal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -192,28 +195,17 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
-                            <td class="border px-4 py-2 text-right">
-                                <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 20px;">
-                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
-                                        <strong style="margin-bottom: 4px;">Resume</strong>
-                                        <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}>
-                                    </div>
-
-                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
-                                        <strong style="margin-bottom: 4px;">Triase</strong>
-                                        <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }}>
-                                    </div>
-
-                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
-                                        <strong style="margin-bottom: 4px;">S.O.A.P</strong>
-                                        <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }}>
-                                    </div>
-
-                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 80px;">
-                                        <strong style="margin-bottom: 4px;">Meninggal</strong>
-                                        <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }}>
-                                    </div>
-                                </div>
+                            <td class="text-center">
+                                <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }} class="w-4 h-4 accent-green-500 cursor-not-allowed">
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }} class="w-4 h-4 accent-blue-500 cursor-not-allowed">
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }} class="w-4 h-4 accent-yellow-500 cursor-not-allowed">
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }} class="w-4 h-4 accent-red-500 cursor-not-allowed">
                             </td>
                         </tr>
                     @endforeach
