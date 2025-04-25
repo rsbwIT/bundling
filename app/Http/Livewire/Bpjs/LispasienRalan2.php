@@ -42,12 +42,14 @@ class LispasienRalan2 extends Component
                 'pasien.nm_pasien',
                 'bridging_sep.tglsep',
                 'poliklinik.nm_poli',
-                'bw_file_casemix_hasil.file'
+                'bw_file_casemix_hasil.file',
+                DB::raw('CASE WHEN resume_pasien.no_rawat IS NOT NULL THEN 1 ELSE 0 END as sudah_resume')
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('bw_file_casemix_hasil', 'bw_file_casemix_hasil.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('resume_pasien', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 if ($cariKode) {

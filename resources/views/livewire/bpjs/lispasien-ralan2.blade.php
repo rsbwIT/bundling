@@ -96,6 +96,7 @@
                         <th>Pasien</th>
                         <th>Poli</th>
                         <th>Tgl.Sep</th>
+                        <th>Resume</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -190,6 +191,9 @@
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
+                            <td class="border px-4 py-2 text-center">
+                                {!! $item->sudah_resume ? '✔️' : '❌' !!}
+                            </td>
                         </tr>
                     @endforeach
                     {{-- MODAL --}}
