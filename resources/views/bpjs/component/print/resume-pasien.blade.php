@@ -1,5 +1,5 @@
 @if ($getResume && $statusLanjut)
-    @if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FISI')
+    @if ($statusLanjut->kd_poli === 'FIS' || $statusLanjut->kd_poli === 'FISI')
         <div class="card-body">
             <div class="card p-4 d-flex justify-content-center align-items-center">
                 <table width="700px">
@@ -111,10 +111,12 @@
                         <td width="250px" class="text-center">
                             Dokter Penanggung Jawab
                             <div class="barcode mt-1">
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh '. $getResume->dokter_fiso .  $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
+                                {{-- <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh '. $getResume->dokter_fiso .  $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}" --}}
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . ($getResume->dokter_fisio->nama ?? '-') . ' ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
                                     alt="barcode" width="55px" height="55px" />
                             </div>
-                            {{$getResume->dokter_fiso}}
+                            {{-- {{$getResume->dokter_fiso}} --}}
+                            {{ $getResume->dokter_fisio->nama ?? '-' }}
                         </td>
                     </tr>
                 </table>

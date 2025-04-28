@@ -77,51 +77,109 @@ class QueryResumeDll
     }
 
     // 2 GET RESUME FISO
-    static function  getResumeFiso($noRawat)
-    {
-        $dokter = ValueENV::getDokterFiso();
-        $resumeFiso = DB::table('pemeriksaan_ralan')
-            ->select(
-                'pemeriksaan_ralan.no_rawat',
-                'pemeriksaan_ralan.tgl_perawatan',
-                'pemeriksaan_ralan.jam_rawat',
-                'pemeriksaan_ralan.suhu_tubuh',
-                'pemeriksaan_ralan.tensi',
-                'pemeriksaan_ralan.nadi',
-                'pemeriksaan_ralan.respirasi',
-                'pemeriksaan_ralan.tinggi',
-                'pemeriksaan_ralan.berat',
-                'pemeriksaan_ralan.spo2',
-                'pemeriksaan_ralan.gcs',
-                'pemeriksaan_ralan.kesadaran',
-                'pemeriksaan_ralan.keluhan',
-                'pemeriksaan_ralan.pemeriksaan',
-                'pemeriksaan_ralan.alergi',
-                'pemeriksaan_ralan.lingkar_perut',
-                'pemeriksaan_ralan.rtl',
-                'pemeriksaan_ralan.penilaian',
-                'pemeriksaan_ralan.instruksi',
-                'pemeriksaan_ralan.evaluasi',
-                'pemeriksaan_ralan.nip',
-                'reg_periksa.no_rkm_medis',
-                'reg_periksa.kd_dokter',
-                'reg_periksa.kd_poli',
-                'poliklinik.nm_poli',
-                'pasien.nm_pasien',
-                'dokter.nm_dokter',
-                'reg_periksa.tgl_registrasi'
-            )
-            ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-            ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
-            ->first();
-        if ($resumeFiso) {
-            $resumeFiso->dokter_fiso = $dokter; // Add 'dokter' value to the object
+    // static function  getResumeFiso($noRawat)
+    // {
+    //     $dokter = ValueENV::getDokterFiso();
+    //     $resumeFiso = DB::table('pemeriksaan_ralan')
+    //         ->select(
+    //             'pemeriksaan_ralan.no_rawat',
+    //             'pemeriksaan_ralan.tgl_perawatan',
+    //             'pemeriksaan_ralan.jam_rawat',
+    //             'pemeriksaan_ralan.suhu_tubuh',
+    //             'pemeriksaan_ralan.tensi',
+    //             'pemeriksaan_ralan.nadi',
+    //             'pemeriksaan_ralan.respirasi',
+    //             'pemeriksaan_ralan.tinggi',
+    //             'pemeriksaan_ralan.berat',
+    //             'pemeriksaan_ralan.spo2',
+    //             'pemeriksaan_ralan.gcs',
+    //             'pemeriksaan_ralan.kesadaran',
+    //             'pemeriksaan_ralan.keluhan',
+    //             'pemeriksaan_ralan.pemeriksaan',
+    //             'pemeriksaan_ralan.alergi',
+    //             'pemeriksaan_ralan.lingkar_perut',
+    //             'pemeriksaan_ralan.rtl',
+    //             'pemeriksaan_ralan.penilaian',
+    //             'pemeriksaan_ralan.instruksi',
+    //             'pemeriksaan_ralan.evaluasi',
+    //             'pemeriksaan_ralan.nip',
+    //             'reg_periksa.no_rkm_medis',
+    //             'reg_periksa.kd_dokter',
+    //             'reg_periksa.kd_poli',
+    //             'poliklinik.nm_poli',
+    //             'pasien.nm_pasien',
+    //             'dokter.nm_dokter',
+    //             'reg_periksa.tgl_registrasi'
+    //         )
+    //         ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+    //         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+    //         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+    //         ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+    //         ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
+    //         ->first();
+    //     if ($resumeFiso) {
+    //         $resumeFiso->dokter_fiso = $dokter; // Add 'dokter' value to the object
+    //     }
+    //     return $resumeFiso;
+    // }
+
+    static function getResumeFiso($noRawat)
+{
+    $dataUtama = DB::table('pemeriksaan_ralan')
+        ->select(
+            'pemeriksaan_ralan.no_rawat',
+            'pemeriksaan_ralan.tgl_perawatan',
+            'pemeriksaan_ralan.jam_rawat',
+            'pemeriksaan_ralan.suhu_tubuh',
+            'pemeriksaan_ralan.tensi',
+            'pemeriksaan_ralan.nadi',
+            'pemeriksaan_ralan.respirasi',
+            'pemeriksaan_ralan.tinggi',
+            'pemeriksaan_ralan.berat',
+            'pemeriksaan_ralan.spo2',
+            'pemeriksaan_ralan.gcs',
+            'pemeriksaan_ralan.kesadaran',
+            'pemeriksaan_ralan.keluhan',
+            'pemeriksaan_ralan.pemeriksaan',
+            'pemeriksaan_ralan.alergi',
+            'pemeriksaan_ralan.lingkar_perut',
+            'pemeriksaan_ralan.rtl',
+            'pemeriksaan_ralan.penilaian',
+            'pemeriksaan_ralan.instruksi',
+            'pemeriksaan_ralan.evaluasi',
+            'pemeriksaan_ralan.nip',
+            'reg_periksa.no_rkm_medis',
+            'reg_periksa.kd_dokter',
+            'reg_periksa.kd_poli',
+            'poliklinik.nm_poli',
+            'pasien.nm_pasien',
+            'dokter.nm_dokter',
+            'reg_periksa.tgl_registrasi'
+        )
+        ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+        ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
+        ->first();
+
+    $resumeFisio = new \stdClass();
+
+    if ($dataUtama) {
+        foreach ($dataUtama as $key => $value) {
+            $resumeFisio->$key = $value;
         }
-        return $resumeFiso;
+
+        $resumeFisio->dokter_fisio = DB::table('petugas')
+            ->select('nama', 'nip')
+            ->where('nip', $dataUtama->nip) // ambil petugas berdasarkan nip pemeriksaan
+            ->first();
     }
+
+    return $resumeFisio;
+}
+
+
     // 3 Get Resume Ranap
     static function getResumeRanap($noRawat)
     {

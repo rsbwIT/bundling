@@ -39,7 +39,7 @@ class CesmikController extends Controller
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_poli === 'U0061' || $statusLanjut->kd_poli === 'FISI') { // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'FIS' || $statusLanjut->kd_poli === 'FISI') { // U0061 = FisoTerapi
                 // 3 BERKAS RESUME FISO
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
                 $getKamarInap = '';
