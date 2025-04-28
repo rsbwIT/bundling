@@ -125,7 +125,7 @@ class QueryResumeDll
 
     static function getResumeFiso($noRawat)
 {
-    $dataUtama = DB::table('pemeriksaan_ralan')
+    $resumeFiso = DB::table('pemeriksaan_ralan')
         ->select(
             'pemeriksaan_ralan.no_rawat',
             'pemeriksaan_ralan.tgl_perawatan',
@@ -165,14 +165,14 @@ class QueryResumeDll
 
     $resumeFisio = new \stdClass();
 
-    if ($dataUtama) {
-        foreach ($dataUtama as $key => $value) {
+    if ($resumeFiso) {
+        foreach ($resumeFiso as $key => $value) {
             $resumeFisio->$key = $value;
         }
 
         $resumeFisio->dokter_fisio = DB::table('petugas')
             ->select('nama', 'nip')
-            ->where('nip', $dataUtama->nip) // ambil petugas berdasarkan nip pemeriksaan
+            ->where('nip', $resumeFiso->nip) // ambil petugas berdasarkan nip pemeriksaan
             ->first();
     }
 
