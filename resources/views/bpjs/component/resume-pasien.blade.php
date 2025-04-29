@@ -111,7 +111,7 @@
                         </td>
                         <td width="150px"></td>
                         <td width="250px" class="text-center">
-                            Dokter Penanggung Jawab
+                            Penanggung Jawab
                             <div class="barcode mt-1">
                                 {{-- <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh' . $getResume->dokter_fiso . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}" --}}
                                 <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . ($getResume->dokter_fisio->nama ?? '-') . ' ' . $getResume->kd_dokter . ' ' . $getResume->tgl_registrasi, 'QRCODE') }}"
