@@ -161,6 +161,7 @@ class QueryResumeDll
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
         ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
+        ->orderBy('pemeriksaan_ralan.jam_rawat', 'desc')
         ->first();
 
     $resumeFisio = new \stdClass();
