@@ -92,7 +92,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
 use App\Http\Controllers\AI\AIChatController;
-use App\Http\Controllers\RegPeriksa\RegPeriksaBillingController;
+use App\Http\Controllers\Regperiksa\RegPeriksaBillingController;
 
 
 /*

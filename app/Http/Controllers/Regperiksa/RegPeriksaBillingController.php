@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\RegPeriksa;
+namespace App\Http\Controllers\Regperiksa;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
