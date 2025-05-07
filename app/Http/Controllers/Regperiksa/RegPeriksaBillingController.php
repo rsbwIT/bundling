@@ -8,10 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class RegPeriksaBillingController extends Controller
 {
-    // Menampilkan daftar reg_periksa, dengan filter jika ada pencarian
+    /**
+     * Menampilkan daftar reg_periksa berdasarkan no_rkm_medis (jika diisi).
+     */
     public function regperiksabilling(Request $request)
     {
-        $data = collect(); // kosongkan default data
+        $data = collect(); // Default kosong
 
         if ($request->filled('no_rkm_medis')) {
             $data = DB::table('reg_periksa')
@@ -30,30 +32,30 @@ class RegPeriksaBillingController extends Controller
                     'poliklinik.nm_poli'
                 )
                 ->where('reg_periksa.no_rkm_medis', $request->no_rkm_medis)
-                ->orderBy('reg_periksa.tgl_registrasi', 'desc')
+                ->orderByDesc('reg_periksa.tgl_registrasi')
                 ->get();
         }
 
-        return view("regperiksa.regperiksabilling", [
+        return view('regperiksa.regperiksabilling', [
             'results' => $data,
-            'no_rkm_medis' => $request->no_rkm_medis // agar bisa tampilkan nilai input sebelumnya
+            'no_rkm_medis' => $request->no_rkm_medis
         ]);
     }
 
-    // Update status pasien
+    /**
+     * Mengupdate status pasien berdasarkan no_rawat.
+     */
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'no_rawat' => 'required',
-            'status' => 'required'
+            'no_rawat' => 'required|string',
+            'status' => 'required|string'
         ]);
 
-        // Mengupdate status pada tabel reg_periksa
         DB::table('reg_periksa')
             ->where('no_rawat', $request->no_rawat)
             ->update(['stts' => $request->status]);
 
-        // Kembalikan response JSON
         return response()->json(['success' => true]);
     }
 }
