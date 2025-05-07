@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class RegPeriksa extends Controller
+class RegPeriksaBilling extends Controller
 {
     // Menampilkan daftar reg_periksa, dengan filter jika ada pencarian
     public function regperiksa(Request $request)
