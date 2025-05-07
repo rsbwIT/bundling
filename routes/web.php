@@ -92,7 +92,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
 use App\Http\Controllers\AI\AIChatController;
-use App\Http\Controllers\RegPeriksa\RegPeriksaBilling;
+use App\Http\Controllers\RegPeriksa\RegPeriksaBillingController;
 
 
 /*
@@ -270,9 +270,10 @@ Route::group(['middleware' => 'default'], function () {
         // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.index');
         // Route::get('/regperiksa/cari', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
 
-        Route::get('/regperiksabilling', [RegPeriksaBilling::class, 'regperiksabilling'])->name('regperiksabilling.index');
-        Route::post('/update-status', [RegPeriksaBilling::class, 'updateStatus'])->name('updateStatus');
-        Route::get('/regperiksabilling/detail/{no_rkm_medis}', [RegPeriksaBilling::class, 'showDetailPasien'])->name('regperiksabilling.detail');
+        Route::get('/regperiksabilling', [RegPeriksaBillingController::class, 'regperiksabilling'])->name('regperiksabilling.index');
+        Route::post('/update-status', [RegPeriksaBillingController::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/regperiksabilling/detail/{no_rkm_medis}', [RegPeriksaBillingController::class, 'showDetailPasien'])->name('regperiksabilling.detail');
+
 
 
 
