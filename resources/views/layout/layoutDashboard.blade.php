@@ -668,7 +668,7 @@
                                 <li class="nav-item">
                                     <a href="{{ url('regperiksabilling') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Reg Periksa</p>
+                                        <p>Reg Periksa Billing</p>
                                     </a>
                                 </li>
                             </ul>
