@@ -270,7 +270,7 @@ Route::group(['middleware' => 'default'], function () {
         // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.index');
         // Route::get('/regperiksa/cari', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
 
-        Route::get('/regperiksabilling', [RegPeriksaBillingController::class, 'regperiksabilling'])->name('regperiksabilling.index');
+        Route::get('/regperiksabilling', [RegPeriksaBillingController::class, 'regperiksabilling'])->name('regperiksabilling.index1');
         Route::post('/update-status', [RegPeriksaBillingController::class, 'updateStatus'])->name('updateStatus');
         Route::get('/regperiksabilling/detail/{no_rkm_medis}', [RegPeriksaBillingController::class, 'showDetailPasien'])->name('regperiksabilling.detail');
 

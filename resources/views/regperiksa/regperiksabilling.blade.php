@@ -24,13 +24,13 @@
                     Home
                 </a>
 
-                <a href="{{ route('regperiksabilling.index') }}"
+                <a href="{{ route('regperiksabilling.index1') }}"
                     class="bg-green-600 text-white text-xs px-3 py-1 rounded flex items-center gap-1">
                     <i class="fas fa-database"></i> Semua Data
                 </a>
             </div>
 
-            <form method="GET" action="{{ route('regperiksabilling.index') }}"
+            <form method="GET" action="{{ route('regperiksabilling.index1') }}"
                 class="flex items-center border border-gray-300 rounded overflow-hidden max-w-xs w-full" role="search"
                 aria-label="Search by no_rkm_medis">
                 <input type="search" name="no_rkm_medis" placeholder="Cari No RM..." value="{{ $no_rkm_medis }}"
