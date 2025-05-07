@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class RegPeriksaBilling extends Controller
 {
     // Menampilkan daftar reg_periksa, dengan filter jika ada pencarian
-    public function regperiksa(Request $request)
+    public function regperiksabilling(Request $request)
     {
         $data = collect(); // kosongkan default data
 
@@ -34,7 +34,7 @@ class RegPeriksaBilling extends Controller
                 ->get();
         }
 
-        return view("regperiksa.regperiksa", [
+        return view("regperiksa.regperiksabilling", [
             'results' => $data,
             'no_rkm_medis' => $request->no_rkm_medis // agar bisa tampilkan nilai input sebelumnya
         ]);
