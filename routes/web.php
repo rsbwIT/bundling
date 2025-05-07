@@ -92,6 +92,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
 use App\Http\Controllers\AI\AIChatController;
+use App\Http\Controllers\RegPeriksa\RegPeriksa;
 
 
 /*
@@ -255,6 +256,27 @@ Route::group(['middleware' => 'default'], function () {
         //tess
         Route::get('/display-farmasi', [PanggilanAntrianController::class, 'panggilanDisplay'])->name('antrian.view'); //tampilan farmasi
         Route::post('/antrian-farmasi/panggil', [PanggilanAntrianController::class, 'panggilAntrian'])->name('antrian-farmasi.antrian');
+
+
+
+        //REGPERIKSA
+        // Route::get('/reg-periksa', [RegPeriksa::class, 'regperiksa']);
+        // Route::post('/reg-periksa/update-stts', [RegPeriksa::class, 'updateStts'])->name('reg_periksa.update_stts');
+        
+        // Route::get('/reg-periksa', [RegPeriksa::class, 'regperiksa']);
+        // Route::post('/ubah-status', [App\Http\Controllers\RegPeriksa\RegPeriksa::class, 'ubahStatus'])->name('ubah.status');
+        // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
+        // Route::post('/regperiksa/update-status', [RegPeriksa::class, 'updateStatus'])->name('regperiksa.updateStatus');
+        // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.index');
+        // Route::get('/regperiksa/cari', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
+
+        Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.index');
+        Route::post('/update-status', [RegPeriksa::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/regperiksa/detail/{no_rkm_medis}', [RegPeriksa::class, 'showDetailPasien'])->name('regperiksa.detail');
+
+
+
+
 
 
 
