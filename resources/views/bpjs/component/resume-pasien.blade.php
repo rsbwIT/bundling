@@ -118,7 +118,7 @@
                                     alt="barcode" width="80px" height="75px" />
                             </div>
                             {{-- {{$getResume->dokter_fiso}} --}}
-                            {{ $getResume->dokter_fisio->nama ?? '-' }}
+                            {{ $getResume->dokter_fisio_dokter->nama ?? $getResume->dokter_fisio_petugas->nama ?? '-' }}
                         </td>
                     </tr>
                 </table>

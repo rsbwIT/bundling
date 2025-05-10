@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Regperiksa;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class RegPeriksaBillingController extends Controller
 {
@@ -52,10 +53,36 @@ class RegPeriksaBillingController extends Controller
             'status' => 'required|string'
         ]);
 
+        // Update status di tabel reg_periksa
         DB::table('reg_periksa')
             ->where('no_rawat', $request->no_rawat)
             ->update(['stts' => $request->status]);
 
+        // Tambahkan log perubahan status
+        $this->logStatusUpdate($request);
+
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Mencatat log perubahan status ke tabel bw_tracker_log_reg.
+     */
+    protected function logStatusUpdate(Request $request)
+    {
+        $user = Auth::user(); // Ambil user yang sedang login
+        if (!$user) return;
+
+        // Ambil nama user dari tabel `user`
+        $namaUser = DB::table('user')
+            ->where('id_user', $user->id)  // Asumsi id_user adalah kolom yang cocok dengan user id
+            ->value('nama_user'); // Ambil nama user
+
+        // Simpan log perubahan status ke dalam tabel bw_tracker_log_reg
+        DB::table('bw_tracker_log_reg')->insert([
+            'id_user'    => $user->id,  // ID User yang login
+            'nama_user'  => $namaUser ?? $user->name, // Nama user atau fallback ke nama dari Auth
+            'tanggal'    => now(), // Tanggal dan waktu sekarang
+            'status'     => $request->status, // Status yang diperbarui
+        ]);
     }
 }

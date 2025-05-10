@@ -124,61 +124,74 @@ class QueryResumeDll
     // }
 
     static function getResumeFiso($noRawat)
-{
-    $resumeFiso = DB::table('pemeriksaan_ralan')
-        ->select(
-            'pemeriksaan_ralan.no_rawat',
-            'pemeriksaan_ralan.tgl_perawatan',
-            'pemeriksaan_ralan.jam_rawat',
-            'pemeriksaan_ralan.suhu_tubuh',
-            'pemeriksaan_ralan.tensi',
-            'pemeriksaan_ralan.nadi',
-            'pemeriksaan_ralan.respirasi',
-            'pemeriksaan_ralan.tinggi',
-            'pemeriksaan_ralan.berat',
-            'pemeriksaan_ralan.spo2',
-            'pemeriksaan_ralan.gcs',
-            'pemeriksaan_ralan.kesadaran',
-            'pemeriksaan_ralan.keluhan',
-            'pemeriksaan_ralan.pemeriksaan',
-            'pemeriksaan_ralan.alergi',
-            'pemeriksaan_ralan.lingkar_perut',
-            'pemeriksaan_ralan.rtl',
-            'pemeriksaan_ralan.penilaian',
-            'pemeriksaan_ralan.instruksi',
-            'pemeriksaan_ralan.evaluasi',
-            'pemeriksaan_ralan.nip',
-            'reg_periksa.no_rkm_medis',
-            'reg_periksa.kd_dokter',
-            'reg_periksa.kd_poli',
-            'poliklinik.nm_poli',
-            'pasien.nm_pasien',
-            'dokter.nm_dokter',
-            'reg_periksa.tgl_registrasi'
-        )
-        ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-        ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
-        ->orderBy('pemeriksaan_ralan.jam_rawat', 'desc')
-        ->first();
+    {
+        $data = DB::table('pemeriksaan_ralan')
+            ->select(
+                'pemeriksaan_ralan.no_rawat',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
+                'pemeriksaan_ralan.suhu_tubuh',
+                'pemeriksaan_ralan.tensi',
+                'pemeriksaan_ralan.nadi',
+                'pemeriksaan_ralan.respirasi',
+                'pemeriksaan_ralan.tinggi',
+                'pemeriksaan_ralan.berat',
+                'pemeriksaan_ralan.spo2',
+                'pemeriksaan_ralan.gcs',
+                'pemeriksaan_ralan.kesadaran',
+                'pemeriksaan_ralan.keluhan',
+                'pemeriksaan_ralan.pemeriksaan',
+                'pemeriksaan_ralan.alergi',
+                'pemeriksaan_ralan.lingkar_perut',
+                'pemeriksaan_ralan.rtl',
+                'pemeriksaan_ralan.penilaian',
+                'pemeriksaan_ralan.instruksi',
+                'pemeriksaan_ralan.evaluasi',
+                'pemeriksaan_ralan.nip',
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.kd_poli',
+                'poliklinik.nm_poli',
+                'pasien.nm_pasien',
+                'dokter_reg.nm_dokter AS dokter_reg_nama',
+                'dokter_fisio.nm_dokter AS dokter_fisio_nama',
+                'dokter_fisio.kd_dokter AS dokter_fisio_kode',
+                'reg_periksa.tgl_registrasi'
+            )
+            ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('dokter AS dokter_reg', 'reg_periksa.kd_dokter', '=', 'dokter_reg.kd_dokter')
+            ->leftJoin('dokter AS dokter_fisio', 'pemeriksaan_ralan.nip', '=', 'dokter_fisio.kd_dokter')
+            ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
+            ->orderBy('pemeriksaan_ralan.jam_rawat', 'desc')
+            ->first();
 
-    $resumeFisio = new \stdClass();
+        $resumeFisio = new \stdClass();
 
-    if ($resumeFiso) {
-        foreach ($resumeFiso as $key => $value) {
-            $resumeFisio->$key = $value;
+        if ($data) {
+            foreach ($data as $key => $value) {
+                $resumeFisio->$key = $value;
+            }
+
+            // Dokter fisio dari tabel dokter
+            $resumeFisio->dokter_fisio_dokter = null;
+            if ($resumeFisio->dokter_fisio_nama) {
+                $resumeFisio->dokter_fisio_dokter = (object)[
+                    'nama' => $resumeFisio->dokter_fisio_nama,
+                    'kode' => $resumeFisio->dokter_fisio_kode,
+                ];
+            }
+
+            // Jika tidak ada di dokter, coba cari dari petugas
+            $resumeFisio->dokter_fisio_petugas = DB::table('petugas')
+                ->select('nama', 'nip')
+                ->where('nip', $resumeFisio->nip)
+                ->first();
         }
 
-        $resumeFisio->dokter_fisio = DB::table('petugas')
-            ->select('nama', 'nip')
-            ->where('nip', $resumeFiso->nip) // ambil petugas berdasarkan nip pemeriksaan
-            ->first();
+        return $resumeFisio;
     }
-
-    return $resumeFisio;
-}
 
 
     // 3 Get Resume Ranap
@@ -543,42 +556,43 @@ class QueryResumeDll
         //     ->where('reg_periksa.no_rawat', '=', $noRawat)
         //     ->first();}
         return DB::table('pasien_mati')
-    ->select(
-        'pasien_mati.tanggal',
-        'pasien_mati.jam',
-        'pasien_mati.no_rkm_medis',
-        'pasien.nm_pasien',
-        'pasien.jk',
-        'pasien.tmp_lahir',
-        'pasien.tgl_lahir',
-        'pasien.gol_darah',
-        'pasien.stts_nikah',
-        'pasien.umur',
-        'pasien.alamat',
-        'pasien.agama',
-        'pasien_mati.keterangan',
-        'pasien_mati.temp_meninggal',
-        'pasien_mati.icd1',
-        'pasien_mati.icd2',
-        'pasien_mati.icd3',
-        'pasien_mati.icd4',
-        'pasien_mati.kd_dokter',
-        'dokter.nm_dokter',
-        'reg_periksa.no_rawat',
-        'kamar_inap.no_rawat as kamar_no_rawat',
-        'kamar_inap.stts_pulang',
-        'reg_periksa.status_lanjut'
-    )
-    ->join('pasien', 'pasien_mati.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-    ->join('dokter', 'pasien_mati.kd_dokter', '=', 'dokter.kd_dokter')
-    ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-    ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-    ->where('reg_periksa.no_rawat', '=', $noRawat)
-    ->where(function ($query) {
-        $query->where('kamar_inap.stts_pulang', 'Meninggal')
-              ->orWhere('reg_periksa.status_lanjut', 'Ralan');
-    })
-    ->first();}
+            ->select(
+                'pasien_mati.tanggal',
+                'pasien_mati.jam',
+                'pasien_mati.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.tmp_lahir',
+                'pasien.tgl_lahir',
+                'pasien.gol_darah',
+                'pasien.stts_nikah',
+                'pasien.umur',
+                'pasien.alamat',
+                'pasien.agama',
+                'pasien_mati.keterangan',
+                'pasien_mati.temp_meninggal',
+                'pasien_mati.icd1',
+                'pasien_mati.icd2',
+                'pasien_mati.icd3',
+                'pasien_mati.icd4',
+                'pasien_mati.kd_dokter',
+                'dokter.nm_dokter',
+                'reg_periksa.no_rawat',
+                'kamar_inap.no_rawat as kamar_no_rawat',
+                'kamar_inap.stts_pulang',
+                'reg_periksa.status_lanjut'
+            )
+            ->join('pasien', 'pasien_mati.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('dokter', 'pasien_mati.kd_dokter', '=', 'dokter.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('reg_periksa.no_rawat', '=', $noRawat)
+            ->where(function ($query) {
+                $query->where('kamar_inap.stts_pulang', 'Meninggal')
+                    ->orWhere('reg_periksa.status_lanjut', 'Ralan');
+            })
+            ->first();
+    }
 
 
     // 10 Get Laporan Operasi RANAP
