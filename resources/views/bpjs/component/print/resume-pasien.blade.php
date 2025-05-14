@@ -1,5 +1,5 @@
 @if ($getResume && $statusLanjut)
-    @if ($statusLanjut->kd_poli === 'FIS' || $statusLanjut->kd_poli === 'FISI')
+    @if ($statusLanjut->kd_dokter === 'D0000081' || $statusLanjut->kd_dokter === 'D0000081')
         <div class="card-body">
             <div class="card p-4 d-flex justify-content-center align-items-center">
                 <table width="700px">
@@ -116,7 +116,7 @@
                                     alt="barcode" width="55px" height="55px" />
                             </div>
                             {{-- {{$getResume->dokter_fiso}} --}}
-                            {{ $getResume->dokter_fisio_dokter->nama ?? $getResume->dokter_fisio_petugas->nama ?? '-' }}
+                            {{ $getResume->dokter_fisio_dokter->nama ?? ($getResume->dokter_fisio_petugas->nama ?? '-') }}
                         </td>
                     </tr>
                 </table>
@@ -456,7 +456,7 @@
                                     Dokter Penanggung Jawab2
                                     <div class="barcode mt-1">
                                         <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $dpjp->nm_dokter . ' ID ' . $dpjp->kd_dokter . ' ' . $getKamarInap->tgl_keluar, 'QRCODE') }}"
-                                            alt="barcode" width="55px" height="55px"/>
+                                            alt="barcode" width="55px" height="55px" />
                                     </div>
                                     {{ $dpjp->nm_dokter }}
                                 </td>

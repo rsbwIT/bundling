@@ -23,7 +23,7 @@ class CesmikController extends Controller
         $noSep = $request->cariNoSep;
 
         $cekNorawat = DB::table('reg_periksa')
-            ->select('status_lanjut', 'kd_poli')
+            ->select('status_lanjut', 'kd_poli', 'kd_dokter')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
@@ -39,7 +39,7 @@ class CesmikController extends Controller
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_poli === 'FIS' || $statusLanjut->kd_poli === 'FISI') { // U0061 = FisoTerapi
+            if ($statusLanjut->kd_dokter === 'D0000081' || $statusLanjut->kd_dokter === 'D0000081') { // U0061 = FisoTerapi
                 // 3 BERKAS RESUME FISO
                 $getResume = QueryResumeDll::getResumeFiso($noRawat);
                 $getKamarInap = '';

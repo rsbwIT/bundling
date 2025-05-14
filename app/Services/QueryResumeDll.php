@@ -151,12 +151,16 @@ class QueryResumeDll
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.kd_dokter',
                 'reg_periksa.kd_poli',
+                'reg_periksa.tgl_registrasi',
                 'poliklinik.nm_poli',
                 'pasien.nm_pasien',
+                'pasien.tmp_lahir',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.alamat',
                 'dokter_reg.nm_dokter AS dokter_reg_nama',
                 'dokter_fisio.nm_dokter AS dokter_fisio_nama',
-                'dokter_fisio.kd_dokter AS dokter_fisio_kode',
-                'reg_periksa.tgl_registrasi'
+                'dokter_fisio.kd_dokter AS dokter_fisio_kode'
             )
             ->join('reg_periksa', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
@@ -164,14 +168,17 @@ class QueryResumeDll
             ->join('dokter AS dokter_reg', 'reg_periksa.kd_dokter', '=', 'dokter_reg.kd_dokter')
             ->leftJoin('dokter AS dokter_fisio', 'pemeriksaan_ralan.nip', '=', 'dokter_fisio.kd_dokter')
             ->where('pemeriksaan_ralan.no_rawat', '=', $noRawat)
+            ->orderBy('pemeriksaan_ralan.tgl_perawatan', 'desc')
             ->orderBy('pemeriksaan_ralan.jam_rawat', 'desc')
             ->first();
 
-        $resumeFisio = new \stdClass();
-
         if ($data) {
-            foreach ($data as $key => $value) {
-                $resumeFisio->$key = $value;
+            // Convert data to object and ensure tgl_perawatan is set
+            $resumeFisio = (object) $data;
+
+            // Set default tgl_perawatan to tgl_registrasi if not present
+            if (!isset($resumeFisio->tgl_perawatan)) {
+                $resumeFisio->tgl_perawatan = $resumeFisio->tgl_registrasi;
             }
 
             // Dokter fisio dari tabel dokter
@@ -188,9 +195,11 @@ class QueryResumeDll
                 ->select('nama', 'nip')
                 ->where('nip', $resumeFisio->nip)
                 ->first();
+
+            return $resumeFisio;
         }
 
-        return $resumeFisio;
+        return null;
     }
 
 
