@@ -25,19 +25,24 @@ class SettingBpjs extends Component
     public $loadDataCasemix;
     public $cariNomor = '';
     public function getListCasemix() {
-        $cariNomor = $this->cariNomor;
         $this->loadDataCasemix = DB::table('file_casemix')
-            ->select('file_casemix.id',
+            ->select(
+                'file_casemix.id',
                 'file_casemix.no_rkm_medis',
                 'file_casemix.no_rawat',
                 'file_casemix.nama_pasein',
                 'file_casemix.jenis_berkas',
-                'file_casemix.file')
-            ->where(function($query) use ($cariNomor) {
-                $query->orWhere('file_casemix.no_rkm_medis', $cariNomor );
-                $query->orWhere('file_casemix.no_rawat', $cariNomor );
-                $query->orWhere('file_casemix.nama_pasein', $cariNomor );
-            })
+                'file_casemix.file',
+                'resume_pasien_ranap.keluhan_utama',
+                'resume_pasien_ranap.diagnosa_utama',
+                'resume_pasien_ranap.diagnosa_sekunder',
+                'resume_pasien_ranap.prosedur_utama',
+                'resume_pasien_ranap.prosedur_sekunder',
+                'resume_pasien_ranap.kondisi_pulang',
+                'resume_pasien_ranap.obat_pulang'
+            )
+            ->leftJoin('resume_pasien_ranap', 'file_casemix.no_rawat', '=', 'resume_pasien_ranap.no_rawat')
+            ->orderBy('file_casemix.id', 'desc')
             ->get();
     }
 

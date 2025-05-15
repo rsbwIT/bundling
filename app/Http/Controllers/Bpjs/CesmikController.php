@@ -39,9 +39,14 @@ class CesmikController extends Controller
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_dokter === 'D0000081' || $statusLanjut->kd_dokter === 'D0000081') { // U0061 = FisoTerapi
+            if ($statusLanjut->kd_poli === 'FIS') {
                 // 3 BERKAS RESUME FISO
-                $getResume = QueryResumeDll::getResumeFiso($noRawat);
+                $resume_ralan = QueryResumeDll::getResumeRalan($noRawat);
+                if ($resume_ralan) {
+                    $getResume = QueryResumeDll::getResumeRalan($noRawat);
+                } else {
+                    $getResume = QueryResumeDll::getResumeFiso($noRawat);
+                }
                 $getKamarInap = '';
                 $cekPasienKmrInap = '';
             } else {
@@ -126,6 +131,7 @@ class CesmikController extends Controller
             $getSoapie = '';
             $getTriaseIGD = '';
             $getSuratPriBpjs = '';
+            $resume_ralan = '';
         }
 
         // VIEW
@@ -147,6 +153,7 @@ class CesmikController extends Controller
             'getSoapie' => $getSoapie,
             'getTriaseIGD' => $getTriaseIGD,
             'getSuratPriBpjs' => $getSuratPriBpjs,
+            'resume_ralan' => $resume_ralan,
         ]);
     }
 }

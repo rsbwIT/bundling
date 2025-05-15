@@ -19,7 +19,7 @@ class PrintPdfService
         $cariNoSep = $no_sep;
         $noRawat = $no_rawat;
         $cekNorawat = DB::table('reg_periksa')
-            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli', 'reg_periksa.kd_dokter')
+            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
@@ -162,7 +162,7 @@ class PrintPdfService
         $noSep = $no_sep;
 
         $cekNorawat = DB::table('reg_periksa')
-            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli', 'reg_periksa.kd_dokter')
+            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
