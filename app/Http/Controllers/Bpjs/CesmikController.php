@@ -35,6 +35,9 @@ class CesmikController extends Controller
             ->get();
 
         if ($jumlahData > 0) {
+            // INITIAL DATA
+            $resume_ralan = '';
+
             // 1 BERKAS SEP
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
 

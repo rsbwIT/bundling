@@ -34,12 +34,21 @@ class PrintPdfService
 
 
         if ($jumlahData > 0) {
+
+            // INITIAL DATA
+            $resume_ralan = '';
+
             // 1 BERKAS SEP
             $getSEP = QueryResumeDll::getSEP($noRawat, $cariNoSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_dokter === 'D0000081' || $statusLanjut->kd_dokter === 'D0000081') { // U0061 = FisoTerapi
-                $getResume = QueryResumeDll::getResumeFiso($noRawat);
+            if ($statusLanjut->kd_poli === 'FIS') {
+                $resume_ralan = QueryResumeDll::getResumeRalan($noRawat);
+                if ($resume_ralan) {
+                    $getResume = QueryResumeDll::getResumeRalan($noRawat);
+                } else {
+                    $getResume = QueryResumeDll::getResumeFiso($noRawat);
+                }
                 $getKamarInap = '';
             } else {
                 if ($statusLanjut->status_lanjut === 'Ranap') {
@@ -117,6 +126,7 @@ class PrintPdfService
             $getSoapie = '';
             $getTriaseIGD = '';
             $getSuratPriBpjs = '';
+            $resume_ralan = '';
         }
 
 
@@ -138,6 +148,7 @@ class PrintPdfService
             'getSoapie' => $getSoapie,
             'getTriaseIGD' => $getTriaseIGD,
             'getSuratPriBpjs' => $getSuratPriBpjs,
+            'resume_ralan' => $resume_ralan,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);

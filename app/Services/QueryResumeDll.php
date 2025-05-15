@@ -330,6 +330,7 @@ class QueryResumeDll
                 'resume_pasien.kd_prosedur_sekunder3',
                 'resume_pasien.kondisi_pulang',
                 'resume_pasien.obat_pulang'
+
             )
             ->join('reg_periksa', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
