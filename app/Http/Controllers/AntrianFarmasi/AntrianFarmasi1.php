@@ -48,32 +48,32 @@ class AntrianFarmasi1 extends Controller
         return view('antrian-farmasi.panggil-farmasi1');
     }
 
-//     public function PanggilFarmasi1()
-// {
-//     $antrian = DB::table('antrian')
-//         ->join('bw_display_farmasi', 'antrian.keterangan', '=', 'bw_display_farmasi.nama_display_farmasi')
-//         ->whereDate('antrian.tanggal', now()->toDateString())
-//         ->select(
-//             'antrian.nomor_antrian',
-//             'antrian.rekam_medik',
-//             'antrian.nama_pasien',
-//             'antrian.keterangan',
-//             'bw_display_farmasi.nama_display_farmasi',
-//             'bw_display_farmasi.kd_display_farmasi'
-//         )
-//         ->get(); // Tambahkan get() di sini
+    //     public function PanggilFarmasi1()
+    // {
+    //     $antrian = DB::table('antrian')
+    //         ->join('bw_display_farmasi', 'antrian.keterangan', '=', 'bw_display_farmasi.nama_display_farmasi')
+    //         ->whereDate('antrian.tanggal', now()->toDateString())
+    //         ->select(
+    //             'antrian.nomor_antrian',
+    //             'antrian.rekam_medik',
+    //             'antrian.nama_pasien',
+    //             'antrian.keterangan',
+    //             'bw_display_farmasi.nama_display_farmasi',
+    //             'bw_display_farmasi.kd_display_farmasi'
+    //         )
+    //         ->get(); // Tambahkan get() di sini
 
-//     dd($antrian);
+    //     dd($antrian);
 
-//     // return  view("antrian-farmasi.antrian-farmasi1", [
-//     //             'results' => $antrian
-//     //             // 'penjab' => $penjab,
-//     //         ]);
-
-
+    //     // return  view("antrian-farmasi.antrian-farmasi1", [
+    //     //             'results' => $antrian
+    //     //             // 'penjab' => $penjab,
+    //     //         ]);
 
 
-// }
+
+
+    // }
 
 
 
@@ -85,7 +85,7 @@ class AntrianFarmasi1 extends Controller
     public function downloadAutorunfarmasi(Request $request)
     {
         $kdDisplayFarmasi = $request->kd_display_farmasi;
-        $url = url('/displayfarmasi?kd_display_farmasi='.$kdDisplayFarmasi);
+        $url = url('/displayfarmasi?kd_display_farmasi=' . $kdDisplayFarmasi);
         $fileName = 'autorun-display-farmasi-' . $kdDisplayFarmasi . '.bat';
         $content = <<<BAT
             @echo off
@@ -100,4 +100,6 @@ class AntrianFarmasi1 extends Controller
 
         return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
     }
+
+    
 }

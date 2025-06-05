@@ -149,4 +149,23 @@ class AntrianFarmasiController extends Controller
         // Mengembalikan view cetak dengan data antrian, pasien, dan setting
         return view('antrian-farmasi.cetak', compact('antrian', 'pasien', 'setting'));
     }
+
+    public function panggil()
+    {
+        return view('antrian-farmasi.panggilfarmasifix');
+
+        $this->emit('panggilDitekan');
+    }
+
+
+
+
+
+//     public function panggil($no_rawat)
+// {
+//     logger()->info("panggil() dipanggil dengan no_rawat = $no_rawat");
+
+//     $this->emit('panggilDitekan', $no_rawat);
+// }
+
 }

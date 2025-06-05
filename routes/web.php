@@ -92,7 +92,11 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
 use App\Http\Controllers\AI\AIChatController;
+use App\Http\Controllers\PasienKamarInap\RawatInap;
 use App\Http\Controllers\Regperiksa\RegPeriksaBillingController;
+use App\Http\Livewire\AntrianFarmasi\PanggilAntrianFarmasi;
+
+
 
 
 /*
@@ -246,18 +250,22 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
         //AntrianFarmasi
-
         Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
+        Route::get('/display-farmasi', [DisplayController::class, 'index'])->name('display-farmasi');
+
+        //PasienKamarInap
+        Route::get('/rawat-inap', [RawatInap::class, 'RawatInap']);
+
+
+        //tes
+        Route::get('/antrian-farmasi/panggil', [\App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController::class, 'panggil'])->name('antrian-farmasi.panggil');
+        // Route::get('/antrian-farmasi/panggil', [AntrianFarmasiController::class, 'panggil']);
+        Route::get('/pharmacy-display', App\Http\Livewire\AntrianFarmasi\Farmasi::class)->name('antrian-farmasi.display');
+        Route::get('/antrian-farmasi/call', PanggilAntrianFarmasi::class)->name('antrian-farmasi.call');
         Route::post('/antrian-farmasi/ambil', [AntrianFarmasiController::class, 'ambilAntrian'])->name('antrian-farmasi.ambilAntrian');
         Route::patch('/antrian-farmasi/update/{id}', [AntrianFarmasiController::class, 'updateStatus'])->name('antrian-farmasi.updateStatus');
         Route::get('/antrian-farmasi/pasien/{no_rkm_medis}', [AntrianFarmasiController::class, 'getPasien'])->name('antrian-farmasi.getPasien');
         Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian-farmasi.cetak');
-
-        //tess
-        Route::get('/display-farmasi', [PanggilanAntrianController::class, 'panggilanDisplay'])->name('antrian.view'); //tampilan farmasi
-        Route::post('/antrian-farmasi/panggil', [PanggilanAntrianController::class, 'panggilAntrian'])->name('antrian-farmasi.antrian');
-
-
 
         //REGPERIKSA
         // Route::get('/reg-periksa', [RegPeriksa::class, 'regperiksa']);
