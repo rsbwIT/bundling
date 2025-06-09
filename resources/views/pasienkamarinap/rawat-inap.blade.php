@@ -231,8 +231,6 @@
                             <th>No Rawat</th>
                             <th>Rekam Medis</th>
                             <th>Nama Pasien</th>
-                            <th>Penanggung Jawab</th>
-                            <th>Hubungan P.J</th>
                             <th>Jenis Bayar</th>
                             <th>Kelas SEP</th>
                             <th>Naik Kelas</th>
@@ -249,6 +247,8 @@
                             <th>Lama Perawatan</th>
                             <th>Dokter DPJP</th>
                             <th>Status Bayar</th>
+                            <th>Penanggung Jawab</th>
+                            <th>Hubungan P.J</th>
                             <th>Agama</th>
                             <th>Alamat Pasien</th>
                         </tr>
@@ -270,8 +270,6 @@
                                 <td>{{ $item->no_rawat }}</td>
                                 <td>{{ $item->no_rkm_medis }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
-                                <td>{{ $item->p_jawab }}</td>
-                                <td>{{ $item->hubunganpj }}</td>
                                 <td>{{ $item->png_jawab }}</td>
                                 <td>{{ $item->klsrawat ? 'Kelas ' . $item->klsrawat : 'Tidak Ada Sep' }}</td>
                                 <td>{{ $item->keterangan_klsnaik }}</td>
@@ -288,6 +286,8 @@
                                 <td>{{ $item->lama }}</td>
                                 <td>{{ $item->nm_dokter }}</td>
                                 <td>{{ $item->status_bayar }}</td>
+                                <td>{{ $item->p_jawab }}</td>
+                                <td>{{ $item->hubunganpj }}</td>
                                 <td>{{ $item->agama }}</td>
                                 <td>{{ $item->alamat }}</td>
                             </tr>
