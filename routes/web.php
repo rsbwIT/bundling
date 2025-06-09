@@ -42,6 +42,7 @@ use App\Http\Controllers\Keperawatan\LaporanLogBook;
 use App\Http\Controllers\Laporan\BayarPiutangKhanza;
 use App\Http\Controllers\Regperiksa\AnjunganMandiri;
 use App\Http\Controllers\DetailTindakan\OperasiAndVK;
+use App\Http\Controllers\DetailTindakan\OperasiAndVKKSO;
 use App\Http\Controllers\DetailTindakanBulanan\OperasiAndVK1;
 use App\Http\Controllers\DetailTindakan\RanapDokter2;
 use App\Http\Controllers\DetailTindakan\RanapDokter3;
@@ -189,6 +190,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/ralan-dokter-paramedis2', [RalanDokterParamedis2::class, 'RalanDokterParamedis2']);
         Route::get('/operasi-and-vk', [OperasiAndVK::class, 'OperasiAndVK']);
         Route::get('/operasi-and-vk1', [OperasiAndVK1::class, 'OperasiAndVK1']);
+        Route::get('/operasi-and-vk-kso', [OperasiAndVKKSO::class, 'OperasiAndVKKSO']);
         Route::get('/ranap-dokter', [RanapDokter::class, 'RanapDokter']);
         Route::get('/ranap-dokter4', [RanapDokter4::class, 'RanapDokter4']);
         Route::get('/ranap-dokter2', [RanapDokter2::class, 'RanapDokter2']);

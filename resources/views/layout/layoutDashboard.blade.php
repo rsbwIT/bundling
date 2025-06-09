@@ -284,6 +284,14 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('/operasi-and-vk-kso') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Operasi & VK (KSO)</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter</p>
