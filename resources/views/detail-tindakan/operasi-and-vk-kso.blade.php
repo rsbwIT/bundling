@@ -4,7 +4,7 @@
 @section('konten')
     <div class="card">
         <div class="card-body">
-            @include('detail-tindakan.component.cari-oprasi-vk')
+            @include('detail-tindakan.component.cari-oprasi-vk-kso')
             <div class="row no-print">
                 <div class="col-12">
                     <button type="button" class="btn btn-default float-right" id="copyButton">
