@@ -15,8 +15,7 @@ class RawatInap extends Controller
     {
         $this->cacheService = $cacheService;
     }
-
-    public function RawatInap(Request $request)
+    public function RawatInap(Request $request )
     {
         $query = DB::table('reg_periksa')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -24,8 +23,8 @@ class RawatInap extends Controller
             ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
             ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-            ->join('dpjp_ranap', 'reg_periksa.no_rawat', '=', 'dpjp_ranap.no_rawat')
-            ->join('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')
+            ->leftJoin('dpjp_ranap', 'reg_periksa.no_rawat', '=', 'dpjp_ranap.no_rawat')
+            ->leftJoin('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')
             ->leftJoin('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
             ->select([
                 'reg_periksa.no_rawat',
@@ -52,34 +51,53 @@ class RawatInap extends Controller
                 'reg_periksa.kd_pj',
                 'bridging_sep.klsrawat',
                 'bridging_sep.klsnaik',
-                DB::raw("CASE bridging_sep.klsnaik
-                        WHEN '1' THEN 'VVIP'
-                        WHEN '2' THEN 'VIP'
-                        WHEN '3' THEN 'Kelas 1'
-                        WHEN '4' THEN 'Kelas 2'
-                        WHEN '5' THEN 'Kelas 3'
-                        WHEN '6' THEN 'ICCU'
-                        WHEN '7' THEN 'ICU'
-                        WHEN '8' THEN 'Di Atas Kelas 1'
-                        ELSE 'Tidak Ada'
-                    END as keterangan_klsnaik"),
-                'kamar.kelas',
-                DB::raw("CASE
-                        WHEN bridging_sep.jnspelayanan = '1' THEN
-                            CASE
-                                WHEN bridging_sep.klsrawat = '1' AND kamar.kelas = 'Kelas 1' THEN 'hijau'
-                                WHEN bridging_sep.klsrawat = '2' AND kamar.kelas = 'Kelas 2' THEN 'hijau'
-                                WHEN bridging_sep.klsrawat = '3' AND kamar.kelas = 'Kelas 3' THEN 'hijau'
-                                WHEN bridging_sep.klsrawat = 'VIP' AND kamar.kelas = 'VIP' THEN 'hijau'
-                                WHEN bridging_sep.klsrawat = 'VVIP' AND kamar.kelas = 'VVIP' THEN 'hijau'
-                                ELSE 'orange'
-                            END
-                        ELSE 'hijau'
-                    END as warna_kelas")
-            ])
-            ->groupBy('reg_periksa.no_rawat');
 
-        // Filter default belum pulang jika tidak ada filter lain
+                // Kolom keterangan naik kelas
+                DB::raw("CASE bridging_sep.klsnaik
+                WHEN '1' THEN 'VVIP'
+                WHEN '2' THEN 'VIP'
+                WHEN '3' THEN 'Kelas 1'
+                WHEN '4' THEN 'Kelas 2'
+                WHEN '5' THEN 'Kelas 3'
+                WHEN '6' THEN 'ICCU'
+                WHEN '7' THEN 'ICU'
+                WHEN '8' THEN 'Di Atas Kelas 1'
+                ELSE 'Tidak Ada'
+            END as keterangan_klsnaik"),
+
+                // Kolom warna naik kelas
+                DB::raw("CASE
+                WHEN bridging_sep.klsnaik IS NULL
+                    OR bridging_sep.klsnaik NOT IN ('1','2','3','4','5','6','7','8')
+                    THEN 'kuning'
+                ELSE 'hijau'
+            END as warna_klsnaik"),
+
+                // Kelas kamar
+                'kamar.kelas',
+
+                // Warna kelas rawat sesuai dengan hak kelas dan ruang rawat
+                DB::raw("CASE
+                WHEN bridging_sep.jnspelayanan = '1' THEN
+                    CASE
+                        WHEN bridging_sep.klsrawat = '1' AND kamar.kelas = 'Kelas 1' THEN 'hijau'
+                        WHEN bridging_sep.klsrawat = '2' AND kamar.kelas = 'Kelas 2' THEN 'hijau'
+                        WHEN bridging_sep.klsrawat = '3' AND kamar.kelas = 'Kelas 3' THEN 'hijau'
+                        WHEN bridging_sep.klsrawat = 'VIP' AND kamar.kelas = 'VIP' THEN 'hijau'
+                        WHEN bridging_sep.klsrawat = 'VVIP' AND kamar.kelas = 'VVIP' THEN 'hijau'
+                        ELSE 'orange'
+                    END
+                ELSE NULL
+            END as warna_kelas")
+            ])
+            ->groupBy('kamar_inap.no_rawat');
+
+        // ✅ Filter kelas kamar jika dipilih user
+        if ($request->has('kelas_filter')) {
+            $query->where('kamar.kelas', $request->kelas_filter);
+        }
+
+        // ✅ Filter pasien yang belum pulang jika tidak ada filter lain
         if (
             !$request->has('belum_pulang') &&
             !$request->has('tgl_masuk') &&
@@ -88,7 +106,7 @@ class RawatInap extends Controller
             $query->where('kamar_inap.stts_pulang', '-');
         }
 
-        // Filter eksplisit
+        // ✅ Filter yang memang diminta
         if ($request->has('belum_pulang')) {
             $query->where('kamar_inap.stts_pulang', '-');
         }
@@ -101,37 +119,37 @@ class RawatInap extends Controller
             $query->whereBetween('kamar_inap.tgl_keluar', [$request->tgl1, $request->tgl2]);
         }
 
-        // ** FILTER WARNA SESUAI TOMBOL **
-        if ($request->filled('filter_warna')) {
-            $filterWarna = $request->input('filter_warna');
-
-            $caseWarna = "
-        CASE
-            WHEN bridging_sep.jnspelayanan = '1' THEN
-                CASE
-                    WHEN bridging_sep.klsrawat = '1' AND kamar.kelas = 'Kelas 1' THEN 'hijau'
-                    WHEN bridging_sep.klsrawat = '2' AND kamar.kelas = 'Kelas 2' THEN 'hijau'
-                    WHEN bridging_sep.klsrawat = '3' AND kamar.kelas = 'Kelas 3' THEN 'hijau'
-                    WHEN bridging_sep.klsrawat = 'VIP' AND kamar.kelas = 'VIP' THEN 'hijau'
-                    WHEN bridging_sep.klsrawat = 'VVIP' AND kamar.kelas = 'VVIP' THEN 'hijau'
-                    ELSE 'orange'
-                END
-            ELSE 'hijau'
-        END
-    ";
-
-            if ($filterWarna === 'merah') {
-                $query->whereRaw("{$caseWarna} = 'orange'");
-            } elseif ($filterWarna === 'hijau') {
-                // Pastikan bridging_sep.klsrawat tidak null supaya pasien tanpa SEP tidak masuk
-                $query->whereRaw("{$caseWarna} = 'hijau'")
-                    ->whereNotNull('bridging_sep.klsrawat');
-            } elseif ($filterWarna === 'putih') {
-                $query->whereNull('bridging_sep.klsrawat');
-            }
-        }
+        // ✅ Ambil semua pasien (SEP & non-SEP)
+        $query->where(function ($q) {
+            $q->where('bridging_sep.jnspelayanan', '1')
+                ->orWhereNull('bridging_sep.no_rawat'); // biar non-SEP tetap muncul
+        });
 
         $results = $query->get();
+
+        // FILTER WARNA
+        $filterWarna = $request->filter_warna;
+
+        if ($filterWarna) {
+            $results = $results->filter(function ($item) use ($filterWarna) {
+                $isNonKelas = empty($item->klsrawat);
+                $isSepKosong = empty($item->warna_kelas);
+                $warnaKelas = $item->warna_kelas ?? '';
+                $keterangan = $item->keterangan_klsnaik ?? 'Tidak Ada';
+
+                if ($isNonKelas && $isSepKosong) {
+                    $warna = 'putih';
+                } elseif ($warnaKelas === 'hijau') {
+                    $warna = 'hijau';
+                } elseif ($keterangan === 'Tidak Ada') {
+                    $warna = 'kuning';
+                } else {
+                    $warna = 'merah';
+                }
+
+                return $filterWarna === $warna;
+            });
+        }
 
         return view('pasienkamarinap.rawat-inap', [
             'results' => $results,

@@ -185,117 +185,164 @@
                     {{-- Filter Warna --}}
                     <div class="col-md-3 d-flex align-items-start"
                         style="padding-top: 0.4rem; gap: 0.5rem; flex-wrap: wrap;">
+                        <!-- Tidak Sesuai Kelas (Merah) -->
                         <button type="submit" name="filter_warna" value="merah"
                             class="btn btn-danger btn-sm d-flex align-items-center" title="Tidak Sesuai Kelas">
-                            <i class="bi bi-x-circle-fill"></i> Tidak Sesuai Kelas
+                            <i class="bi bi-x-circle-fill me-1"></i> Tidak Sesuai Kelas
                         </button>
 
+                        <!-- Tidak Ada Keterangan (Kuning) -->
+                        <button type="submit" name="filter_warna" value="kuning"
+                            class="btn btn-warning btn-sm d-flex align-items-center"
+                            title="Tidak Ada Keterangan Kelas Naik">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Tidak Ada Keterangan
+                        </button>
+
+                        <!-- Pasien Sesuai SEP (Hijau) -->
                         <button type="submit" name="filter_warna" value="hijau"
-                            class="btn btn-success btn-sm d-flex align-items-center" title="Sesuai Kelas">
-                            <i class="bi bi-check-circle-fill"></i> Sesuai Kelas
+                            class="btn btn-success btn-sm d-flex align-items-center" title="Pasien Sesuai SEP">
+                            <i class="bi bi-check-circle-fill me-1"></i> Sesuai SEP
                         </button>
 
+                        <!-- Tidak Ada SEP (Putih) -->
                         <button type="submit" name="filter_warna" value="putih"
                             class="btn btn-light btn-sm border d-flex align-items-center" title="Tidak Ada SEP">
-                            <i class="bi bi-dash-circle-fill"></i> Tidak Ada SEP
+                            <i class="bi bi-dash-circle-fill me-1"></i> Tidak Ada SEP
                         </button>
 
-                        <button type="submit" name="filter_warna" value="semua"
-                            class="btn btn-sm d-flex align-items-center btn-rgb" title="Tampilkan Semua">
-                            <i class="bi bi-list-stars"></i> Tampilkan Semua
-                        </button>
-                    </div>
-                </div>
+                        <!-- Tampilkan Semua -->
+                        <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm d-flex align-items-center"
+                            title="Tampilkan Semua">
+                            <i class="bi bi-list-stars me-1"></i> Tampilkan Semua
+                        </a>
             </form>
 
-            {{-- Total Data --}}
-            <div class="d-flex justify-content-end mt-3 mb-2">
-                <strong>Total Data: {{ $results->count() }}</strong>
-            </div>
+            <!-- Filter Kelas (JANGAN DIUBAH - SUDAH SESUAI) -->
+            <form method="GET" class="d-flex flex-wrap gap-2">
 
-            {{-- Copy Table --}}
-            <div class="d-flex justify-content-end mt-3 mb-2">
-                <button type="button" class="btn btn-secondary btn-sm" id="copyButton">
-                    <i class="bi bi-clipboard-check me-1"></i> Copy Table
+                <!-- Kelas 1 -->
+                <button type="submit" name="kelas_filter" value="Kelas 1"
+                    class="btn btn-outline-primary btn-sm d-flex align-items-center" title="Filter Kelas 1">
+                    <i class="bi bi-filter-circle me-1"></i> Kelas 1
                 </button>
-            </div>
 
+                <!-- Kelas 2 -->
+                <button type="submit" name="kelas_filter" value="Kelas 2"
+                    class="btn btn-outline-primary btn-sm d-flex align-items-center" title="Filter Kelas 2">
+                    <i class="bi bi-filter-circle me-1"></i> Kelas 2
+                </button>
 
-            {{-- Table --}}
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered table-striped text-xs" id="tableToCopy"
-                    style="white-space: nowrap; border-collapse: collapse;">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>No Rawat</th>
-                            <th>Rekam Medis</th>
-                            <th>Nama Pasien</th>
-                            <th>Jenis Bayar</th>
-                            <th>Kelas SEP</th>
-                            <th>Naik Kelas</th>
-                            <th>Kamar</th>
-                            <th>Tarif Kamar</th>
-                            <th>Diagnosa Awal</th>
-                            <th>Diagnosa Akhir</th>
-                            <th>Tgl. Masuk</th>
-                            <th>Jam Masuk</th>
-                            <th>Tgl. Keluar</th>
-                            <th>Jam Keluar</th>
-                            <th>Ttl. Biaya</th>
-                            <th>Stts. Pulang</th>
-                            <th>Lama Perawatan</th>
-                            <th>Dokter DPJP</th>
-                            <th>Status Bayar</th>
-                            <th>Penanggung Jawab</th>
-                            <th>Hubungan P.J</th>
-                            <th>Agama</th>
-                            <th>Alamat Pasien</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($results as $key => $item)
-                            @php
-                                $isNonKelas = empty($item->klsrawat);
-                                $isSepKosong = empty($item->kelas_sep);
-                                $bgColor =
-                                    $isNonKelas && $isSepKosong
-                                        ? 'white'
-                                        : ($item->warna_kelas == 'hijau'
-                                            ? '#d4edda'
-                                            : '#ff4d4d');
-                            @endphp
-                            <tr style="background-color: {{ $bgColor }};">
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $item->no_rawat }}</td>
-                                <td>{{ $item->no_rkm_medis }}</td>
-                                <td>{{ $item->nm_pasien }}</td>
-                                <td>{{ $item->png_jawab }}</td>
-                                <td>{{ $item->klsrawat ? 'Kelas ' . $item->klsrawat : 'Tidak Ada Sep' }}</td>
-                                <td>{{ $item->keterangan_klsnaik }}</td>
-                                <td>{{ $item->kamar_bangsal }}</td>
-                                <td>{{ $item->trf_kamar }}</td>
-                                <td>{{ $item->diagnosa_awal }}</td>
-                                <td>{{ $item->diagnosa_akhir }}</td>
-                                <td>{{ $item->tgl_masuk }}</td>
-                                <td>{{ $item->jam_masuk }}</td>
-                                <td>{{ $item->tgl_keluar }}</td>
-                                <td>{{ $item->jam_keluar }}</td>
-                                <td>{{ $item->ttl_biaya }}</td>
-                                <td>{{ $item->stts_pulang }}</td>
-                                <td>{{ $item->lama }}</td>
-                                <td>{{ $item->nm_dokter }}</td>
-                                <td>{{ $item->status_bayar }}</td>
-                                <td>{{ $item->p_jawab }}</td>
-                                <td>{{ $item->hubunganpj }}</td>
-                                <td>{{ $item->agama }}</td>
-                                <td>{{ $item->alamat }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                <!-- Kelas 3 -->
+                <button type="submit" name="kelas_filter" value="Kelas 3"
+                    class="btn btn-outline-primary btn-sm d-flex align-items-center" title="Filter Kelas 3">
+                    <i class="bi bi-filter-circle me-1"></i> Kelas 3
+                </button>
+
         </div>
+    </div>
+    </form>
+
+    {{-- Total Data --}}
+    <div class="d-flex justify-content-end mt-3 mb-2">
+        <strong>Total Data: {{ $results->count() }}</strong>
+    </div>
+
+    {{-- Copy Table --}}
+    <div class="d-flex justify-content-end mt-3 mb-2">
+        <button type="button" class="btn btn-secondary btn-sm" id="copyButton">
+            <i class="bi bi-clipboard-check me-1"></i> Copy Table
+        </button>
+    </div>
+
+
+    {{-- Table --}}
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered table-striped text-xs" id="tableToCopy"
+            style="white-space: nowrap; border-collapse: collapse;">
+            <thead class="table-light">
+                <tr>
+                    <th>No</th>
+                    <th>No Rawat</th>
+                    <th>Rekam Medis</th>
+                    <th>Nama Pasien</th>
+                    <th>Jenis Bayar</th>
+                    <th>Kelas SEP</th>
+                    <th>Naik Kelas</th>
+                    <th>Kamar</th>
+                    <th>Tarif Kamar</th>
+                    <th>Diagnosa Awal</th>
+                    <th>Diagnosa Akhir</th>
+                    <th>Tgl. Masuk</th>
+                    <th>Jam Masuk</th>
+                    <th>Tgl. Keluar</th>
+                    <th>Jam Keluar</th>
+                    <th>Ttl. Biaya</th>
+                    <th>Stts. Pulang</th>
+                    <th>Lama Perawatan</th>
+                    <th>Dokter DPJP</th>
+                    <th>Status Bayar</th>
+                    <th>Penanggung Jawab</th>
+                    <th>Hubungan P.J</th>
+                    <th>Agama</th>
+                    <th>Alamat Pasien</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $filterWarna = request('filter_warna');
+                @endphp
+
+                @foreach ($results as $key => $item)
+                    @php
+                        $isNonKelas = empty($item->klsrawat);
+                        $isSepKosong = empty($item->kelas_sep); // jika kamu punya field ini
+                        $warnaKelas = $item->warna_kelas ?? '';
+                        $keteranganKlsNaik = $item->keterangan_klsnaik ?? 'Tidak Ada';
+
+                        // Warna latar belakang berdasarkan logika warna_kelas
+                        if ($isNonKelas && $isSepKosong) {
+                            $bgColor = 'white';
+                        } elseif ($warnaKelas === 'hijau') {
+                            $bgColor = '#d4edda'; // Hijau muda: sesuai hak kelas
+                        } elseif ($keteranganKlsNaik === 'Tidak Ada') {
+                            $bgColor = '#ffab19'; // Kuning: tidak ada keterangan naik kelas
+                        } else {
+                            $bgColor = '#ff7d8e'; // Merah: tidak sesuai hak kelas
+                        }
+                    @endphp
+
+                    <tr style="background-color: {{ $bgColor }};">
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $item->no_rawat }}</td>
+                        <td>{{ $item->no_rkm_medis }}</td>
+                        <td>{{ $item->nm_pasien }}</td>
+                        <td>{{ $item->png_jawab }}</td>
+                        <td>{{ $item->klsrawat ? 'Kelas ' . $item->klsrawat : 'Tidak Ada SEP' }}</td>
+                        <td>{{ $item->keterangan_klsnaik }}</td>
+                        <td>{{ $item->kamar_bangsal }}</td>
+                        <td>{{ number_format($item->trf_kamar) }}</td>
+                        <td>{{ $item->diagnosa_awal }}</td>
+                        <td>{{ $item->diagnosa_akhir }}</td>
+                        <td>{{ $item->tgl_masuk }}</td>
+                        <td>{{ $item->jam_masuk }}</td>
+                        <td>{{ $item->tgl_keluar }}</td>
+                        <td>{{ $item->jam_keluar }}</td>
+                        <td>{{ number_format($item->ttl_biaya) }}</td>
+                        <td>{{ $item->stts_pulang }}</td>
+                        <td>{{ $item->lama }}</td>
+                        <td>{{ $item->nm_dokter }}</td>
+                        <td>{{ $item->status_bayar }}</td>
+                        <td>{{ $item->p_jawab }}</td>
+                        <td>{{ $item->hubunganpj }}</td>
+                        <td>{{ $item->agama }}</td>
+                        <td>{{ $item->alamat }}</td>
+                    </tr>
+                @endforeach
+
+            </tbody>
+        </table>
+    </div>
+    </div>
     </div>
 @endsection
 
