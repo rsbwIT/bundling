@@ -195,7 +195,7 @@
                         <button type="submit" name="filter_warna" value="kuning"
                             class="btn btn-warning btn-sm d-flex align-items-center"
                             title="Tidak Ada Keterangan Kelas Naik">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Tidak Ada Keterangan
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Tidak Ada Keterangan Kelas Naik
                         </button>
 
                         <!-- Pasien Sesuai SEP (Hijau) -->
