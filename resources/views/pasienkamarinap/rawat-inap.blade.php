@@ -145,7 +145,7 @@
                     <div class="col-md-2">
                         <div class="form-check pretty-check">
                             <input class="form-check-input ceklis" type="checkbox" name="tgl_pulang" id="tgl_pulang"
-                                {{ request('tgl_pulang') ? 'checked' : '' }}>
+                                value="1" {{ request('tgl_pulang') ? 'checked' : '' }}>
                             <label class="form-check-label" for="tgl_pulang">
                                 <i class="bi bi-calendar-x me-1 text-danger"></i> Tanggal Pulang
                             </label>
