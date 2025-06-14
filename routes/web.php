@@ -94,6 +94,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
 use App\Http\Controllers\AI\AIChatController;
 use App\Http\Controllers\PasienKamarInap\RawatInap;
+use App\Http\Controllers\PasienKamarInap\InfoKamarInap;
 use App\Http\Controllers\Regperiksa\RegPeriksaBillingController;
 use App\Http\Livewire\AntrianFarmasi\PanggilAntrianFarmasi;
 
@@ -257,6 +258,7 @@ Route::group(['middleware' => 'default'], function () {
 
         //PasienKamarInap
         Route::get('/rawat-inap', [RawatInap::class, 'RawatInap']);
+        Route::get('/infokamarinap', [InfoKamarInap::class, 'InfoKamarInap']);
 
 
         //tes

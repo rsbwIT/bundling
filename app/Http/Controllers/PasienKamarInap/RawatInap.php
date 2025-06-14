@@ -15,6 +15,7 @@ class RawatInap extends Controller
     {
         $this->cacheService = $cacheService;
     }
+
     public function RawatInap(Request $request)
     {
         $query = DB::table('reg_periksa')
