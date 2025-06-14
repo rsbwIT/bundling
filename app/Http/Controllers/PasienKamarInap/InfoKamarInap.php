@@ -23,6 +23,7 @@ class InfoKamarInap extends Controller
             'ANINH',
             'RG2',
             'G2INH',
+            'RHCU',
             'RG3',
             'INHG3',
             'RG5',
