@@ -20,8 +20,11 @@ class InfoKamarInap extends Controller
     {
         $urutanBangsal = [
             'RANG',
+            'ANINH',
             'RG2',
+            'G2INH',
             'RG3',
+            'INHG3',
             'RG5',
             'RHCU',
             'RICU2',

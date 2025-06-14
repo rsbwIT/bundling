@@ -32,23 +32,25 @@
             </div>
         </div>
 
-        <!-- Konten Bangsal dengan scroll jika lebih dari 3 baris -->
+        <!-- Konten Bangsal -->
         <div class="max-h-[calc(100vh-10rem)] overflow-y-auto">
             <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 px-1">
                 @foreach ($results as $kd_bangsal => $items)
                     <div class="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden">
                         @php
                             $total = count($items);
-                            $terisi = $items->where('status', 'Terisi')->count();
+                            $terisi = collect($items)->where('status', 'Terisi')->count();
+                            $kosong = $total - $terisi; // atau: collect($items)->where('status', 'Kosong')->count();
                             $groupedByKelas = collect($items)->groupBy('kelas');
                         @endphp
 
                         <!-- Header Bangsal -->
                         <div
                             class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-semibold py-2 px-3 flex justify-between items-center">
-                            <span>{{ $items->first()->nm_bangsal ?? 'Bangsal' }}</span>
-                            <span class="text-white text-xs font-normal">
-                                Total: {{ $total }} kamar ({{ $terisi }} terisi)
+                            <span>{{ $items[0]->nm_bangsal ?? 'Bangsal' }}</span>
+                            <span class="text-white text-xs font-normal text-right leading-tight">
+                                Total: {{ $total }} kamar<br>
+                                Terisi: {{ $terisi }} | Kosong: {{ $kosong }}
                             </span>
                         </div>
 
@@ -56,14 +58,14 @@
                         <div class="p-3 space-y-4 max-h-[500px] overflow-y-auto">
                             @foreach ($groupedByKelas as $kelas => $kamars)
                                 <div>
+                                    <!-- Nama Kelas -->
                                     <div class="text-sm font-semibold text-gray-700 mb-2 border-b border-gray-300 pb-1">
                                         {{ $kelas }}
                                     </div>
 
-                                    <!-- Max 3 per baris, tapi selalu full lebar -->
-                                    <div class="grid gap-2 max-w-screen-lg mx-auto"
-                                        style="grid-template-columns: repeat(auto-fit, minmax(0, 1fr));">
-                                        @foreach ($kamars->take(3) as $item)
+                                    <!-- Grid kamar per kelas -->
+                                    <div class="grid gap-2 grid-cols-2">
+                                        @foreach ($kamars as $item)
                                             @php
                                                 $status = strtolower($item->status ?? '');
                                                 $jk = strtoupper($item->jk ?? '');
@@ -71,7 +73,7 @@
                                                     $status === 'kosong'
                                                         => 'bg-green-100 text-green-800 border-green-300',
                                                     $status === 'terisi' && $jk === 'L'
-                                                        => 'bg-orange-100 text-orange-800 border-orange-300',
+                                                        => 'bg-blue-100 text-blue-800 border-blue-300', // ← biru muda
                                                     $status === 'terisi' && $jk === 'P'
                                                         => 'bg-pink-100 text-pink-800 border-pink-300',
                                                     default => 'bg-gray-100 text-gray-800 border-gray-300',
@@ -79,9 +81,20 @@
                                             @endphp
 
                                             <div
-                                                class="border rounded-md {{ $bgColor }} text-xs font-medium p-2 flex flex-col text-center">
-                                                <div class="text-sm font-bold truncate">{{ $item->kd_kamar }}</div>
+                                                class="border rounded-md {{ $bgColor }} text-xs font-medium p-2 flex flex-col text-center h-full">
+                                                <!-- Kode kamar -->
+                                                <div
+                                                    class="text-sm font-bold break-words whitespace-normal w-full px-1">
+                                                    {{ $item->kd_kamar }}
+                                                </div>
 
+                                                <!-- Status kamar -->
+                                                <div
+                                                    class="text-[10px] font-semibold uppercase tracking-wide mt-1 {{ $item->status === 'Kosong' ? 'text-green-700' : 'text-red-700' }}">
+                                                    {{ $item->status }}
+                                                </div>
+
+                                                <!-- Info pasien jika terisi -->
                                                 @if ($item->status === 'Terisi')
                                                     <div class="text-[10px] text-left leading-tight space-y-[2px] mt-1">
                                                         <div class="font-semibold text-gray-900 truncate">
