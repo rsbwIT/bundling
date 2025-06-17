@@ -28,6 +28,125 @@ class OperasiAndVK extends Controller
         $tanggl2 = $request->tgl2;
         $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
+        //qwery lama >>>
+
+        // $OperasiAndVK = DB::table('operasi')
+        //     ->select(
+        //         'operasi.no_rawat',
+        //         'reg_periksa.no_rkm_medis',
+        //         'pasien.nm_pasien',
+        //         'operasi.kode_paket',
+        //         'paket_operasi.nm_perawatan',
+        //         'operasi.tgl_operasi',
+        //         'penjab.png_jawab',
+        //         'penjab.kd_pj',
+        //         DB::raw('IF(operasi.status="Ralan", (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli=reg_periksa.kd_poli), (SELECT bangsal.nm_bangsal FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar=kamar.kd_kamar INNER JOIN bangsal ON kamar.kd_bangsal=bangsal.kd_bangsal WHERE kamar_inap.no_rawat=operasi.no_rawat LIMIT 1)) AS ruangan'),
+        //         'operator1.nm_dokter AS operator1',
+        //         DB::raw('SUM(operasi.biayaoperator1) as biayaoperator1'),
+        //         'operator2.nm_dokter AS operator2',
+        //         DB::raw('SUM(operasi.biayaoperator2) as biayaoperator2'),
+        //         'operator3.nm_dokter AS operator3',
+        //         DB::raw('SUM(operasi.biayaoperator3) as biayaoperator3'),
+        //         'asisten_operator1.nama AS asisten_operator1',
+        //         DB::raw('SUM(operasi.biayaasisten_operator1) as biayaasisten_operator1'),
+        //         'asisten_operator2.nama AS asisten_operator2',
+        //         DB::raw('SUM(operasi.biayaasisten_operator2) as biayaasisten_operator2'),
+        //         'asisten_operator3.nama AS asisten_operator3',
+        //         DB::raw('SUM(operasi.biayaasisten_operator3) as biayaasisten_operator3'),
+        //         'instrumen.nama AS instrumen',
+        //         DB::raw('SUM(operasi.biayainstrumen) as biayainstrumen'),
+        //         'dokter_anak.nm_dokter AS dokter_anak',
+        //         DB::raw('SUM(operasi.biayadokter_anak) as biayadokter_anak'),
+        //         'perawaat_resusitas.nama AS perawaat_resusitas',
+        //         DB::raw('SUM(operasi.biayaperawaat_resusitas) as biayaperawaat_resusitas'),
+        //         'dokter_anestesi.nm_dokter AS dokter_anestesi',
+        //         DB::raw('SUM(operasi.biayadokter_anestesi) as biayadokter_anestesi'),
+        //         'asisten_anestesi.nama AS asisten_anestesi',
+        //         DB::raw('SUM(operasi.biayaasisten_anestesi) as biayaasisten_anestesi'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.asisten_anestesi2) AS asisten_anestesi2'),
+        //         DB::raw('SUM(operasi.biayaasisten_anestesi2) as biayaasisten_anestesi2'),
+        //         'bidan.nama AS bidan',
+        //         DB::raw('SUM(operasi.biayabidan) as biayabidan'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.bidan2) AS bidan2'),
+        //         DB::raw('SUM(operasi.biayabidan2) as biayabidan2'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.bidan3) AS bidan3'),
+        //         DB::raw('SUM(operasi.biayabidan3) as biayabidan3'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.perawat_luar) AS perawat_luar'),
+        //         DB::raw('SUM(operasi.biayaperawat_luar) as biayaperawat_luar'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop) AS omloop'),
+        //         DB::raw('SUM(operasi.biaya_omloop) as biaya_omloop'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop2) AS omloop2'),
+        //         DB::raw('SUM(operasi.biaya_omloop2) as biaya_omloop2'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop3) AS omloop3'),
+        //         DB::raw('SUM(operasi.biaya_omloop3) as biaya_omloop3'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop4) AS omloop4'),
+        //         DB::raw('SUM(operasi.biaya_omloop4) as biaya_omloop4'),
+        //         DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop5) AS omloop5'),
+        //         DB::raw('SUM(operasi.biaya_omloop5) as biaya_omloop5'),
+        //         DB::raw('(SELECT nm_dokter FROM dokter WHERE dokter.kd_dokter=operasi.dokter_pjanak) AS dokter_pjanak'),
+        //         DB::raw('SUM(operasi.biaya_dokter_pjanak) as biaya_dokter_pjanak'),
+        //         DB::raw('(SELECT nm_dokter FROM dokter WHERE dokter.kd_dokter=operasi.dokter_umum) AS dokter_umum'),
+        //         DB::raw('SUM(operasi.biaya_dokter_umum) as biaya_dokter_umum'),
+        //         // DB::raw('SUM(operasi.biayaalat) as biayaalat'),
+        //         'operasi.biayaalat',
+        //         DB::raw('SUM(operasi.biayasewaok) as biayasewaok'),
+        //         // DB::raw('SUM(operasi.akomodasi) as akomodasi'),
+        //         'operasi.akomodasi',
+        //         DB::raw('SUM(operasi.bagian_rs) as bagian_rs'),
+        //         // DB::raw('SUM(operasi.biayasarpras) as biayasarpras'),
+        //         'operasi.biayasarpras',
+        //         'bayar_piutang.besar_cicilan',
+        //         'piutang_pasien.uangmuka',
+        //         'bayar_piutang.tgl_bayar',
+        //         'piutang_pasien.status'
+        //     )
+        //     ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        //     ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        //     ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+        //     ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        //     ->join('dokter as operator1', 'operator1.kd_dokter', '=', 'operasi.operator1')
+        //     ->join('dokter as operator2', 'operator2.kd_dokter', '=', 'operasi.operator2')
+        //     ->join('dokter as operator3', 'operator3.kd_dokter', '=', 'operasi.operator3')
+        //     ->join('dokter as dokter_anak', 'dokter_anak.kd_dokter', '=', 'operasi.dokter_anak')
+        //     ->join('dokter as dokter_anestesi', 'dokter_anestesi.kd_dokter', '=', 'operasi.dokter_anestesi')
+        //     ->join('petugas as asisten_operator1', 'asisten_operator1.nip', '=', 'operasi.asisten_operator1')
+        //     ->join('petugas as asisten_operator2', 'asisten_operator2.nip', '=', 'operasi.asisten_operator2')
+        //     ->join('petugas as asisten_operator3', 'asisten_operator3.nip', '=', 'operasi.asisten_operator3')
+        //     ->join('petugas as asisten_anestesi', 'asisten_anestesi.nip', '=', 'operasi.asisten_anestesi')
+        //     ->join('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
+        //     ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
+        //     ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
+        //     ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        //     ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
+        //     ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
+        //         if ($kdPenjamin) {
+        //             $query->whereIn('penjab.kd_pj', $kdPenjamin);
+        //         }
+        //         if ($kdPetugas) {
+        //             $query->whereIn('asisten_operator1.nip', $kdPetugas);
+        //         }
+        //         if ($kdDokter) {
+        //             $query->whereIn('operator1.kd_dokter', $kdDokter);
+        //         }
+        //         if ($status == "Lunas") {
+        //             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+        //                 ->where('piutang_pasien.status', 'Lunas');
+        //         } elseif ($status == "Belum Lunas") {
+        //             $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+        //                 ->where('piutang_pasien.status', 'Belum Lunas');
+        //         }
+        //     })
+        //     ->where(function ($query) use ($cariNomor) {
+        //         $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+        //         $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+        //         $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+        //     })
+        //     ->groupBy('operasi.no_rawat', 'operasi.tgl_operasi', 'bayar_piutang.besar_cicilan')
+        //     ->orderBy('penjab.kd_pj', 'asc')
+        //     ->get();
+
+        //qwery baru >>>
+
         $OperasiAndVK = DB::table('operasi')
             ->select(
                 'operasi.no_rawat',
@@ -38,94 +157,125 @@ class OperasiAndVK extends Controller
                 'operasi.tgl_operasi',
                 'penjab.png_jawab',
                 'penjab.kd_pj',
-                DB::raw('IF(operasi.status="Ralan", (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli=reg_periksa.kd_poli), (SELECT bangsal.nm_bangsal FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar=kamar.kd_kamar INNER JOIN bangsal ON kamar.kd_bangsal=bangsal.kd_bangsal WHERE kamar_inap.no_rawat=operasi.no_rawat LIMIT 1)) AS ruangan'),
+
+                // Lokasi Ruangan
+                DB::raw('IF(operasi.status="Ralan",
+            (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli=reg_periksa.kd_poli),
+            (SELECT bangsal.nm_bangsal FROM kamar_inap
+                INNER JOIN kamar ON kamar_inap.kd_kamar=kamar.kd_kamar
+                INNER JOIN bangsal ON kamar.kd_bangsal=bangsal.kd_bangsal
+                WHERE kamar_inap.no_rawat=operasi.no_rawat LIMIT 1)
+        ) AS ruangan'),
+
+                // Operator & Biaya
                 'operator1.nm_dokter AS operator1',
-                DB::raw('SUM(operasi.biayaoperator1) as biayaoperator1'),
+                DB::raw('SUM(operasi.biayaoperator1) AS biayaoperator1'),
                 'operator2.nm_dokter AS operator2',
-                DB::raw('SUM(operasi.biayaoperator2) as biayaoperator2'),
+                DB::raw('SUM(operasi.biayaoperator2) AS biayaoperator2'),
                 'operator3.nm_dokter AS operator3',
-                DB::raw('SUM(operasi.biayaoperator3) as biayaoperator3'),
+                DB::raw('SUM(operasi.biayaoperator3) AS biayaoperator3'),
+
+                // Asisten Operator
                 'asisten_operator1.nama AS asisten_operator1',
-                DB::raw('SUM(operasi.biayaasisten_operator1) as biayaasisten_operator1'),
+                DB::raw('SUM(operasi.biayaasisten_operator1) AS biayaasisten_operator1'),
                 'asisten_operator2.nama AS asisten_operator2',
-                DB::raw('SUM(operasi.biayaasisten_operator2) as biayaasisten_operator2'),
+                DB::raw('SUM(operasi.biayaasisten_operator2) AS biayaasisten_operator2'),
                 'asisten_operator3.nama AS asisten_operator3',
-                DB::raw('SUM(operasi.biayaasisten_operator3) as biayaasisten_operator3'),
+                DB::raw('SUM(operasi.biayaasisten_operator3) AS biayaasisten_operator3'),
+
+                // Instrumen & Lainnya
                 'instrumen.nama AS instrumen',
-                DB::raw('SUM(operasi.biayainstrumen) as biayainstrumen'),
+                DB::raw('SUM(operasi.biayainstrumen) AS biayainstrumen'),
+
+                // Dokter Anak dan Anestesi
                 'dokter_anak.nm_dokter AS dokter_anak',
-                DB::raw('SUM(operasi.biayadokter_anak) as biayadokter_anak'),
+                DB::raw('SUM(operasi.biayadokter_anak) AS biayadokter_anak'),
                 'perawaat_resusitas.nama AS perawaat_resusitas',
-                DB::raw('SUM(operasi.biayaperawaat_resusitas) as biayaperawaat_resusitas'),
+                DB::raw('SUM(operasi.biayaperawaat_resusitas) AS biayaperawaat_resusitas'),
                 'dokter_anestesi.nm_dokter AS dokter_anestesi',
-                DB::raw('SUM(operasi.biayadokter_anestesi) as biayadokter_anestesi'),
+                DB::raw('SUM(operasi.biayadokter_anestesi) AS biayadokter_anestesi'),
+
+                // Asisten Anestesi
                 'asisten_anestesi.nama AS asisten_anestesi',
-                DB::raw('SUM(operasi.biayaasisten_anestesi) as biayaasisten_anestesi'),
+                DB::raw('SUM(operasi.biayaasisten_anestesi) AS biayaasisten_anestesi'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.asisten_anestesi2) AS asisten_anestesi2'),
-                DB::raw('SUM(operasi.biayaasisten_anestesi2) as biayaasisten_anestesi2'),
+                DB::raw('SUM(operasi.biayaasisten_anestesi2) AS biayaasisten_anestesi2'),
+
+                // Bidan
                 'bidan.nama AS bidan',
-                DB::raw('SUM(operasi.biayabidan) as biayabidan'),
+                DB::raw('SUM(operasi.biayabidan) AS biayabidan'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.bidan2) AS bidan2'),
-                DB::raw('SUM(operasi.biayabidan2) as biayabidan2'),
+                DB::raw('SUM(operasi.biayabidan2) AS biayabidan2'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.bidan3) AS bidan3'),
-                DB::raw('SUM(operasi.biayabidan3) as biayabidan3'),
+                DB::raw('SUM(operasi.biayabidan3) AS biayabidan3'),
+
+                // Perawat Luar & Omloop
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.perawat_luar) AS perawat_luar'),
-                DB::raw('SUM(operasi.biayaperawat_luar) as biayaperawat_luar'),
+                DB::raw('SUM(operasi.biayaperawat_luar) AS biayaperawat_luar'),
+
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop) AS omloop'),
-                DB::raw('SUM(operasi.biaya_omloop) as biaya_omloop'),
+                DB::raw('SUM(operasi.biaya_omloop) AS biaya_omloop'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop2) AS omloop2'),
-                DB::raw('SUM(operasi.biaya_omloop2) as biaya_omloop2'),
+                DB::raw('SUM(operasi.biaya_omloop2) AS biaya_omloop2'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop3) AS omloop3'),
-                DB::raw('SUM(operasi.biaya_omloop3) as biaya_omloop3'),
+                DB::raw('SUM(operasi.biaya_omloop3) AS biaya_omloop3'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop4) AS omloop4'),
-                DB::raw('SUM(operasi.biaya_omloop4) as biaya_omloop4'),
+                DB::raw('SUM(operasi.biaya_omloop4) AS biaya_omloop4'),
                 DB::raw('(SELECT nama FROM petugas WHERE petugas.nip=operasi.omloop5) AS omloop5'),
-                DB::raw('SUM(operasi.biaya_omloop5) as biaya_omloop5'),
+                DB::raw('SUM(operasi.biaya_omloop5) AS biaya_omloop5'),
+
+                // Dokter Pendamping
                 DB::raw('(SELECT nm_dokter FROM dokter WHERE dokter.kd_dokter=operasi.dokter_pjanak) AS dokter_pjanak'),
-                DB::raw('SUM(operasi.biaya_dokter_pjanak) as biaya_dokter_pjanak'),
+                DB::raw('SUM(operasi.biaya_dokter_pjanak) AS biaya_dokter_pjanak'),
                 DB::raw('(SELECT nm_dokter FROM dokter WHERE dokter.kd_dokter=operasi.dokter_umum) AS dokter_umum'),
-                DB::raw('SUM(operasi.biaya_dokter_umum) as biaya_dokter_umum'),
-                // DB::raw('SUM(operasi.biayaalat) as biayaalat'),
+                DB::raw('SUM(operasi.biaya_dokter_umum) AS biaya_dokter_umum'),
+
+                // Biaya Alat, OK, Akomodasi
                 'operasi.biayaalat',
-                DB::raw('SUM(operasi.biayasewaok) as biayasewaok'),
-                // DB::raw('SUM(operasi.akomodasi) as akomodasi'),
+                DB::raw('SUM(operasi.biayasewaok) AS biayasewaok'),
                 'operasi.akomodasi',
-                DB::raw('SUM(operasi.bagian_rs) as bagian_rs'),
-                // DB::raw('SUM(operasi.biayasarpras) as biayasarpras'),
+                DB::raw('SUM(operasi.bagian_rs) AS bagian_rs'),
                 'operasi.biayasarpras',
+
+                // Pembayaran & Status
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
                 'bayar_piutang.tgl_bayar',
                 'piutang_pasien.status'
             )
+
+            // ===== JOIN SECTION =====
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('dokter as operator1', 'operator1.kd_dokter', '=', 'operasi.operator1')
-            ->join('dokter as operator2', 'operator2.kd_dokter', '=', 'operasi.operator2')
-            ->join('dokter as operator3', 'operator3.kd_dokter', '=', 'operasi.operator3')
-            ->join('dokter as dokter_anak', 'dokter_anak.kd_dokter', '=', 'operasi.dokter_anak')
-            ->join('dokter as dokter_anestesi', 'dokter_anestesi.kd_dokter', '=', 'operasi.dokter_anestesi')
-            ->join('petugas as asisten_operator1', 'asisten_operator1.nip', '=', 'operasi.asisten_operator1')
-            ->join('petugas as asisten_operator2', 'asisten_operator2.nip', '=', 'operasi.asisten_operator2')
-            ->join('petugas as asisten_operator3', 'asisten_operator3.nip', '=', 'operasi.asisten_operator3')
-            ->join('petugas as asisten_anestesi', 'asisten_anestesi.nip', '=', 'operasi.asisten_anestesi')
-            ->join('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
-            ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
-            ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
+            ->leftJoin('dokter as operator2', 'operator2.kd_dokter', '=', 'operasi.operator2')
+            ->leftJoin('dokter as operator3', 'operator3.kd_dokter', '=', 'operasi.operator3')
+            ->leftJoin('dokter as dokter_anak', 'dokter_anak.kd_dokter', '=', 'operasi.dokter_anak')
+            ->leftJoin('dokter as dokter_anestesi', 'dokter_anestesi.kd_dokter', '=', 'operasi.dokter_anestesi')
+            ->leftJoin('petugas as asisten_operator1', 'asisten_operator1.nip', '=', 'operasi.asisten_operator1')
+            ->leftJoin('petugas as asisten_operator2', 'asisten_operator2.nip', '=', 'operasi.asisten_operator2')
+            ->leftJoin('petugas as asisten_operator3', 'asisten_operator3.nip', '=', 'operasi.asisten_operator3')
+            ->leftJoin('petugas as asisten_anestesi', 'asisten_anestesi.nip', '=', 'operasi.asisten_anestesi')
+            ->leftJoin('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
+            ->leftJoin('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
+            ->leftJoin('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
-                if ($kdPenjamin) {
+
+            // ===== FILTER SECTION =====
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status, $tanggl1, $tanggl2) {
+                if (!empty($kdPenjamin)) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
-                if ($kdPetugas) {
+                if (!empty($kdPetugas)) {
                     $query->whereIn('asisten_operator1.nip', $kdPetugas);
                 }
-                if ($kdDokter) {
+                if (!empty($kdDokter)) {
                     $query->whereIn('operator1.kd_dokter', $kdDokter);
                 }
+
                 if ($status == "Lunas") {
                     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
                         ->where('piutang_pasien.status', 'Lunas');
@@ -134,14 +284,47 @@ class OperasiAndVK extends Controller
                         ->where('piutang_pasien.status', 'Belum Lunas');
                 }
             })
+
+            // ===== PENCARIAN NOMOR RAWAT / RM / NAMA =====
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                $query->where('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                    ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->groupBy('operasi.no_rawat', 'operasi.tgl_operasi', 'bayar_piutang.besar_cicilan')
+
+            // ===== GROUP & ORDER =====
+            ->groupBy(
+                'operasi.no_rawat',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'operasi.kode_paket',
+                'paket_operasi.nm_perawatan',
+                'operasi.tgl_operasi',
+                'penjab.png_jawab',
+                'penjab.kd_pj',
+                'operator1.nm_dokter',
+                'operator2.nm_dokter',
+                'operator3.nm_dokter',
+                'asisten_operator1.nama',
+                'asisten_operator2.nama',
+                'asisten_operator3.nama',
+                'instrumen.nama',
+                'dokter_anak.nm_dokter',
+                'perawaat_resusitas.nama',
+                'dokter_anestesi.nm_dokter',
+                'asisten_anestesi.nama',
+                'bidan.nama',
+                'operasi.biayaalat',
+                'operasi.akomodasi',
+                'operasi.biayasarpras',
+                'bayar_piutang.besar_cicilan',
+                'piutang_pasien.uangmuka',
+                'bayar_piutang.tgl_bayar',
+                'piutang_pasien.status'
+            )
             ->orderBy('penjab.kd_pj', 'asc')
             ->get();
+
         $OperasiAndVK->map(function ($item) {
             // REGISTRASI
             $item->getRegistrasi = DB::table('billing')
