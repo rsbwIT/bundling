@@ -97,6 +97,12 @@ use App\Http\Controllers\PasienKamarInap\RawatInap;
 use App\Http\Controllers\PasienKamarInap\InfoKamarInap;
 use App\Http\Controllers\Regperiksa\RegPeriksaBillingController;
 use App\Http\Livewire\AntrianFarmasi\PanggilAntrianFarmasi;
+use App\Http\Controllers\PasienKamarInap\SirsBridgingController;
+use App\Http\Controllers\PasienKamarInap\SdmController;
+use App\Http\Controllers\Regperiksa\BpjsMJKN;
+
+
+
 
 
 
@@ -259,6 +265,8 @@ Route::group(['middleware' => 'default'], function () {
         //PasienKamarInap
         Route::get('/rawat-inap', [RawatInap::class, 'RawatInap']);
         Route::get('/infokamarinap', [InfoKamarInap::class, 'InfoKamarInap']);
+        Route::get('/kirim-rawat-inap', [SirsBridgingController::class, 'kirimRawatInap']);
+        Route::get('/sdm', [SdmController::class, 'ambilDataSdm']);
 
 
         //tes
@@ -289,6 +297,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/update-bulk-status', [RegPeriksaBillingController::class, 'updateBulkStatus'])->name('updateBulkStatus');
         Route::get('/get-logs', [RegPeriksaBillingController::class, 'getLogs'])->name('getLogs');
         Route::post('/log-activity', [RegPeriksaBillingController::class, 'ajaxLogActivity'])->name('log.activity');
+
+        Route::get('/bpjs/kirim-antrean', [BpjsMJKN::class, 'kirimAntreanBPJS']);
+        Route::get('/bpjs/antrean/{no_rkm_medis}', [BpjsMJKN::class, 'kirimAntreanBPJS']);
+
+
 
 
 

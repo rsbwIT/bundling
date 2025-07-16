@@ -58,7 +58,10 @@
                         </td>
                     </tr>
                 </table>
-                <table border="0px" width="1000px">
+                {{-- yang lama --}}
+
+
+                {{-- <table border="0px" width="1000px">
                     <tr style="vertical-align: top;">
                         <td width="100px">Tanggal</td>
                         <td width="400px">: {{ $item->pemeriksaanRanap->tgl_perawatan }}</td>
@@ -143,7 +146,102 @@
                             </table>
                         </td>
                     </tr>
+                </table> --}}
+
+
+                {{-- yang baru  --}}
+
+                <table border="0px" width="1000px">
+                    <tr style="vertical-align: top;">
+                        <td width="100px">Tanggal</td>
+                        <td width="400px">: {{ optional($item->pemeriksaanRanap)->tgl_perawatan ?? '-' }}</td>
+                        <td width="100px">Waktu</td>
+                        <td width="200px">: {{ optional($item->pemeriksaanRanap)->jam_rawat ?? '-' }}</td>
+                    </tr>
+                    <tr style="vertical-align: top;">
+                        <td width="100px">Dokter Bedah</td>
+                        <td width="400px">: {{ $item->operator1 ?? '-' }}</td>
+                        <td width="100px">Alergi</td>
+                        <td width="200px">: {{ optional($item->pemeriksaanRanap)->alergi ?? '-' }}</td>
+                    </tr>
                 </table>
+
+                <hr width="1000px" class="mt-0 mb-0" style="height:2px; border-top:1px solid black;">
+
+                <table border="0px" width="1000px">
+                    <tr style="vertical-align: top;">
+                        <td width="500px" style="border-right: 1px solid black">
+                            <table border="0px" width="500px">
+                                <tr>
+                                    <td width="500px">
+                                        <b>Keluhan : </b> {{ optional($item->pemeriksaanRanap)->keluhan ?? '-' }}
+                                    </td>
+                                </tr>
+                            </table>
+                            <table border="0px" width="500px">
+                                <tr>
+                                    <td colspan="4"><b>Pemeriksaan :</b></td>
+                                </tr>
+                                <tr>
+                                    <td width="120px">- Suhu Tubuh (C)</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->suhu_tubuh ?? '-' }}</i></td>
+                                    <td width="120px">- Nadi (/Mnt)</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->nadi ?? '-' }}</i></td>
+                                </tr>
+                                <tr>
+                                    <td>- Tensi</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->tensi ?? '-' }}</i></td>
+                                    <td>- Respirasi (/Mnt)</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->respirasi ?? '-' }}</i></td>
+                                </tr>
+                                <tr>
+                                    <td>- Tinggi</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->tinggi ?? '-' }}</i></td>
+                                    <td>- GCS (E,V,M)</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->gcs ?? '-' }}</i></td>
+                                </tr>
+                                <tr>
+                                    <td>- Berat (Kg)</td>
+                                    <td>: <i>{{ optional($item->pemeriksaanRanap)->berat ?? '-' }}</i></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+
+                            @if (!empty($item->riwayat_persalinan_g) || !empty($item->riwayat_persalinan_p) || !empty($item->riwayat_persalinan_a))
+                                <table border="0px" width="500px">
+                                    <tr>
+                                        <td colspan="4"><b>Riwayat Persalinan & Nifas :</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>- G : {{ $item->riwayat_persalinan_g ?? '-' }}</td>
+                                        <td>- P : {{ $item->riwayat_persalinan_p ?? '-' }}</td>
+                                        <td>- A : {{ $item->riwayat_persalinan_a ?? '-' }}</td>
+                                        <td>- Anak yang hidup : {{ $item->riwayat_persalinan_hidup ?? '-' }}</td>
+                                    </tr>
+                                </table>
+                            @endif
+                        </td>
+                        <td width="500px">
+                            <table border="0px" width="500px">
+                                <tr>
+                                    <td width="500px">
+                                        <b>Penilaian : </b> {{ optional($item->pemeriksaanRanap)->penilaian ?? '-' }}
+                                    </td>
+                                </tr>
+                            </table>
+                            <table border="0px" width="500px">
+                                <tr>
+                                    <td width="500px">
+                                        <b>Tindak Lanjut : </b> {{ optional($item->pemeriksaanRanap)->rtl ?? '-' }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                {{-- bates sini --}}
+
                 <table border="1px" width="1000px" class="mt-1">
                     <tr>
                         <td class="text-center" style="background-color: rgb(192, 192, 192)">
