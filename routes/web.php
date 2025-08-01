@@ -100,6 +100,8 @@ use App\Http\Livewire\AntrianFarmasi\PanggilAntrianFarmasi;
 use App\Http\Controllers\PasienKamarInap\SirsBridgingController;
 use App\Http\Controllers\PasienKamarInap\SdmController;
 use App\Http\Controllers\Regperiksa\BpjsMJKN;
+// use App\Http\Controllers\PasienKamarInap\DataInventaris;
+use App\Http\Controllers\PasienKamarInap\DataInventaris;
 
 
 
@@ -300,6 +302,11 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/bpjs/kirim-antrean', [BpjsMJKN::class, 'kirimAntreanBPJS']);
         Route::get('/bpjs/antrean/{no_rkm_medis}', [BpjsMJKN::class, 'kirimAntreanBPJS']);
+        // Route::get('/inventaris-barang', [DataInventaris::class, 'index']);
+
+
+        Route::get('/inventaris-barang', [DataInventaris::class, 'index']);
+
 
 
 

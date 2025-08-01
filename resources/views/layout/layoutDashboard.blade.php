@@ -21,6 +21,8 @@
     <script src="/js/plotly-latest.min.js"></script>
     <script src="/plugins/jquery/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 
     {{-- DUALIS --}}
     <link rel="stylesheet" href="/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
@@ -935,6 +937,24 @@
                                     <a href="{{ url('infokamarinap') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar Inap</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-boxes-stacked"></i>
+                                <p>
+                                    Inventaris
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('inventaris-barang') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Cetak Inventaris</p>
                                     </a>
                                 </li>
                             </ul>
