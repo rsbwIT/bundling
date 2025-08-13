@@ -102,6 +102,9 @@ use App\Http\Controllers\PasienKamarInap\SdmController;
 use App\Http\Controllers\Regperiksa\BpjsMJKN;
 // use App\Http\Controllers\PasienKamarInap\DataInventaris;
 use App\Http\Controllers\PasienKamarInap\DataInventaris;
+use App\Http\Controllers\PasienKamarInap\Laboratorium;
+
+
 
 
 
@@ -306,6 +309,7 @@ Route::group(['middleware' => 'default'], function () {
 
 
         Route::get('/inventaris-barang', [DataInventaris::class, 'index']);
+        Route::get('/laboratorium', [Laboratorium::class, 'index'])->name('laboratorium.index');
 
 
 

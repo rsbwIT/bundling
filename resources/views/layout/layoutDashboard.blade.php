@@ -959,6 +959,23 @@
                                 </li>
                             </ul>
                         </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-microscope"></i>
+                                <p>Laboratorium
+                                <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('laboratorium') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pemeriksaan LAB</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item mt-5">
                         </li>
                         <li class="nav-item mt-5">
