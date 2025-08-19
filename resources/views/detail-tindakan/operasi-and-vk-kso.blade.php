@@ -129,14 +129,6 @@
                                 @endphp
                                 <td title="Nilai Asli: {{ $total_piutang_rs }}">
                                     {{ round($total_piutang_rs) }}
-                                    @if ($item->kd_pj != 'BPJ' || $item->cob_nama_bayar || $item->is_double)
-                                        <br>
-                                        <small class="text-danger">
-                                            {{ $item->kd_pj != 'BPJ' ? $item->png_jawab : '' }}
-                                            {{ $item->cob_nama_bayar ? $item->cob_nama_bayar : '' }}
-                                            {{ $item->is_double ? '(Double)' : '' }}
-                                        </small>
-                                    @endif
                                 </td>
                                 <td title="Nilai Asli: {{ $item->besar_cicilan }}">{{ round($item->besar_cicilan) }}</td>
                                 <td title="Nilai Asli: {{ $item->uangmuka }}">{{ round($item->uangmuka) }}</td>
@@ -161,18 +153,14 @@
                                 <td>{{ $item->operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaoperator1 }}">{{ round($item->biayaoperator1) }}</td>
                                 @php
-                                    // Perhitungan INACBG sekarang berdasarkan $hasil_akhir
                                     $operator1_inacbg_val = $hasil_akhir * 0.20;
-                                    $asisten_op1_inacbg_val = $hasil_akhir * 0.15;
-                                    $dokter_anestesi_inacbg_val = $hasil_akhir * 0.35;
-                                    $asisten_anestesi_inacbg_val = $hasil_akhir * 0.10;
+                                    $operator1_fee = $item->biayaoperator1;
+                                    $asisten_op1_inacbg_val = $operator1_fee * 0.15;
+                                    $dokter_anestesi_inacbg_val = $operator1_fee * 0.35;
+                                    $asisten_anestesi_inacbg_val = $operator1_fee * 0.10;
                                 @endphp
                                 <td title="Nilai Asli: {{ $operator1_inacbg_val }}">
-                                    @if ($item->kd_pj == 'BPJ')
-                                        {{ round($operator1_inacbg_val) }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ round($operator1_inacbg_val) }}
                                 </td>
                                 <td>{{ $item->operator2 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaoperator2 }}">{{ round($item->biayaoperator2) }}</td>
@@ -181,11 +169,7 @@
                                 <td>{{ $item->asisten_operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_operator1 }}">{{ round($item->biayaasisten_operator1) }}</td>
                                 <td title="Nilai Asli: {{ $asisten_op1_inacbg_val }}">
-                                    @if ($item->kd_pj == 'BPJ')
-                                        {{ round($asisten_op1_inacbg_val) }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ round($asisten_op1_inacbg_val) }}
                                 </td>
                                 <td>{{ $item->asisten_operator2 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_operator2 }}">{{ round($item->biayaasisten_operator2) }}</td>
@@ -200,20 +184,12 @@
                                 <td>{{ $item->dokter_anestesi }}</td>
                                 <td title="Nilai Asli: {{ $item->biayadokter_anestesi }}">{{ round($item->biayadokter_anestesi) }}</td>
                                 <td title="Nilai Asli: {{ $dokter_anestesi_inacbg_val }}">
-                                    @if ($item->kd_pj == 'BPJ')
-                                        {{ round($dokter_anestesi_inacbg_val) }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ round($dokter_anestesi_inacbg_val) }}
                                 </td>
                                 <td>{{ $item->asisten_anestesi }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_anestesi }}">{{ round($item->biayaasisten_anestesi) }}</td>
                                 <td title="Nilai Asli: {{ $asisten_anestesi_inacbg_val }}">
-                                    @if ($item->kd_pj == 'BPJ')
-                                        {{ round($asisten_anestesi_inacbg_val) }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ round($asisten_anestesi_inacbg_val) }}
                                 </td>
                                 <td>{{ $item->asisten_anestesi2 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_anestesi2 }}">{{ round($item->biayaasisten_anestesi2) }}</td>
@@ -262,7 +238,6 @@
             z-index: 1; /* Pastikan header tabel tetap di atas konten lain saat scroll */
             background-color: inherit; /* Mewarisi warna background dari parent */
         }
-        /* Tambahkan style untuk memastikan background putih jika parent tidak punya background */
         #tableToCopy thead.sticky-top th {
             background-color: white;
         }
@@ -275,34 +250,35 @@
         function copyTableToClipboard(tableId) {
             const table = document.getElementById(tableId);
             let tableHTML = '<table>';
-            // Salin header
             tableHTML += '<thead>' + table.tHead.innerHTML + '</thead>';
-            // Salin body
             tableHTML += '<tbody>';
             const rows = table.tBodies[0].rows;
             for (let i = 0; i < rows.length; i++) {
                 tableHTML += '<tr>';
                 const cells = rows[i].cells;
                 for (let j = 0; j < cells.length; j++) {
-                    // Gunakan atribut 'title' jika ada untuk nilai asli, jika tidak, gunakan textContent
-                    const originalValue = cells[j].getAttribute('title') ? cells[j].getAttribute('title').replace('Nilai Asli: ', '') : cells[j].textContent || cells[j].innerText;
+                    // Prioritaskan 'title' untuk nilai numerik, jika tidak ada, gunakan 'innerText'
+                    // innerText secara otomatis mengabaikan tag HTML (<br>, <small>) dan menggabungkan teks
+                    const originalValue = cells[j].getAttribute('title')
+                        ? cells[j].getAttribute('title').replace('Nilai Asli: ', '')
+                        : cells[j].innerText.replace(/\n/g, ' '); // Ganti newline character dengan spasi
+
                     tableHTML += '<td>' + originalValue.trim() + '</td>';
                 }
                 tableHTML += '</tr>';
             }
             tableHTML += '</tbody></table>';
 
-            // Membuat elemen textarea sementara untuk menyalin HTML
             const listener = function(e) {
                 e.preventDefault();
                 e.clipboardData.setData('text/html', tableHTML);
-                e.clipboardData.setData('text/plain', table.innerText); // Fallback untuk aplikasi non-HTML
+                e.clipboardData.setData('text/plain', table.innerText);
             };
 
             document.addEventListener('copy', listener);
             try {
                 document.execCommand('copy');
-                alert("Tabel telah berhasil disalin ke clipboard (dengan nilai asli jika ada).");
+                alert("Tabel telah berhasil disalin ke clipboard.");
             } catch (err) {
                 console.error("Tidak dapat menyalin tabel:", err);
                 alert("Gagal menyalin tabel.");
