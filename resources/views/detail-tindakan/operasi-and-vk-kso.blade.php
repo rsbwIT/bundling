@@ -153,11 +153,10 @@
                                 <td>{{ $item->operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaoperator1 }}">{{ round($item->biayaoperator1) }}</td>
                                 @php
-                                    $operator1_inacbg_val = $hasil_akhir * 0.20;
-                                    $operator1_fee = $item->biayaoperator1;
-                                    $asisten_op1_inacbg_val = $operator1_fee * 0.15;
-                                    $dokter_anestesi_inacbg_val = $operator1_fee * 0.35;
-                                    $asisten_anestesi_inacbg_val = $operator1_fee * 0.10;
+                                    $operator1_inacbg_val = $hasil_akhir * 0.20;;
+                                    $asisten_op1_inacbg_val = $operator1_inacbg_val * 0.15;
+                                    $dokter_anestesi_inacbg_val = $operator1_inacbg_val * 0.35;
+                                    $asisten_anestesi_inacbg_val = $operator1_inacbg_val * 0.10;
                                 @endphp
                                 <td title="Nilai Asli: {{ $operator1_inacbg_val }}">
                                     {{ round($operator1_inacbg_val) }}
