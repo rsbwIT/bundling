@@ -52,6 +52,7 @@
                             <th>Biaya Instrumen</th>
                             <th>Dokter Anak</th>
                             <th>Biaya Dokter Anak</th>
+                            <th>Biaya Dokter Anak (15% JM Operator)</th>
                             <th>Perawat Resusitas</th>
                             <th>Biaya Perawat Resusitas</th>
                             <th>Dokter Anestesi</th>
@@ -153,10 +154,35 @@
                                 <td>{{ $item->operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaoperator1 }}">{{ round($item->biayaoperator1) }}</td>
                                 @php
-                                    $operator1_inacbg_val = $hasil_akhir * 0.20;;
-                                    $asisten_op1_inacbg_val = $operator1_inacbg_val * 0.15;
-                                    $dokter_anestesi_inacbg_val = $operator1_inacbg_val * 0.35;
-                                    $asisten_anestesi_inacbg_val = $operator1_inacbg_val * 0.10;
+                                    // Perhitungan INACBG untuk Operator 1 berdasarkan $hasil_akhir
+                                    $operator1_inacbg_val = $hasil_akhir * 0.20;
+
+                                    // Inisialisasi semua biaya JM ke 0
+                                    $asisten_op1_inacbg_val = 0;
+                                    $dokter_anestesi_inacbg_val = 0;
+                                    $asisten_anestesi_inacbg_val = 0;
+                                    $dokter_anak_inacbg_val = 0;
+
+                                    // Lakukan perhitungan hanya jika ada nama personil (setelah menghapus spasi dan bukan '-')
+                                    $asisten_op1_trimmed = trim($item->asisten_operator1);
+                                    if (!empty($asisten_op1_trimmed) && $asisten_op1_trimmed != '-') {
+                                        $asisten_op1_inacbg_val = $operator1_inacbg_val * 0.15;
+                                    }
+
+                                    $dokter_anestesi_trimmed = trim($item->dokter_anestesi);
+                                    if (!empty($dokter_anestesi_trimmed) && $dokter_anestesi_trimmed != '-') {
+                                        $dokter_anestesi_inacbg_val = $operator1_inacbg_val * 0.35;
+                                    }
+
+                                    $asisten_anestesi_trimmed = trim($item->asisten_anestesi);
+                                    if (!empty($asisten_anestesi_trimmed) && $asisten_anestesi_trimmed != '-') {
+                                        $asisten_anestesi_inacbg_val = $operator1_inacbg_val * 0.10;
+                                    }
+
+                                    $dokter_anak_trimmed = trim($item->dokter_anak);
+                                    if (!empty($dokter_anak_trimmed) && $dokter_anak_trimmed != '-') {
+                                        $dokter_anak_inacbg_val = $operator1_inacbg_val * 0.15;
+                                    }
                                 @endphp
                                 <td title="Nilai Asli: {{ $operator1_inacbg_val }}">
                                     {{ round($operator1_inacbg_val) }}
@@ -168,7 +194,7 @@
                                 <td>{{ $item->asisten_operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_operator1 }}">{{ round($item->biayaasisten_operator1) }}</td>
                                 <td title="Nilai Asli: {{ $asisten_op1_inacbg_val }}">
-                                    {{ round($asisten_op1_inacbg_val) }}
+                                    {{ $asisten_op1_inacbg_val > 0 ? round($asisten_op1_inacbg_val) : '-' }}
                                 </td>
                                 <td>{{ $item->asisten_operator2 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_operator2 }}">{{ round($item->biayaasisten_operator2) }}</td>
@@ -178,17 +204,20 @@
                                 <td title="Nilai Asli: {{ $item->biayainstrumen }}">{{ round($item->biayainstrumen) }}</td>
                                 <td>{{ $item->dokter_anak }}</td>
                                 <td title="Nilai Asli: {{ $item->biayadokter_anak }}">{{ round($item->biayadokter_anak) }}</td>
+                                <td title="Nilai Asli: {{ $dokter_anak_inacbg_val }}">
+                                    {{ $dokter_anak_inacbg_val > 0 ? round($dokter_anak_inacbg_val) : '-' }}
+                                </td>
                                 <td>{{ $item->perawaat_resusitas }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaperawaat_resusitas }}">{{ round($item->biayaperawaat_resusitas) }}</td>
                                 <td>{{ $item->dokter_anestesi }}</td>
                                 <td title="Nilai Asli: {{ $item->biayadokter_anestesi }}">{{ round($item->biayadokter_anestesi) }}</td>
                                 <td title="Nilai Asli: {{ $dokter_anestesi_inacbg_val }}">
-                                    {{ round($dokter_anestesi_inacbg_val) }}
+                                    {{ $dokter_anestesi_inacbg_val > 0 ? round($dokter_anestesi_inacbg_val) : '-' }}
                                 </td>
                                 <td>{{ $item->asisten_anestesi }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_anestesi }}">{{ round($item->biayaasisten_anestesi) }}</td>
                                 <td title="Nilai Asli: {{ $asisten_anestesi_inacbg_val }}">
-                                    {{ round($asisten_anestesi_inacbg_val) }}
+                                    {{ $asisten_anestesi_inacbg_val > 0 ? round($asisten_anestesi_inacbg_val) : '-' }}
                                 </td>
                                 <td>{{ $item->asisten_anestesi2 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaasisten_anestesi2 }}">{{ round($item->biayaasisten_anestesi2) }}</td>
