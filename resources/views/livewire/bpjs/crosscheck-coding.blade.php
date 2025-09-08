@@ -100,12 +100,12 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">
-            @php
-                $text = $penjamin == 'Bpjs' ? 'Pasien BPJS' : 'Semua Pasien';
-            @endphp
-            <b>Jumlah {{ $text }} {{ $statusLanjut }} {{ date('d-m-Y', strtotime($tanggal1)) }} -
-                {{ date('d-m-Y', strtotime($tanggal2)) }} = {{ count($getPasien) }}</b>
-        </div>
+            <div class="card-footer">
+                @php
+                    $text = $penjamin == 'Bpjs' ? 'Pasien BPJS' : 'Semua Pasien';
+                @endphp
+                <b>Jumlah {{ $text }} {{ $statusLanjut }} {{ date('d-m-Y', strtotime($tanggal1)) }} -
+                    {{ date('d-m-Y', strtotime($tanggal2)) }} = {{ count($getPasien) }}</b>
+            </div>
     </div>
 </div>

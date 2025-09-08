@@ -108,10 +108,10 @@
                             <td>
                                 <div class="d-flex justify-content-between">
                                     {{-- UPLOAD BERKAS --}}
-                                   <div class="btn-group">
+                                    <div class="btn-group">
                                         <button type="button"
-                                                class="btn btn-block btn-outline-primary btn-xs btn-flat dropdown-toggle dropdown-icon"
-                                                data-toggle="dropdown">
+                                            class="btn btn-block btn-outline-primary btn-xs btn-flat dropdown-toggle dropdown-icon"
+                                            data-toggle="dropdown">
                                             Upload
                                             <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
                                                 wire:loading
@@ -123,16 +123,14 @@
                                             </span>
                                         </button>
                                         <div class="dropdown-menu" role="menu">
-                                            <a class="dropdown-item" href="#"
-                                            data-toggle="modal"
-                                            wire:click="SetmodalInacbg('{{ $key }}')"
-                                            data-target="#UploadInacbg">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                wire:click="SetmodalInacbg('{{ $key }}')"
+                                                data-target="#UploadInacbg">
                                                 <i class="fas fa-upload"></i> Berkas Inacbg
                                             </a>
-                                            <a class="dropdown-item" href="#"
-                                            data-toggle="modal"
-                                            wire:click="SetmodalScan('{{ $key }}')"
-                                            data-target="#UploadScan">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                wire:click="SetmodalScan('{{ $key }}')"
+                                                data-target="#UploadScan">
                                                 <i class="fas fa-upload"></i> Berkas Scan
                                             </a>
                                         </div>
@@ -203,16 +201,20 @@
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }} class="w-4 h-4 accent-green-500 cursor-not-allowed">
+                                <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-green-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }} class="w-4 h-4 accent-blue-500 cursor-not-allowed">
+                                <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-blue-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }} class="w-4 h-4 accent-yellow-500 cursor-not-allowed">
+                                <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-yellow-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }} class="w-4 h-4 accent-red-500 cursor-not-allowed">
+                                <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-red-500 cursor-not-allowed">
                             </td>
                         </tr>
                     @endforeach
@@ -255,50 +257,52 @@
                     </div> --}}
 
                     <div class="modal fade" id="UploadInacbg" tabindex="-1" role="dialog" aria-hidden="true"
-                    wire:ignore.self>
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h6 class="modal-title">Upload Berkas <b>INACBG</b> : <u>{{ $nm_pasien }}</u></h6>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label>File Inacbg</label>
-                                    <input type="file" class="form-control"
-                                        wire:model="upload_file_inacbg.{{ $keyModal }}">
-                                    @error('upload_file_inacbg.' . $keyModal)
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                        wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title">Upload Berkas <b>INACBG</b> : <u>{{ $nm_pasien }}</u>
+                                    </h6>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="modal-footer justify-content-between">
-                                <button type="button" class="btn btn-primary"
-                                    wire:click="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                    wire:loading.attr="disabled"
-                                    wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                    @if(!isset($upload_file_inacbg[$keyModal])) disabled @endif>
-                                    Submit
-                                    <span wire:loading wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
-                                        Uploading...
-                                    </span>
-                                </button>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label>File Inacbg</label>
+                                        <input type="file" class="form-control"
+                                            wire:model="upload_file_inacbg.{{ $keyModal }}">
+                                        @error('upload_file_inacbg.' . $keyModal)
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-primary"
+                                        wire:click="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        wire:loading.attr="disabled"
+                                        wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        @if (!isset($upload_file_inacbg[$keyModal])) disabled @endif>
+                                        Submit
+                                        <span wire:loading
+                                            wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
+                                            Uploading...
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                @push('scripts')
-                <script>
-                    window.addEventListener('close-modal', event => {
-                        let modal = $('#' + event.detail.modal);
-                        modal.modal('hide');
-                        modal.find('input[type="file"]').val(''); // reset input file
-                    });
-                </script>
-                @endpush
+                    @push('scripts')
+                        <script>
+                            window.addEventListener('close-modal', event => {
+                                let modal = $('#' + event.detail.modal);
+                                modal.modal('hide');
+                                modal.find('input[type="file"]').val(''); // reset input file
+                            });
+                        </script>
+                    @endpush
 
 
                     {{-- <div class="modal fade" id="UploadScan" tabindex="-1" role="dialog" aria-hidden="true"
@@ -342,7 +346,8 @@
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h6 class="modal-title">Upload Berkas <b>SCAN</b> : <u>{{ $nm_pasien }}</u></h6>
+                                    <h6 class="modal-title">Upload Berkas <b>SCAN</b> : <u>{{ $nm_pasien }}</u>
+                                    </h6>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -362,9 +367,10 @@
                                         wire:click="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
                                         wire:loading.attr="disabled"
                                         wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                        @if(!isset($upload_file_scan[$keyModal])) disabled @endif>
+                                        @if (!isset($upload_file_scan[$keyModal])) disabled @endif>
                                         Submit
-                                        <span wire:loading wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
+                                        <span wire:loading
+                                            wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
                                             Uploading...
                                         </span>
                                     </button>
@@ -373,13 +379,13 @@
                         </div>
                     </div>
                     @push('scripts')
-                    <script>
-                        window.addEventListener('close-modal', event => {
-                            let modal = $('#' + event.detail.modal);
-                            modal.modal('hide');
-                            modal.find('input[type="file"]').val(''); // reset input file
-                        });
-                    </script>
+                        <script>
+                            window.addEventListener('close-modal', event => {
+                                let modal = $('#' + event.detail.modal);
+                                modal.modal('hide');
+                                modal.find('input[type="file"]').val(''); // reset input file
+                            });
+                        </script>
                     @endpush
 
 

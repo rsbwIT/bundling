@@ -103,6 +103,13 @@ use App\Http\Controllers\Regperiksa\BpjsMJKN;
 // use App\Http\Controllers\PasienKamarInap\DataInventaris;
 use App\Http\Controllers\PasienKamarInap\DataInventaris;
 use App\Http\Controllers\PasienKamarInap\Laboratorium;
+use App\Http\Controllers\BriggingBpjs\Faceid;
+
+
+
+
+
+
 
 
 
@@ -184,7 +191,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-piutang-ralan', [PiutangRalan::class, 'CariPiutangRalan']);
         Route::get('/cari-piutang-ranap', [PiutangRanap::class, 'CariPiutangRanap']);
         Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
-        Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza']);
+        // Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza']);
+        Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza'])
+        ->name('bayar.piutang.khanza');
         Route::get('/bayar-piutang-karyawan', [BayarPiutangKaryawan::class, 'bayarPiutangKaryawan']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
@@ -310,6 +319,10 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/inventaris-barang', [DataInventaris::class, 'index']);
         Route::get('/laboratorium', [Laboratorium::class, 'index'])->name('laboratorium.index');
+
+
+        // FACEID
+        Route::get('/faceid/frista', [Faceid::class, 'frista'])->name('faceid.frista');
 
 
 

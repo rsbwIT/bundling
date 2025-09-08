@@ -112,7 +112,8 @@ class LispasienRalan2 extends Component
     //     }
     // }
 
-   public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
+
+    public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
     {
         try {
             if (!isset($this->upload_file_inacbg[$key]) || !$this->upload_file_inacbg[$key]->isValid()) {
@@ -157,7 +158,6 @@ class LispasienRalan2 extends Component
 
             // Reset input file
             $this->upload_file_inacbg[$key] = null;
-
         } catch (\Throwable $th) {
             // log dihapus
             session()->flash('errorBundling', 'Gagal!! Upload file INACBG: ' . $th->getMessage());
@@ -177,7 +177,7 @@ class LispasienRalan2 extends Component
 
     //         session()->flash('errorBundling', 'Gagal!! Upload file INACBG: ' . $th->getMessage());
     //     }
-    // }
+    //}
 
 
     // B
@@ -190,57 +190,56 @@ class LispasienRalan2 extends Component
     }
     public $upload_file_scan = [];
     public function UploadScan($key, $no_rawat, $no_rkm_medis)
-        {
-            // CEK apakah file-nya ada
-            $file = $this->upload_file_scan[$key] ?? null;
-            if (!$file || !$file->isValid()) {
-                session()->flash('errorBundling', 'Gagal!! File tidak ditemukan atau tidak valid!');
-                return;
-            }
-
-            try {
-                $no_rawatSTR = str_replace('/', '', $no_rawat);
-
-                $file_name = 'SCAN-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('file_scan', $file_name, 'public');
-
-                // Hapus file temp Livewire kalau ada
-                if (Storage::exists('livewire-tmp/' . $file->getFileName())) {
-                    Storage::delete('livewire-tmp/' . $file->getFileName());
-                }
-
-                // Cek apakah sudah ada file untuk no_rawat
-                $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
-
-                if ($cekBerkas) {
-                    // Jika ada, update file baru
-                    DB::table('bw_file_casemix_scan')
-                        ->where('no_rawat', $no_rawat)
-                        ->update([
-                            'file' => $file_name,
-                        ]);
-                } else {
-                    // Jika belum ada, insert baru
-                    DB::table('bw_file_casemix_scan')->insert([
-                        'no_rkm_medis' => $no_rkm_medis,
-                        'no_rawat'     => $no_rawat,
-                        'file'         => $file_name,
-                    ]);
-                }
-
-                // Flash message sukses
-                session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
-
-                // 🔹 Tutup modal otomatis
-                $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
-
-                // 🔹 Reset input file
-                $this->upload_file_scan[$key] = null;
-
-            } catch (\Throwable $th) {
-                session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());
-            }
+    {
+        // CEK apakah file-nya ada
+        $file = $this->upload_file_scan[$key] ?? null;
+        if (!$file || !$file->isValid()) {
+            session()->flash('errorBundling', 'Gagal!! File tidak ditemukan atau tidak valid!');
+            return;
         }
+
+        try {
+            $no_rawatSTR = str_replace('/', '', $no_rawat);
+
+            $file_name = 'SCAN-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('file_scan', $file_name, 'public');
+
+            // Hapus file temp Livewire kalau ada
+            if (Storage::exists('livewire-tmp/' . $file->getFileName())) {
+                Storage::delete('livewire-tmp/' . $file->getFileName());
+            }
+
+            // Cek apakah sudah ada file untuk no_rawat
+            $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+
+            if ($cekBerkas) {
+                // Jika ada, update file baru
+                DB::table('bw_file_casemix_scan')
+                    ->where('no_rawat', $no_rawat)
+                    ->update([
+                        'file' => $file_name,
+                    ]);
+            } else {
+                // Jika belum ada, insert baru
+                DB::table('bw_file_casemix_scan')->insert([
+                    'no_rkm_medis' => $no_rkm_medis,
+                    'no_rawat'     => $no_rawat,
+                    'file'         => $file_name,
+                ]);
+            }
+
+            // Flash message sukses
+            session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
+
+            // 🔹 Tutup modal otomatis
+            $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
+
+            // 🔹 Reset input file
+            $this->upload_file_scan[$key] = null;
+        } catch (\Throwable $th) {
+            session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());
+        }
+    }
 
     // 3 PROSES SIMPAN KHANZA ==================================================================================
     public function SimpanKhanza($no_rawat, $no_sep)
