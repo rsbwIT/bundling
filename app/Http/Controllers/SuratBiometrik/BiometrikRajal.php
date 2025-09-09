@@ -9,7 +9,7 @@ use App\Models\NomorSurat;
 use App\Models\PasienPrint;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-class Biometrikrajal extends Controller
+class BiometrikRajal extends Controller
 {
     /**
      * Halaman utama

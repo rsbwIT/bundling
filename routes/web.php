@@ -104,7 +104,7 @@ use App\Http\Controllers\Regperiksa\BpjsMJKN;
 use App\Http\Controllers\PasienKamarInap\DataInventaris;
 use App\Http\Controllers\PasienKamarInap\Laboratorium;
 use App\Http\Controllers\BriggingBpjs\Faceid;
-use App\Http\Controllers\SuratBiometrik\Biometrikrajal;
+use App\Http\Controllers\SuratBiometrik\BiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRajal;
 
 
@@ -331,10 +331,10 @@ Route::group(['middleware' => 'default'], function () {
 
         // BIOMETRIK
         Route::prefix('biometrik/rajal')->name('biometrik.rajal.')->group(function () {
-            Route::get('/', [Biometrikrajal::class, 'index'])->name('index');
-            Route::get('/cari', [Biometrikrajal::class, 'cariPasien'])->name('cari');
-            Route::get('/detail/{id}', [Biometrikrajal::class, 'detail'])->name('detail');
-            Route::post('/simpan', [Biometrikrajal::class, 'simpan'])->name('simpan');
+            Route::get('/', [BiometrikRajal::class, 'index'])->name('index');
+            Route::get('/cari', [BiometrikRajal::class, 'cariPasien'])->name('cari');
+            Route::get('/detail/{id}', [BiometrikRajal::class, 'detail'])->name('detail');
+            Route::post('/simpan', [BiometrikRajal::class, 'simpan'])->name('simpan');
         });
         Route::prefix('formulir/biometrik/rajal')->name('formulir.biometrik.rajal.')->group(function () {
             // Form cari pasien
