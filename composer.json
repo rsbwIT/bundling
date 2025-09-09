@@ -20,6 +20,7 @@
         "pusher/pusher-php-server": "^7.2",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.4",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/eloquent-sortable": "^4.0",
         "vinkla/hashids": "^10.0",
         "virusphp/bridging-bpjs": "^2.1"
