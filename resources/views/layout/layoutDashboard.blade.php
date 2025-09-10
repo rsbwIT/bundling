@@ -998,12 +998,12 @@
                                     </a>
                                 </li>
                                 {{-- kalau ada tambahan submenu, tinggal taruh di sini --}}
-                                {{-- <li class="nav-item">
+                                <li class="nav-item">
                                     <a href="{{ route('biometrik.ranap.index') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Biometrik Ranap</p>
                                     </a>
-                                </li> --}}
+                                </li>
                             </ul>
                         </li>
 

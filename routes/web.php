@@ -106,7 +106,8 @@ use App\Http\Controllers\PasienKamarInap\Laboratorium;
 use App\Http\Controllers\BriggingBpjs\Faceid;
 use App\Http\Controllers\SuratBiometrik\BiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRajal;
-
+use App\Http\Controllers\SuratBiometrik\BiometrikRanap;
+use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRanap;
 
 
 
@@ -329,7 +330,7 @@ Route::group(['middleware' => 'default'], function () {
         // FACEID
         Route::get('/faceid/frista', [Faceid::class, 'frista'])->name('faceid.frista');
 
-        // BIOMETRIK
+        // BIOMETRIK RALAN
         Route::prefix('biometrik/rajal')->name('biometrik.rajal.')->group(function () {
             Route::get('/', [BiometrikRajal::class, 'index'])->name('index');
             Route::get('/cari', [BiometrikRajal::class, 'cariPasien'])->name('cari');
@@ -346,6 +347,22 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/biometrik/rajal/print/{id}', [BiometrikRajal::class, 'print'])
             ->where('id', '.*') // biar bisa terima slash
             ->name('biometrik.rajal.print');
+
+        // BIOMETRIK RANAP
+        Route::prefix('biometrik/ranap')->name('biometrik.ranap.')->group(function () {
+            Route::get('/', [BiometrikRanap::class, 'index'])->name('index');
+            Route::get('/cari', [BiometrikRanap::class, 'cariPasien'])->name('cari');
+            Route::get('/detail/{id}', [BiometrikRanap::class, 'detail'])->name('detail');
+            Route::post('/simpan', [BiometrikRanap::class, 'simpan'])->name('simpan');
+            Route::get('/print/{id}', [BiometrikRanap::class, 'print'])
+                ->where('id', '.*') // biar bisa terima slash
+                ->name('print');
+        });
+
+        Route::prefix('formulir/biometrik/ranap')->name('formulir.biometrik.ranap.')->group(function () {
+            Route::get('/', [FormulirBiometrikRanap::class, 'create'])->name('create');
+            Route::post('/store', [FormulirBiometrikRanap::class, 'store'])->name('store');
+        });
 
 
 
