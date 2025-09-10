@@ -37,21 +37,28 @@ class BiometrikRanap extends Controller
             ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
             ->leftJoin('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
             ->select(
-                'reg_periksa.no_rawat as id',
+                DB::raw('MIN(reg_periksa.no_rawat) as id'),
                 'pasien.nm_pasien as nama',
                 'pasien.no_peserta as no_kartu_bpjs',
                 'bridging_sep.no_sep',
-                'bangsal.nm_bangsal as ruang_rawat',
+                DB::raw('MAX(bangsal.nm_bangsal) as ruang_rawat'), // ambil salah satu ruang
                 'bridging_sep.nmdiagnosaawal as diagnosis',
-                'bridging_sep.jnspelayanan', // ✅ ambil jenis pelayanan
-                'reg_periksa.tgl_registrasi',
-                'kamar_inap.tgl_masuk'
+                'bridging_sep.jnspelayanan',
+                DB::raw('MIN(reg_periksa.tgl_registrasi) as tgl_registrasi'),
+                DB::raw('MIN(kamar_inap.tgl_masuk) as tgl_masuk') // ambil tgl masuk pertama
             )
             ->where('pasien.no_peserta', $no_peserta)
             ->where('reg_periksa.status_lanjut', 'RANAP')
-            ->where('bridging_sep.jnspelayanan', 1) // ✅ filter rawat inap
+            ->where('bridging_sep.jnspelayanan', 1)
             ->whereBetween('reg_periksa.tgl_registrasi', [$tgl_awal, $tgl_akhir])
-            ->orderByDesc('kamar_inap.tgl_masuk')
+            ->groupBy(
+                'pasien.nm_pasien',
+                'pasien.no_peserta',
+                'bridging_sep.no_sep',
+                'bridging_sep.nmdiagnosaawal',
+                'bridging_sep.jnspelayanan'
+            )
+            ->orderByDesc(DB::raw('MIN(kamar_inap.tgl_masuk)'))
             ->get();
 
         return view('suratbiometrik.biometrikranap', compact('listPasien', 'tgl_awal', 'tgl_akhir'));
@@ -78,12 +85,12 @@ class BiometrikRanap extends Controller
                     'bangsal.nm_bangsal as ruang_rawat',
                     'bridging_sep.no_sep',
                     'bridging_sep.nmdiagnosaawal as diagnosis',
-                    'bridging_sep.jnspelayanan', // ✅ tambahan
+                    'bridging_sep.jnspelayanan',
                     'reg_periksa.status_lanjut'
                 )
                 ->where('reg_periksa.no_rawat', $id)
                 ->where('reg_periksa.status_lanjut', 'RANAP')
-                ->where('bridging_sep.jnspelayanan', 1) // ✅ filter rawat inap
+                ->where('bridging_sep.jnspelayanan', 1)
                 ->first();
 
             if (!$pasien) {
@@ -149,7 +156,7 @@ class BiometrikRanap extends Controller
                 'pasien.nm_pasien as nama',
                 'pasien.no_peserta as no_kartu_bpjs',
                 'bridging_sep.no_sep',
-                'bridging_sep.jnspelayanan', // ✅ tambahan
+                'bridging_sep.jnspelayanan',
                 'bangsal.nm_bangsal as ruang_rawat',
                 'bridging_sep.nmdiagnosaawal as diagnosis',
                 'reg_periksa.tgl_registrasi',
@@ -157,7 +164,7 @@ class BiometrikRanap extends Controller
                 'dokter.nm_dokter as nama_dokter'
             )
             ->where('reg_periksa.no_rawat', $id)
-            ->where('bridging_sep.jnspelayanan', 1); // ✅ filter rawat inap
+            ->where('bridging_sep.jnspelayanan', 1);
 
         if ($tglAwal && $tglAkhir) {
             $query->whereBetween('reg_periksa.tgl_registrasi', [$tglAwal, $tglAkhir]);

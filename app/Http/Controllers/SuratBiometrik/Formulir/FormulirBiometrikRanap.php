@@ -25,20 +25,19 @@ class FormulirBiometrikRanap extends Controller
                 ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
                 ->leftJoin('bridging_sep', function ($join) {
                     $join->on('reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-                         ->where('bridging_sep.jnspelayanan', '=', 1); // ✅ hanya rawat inap
+                         ->where('bridging_sep.jnspelayanan', '=', 1); // hanya rawat inap
                 })
                 ->select(
                     'reg_periksa.no_rawat',
                     'pasien.nm_pasien',
                     'pasien.no_peserta',
                     'reg_periksa.tgl_registrasi',
-                    'kamar_inap.tgl_masuk',
+                    'kamar_inap.tgl_masuk', // ✅ ambil langsung dari kamar_inap
                     'bangsal.nm_bangsal as ruang_rawat',
                     'bridging_sep.no_sep',
                     'bridging_sep.nmdiagnosaawal as diagnosis',
                     'bridging_sep.jnspelayanan'
-                )
-                ->orderByDesc('bridging_sep.tglsep'); // ✅ ambil SEP terbaru
+                );
 
             if ($no_rawat) {
                 $query->where('reg_periksa.no_rawat', $no_rawat);
@@ -46,7 +45,8 @@ class FormulirBiometrikRanap extends Controller
                 $query->where('pasien.no_peserta', $no_peserta);
             }
 
-            $pasien = $query->first();
+            // ambil kamar_inap paling awal sesuai no_rawat
+            $pasien = $query->orderBy('kamar_inap.tgl_masuk', 'asc')->first();
 
             if ($pasien) {
                 if (is_null($pasien->no_sep)) {
