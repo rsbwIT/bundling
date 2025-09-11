@@ -108,18 +108,8 @@ use App\Http\Controllers\SuratBiometrik\BiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\BiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRanap;
-
-
-
-
-
-
-
-
-
-
-
-
+use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRajal;
+use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRanap;
 
 
 
@@ -362,6 +352,25 @@ Route::group(['middleware' => 'default'], function () {
         Route::prefix('formulir/biometrik/ranap')->name('formulir.biometrik.ranap.')->group(function () {
             Route::get('/', [FormulirBiometrikRanap::class, 'create'])->name('create');
             Route::post('/store', [FormulirBiometrikRanap::class, 'store'])->name('store');
+        });
+
+        //BIOMETRIKINPUTSEPRAJAL
+
+        Route::prefix('sepbiometrik/rajal')->name('biometrik.rajal.')->group(function () {
+            Route::get('/input', [InputSepBiometrikRajal::class, 'create'])->name('create');
+            Route::post('/store', [InputSepBiometrikRajal::class, 'store'])->name('store');
+            Route::get('/listsuratrj', [InputSepBiometrikRajal::class, 'listSuratRj'])->name('listSuratRj');
+            Route::get('biometrik/rajal/print/{id}', [InputSepBiometrikRajal::class, 'print'])
+            ->name('biometrik.rajal.print');
+        });
+
+        //BIOMETRIKINPUTSEPRANAP
+
+        Route::prefix('sepbiometrik/ranap')->name('biometrik.ranap.')->group(function () {
+            Route::get('/input', [InputSepBiometrikRanap::class, 'create'])->name('create');
+            Route::post('/store', [InputSepBiometrikRanap::class, 'store'])->name('store');
+            Route::get('/listsuratri', [InputSepBiometrikRanap::class, 'listSuratRi'])->name('listSuratRi');
+            Route::get('/print/{id}', [InputSepBiometrikRanap::class, 'print'])->name('print');
         });
 
 

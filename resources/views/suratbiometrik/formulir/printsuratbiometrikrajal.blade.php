@@ -146,7 +146,7 @@
     {{-- 🔹 Tanda tangan --}}
     <div class="ttd">
     <div>
-        Bandar Lampung, {{ now()->translatedFormat('d F Y') }}<br>
+        Bandar Lampung, {{ \Carbon\Carbon::parse($pasien->tgl_registrasi)->translatedFormat('d F Y') }}<br>
         DPJP yang Merawat,<br><br><br><br>
 
         {{-- Generate QR Code langsung dari nama dokter --}}

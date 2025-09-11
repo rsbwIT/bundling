@@ -23,7 +23,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -1002,6 +1001,18 @@
                                     <a href="{{ route('biometrik.ranap.index') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Biometrik Ranap</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('biometrik.rajal.listSuratRj') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>List Biometrik Rajal</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('biometrik.rajal.create') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Input SEP Biom Rajal</p>
                                     </a>
                                 </li>
                             </ul>
