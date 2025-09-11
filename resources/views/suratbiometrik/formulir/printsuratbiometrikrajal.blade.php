@@ -147,7 +147,7 @@
     <div class="ttd">
     <div>
         Bandar Lampung, {{ \Carbon\Carbon::parse($pasien->tgl_registrasi)->translatedFormat('d F Y') }}<br>
-        DPJP yang Merawat,<br><br><br><br>
+        DPJP yang Merawat,<br>
 
         {{-- Generate QR Code langsung dari nama dokter --}}
         {!! QrCode::size(80)->generate($pasien->nama_dokter) !!} <br>
