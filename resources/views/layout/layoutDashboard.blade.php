@@ -1015,6 +1015,19 @@
                                         <p>Input SEP Biom Rajal</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('biometrik.ranap.listSuratRi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>List Biometrik Ranap</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('biometrik.ranap.create') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Input SEP Biom Ranap</p>
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 

@@ -146,38 +146,48 @@ class InputSepBiometrikRajal extends Controller
     /**
      * 🔹 Print surat biometrik → arahkan ke blade printsuratbiometrikrajal
      */
-    public function print($no_rawat)
-    {
-        $tglAwal  = request('tgl_awal');
-        $tglAkhir = request('tgl_akhir');
+    public function print($id)
+{
+    $pasien = DB::table('bridging_sep')
+        ->join('reg_periksa', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+        ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+        ->select(
+            'reg_periksa.no_rawat as id',
+            'pasien.nm_pasien as nama',
+            'pasien.no_peserta as no_kartu_bpjs',
+            'bridging_sep.no_sep',
+            'bridging_sep.tglsep as tgl_masuk',
+            DB::raw('MAX(kamar_inap.tgl_keluar) as tgl_pulang'), // ✅ kasih alias tgl_pulang
+            'bridging_sep.nmdiagnosaawal as diagnosis',
+            'dokter.nm_dokter as nama_dokter'
+        )
+        ->where('bridging_sep.jnspelayanan', '1') // Rawat Inap
+        ->where('reg_periksa.no_rawat', $id)
+        ->groupBy(
+            'reg_periksa.no_rawat',
+            'pasien.nm_pasien',
+            'pasien.no_peserta',
+            'bridging_sep.no_sep',
+            'bridging_sep.tglsep',
+            'bridging_sep.nmdiagnosaawal',
+            'dokter.nm_dokter'
+        )
+        ->first();
 
-        $pasien = DB::table('pasien')
-            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->leftJoin('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-            ->select(
-                'reg_periksa.no_rawat as id',
-                'pasien.nm_pasien as nama',
-                'pasien.no_peserta as no_kartu_bpjs',
-                'bridging_sep.no_sep',
-                'poliklinik.nm_poli as poli_tujuan',
-                'bridging_sep.nmdiagnosaawal as diagnosis',
-                'reg_periksa.tgl_registrasi',
-                'dokter.nm_dokter as nama_dokter'
-            )
-            ->where('reg_periksa.no_rawat', $no_rawat)
-            ->first();
-
-        if (!$pasien) {
-            return redirect()->back()->with('error', 'Data pasien tidak ditemukan.');
-        }
-
-        $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)->value('nomor_surat');
-
-        return view('suratbiometrik.formulir.printsuratbiometrikrajal', [
-            'pasien'     => $pasien,
-            'nomorSurat' => $nomorSurat,
-        ]);
+    if (!$pasien) {
+        return redirect()->back()->with('error', 'Data pasien tidak ditemukan.');
     }
+
+    $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)
+        ->where('jenis_surat', 'RI')
+        ->value('nomor_surat');
+
+    return view('suratbiometrik.formulir.printsuratbiometrikranap', [
+        'pasien'     => $pasien,
+        'nomorSurat' => $nomorSurat,
+    ]);
+}
+
 }

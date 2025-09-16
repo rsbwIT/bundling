@@ -361,7 +361,7 @@ Route::group(['middleware' => 'default'], function () {
             Route::post('/store', [InputSepBiometrikRajal::class, 'store'])->name('store');
             Route::get('/listsuratrj', [InputSepBiometrikRajal::class, 'listSuratRj'])->name('listSuratRj');
             Route::get('biometrik/rajal/print/{id}', [InputSepBiometrikRajal::class, 'print'])
-            ->name('biometrik.rajal.print');
+                ->name('biometrik.rajal.print');
         });
 
         //BIOMETRIKINPUTSEPRANAP
@@ -370,7 +370,9 @@ Route::group(['middleware' => 'default'], function () {
             Route::get('/input', [InputSepBiometrikRanap::class, 'create'])->name('create');
             Route::post('/store', [InputSepBiometrikRanap::class, 'store'])->name('store');
             Route::get('/listsuratri', [InputSepBiometrikRanap::class, 'listSuratRi'])->name('listSuratRi');
-            Route::get('/print/{id}', [InputSepBiometrikRanap::class, 'print'])->name('print');
+            // Route::get('/print/{id}', [InputSepBiometrikRanap::class, 'print'])->name('print');
+            Route::get('sepbiometrik/ranap/print/{id}', [InputSepBiometrikRanap::class, 'print'])
+                ->name('biometrik.ranap.print');
         });
 
 

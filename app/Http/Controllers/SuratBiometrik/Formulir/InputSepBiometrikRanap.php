@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\NomorSurat;
+use Carbon\Carbon;
 
 class InputSepBiometrikRanap extends Controller
 {
@@ -80,7 +81,7 @@ class InputSepBiometrikRanap extends Controller
         ];
 
         // Ambil bulan & tahun dari tanggal registrasi pasien
-        $tglRegistrasi = \Carbon\Carbon::parse($pasien->tgl_registrasi);
+        $tglRegistrasi = Carbon::parse($pasien->tgl_registrasi);
         $bulan = $bulanRomawi[$tglRegistrasi->month];
         $tahun = $tglRegistrasi->year;
 
@@ -120,60 +121,88 @@ class InputSepBiometrikRanap extends Controller
      * List pasien rawat inap yang sudah dibuatkan surat
      */
     public function listSuratRi()
-    {
-        $suratList = DB::table('reg_periksa')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-            ->join('nomor_surat', 'bridging_sep.no_sep', '=', 'nomor_surat.no_sep')
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->select(
-                'nomor_surat.nomor_surat',
-                'pasien.no_peserta',
-                'pasien.nm_pasien',
-                'bridging_sep.tglsep',
-                'poliklinik.nm_poli',
-                'bridging_sep.nmdiagnosaawal as diagnosis',
-                'nomor_surat.no_sep',
-                'reg_periksa.no_rawat as id'
-            )
-            ->orderByDesc('nomor_surat.id')
-            ->get();
+{
+    $suratList = DB::table('reg_periksa')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
+        ->join('nomor_surat', 'bridging_sep.no_sep', '=', 'nomor_surat.no_sep')
+        ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat') // ✅ ambil tanggal masuk/keluar
+        ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+        ->select(
+            'nomor_surat.nomor_surat',
+            'pasien.no_peserta',
+            'pasien.nm_pasien',
+            'bridging_sep.tglsep',
+            'poliklinik.nm_poli as ruangan',
+            'bridging_sep.nmdiagnosaawal as diagnosis',
+            'nomor_surat.no_sep',
+            'reg_periksa.no_rawat as id',
+            'kamar_inap.tgl_masuk',
+            'kamar_inap.tgl_keluar'
+        )
+        ->where('bridging_sep.jnspelayanan', '1') // hanya rawat inap
+        ->orderByDesc('nomor_surat.id')
+        ->get();
 
-        return view('suratbiometrik.formulir.listsuratri', compact('suratList'));
-    }
-
+    return view('suratbiometrik.formulir.listsuratri', compact('suratList'));
+}
     /**
      * 🔹 Print surat biometrik Ranap
      */
-    public function print($no_rawat)
-    {
-        $pasien = DB::table('pasien')
-            ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->leftJoin('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-            ->select(
-                'reg_periksa.no_rawat as id',
-                'pasien.nm_pasien as nama',
-                'pasien.no_peserta as no_kartu_bpjs',
-                'bridging_sep.no_sep',
-                'poliklinik.nm_poli as poli_tujuan',
-                'bridging_sep.nmdiagnosaawal as diagnosis',
-                'reg_periksa.tgl_registrasi',
-                'dokter.nm_dokter as nama_dokter'
-            )
-            ->where('reg_periksa.no_rawat', $no_rawat)
-            ->first();
+   public function print($id)
+{
+    $pasien = DB::table('bridging_sep')
+        ->join('reg_periksa', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+        ->leftJoin('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+        ->select(
+            'reg_periksa.no_rawat as id',
+            'pasien.nm_pasien as nama',
+            'pasien.no_peserta as no_kartu_bpjs',
+            'bridging_sep.no_sep',
+            'bridging_sep.jnspelayanan',
+            'bridging_sep.nmdiagnosaawal as diagnosis',
+            'dokter.nm_dokter as nama_dokter',
+            DB::raw('MIN(kamar_inap.tgl_masuk) as tgl_masuk'),
+            DB::raw("
+                MAX(
+                    CASE
+                        WHEN kamar_inap.jam_keluar <> '00:00:00'
+                             AND kamar_inap.tgl_keluar <> '0000-00-00'
+                        THEN CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar)
+                        ELSE NULL
+                    END
+                ) as tgl_pulang
+            ")
+        )
+        ->where('bridging_sep.jnspelayanan', '1') // hanya rawat inap
+        ->where('reg_periksa.no_rawat', $id)
+        ->groupBy(
+            'reg_periksa.no_rawat',
+            'pasien.nm_pasien',
+            'pasien.no_peserta',
+            'bridging_sep.no_sep',
+            'bridging_sep.jnspelayanan',
+            'bridging_sep.nmdiagnosaawal',
+            'dokter.nm_dokter'
+        )
+        ->first();
 
-        if (!$pasien) {
-            return redirect()->back()->with('error', 'Data pasien tidak ditemukan.');
-        }
-
-        $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)->value('nomor_surat');
-
-        return view('suratbiometrik.formulir.printsuratbiometrikranap', [
-            'pasien'     => $pasien,
-            'nomorSurat' => $nomorSurat,
-        ]);
+    if (!$pasien) {
+        return redirect()->back()->with('error', 'Data pasien tidak ditemukan.');
     }
+
+    $pasien->tgl_pulang = $pasien->tgl_pulang ?: null;
+
+    $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)
+        ->where('jenis_surat', 'RI')
+        ->value('nomor_surat');
+
+    return view('suratbiometrik.formulir.printsuratbiometrikranap', [
+        'pasien'     => $pasien,
+        'nomorSurat' => $nomorSurat,
+    ]);
+}
+
 }

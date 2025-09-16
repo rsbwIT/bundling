@@ -46,6 +46,42 @@
 </head>
 <body onload="window.print()">
 
+    @php
+        $tgl_masuk_raw  = data_get($pasien, 'tgl_masuk');
+        $tgl_keluar_raw = data_get($pasien, 'tgl_keluar');
+
+        $isInvalidDate = fn($d) => empty($d) || $d === '0000-00-00' || $d === '0000-00-00 00:00:00';
+
+        try {
+            $fmt_tgl_masuk = !$isInvalidDate($tgl_masuk_raw)
+                ? \Carbon\Carbon::parse($tgl_masuk_raw)->translatedFormat('d F Y')
+                : '-';
+        } catch (\Throwable $e) {
+            $fmt_tgl_masuk = '-';
+        }
+
+        try {
+            $fmt_tgl_keluar = !$isInvalidDate($tgl_keluar_raw)
+                ? \Carbon\Carbon::parse($tgl_keluar_raw)->translatedFormat('d F Y')
+                : '-';
+        } catch (\Throwable $e) {
+            $fmt_tgl_keluar = '-';
+        }
+
+        // 🔹 Tanggal untuk tanda tangan
+        try {
+            if (!$isInvalidDate($tgl_keluar_raw)) {
+                $tgl_ttd = \Carbon\Carbon::parse($tgl_keluar_raw)->translatedFormat('d F Y');
+            } elseif (!$isInvalidDate($tgl_masuk_raw)) {
+                $tgl_ttd = \Carbon\Carbon::parse($tgl_masuk_raw)->translatedFormat('d F Y');
+            } else {
+                $tgl_ttd = now()->translatedFormat('d F Y');
+            }
+        } catch (\Throwable $e) {
+            $tgl_ttd = now()->translatedFormat('d F Y');
+        }
+    @endphp
+
     {{-- 🔹 Watermark --}}
     <img src="{{ asset('img/bw2.png') }}" class="watermark">
 
@@ -75,7 +111,7 @@
         <table width="100%">
             <tr>
                 <td width="10%">Nomor</td>
-                <td>: {{ $nomorSurat }}</td>
+                <td>: {{ $nomorSurat ?? '-' }}</td>
             </tr>
             <tr>
                 <td>Perihal</td>
@@ -95,10 +131,12 @@
     {{-- 🔹 Isi Surat --}}
     <p class="isi">
         Dengan hormat,<br>
-        Bersama surat ini kami sampaikan bahwa benar telah terjadi pasien rawat inap tidak bisa melakukan Face ID dan Sidik Jari
-        pada tanggal <b>{{ \Carbon\Carbon::parse($pasien->tgl_masuk)->translatedFormat('d F Y') }}</b>
-        di bagian pendaftaran Rawat Inap Rumah Sakit Bumi Waras,
-        karena Face ID dan Sidik Jari tidak terbaca sehingga dilakukan pengajuan <i>Approval SEP</i> di V-Claim.
+        Bersama surat ini kami sampaikan bahwa benar telah terjadi pasien Rawat Inap
+        (Tgl <b>{{ $fmt_tgl_masuk }}</b> s/d <b>{{ $fmt_tgl_keluar }}</b>)
+        tidak bisa melakukan Face ID dan Sidik Jari pada tanggal
+        <b>{{ $fmt_tgl_masuk }}</b>
+        di bagian pendaftaran Rawat Inap Rumah Sakit Bumi Waras karena Face ID dan Sidik Jari tidak terbaca
+        sehingga dilakukan pengajuan <i>Approval SEP</i> di V-Claim.
     </p>
 
     <p>Adapun data pasien tersebut adalah sebagai berikut:</p>
@@ -117,10 +155,6 @@
             <td>: {{ $pasien->no_sep }}</td>
         </tr>
         <tr>
-            <td>Ruang Rawat</td>
-            <td>: {{ $pasien->ruang_rawat }}</td>
-        </tr>
-        <tr>
             <td>Diagnosis</td>
             <td>: {{ $pasien->diagnosis }}</td>
         </tr>
@@ -132,13 +166,13 @@
 
     {{-- 🔹 Tanda tangan --}}
     <div class="ttd">
-        <div>
-            Bandar Lampung, {{ now()->translatedFormat('d F Y') }}<br>
-            DPJP yang Merawat,<br><br><br><br>
+            <div>
+            Bandar Lampung, {{ \Carbon\Carbon::parse($tgl_masuk_raw)->translatedFormat('d F Y') }}<br>
+            DPJP yang Merawat,<br><br>
 
             {!! QrCode::size(80)->generate($pasien->nama_dokter) !!} <br>
             <b>{{ $pasien->nama_dokter }}</b>
-        </div>
+            </div>
     </div>
 
 </body>
