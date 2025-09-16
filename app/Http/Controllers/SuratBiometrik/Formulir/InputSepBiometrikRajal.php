@@ -121,27 +121,29 @@ class InputSepBiometrikRajal extends Controller
      * List pasien rawat jalan yang sudah dibuatkan surat
      */
     public function listSuratRj()
-    {
-        $suratList = DB::table('reg_periksa')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
-            ->join('nomor_surat', 'bridging_sep.no_sep', '=', 'nomor_surat.no_sep')
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->select(
-                'nomor_surat.nomor_surat',
-                'pasien.no_peserta',
-                'pasien.nm_pasien',
-                'bridging_sep.tglsep',
-                'poliklinik.nm_poli',
-                'bridging_sep.nmdiagnosaawal as diagnosis',
-                'nomor_surat.no_sep',
-                'reg_periksa.no_rawat as id'
-            )
-            ->orderByDesc('nomor_surat.id')
-            ->get();
+{
+    $suratList = DB::table('reg_periksa')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
+        ->join('nomor_surat', 'bridging_sep.no_sep', '=', 'nomor_surat.no_sep')
+        ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+        ->select(
+            'nomor_surat.nomor_surat',
+            'pasien.no_peserta',
+            'pasien.nm_pasien',
+            'bridging_sep.tglsep',
+            'poliklinik.nm_poli',
+            'bridging_sep.nmdiagnosaawal as diagnosis',
+            'nomor_surat.no_sep',
+            'reg_periksa.no_rawat as id'
+        )
+        ->where('nomor_surat.nomor_surat', 'like', 'RJ/%') // 🔹 filter hanya surat RJ
+        ->orderByDesc('nomor_surat.id')
+        ->get();
 
-        return view('suratbiometrik.formulir.listsuratrj', compact('suratList'));
-    }
+    return view('suratbiometrik.formulir.listsuratrj', compact('suratList'));
+}
+
 
     /**
      * 🔹 Print surat biometrik → arahkan ke blade printsuratbiometrikrajal
