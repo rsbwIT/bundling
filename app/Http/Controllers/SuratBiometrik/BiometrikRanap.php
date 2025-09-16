@@ -139,84 +139,86 @@ class BiometrikRanap extends Controller
      * Print surat biometrik ranap
      */
     public function print($id)
-    {
-        $id       = urldecode($id);
-        $tglAwal  = request('tgl_awal');
-        $tglAkhir = request('tgl_akhir');
+{
+    $id       = urldecode($id);
+    $tglAwal  = request('tgl_awal');
+    $tglAkhir = request('tgl_akhir');
 
-        $pasien = DB::table('bridging_sep')
-            ->join('reg_periksa', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
-            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-            ->leftJoin('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-            ->select(
-                'reg_periksa.no_rawat as id',
-                'pasien.nm_pasien as nama',
-                'pasien.no_peserta as no_kartu_bpjs',
-                'bridging_sep.no_sep',
-                'bridging_sep.jnspelayanan',
-                'bridging_sep.nmdiagnosaawal as diagnosis',
-                'bangsal.nm_bangsal as ruang_rawat',
-                'dokter.nm_dokter as nama_dokter',
-                DB::raw('MIN(kamar_inap.tgl_masuk) as tgl_masuk'),
-                DB::raw('MAX(NULLIF(kamar_inap.tgl_keluar, "0000-00-00")) as tgl_keluar'),
-                DB::raw("
-                    MAX(
-                        CASE
-                            WHEN kamar_inap.jam_keluar <> '00:00:00'
-                                AND kamar_inap.tgl_keluar <> '0000-00-00'
-                            THEN CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar)
-                            ELSE NULL
-                        END
-                    ) as tgl_pulang
-                ")
-            )
-            ->where('reg_periksa.no_rawat', $id)
-            ->where('bridging_sep.jnspelayanan', 1) // hanya rawat inap
-            ->groupBy(
-                'reg_periksa.no_rawat',
-                'pasien.nm_pasien',
-                'pasien.no_peserta',
-                'bridging_sep.no_sep',
-                'bridging_sep.jnspelayanan',
-                'bridging_sep.nmdiagnosaawal',
-                'bangsal.nm_bangsal',
-                'dokter.nm_dokter'
-            );
+    $pasien = DB::table('bridging_sep')
+        ->join('reg_periksa', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+        ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+        ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+        ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+        ->leftJoin('dpjp_ranap', 'reg_periksa.no_rawat', '=', 'dpjp_ranap.no_rawat') // 🔹 ambil DPJP ranap
+        ->leftJoin('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')       // 🔹 ambil nama dokter DPJP
+        ->select(
+            'reg_periksa.no_rawat as id',
+            'pasien.nm_pasien as nama',
+            'pasien.no_peserta as no_kartu_bpjs',
+            'bridging_sep.no_sep',
+            'bridging_sep.jnspelayanan',
+            'bridging_sep.nmdiagnosaawal as diagnosis',
+            'bangsal.nm_bangsal as ruang_rawat',
+            'dokter.nm_dokter as nama_dokter',
+            DB::raw('MIN(kamar_inap.tgl_masuk) as tgl_masuk'),
+            DB::raw('MAX(NULLIF(kamar_inap.tgl_keluar, "0000-00-00")) as tgl_keluar'),
+            DB::raw("
+                MAX(
+                    CASE
+                        WHEN kamar_inap.jam_keluar <> '00:00:00'
+                            AND kamar_inap.tgl_keluar <> '0000-00-00'
+                        THEN CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar)
+                        ELSE NULL
+                    END
+                ) as tgl_pulang
+            ")
+        )
+        ->where('reg_periksa.no_rawat', $id)
+        ->where('bridging_sep.jnspelayanan', 1) // hanya rawat inap
+        ->groupBy(
+            'reg_periksa.no_rawat',
+            'pasien.nm_pasien',
+            'pasien.no_peserta',
+            'bridging_sep.no_sep',
+            'bridging_sep.jnspelayanan',
+            'bridging_sep.nmdiagnosaawal',
+            'bangsal.nm_bangsal',
+            'dokter.nm_dokter'
+        );
 
-        if ($tglAwal && $tglAkhir) {
-            $pasien->whereBetween('reg_periksa.tgl_registrasi', [$tglAwal, $tglAkhir]);
-        }
+    if ($tglAwal && $tglAkhir) {
+        $pasien->whereBetween('reg_periksa.tgl_registrasi', [$tglAwal, $tglAkhir]);
+    }
 
-        $pasien = $pasien->first();
+    $pasien = $pasien->first();
 
-        if (!$pasien) {
-            return redirect()->route('biometrik.ranap.index')
-                            ->with('error', 'Data pasien tidak ditemukan.');
-        }
+    if (!$pasien) {
+        return redirect()->route('biometrik.ranap.index')
+                        ->with('error', 'Data pasien tidak ditemukan.');
+    }
 
-        $pasien->tgl_keluar = $pasien->tgl_keluar ?: null;
-        $pasien->tgl_pulang = $pasien->tgl_pulang ?: null;
+    $pasien->tgl_keluar = $pasien->tgl_keluar ?: null;
+    $pasien->tgl_pulang = $pasien->tgl_pulang ?: null;
 
-        // cek nomor surat
-        $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)
-            ->where('jenis_surat', 'RI')
-            ->value('nomor_surat');
+    // cek nomor surat
+    $nomorSurat = NomorSurat::where('no_sep', $pasien->no_sep)
+        ->where('jenis_surat', 'RI')
+        ->value('nomor_surat');
 
-        if (!$nomorSurat) {
-            return redirect()->route('formulir.biometrik.ranap.create', [
-                'no_peserta' => $pasien->no_kartu_bpjs,
-                'no_rawat'   => $pasien->id
-            ]);
-        }
-
-        return view('suratbiometrik.formulir.printsuratbiometrikranap', [
-            'pasien'     => $pasien,
-            'nomorSurat' => $nomorSurat,
+    if (!$nomorSurat) {
+        return redirect()->route('formulir.biometrik.ranap.create', [
+            'no_peserta' => $pasien->no_kartu_bpjs,
+            'no_rawat'   => $pasien->id
         ]);
     }
+
+    return view('suratbiometrik.formulir.printsuratbiometrikranap', [
+        'pasien'     => $pasien,
+        'nomorSurat' => $nomorSurat,
+    ]);
+}
+
 
 
     /**
