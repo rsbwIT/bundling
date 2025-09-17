@@ -166,7 +166,7 @@
     </p>
 
     {{-- 🔹 Tanda tangan --}}
-    <div class="ttd">
+    {{-- <div class="ttd">
             <div>
             Bandar Lampung, {{ \Carbon\Carbon::parse($tgl_masuk_raw)->translatedFormat('d F Y') }}<br>
             DPJP yang Merawat,<br><br>
@@ -174,7 +174,37 @@
             {!! QrCode::size(80)->generate($pasien->nama_dokter) !!} <br>
             <b>{{ $pasien->nama_dokter }}</b>
             </div>
-    </div>
+    </div> --}}
+
+    {{-- 🔹 Tanda Tangan --}}
+<table width="100%" style="margin-top:50px;">
+    <tr>
+        <!-- Kolom Pasien -->
+        <td width="50%" align="center">
+            Pasien <br>
+            <div style="margin:20px 0; height:100px;">
+                @if(!empty($pasien->file_ttd))
+                    <img src="{{ asset('storage/ttd/'.$pasien->file_ttd) }}"
+                         alt="TTD Pasien"
+                         style="width:150px; height:150px; object-fit:contain; display:block; margin:auto;">
+                @endif
+            </div>
+            <b>{{ strtoupper($pasien->nama) }}</b>
+        </td>
+
+        <!-- Kolom Dokter -->
+        <td width="50%" align="center">
+            Bandar Lampung, {{ $tgl_ttd }}<br>
+            DPJP yang Merawat,<br>
+            <div style="margin:20px 0; height:100px;">
+                {!! QrCode::size(100)->generate($pasien->nama_dokter) !!}
+            </div>
+            <b>{{ $pasien->nama_dokter }}</b>
+        </td>
+    </tr>
+</table>
+
+
 
 </body>
 </html>

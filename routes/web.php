@@ -110,6 +110,10 @@ use App\Http\Controllers\SuratBiometrik\BiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRanap;
+use App\Http\Controllers\SuratBiometrik\Formulir\Sep_TTD;
+
+
+
 
 
 
@@ -374,6 +378,11 @@ Route::group(['middleware' => 'default'], function () {
             Route::get('sepbiometrik/ranap/print/{id}', [InputSepBiometrikRanap::class, 'print'])
                 ->name('biometrik.ranap.print');
         });
+
+        // Sep TTD
+
+            Route::get('/sep/ttd/{no_sep}', [Sep_TTD::class, 'form'])->name('sep.formTtd');
+            Route::post('/sep/ttd', [Sep_TTD::class, 'simpan'])->name('sep.simpanTtd');
 
 
 

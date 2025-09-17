@@ -150,8 +150,9 @@ class BiometrikRanap extends Controller
         ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
         ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
         ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-        ->leftJoin('dpjp_ranap', 'reg_periksa.no_rawat', '=', 'dpjp_ranap.no_rawat') // 🔹 ambil DPJP ranap
-        ->leftJoin('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')       // 🔹 ambil nama dokter DPJP
+        ->leftJoin('dpjp_ranap', 'reg_periksa.no_rawat', '=', 'dpjp_ranap.no_rawat')
+        ->leftJoin('dokter', 'dpjp_ranap.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('sep_ttd', 'bridging_sep.no_sep', '=', 'sep_ttd.no_sep') // 🔹 join sep_ttd
         ->select(
             'reg_periksa.no_rawat as id',
             'pasien.nm_pasien as nama',
@@ -161,6 +162,7 @@ class BiometrikRanap extends Controller
             'bridging_sep.nmdiagnosaawal as diagnosis',
             'bangsal.nm_bangsal as ruang_rawat',
             'dokter.nm_dokter as nama_dokter',
+            'sep_ttd.ttd as file_ttd', // 🔹 ambil nama file ttd
             DB::raw('MIN(kamar_inap.tgl_masuk) as tgl_masuk'),
             DB::raw('MAX(NULLIF(kamar_inap.tgl_keluar, "0000-00-00")) as tgl_keluar'),
             DB::raw("
@@ -184,7 +186,8 @@ class BiometrikRanap extends Controller
             'bridging_sep.jnspelayanan',
             'bridging_sep.nmdiagnosaawal',
             'bangsal.nm_bangsal',
-            'dokter.nm_dokter'
+            'dokter.nm_dokter',
+            'sep_ttd.ttd' // 🔹 jangan lupa masuk ke group by
         );
 
     if ($tglAwal && $tglAkhir) {
