@@ -132,7 +132,8 @@
     <p class="isi">
         Dengan hormat,<br>
         Bersama surat ini kami sampaikan bahwa benar telah terjadi pasien Rawat Inap
-        (Tgl <b>{{ $fmt_tgl_masuk }}</b> s/d <b>{{ $fmt_tgl_keluar }}</b>)
+        {{-- tanggal <b>{{ $fmt_tgl_masuk }}</b> --}}
+         {{-- s/d <b>{{ $fmt_tgl_keluar }}</b>) --}}
         tidak bisa melakukan Face ID dan Sidik Jari pada tanggal
         <b>{{ $fmt_tgl_masuk }}</b>
         di bagian pendaftaran Rawat Inap Rumah Sakit Bumi Waras karena Face ID dan Sidik Jari tidak terbaca
