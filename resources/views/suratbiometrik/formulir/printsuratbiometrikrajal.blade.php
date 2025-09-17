@@ -10,7 +10,6 @@
             margin: 20mm 15mm 20mm 15mm; /* atas, kanan, bawah, kiri */
         }
 
-        /* 🔹 Style umum */
         body {
             font-family: "Times New Roman", serif;
             font-size: 12pt;
@@ -20,26 +19,20 @@
             position: relative;
         }
 
-        /* 🔹 Watermark (pakai <img>) */
         .watermark {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 60%;
-            opacity: 0.08; /* transparansi */
-            z-index: -1;   /* di belakang teks */
+            opacity: 0.08;
+            z-index: -1;
         }
 
-        /* 🔹 Saat print */
         @media print {
-            body {
-                width: 210mm;
-                height: 297mm;
-            }
+            body { width: 210mm; height: 297mm; }
         }
 
-        /* 🔹 Style kop surat */
         .kop-surat { text-align: center; margin-bottom: 10px; }
         .kop-surat h2 { margin: 0; color: green; font-size: 16pt; font-weight: bold; }
         .kop-surat h3 { margin: 0; font-size: 13pt; }
@@ -48,13 +41,12 @@
         .nomor-surat { margin-top: 15px; margin-bottom: 15px; }
         .isi { text-align: justify; }
 
-        /* 🔹 Data pasien */
         table.data-pasien { width: 100%; border-collapse: collapse; margin-top: 10px; }
         table.data-pasien td { padding: 4px 6px; vertical-align: top; }
 
-        /* 🔹 Tanda tangan */
-        .ttd { width: 100%; margin-top: 40px; display: flex; justify-content: flex-end; }
-        .ttd div { text-align: center; }
+        /* 🔹 Tanda tangan berdampingan */
+        .ttd { width: 100%; margin-top: 40px; display: flex; justify-content: space-between; }
+        .ttd div { text-align: center; width: 48%; }
     </style>
 </head>
 <body onload="window.print()">
@@ -143,19 +135,34 @@
         Demikian kami sampaikan atas kerja sama yang baik kami ucapkan terima kasih.
     </p>
 
-    {{-- 🔹 Tanda tangan --}}
-    <div class="ttd">
-    <div>
-        Bandar Lampung, {{ \Carbon\Carbon::parse($pasien->tgl_registrasi)->translatedFormat('d F Y') }}<br>
-        DPJP yang Merawat,<br>
+    <table width="100%" style="margin-top:50px;">
+    <tr>
+        <!-- Kolom Pasien -->
+        <td width="50%" align="center">
+            Pasien <br>
+            <div style="margin:20px 0; height:100px;">
+                @if(!empty($pasien->file_ttd))
+                    <img src="{{ asset('storage/ttd/'.$pasien->file_ttd) }}"
+                         alt="TTD Pasien"
+                         style="width:150px; height:150px; object-fit:contain; display:block; margin:auto;">
+                @endif
+            </div>
+            <b>{{ strtoupper($pasien->nama) }}</b>
+        </td>
 
-        {{-- Generate QR Code langsung dari nama dokter --}}
-        {!! QrCode::size(80)->generate($pasien->nama_dokter) !!} <br>
+        <!-- Kolom Dokter -->
+        <td width="50%" align="center">
+            Bandar Lampung, {{ \Carbon\Carbon::parse($pasien->tgl_registrasi)->translatedFormat('d F Y') }}<br>
+            DPJP yang Merawat,<br>
+            <div style="margin:20px 0; height:100px;">
+                {!! QrCode::size(100)->generate($pasien->nama_dokter) !!}
+            </div>
+            <b>{{ $pasien->nama_dokter }}</b>
+        </td>
+    </tr>
+</table>
 
-        <b>{{ $pasien->nama_dokter }}</b>
     </div>
-</div>
-
 
 </body>
 </html>

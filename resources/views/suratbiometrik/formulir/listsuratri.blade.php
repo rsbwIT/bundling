@@ -1,6 +1,6 @@
 @extends('layout.layoutDashboard')
 
-@section('title', 'Daftar Surat Biometrik Rajal')
+@section('title', 'Daftar Surat Biometrik Ranap')
 
 @section('konten')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
@@ -8,6 +8,7 @@
 
 <style>
     .card-header {
+        /* 🔹 Ubah ke gradient biru */
         background: linear-gradient(135deg, #0062cc, #0056b3);
         color: #fff;
         border-bottom: none;
@@ -31,14 +32,14 @@
 
 <div class="card shadow-sm">
     <div class="card-header">
-        <h5 class="mb-0"><i class="fa fa-file-medical-alt"></i> Daftar Surat Biometrik Rajal</h5>
+        <h5 class="mb-0"><i class="fa fa-procedures"></i> Daftar Surat Biometrik Ranap</h5>
     </div>
     <div class="card-body">
         {{-- 🔍 Filter Section --}}
         <div class="filter-section">
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Nama pasien / No SEP / Poli">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Nama pasien / No SEP / Ruangan">
                 </div>
                 <div class="col-md-3">
                     <input type="date" id="startDate" class="form-control">
@@ -56,15 +57,16 @@
 
         {{-- 📋 Tabel daftar surat --}}
         <div class="table-responsive">
-            <table id="suratTable" class="table table-striped table-bordered table-hover table-sm align-middle">
+            <table id="suratRanapTable" class="table table-striped table-bordered table-hover table-sm align-middle">
                 <thead class="table-light">
                     <tr class="text-center">
                         <th>No</th>
                         <th>No SEP</th>
                         <th>No Peserta</th>
                         <th>Nama Pasien</th>
-                        <th>Poli</th>
-                        <th>Tgl SEP</th>
+                        <th>Ruangan</th>
+                        <th>Tgl Masuk</th>
+                        <th>Tgl Keluar</th>
                         <th>Diagnosis</th>
                         <th>Nomor Surat</th>
                         <th>Aksi</th>
@@ -77,27 +79,32 @@
                         <td>{{ $surat->no_sep }}</td>
                         <td>{{ $surat->no_peserta }}</td>
                         <td class="text-truncate">{{ $surat->nm_pasien }}</td>
-                        <td>{{ $surat->nm_poli }}</td>
-                        <td class="dt-center" data-tglsep="{{ $surat->tglsep }}">
-                            {{ \Carbon\Carbon::parse($surat->tglsep)->format('d-m-Y') }}
-                        </td>
+                        <td>{{ $surat->ruangan ?? '-' }}</td>
+                        <td class="dt-center" data-tglmasuk="{{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('Y-m-d') }}">
+        {{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('d-m-Y') }}
+    </td>
+    <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
+        {{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('d-m-Y') : '-' }}
+    </td>
                         <td class="text-truncate">{{ $surat->diagnosis }}</td>
                         <td><span class="badge bg-success">{{ $surat->nomor_surat }}</span></td>
                         <td class="dt-center">
-                            <a href="{{ route('biometrik.rajal.print', $surat->id) }}"
-                               class="btn btn-warning btn-sm" target="_blank">
-                                <i class="fas fa-print"></i>
-                            </a>
+                            <a href="{{ route('biometrik.ranap.print', $surat->id) }}"
+                                   class="btn btn-warning btn-sm" target="_blank">
+                                    <i class="fas fa-print"></i> Print
+                                </a>
 
-                            <a href="{{ route('sep.formTtd', $surat->no_sep) }}"
+                                <a href="{{ route('sep.formTtd', $surat->no_sep) }}"
                                    class="btn btn-success btn-sm">
                                     <i class="fas fa-pen"></i> Tandatangan
-                            </a>
+                                </a>
+                        </td>
+
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center text-muted">Belum ada surat yang dibuat.</td>
+                        <td colspan="10" class="text-center text-muted">Belum ada surat Ranap yang dibuat.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -115,8 +122,7 @@
 
 <script>
 $(document).ready(function() {
-    // Inisialisasi DataTable
-    var table = $('#suratTable').DataTable({
+    var table = $('#suratRanapTable').DataTable({
         responsive: true,
         paging: true,
         pageLength: 10,
@@ -124,7 +130,7 @@ $(document).ready(function() {
         ordering: true,
         order: [[0, 'asc']],
         columnDefs: [
-            { targets: [0,5,8], className: 'dt-center' } // kolom No, Tgl SEP, Aksi center
+            { targets: [0,5,6,9], className: 'dt-center' }
         ]
     });
 
@@ -144,16 +150,16 @@ $(document).ready(function() {
             const data = this.data();
             const rowText = data.join(' ').toLowerCase();
 
-            // Tanggal dari dataset
-            const tglSepAttr = $(this.node()).find('td[data-tglsep]').data('tglsep');
+            // Ambil tanggal masuk dalam format YYYY-MM-DD
+            const tglMasuk = $(this.node()).find('td[data-tglmasuk]').data('tglmasuk');
             let show = true;
 
             // Filter search
             if(searchVal && !rowText.includes(searchVal)) show = false;
 
             // Filter tanggal
-            if(tglSepAttr && start && tglSepAttr < start) show = false;
-            if(tglSepAttr && end && tglSepAttr > end) show = false;
+            if(tglMasuk && start && tglMasuk < start) show = false;
+            if(tglMasuk && end && tglMasuk > end) show = false;
 
             $(this.node()).toggle(show);
         });

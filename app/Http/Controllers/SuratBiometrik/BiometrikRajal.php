@@ -132,6 +132,7 @@ class BiometrikRajal extends Controller
         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
         ->leftJoin('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat') // amanin kalo SEP kosong
         ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('sep_ttd', 'bridging_sep.no_sep', '=', 'sep_ttd.no_sep') // 🔹 join sep_ttd
         ->select(
             'reg_periksa.no_rawat as id',
             'pasien.nm_pasien as nama',
@@ -140,7 +141,8 @@ class BiometrikRajal extends Controller
             'poliklinik.nm_poli as poli_tujuan',
             'bridging_sep.nmdiagnosaawal as diagnosis',
             'reg_periksa.tgl_registrasi',
-            'dokter.nm_dokter as nama_dokter'
+            'dokter.nm_dokter as nama_dokter',
+            'sep_ttd.ttd as file_ttd' // 🔹 ambil nama file ttd
         )
         ->where('reg_periksa.no_rawat', $id);
 
