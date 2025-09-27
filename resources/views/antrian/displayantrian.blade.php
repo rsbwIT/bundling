@@ -1,14 +1,16 @@
 @extends('layout.layoutpendaftaran')
 @section('title', 'PENDAFTARAN 1')
+
 @push('styles')
     @livewireStyles
+
     <style>
         .header-antrian {
             background: #fff;
             border-bottom: 2px solid #20c997; /* aksen hijau tipis elegan */
-            padding: 15px 30px;
+            padding: 10px 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* shadow lembut */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* shadow lembut */
         }
         .header-antrian img {
             object-fit: contain;
@@ -27,19 +29,29 @@
     <div class="container-fluid mt-3">
         <div class="d-flex justify-content-between align-items-center header-antrian">
             {{-- Logo kiri --}}
-            <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
-                 alt="Logo Rumah Sakit" width="90" height="90" class="rounded">
+            <img
+                src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                alt="Logo Rumah Sakit"
+                width="90"
+                height="90"
+                class="rounded"
+            >
 
-            {{-- Judul --}}
+            {{-- Judul tengah --}}
             <div class="text-center flex-grow-1">
                 <h1>Antrian Sidik Jari BPJS</h1>
             </div>
 
             {{-- Logo kanan --}}
-            <img src="/img/bpjs.png" width="200" height="45" alt="BPJS">
+            <img
+                src="/img/bpjs.png"
+                width="200"
+                height="45"
+                alt="BPJS"
+            >
         </div>
 
-        {{-- Konten Antrian --}}
+        {{-- Konten Antrian Livewire --}}
         <div class="mt-4">
             @livewire('antrian-pendaftaran.display-antrian')
         </div>

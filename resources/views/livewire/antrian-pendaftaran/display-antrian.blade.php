@@ -1,105 +1,112 @@
-<div style="background: linear-gradient(180deg, #f4f9ff, #eaf7f0); min-height: 100vh;">
-    <div class="mt-4 container-fluid">
-        <div class="row justify-content-center g-4" wire:poll.1000ms>
-            @php
-                $md = count($getLoket) > 2 ? 4 : 6;
-            @endphp
-            @if ($getLoket)
-                @foreach ($getLoket as $item)
-                    <div class="col-md-{{ $md }}">
-                        <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 animate__animated animate__fadeInUp"
-                             style="transition: all 0.3s ease;"
-                             onmouseover="this.style.transform='translateY(-5px) scale(1.02)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.15)';"
-                             onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';">
+<div style="background:#ffffff; min-height:100vh;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <div class="container-fluid py-4 px-4">
+    <div class="row justify-content-center g-4" wire:poll.1000ms>
+      @php
+        $xl = 4; $lg = 6; $md = 12; $sm = 12;
+      @endphp
 
-                            {{-- Header Loket --}}
-                            <div class="card-header text-center text-white py-3"
-                                 style="background: linear-gradient(135deg, #007bff, #20c997); border: none;">
-                                <h2 class="fw-bold mb-0">{{ $item->nama_loket }}</h2>
-                            </div>
+      @foreach ($getLoket as $loket)
+      <div class="col-sm-{{ $sm }} col-md-{{ $md }} col-lg-{{ $lg }} col-xl-{{ $xl }}">
+        <div class="loket-box shadow-lg rounded-4 border-0 h-100">
 
-                            {{-- Isi --}}
-                            <table class="table table-borderless mb-0">
-                                @if ($item->getPasien->isEmpty())
-                                    <div class="d-flex justify-content-center align-items-center flex-column p-5" style="min-height: 300px;">
-                                        <i class="bi bi-person-x display-1 text-muted mb-3"></i>
-                                        <h3 class="fw-bold text-muted">Tidak Ada Antrian</h3>
-                                    </div>
-                                @else
-                                    @foreach ($item->getPasien as $item)
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3" class="text-center">
-                                                    <h4 class="fw-bold text-secondary">Nomor Registrasi</h4>
-                                                </th>
-                                            </tr>
-                                            <tr>
-                                                <th colspan="3" class="text-center">
-                                                    <span class="fw-bolder text-primary"
-                                                          style="font-size: 5rem; letter-spacing: 2px; text-shadow: 2px 2px 6px rgba(0,0,0,0.15);">
-                                                        {{ $item->no_reg }}
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="3" class="text-center py-3">
-                                                    <i class="bi bi-person-circle text-success me-2 fs-2"></i>
-                                                    <span class="fw-bold text-dark"
-                                                          style="font-size: 2rem; letter-spacing: 1px;">
-                                                        {{ $item->nm_pasien }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3" class="text-center py-2">
-                                                    <span class="badge bg-gradient px-4 py-2 fs-5 shadow-sm"
-                                                          style="background: linear-gradient(135deg, #17a2b8, #20c997); font-size:1.2rem;">
-                                                        <i class="bi bi-stethoscope me-2"></i>{{ $item->nama_dokter }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center py-3">
-                                                    <h4 class="fw-bold text-success mb-0">
-                                                        <i class="bi bi-clock-history me-2"></i>
-                                                        Jam Mulai : {{ date('H:i', strtotime($item->jam_mulai)) }}
-                                                    </h4>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    @endforeach
-                                @endif
-                            </table>
-                        </div>
-                    </div>
-                @endforeach
+          <!-- Header Loket -->
+          <div class="loket-header text-white text-center py-3 rounded-top-4">
+            <h4 class="fw-bold mb-0">{{ $loket->nama_loket }}</h4>
+          </div>
+
+          <!-- Body Loket -->
+          <div class="p-3 p-md-4 rounded-bottom-4">
+            @if ($loket->getPasien->isEmpty())
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-person-x display-2 mb-3"></i>
+                <p class="fs-5 fw-semibold">Tidak Ada Antrian</p>
+              </div>
             @else
-                <div style="height:300px;" class="d-flex align-items-center justify-content-center">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="spinner-border text-danger" role="status" aria-hidden="true"></div>
-                        <h5 class="fw-bold text-danger m-0">Koneksi terputus...</h5>
-                    </div>
+              @foreach ($loket->getPasien as $index => $pasien)
+              @php $isActive = $index === 0; @endphp
+              <div class="antrian-card {{ $isActive ? 'active' : '' }}">
+                <div class="no-antrian">
+                  {{ str_pad($pasien->no_reg, 3, '0', STR_PAD_LEFT) }}
                 </div>
+                <div class="info">
+                  <div class="nama">{{ strtoupper($pasien->nm_pasien) }}</div>
+                  <div class="dokter">{{ $pasien->nama_dokter }}</div>
+                  <div class="jam">Jam Mulai:
+                    {{ \Carbon\Carbon::parse($pasien->jam_mulai)->format('H:i') }}
+                  </div>
+                </div>
+              </div>
+              @endforeach
             @endif
+          </div>
+
         </div>
-
-        <script>
-        function playSequentialSounds(ids) {
-            var currentIndex = 0;
-
-            function playNextSound() {
-                if (currentIndex >= ids.length) {
-                    return;
-                }
-                var audio = document.getElementById(ids[currentIndex]);
-                audio.play();
-                currentIndex++;
-                audio.onended = playNextSound;
-            }
-            playNextSound();
-        }
-    </script>
+      </div>
+      @endforeach
     </div>
+  </div>
 </div>
+
+<style>
+body{background:#ffffff;margin:0;padding:0;}
+.container-fluid{max-width:98%;}
+.loket-header{
+  background:linear-gradient(135deg,#2e7d32,#43a047);
+  box-shadow:inset 0 -2px 6px rgba(0,0,0,0.15);
+}
+.loket-box{
+  max-width:400px;
+  margin:0 auto;
+}
+.antrian-card{
+  background:#e8f5e9;
+  border-radius:12px;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:15px;
+  box-shadow:0 4px 12px rgba(76,175,80,0.25);
+}
+.antrian-card.active{
+  background:#c8e6c9;
+  box-shadow:0 0 24px 4px #2e7d32;
+}
+.no-antrian{
+  background:#2e7d32;
+  color:#fff;
+  font-weight:700;
+  font-size:1.8rem;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-shrink:0;
+}
+.info{flex:1;}
+.nama{
+  font-size:1.2rem;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.dokter{
+  background:#208496;
+  color:#fff;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:8px;
+  display:inline-block;
+  margin-bottom:6px;
+}
+.jam{
+  font-weight:600;
+  color:#333;
+}
+@media (max-width:768px){
+  .no-antrian{width:60px;height:60px;font-size:1.5rem;}
+  .nama{font-size:1.05rem;}
+}
+</style>

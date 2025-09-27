@@ -81,11 +81,11 @@
                         <td class="text-truncate">{{ $surat->nm_pasien }}</td>
                         <td>{{ $surat->ruangan ?? '-' }}</td>
                         <td class="dt-center" data-tglmasuk="{{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('Y-m-d') }}">
-        {{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('d-m-Y') }}
-    </td>
-    <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
-        {{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('d-m-Y') : '-' }}
-    </td>
+                            {{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('d-m-Y') }}
+                        </td>
+                        <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
+                            {{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('d-m-Y') : '-' }}
+                        </td>
                         <td class="text-truncate">{{ $surat->diagnosis }}</td>
                         <td><span class="badge bg-success">{{ $surat->nomor_surat }}</span></td>
                         <td class="dt-center">
