@@ -8,7 +8,6 @@
 
 <style>
     .card-header {
-        /* 🔹 Ubah ke gradient biru */
         background: linear-gradient(135deg, #0062cc, #0056b3);
         color: #fff;
         border-bottom: none;
@@ -39,7 +38,8 @@
         <div class="filter-section">
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Nama pasien / No SEP / Ruangan">
+                    <input type="text" id="searchInput" class="form-control"
+                           placeholder="Nama pasien / No SEP / Ruangan">
                 </div>
                 <div class="col-md-3">
                     <input type="date" id="startDate" class="form-control">
@@ -66,7 +66,6 @@
                         <th>Nama Pasien</th>
                         <th>Ruangan</th>
                         <th>Tgl Masuk</th>
-                        {{-- <th>Tgl Keluar</th> --}}
                         <th>Diagnosis</th>
                         <th>Nomor Surat</th>
                         <th>Aksi</th>
@@ -80,31 +79,29 @@
                         <td>{{ $surat->no_peserta }}</td>
                         <td class="text-truncate">{{ $surat->nm_pasien }}</td>
                         <td>{{ $surat->ruangan ?? '-' }}</td>
-                        <td class="dt-center" data-tglmasuk="{{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('Y-m-d') }}">
+                        <td class="dt-center"
+                            data-tglmasuk="{{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('Y-m-d') }}">
                             {{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('d-m-Y') }}
                         </td>
-                        {{-- <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
-                            {{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('d-m-Y') : '-' }}
-                        </td> --}}
                         <td class="text-truncate">{{ $surat->diagnosis }}</td>
                         <td><span class="badge bg-success">{{ $surat->nomor_surat }}</span></td>
                         <td class="dt-center">
                             <a href="{{ route('biometrik.ranap.print', $surat->id) }}"
-                                   class="btn btn-warning btn-sm" target="_blank">
-                                    <i class="fas fa-print"></i> Print
-                                </a>
-
-                                <a href="{{ route('sep.formTtd', $surat->no_sep) }}"
-                                   class="btn btn-success btn-sm">
-                                    <i class="fas fa-pen"></i> Tandatangan
-                                </a>
-                        </td>
-
-                        </td>
+                               class="btn btn-warning btn-sm" target="_blank">
+                                <i class="fas fa-print"></i> Print
+                            </a>
+                            <a href="{{ route('sep.formTtd', $surat->no_sep) }}"
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-pen"></i> Tandatangan
+                            </a>
+                        </td> {{-- ✅ hanya SATU </td> --}}
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center text-muted">Belum ada surat Ranap yang dibuat.</td>
+                        {{-- ✅ colspan harus sama dgn jumlah kolom thead (9) --}}
+                        <td colspan="9" class="text-center text-muted">
+                            Belum ada surat Ranap yang dibuat.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -130,7 +127,8 @@ $(document).ready(function() {
         ordering: true,
         order: [[0, 'asc']],
         columnDefs: [
-            { targets: [0,5,6,9], className: 'dt-center' }
+            // ✅ kolom terakhir (Aksi) index = 8
+            { targets: [0,5,8], className: 'dt-center' }
         ]
     });
 
@@ -149,15 +147,10 @@ $(document).ready(function() {
         table.rows().every(function() {
             const data = this.data();
             const rowText = data.join(' ').toLowerCase();
-
-            // Ambil tanggal masuk dalam format YYYY-MM-DD
             const tglMasuk = $(this.node()).find('td[data-tglmasuk]').data('tglmasuk');
             let show = true;
 
-            // Filter search
             if(searchVal && !rowText.includes(searchVal)) show = false;
-
-            // Filter tanggal
             if(tglMasuk && start && tglMasuk < start) show = false;
             if(tglMasuk && end && tglMasuk > end) show = false;
 
