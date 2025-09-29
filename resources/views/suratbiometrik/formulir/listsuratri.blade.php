@@ -66,7 +66,7 @@
                         <th>Nama Pasien</th>
                         <th>Ruangan</th>
                         <th>Tgl Masuk</th>
-                        <th>Tgl Keluar</th>
+                        {{-- <th>Tgl Keluar</th> --}}
                         <th>Diagnosis</th>
                         <th>Nomor Surat</th>
                         <th>Aksi</th>
@@ -83,9 +83,9 @@
                         <td class="dt-center" data-tglmasuk="{{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('Y-m-d') }}">
                             {{ \Carbon\Carbon::parse($surat->tgl_masuk)->format('d-m-Y') }}
                         </td>
-                        <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
+                        {{-- <td class="dt-center" data-tglkeluar="{{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('Y-m-d') : '' }}">
                             {{ $surat->tgl_keluar ? \Carbon\Carbon::parse($surat->tgl_keluar)->format('d-m-Y') : '-' }}
-                        </td>
+                        </td> --}}
                         <td class="text-truncate">{{ $surat->diagnosis }}</td>
                         <td><span class="badge bg-success">{{ $surat->nomor_surat }}</span></td>
                         <td class="dt-center">

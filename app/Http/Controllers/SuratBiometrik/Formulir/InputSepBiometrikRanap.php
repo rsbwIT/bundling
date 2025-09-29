@@ -126,7 +126,6 @@ class InputSepBiometrikRanap extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('bridging_sep', 'reg_periksa.no_rawat', '=', 'bridging_sep.no_rawat')
         ->join('nomor_surat', 'bridging_sep.no_sep', '=', 'nomor_surat.no_sep')
-        ->join('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat') // ✅ ambil tanggal masuk/keluar
         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
         ->select(
             'nomor_surat.nomor_surat',
@@ -137,15 +136,16 @@ class InputSepBiometrikRanap extends Controller
             'bridging_sep.nmdiagnosaawal as diagnosis',
             'nomor_surat.no_sep',
             'reg_periksa.no_rawat as id',
-            'kamar_inap.tgl_masuk',
-            'kamar_inap.tgl_keluar'
+            'reg_periksa.tgl_registrasi as tgl_masuk'
         )
-        ->where('bridging_sep.jnspelayanan', '1') // hanya rawat inap
+        ->whereNotNull('nomor_surat.nomor_surat')   // ✅ hanya yang punya nomor surat
+        ->where('bridging_sep.jnspelayanan', '1')   // ✅ hanya rawat inap (RI)
         ->orderByDesc('nomor_surat.id')
         ->get();
 
     return view('suratbiometrik.formulir.listsuratri', compact('suratList'));
 }
+
     /**
      * 🔹 Print surat biometrik Ranap
      */
