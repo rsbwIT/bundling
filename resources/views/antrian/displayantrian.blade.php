@@ -8,7 +8,7 @@
         .header-antrian {
             background: #fff;
             border-bottom: 2px solid #20c997; /* aksen hijau tipis elegan */
-            padding: 10px 25px;
+            padding: 10px 2px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* shadow lembut */
         }
@@ -39,7 +39,7 @@
 
             {{-- Judul tengah --}}
             <div class="text-center flex-grow-1">
-                <h1>Antrian Sidik Jari BPJS</h1>
+                <h1 style="font-weight: 700;">Antrian Sidik Jari BPJS</h1>
             </div>
 
             {{-- Logo kanan --}}
