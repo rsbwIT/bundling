@@ -65,6 +65,22 @@
         .antrian-pasien { font-size: 1.8rem; font-weight: bold; margin-top:.5rem; }
         .antrian-dokter { font-size: 1.1rem; color: #444; margin-top: .3rem; }
 
+        .antrian-dokter {
+            display: inline-block;
+            background: #0d6efd; /* biru elegan */
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: .4rem .8rem;
+            border-radius: 8px;
+            margin-top: .8rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .antrian-dokter i {
+            margin-right: 6px;
+        }
+
+
         /* ✅ Highlight Pasien Dipanggil */
         .highlight {
             background: #198754;
