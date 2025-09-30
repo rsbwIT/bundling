@@ -111,6 +111,12 @@ use App\Http\Controllers\SuratBiometrik\Formulir\FormulirBiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\Sep_TTD;
+use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru;
+
+
+
+
+
 
 
 
@@ -387,6 +393,18 @@ Route::group(['middleware' => 'default'], function () {
 
 
 
+        // antrianpendaftaranbaru
+
+
+            Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
+            Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('antrian.update-status');
+            Route::post('/antrian/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])
+                ->name('antrian.update-status');
+
+            Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
+            Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
+            Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
+            Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
 
 
 
