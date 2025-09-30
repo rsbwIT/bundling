@@ -67,7 +67,7 @@
 
         .antrian-dokter {
             display: inline-block;
-            background: #0d6efd; /* biru elegan */
+            background: #000000; /* biru elegan */
             color: #fff;
             font-size: 1rem;
             font-weight: 600;
