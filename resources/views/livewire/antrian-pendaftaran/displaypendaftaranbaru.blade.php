@@ -78,8 +78,8 @@
         }
 
         .antrian-dokter {
-            display: inline-block;
-            background: #000000; /* biru elegan */
+            display: block;
+            background: #000000;
             color: #fff;
             font-size: 1rem;
             font-weight: 600;
@@ -87,10 +87,16 @@
             border-radius: 8px;
             margin-top: .8rem;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+
+            /* ⬇️ Supaya tidak turun baris */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .antrian-dokter i {
             margin-right: 6px;
         }
+
 
 
         /* ✅ Highlight Pasien Dipanggil */
@@ -180,6 +186,17 @@
             background: #fff;
             border-radius: 50%;
         }
+
+        .footer-tv span {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: marquee 15s linear infinite;
+
+            font-weight: 700;   /* ✅ lebih tebal */
+            letter-spacing: 1px; /* opsional: agak renggang */
+        }
+
     </style>
 
     <!-- ✅ Header dengan logo kiri & kanan, judul center -->
@@ -190,13 +207,15 @@
         </div>
 
         <!-- Judul Tengah -->
-        <div class="text-center flex-grow-1">
+       <!-- Judul Tengah -->
+        <div class="header-title position-absolute top-30 start-50 translate-middle-x">
             <h1 class="m-0 fw-bold text-dark" style="font-size:2rem;">ANTRIAN PENDAFTARAN</h1>
         </div>
 
+
         <!-- Logo BPJS -->
         <div class="d-flex align-items-center">
-            <img alt="Logo BPJS" src="{{ asset('img/bpjs.png') }}" style="height:50px; max-height:12vh;" />
+            <img alt="Logo BPJS" src="{{ asset('img/bpjs.png') }}" style="height:40px; max-height:12vh;" />
         </div>
     </div>
 
@@ -219,9 +238,9 @@
     </div>
 
     <!-- ✅ Running Text -->
-    {{-- <div class="footer-tv">
-        <span>Selamat datang di Rumah Sakit Sehat Selalu | Layanan cepat, nyaman, dan profesional | Terima kasih telah menunggu dengan sabar 🙏</span>
-    </div> --}}
+    <div class="footer-tv">
+        <span>Selamat datang di Rumah Sakit Bumi Waras | Layanan cepat, nyaman, dan profesional | Terima kasih telah menunggu dengan sabar 🙏</span>
+    </div>
 
     <audio id="bell-sound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
     <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
