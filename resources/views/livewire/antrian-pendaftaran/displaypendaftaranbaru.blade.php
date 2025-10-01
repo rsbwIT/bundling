@@ -65,6 +65,18 @@
         .antrian-pasien { font-size: 1.8rem; font-weight: bold; margin-top:.5rem; }
         .antrian-dokter { font-size: 1.1rem; color: #444; margin-top: .3rem; }
 
+        .antrian-pasien {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: .5rem;
+            text-align: center;
+
+            white-space: nowrap;      /* ✅ jangan turun ke baris baru */
+            overflow: hidden;         /* ✅ sembunyikan yang kepanjangan */
+            text-overflow: ellipsis;  /* ✅ kasih "..." di ujung */
+            display: block;
+        }
+
         .antrian-dokter {
             display: inline-block;
             background: #000000; /* biru elegan */
