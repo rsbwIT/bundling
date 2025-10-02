@@ -112,6 +112,7 @@ use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRajal;
 use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\Sep_TTD;
 use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru;
+use App\Http\Controllers\PasienKamarInap\RanapController;
 
 
 
@@ -405,6 +406,15 @@ Route::group(['middleware' => 'default'], function () {
             Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
             Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
             Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
+
+        // kamarinapdr
+
+            Route::get('/kamar-inap-dr', [App\Http\Controllers\PasienKamarInap\KamarInapDr::class, 'index'])
+                ->name('kamarinapdr.index');
+
+            Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
+
+
 
 
 

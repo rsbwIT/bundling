@@ -25,11 +25,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.css" rel="stylesheet"> --}}
-    {{-- <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
 
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 
 
 
@@ -964,6 +964,14 @@
                                     <a href="{{ url('infokamarinap') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar Inap</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('kamar-inap-dr') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rawat Inap DPJP</p>
                                     </a>
                                 </li>
                             </ul>
