@@ -216,11 +216,11 @@ $(document).ready(function() {
                 var toastEl = new bootstrap.Toast(document.getElementById('waToast'));
                 toastEl.show();
                 console.log('WA terkirim:', res);
-            },
-            error: function(err){
-                alert('Gagal mengirim WA!');
-                console.error(err);
             }
+            // error: function(err){
+            //     alert('Gagal mengirim WA!');
+            //     console.error(err);
+            // }
         });
     }
 
