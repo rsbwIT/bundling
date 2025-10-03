@@ -413,6 +413,8 @@ Route::group(['middleware' => 'default'], function () {
                 ->name('kamarinapdr.index');
 
             Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
+            
+
 
 
 

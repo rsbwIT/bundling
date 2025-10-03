@@ -52,12 +52,12 @@
                     </div>
                 </div>
 
-                <!-- Reset, Print, Save, WA Buttons -->
+                <!-- Buttons -->
                 <div class="col-md-6 d-grid gap-2">
                     <button id="resetFilter" class="btn btn-outline-danger">🔄 Reset</button>
                     <button id="printTable" class="btn btn-outline-primary">🖨️ Print</button>
-                    <button id="saveImage" class="btn btn-outline-success">💾 Save as Image</button>
-                    <button id="sendToWA" class="btn btn-outline-warning">📤 Kirim ke WA</button>
+                    <button id="saveImage" class="btn btn-outline-success">💾 Save</button>
+                    <button id="sendToWA" class="btn btn-outline-warning">📤 Kirim WA</button>
                 </div>
 
             </div>
@@ -70,16 +70,16 @@
             <table id="suratRanapTable" class="table table-bordered table-hover table-sm align-middle text-center">
                 <thead class="text-dark bg-white border-bottom fw-bold">
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th style="width: 120px;">No. Rawat</th>
-                        <th style="width: 100px;">No. RM</th>
-                        <th style="min-width: 180px;">Nama Pasien</th>
-                        <th style="min-width: 120px;">Penjamin</th>
-                        <th style="min-width: 120px;">Tanggal Masuk</th>
-                        <th style="width: 100px;">Jam Masuk</th>
-                        <th style="min-width: 180px;">Diagnosa Awal</th>
-                        <th style="min-width: 160px;">Kamar - Bangsal</th>
-                        <th style="min-width: 160px;">Dokter DPJP</th>
+                        <th>No</th>
+                        <th>No. Rawat</th>
+                        <th>No. RM</th>
+                        <th>Nama Pasien</th>
+                        <th>Penjamin</th>
+                        <th>Tanggal Masuk</th>
+                        <th>Jam Masuk</th>
+                        <th>Diagnosa Awal</th>
+                        <th>Kamar - Bangsal</th>
+                        <th>Dokter DPJP</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,17 +111,27 @@
 
 </div>
 
-<!-- DataTables & html2canvas -->
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="waToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">WA berhasil dikirim!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 $(document).ready(function() {
 
-    // ===== DataTable =====
     var table = $('#suratRanapTable').DataTable({
         pageLength: 10,
         lengthMenu: [5,10,25,50],
@@ -134,7 +144,7 @@ $(document).ready(function() {
         }
     });
 
-    // ===== Filter =====
+    // Filter
     $('#searchInput').on('keyup', function(){ table.search(this.value).draw(); });
     $('#dokterFilter').on('change', function(){ table.column(9).search(this.value).draw(); });
     $('#resetFilter').on('click', function(){
@@ -142,72 +152,43 @@ $(document).ready(function() {
         table.search('').columns().search('').draw();
     });
 
-    // ===== Print =====
+    // Print
     $('#printTable').on('click', function(){
+        captureTableAsImage(null, function(){ window.print(); });
+    });
+
+    // Save as Image
+    $('#saveImage').on('click', function(){ captureTableAsImage('Daftar_Pasien_Ranap.png'); });
+
+    // Send WA
+    $('#sendToWA').on('click', function(){ captureTableAsImage(null, sendWA); });
+
+    // Auto send WA every 5 minutes
+    setInterval(function(){ captureTableAsImage(null, sendWA); }, 5 * 60 * 1000);
+
+    // Capture table as image
+    function captureTableAsImage(filename=null, callback=null){
         var currentPage = table.page(); table.page.len(-1).draw();
-        var now = new Date();
-        var tanggal = now.toLocaleDateString('id-ID',{ day:'2-digit', month:'short', year:'numeric' });
-        var jam = now.toLocaleTimeString('id-ID',{ hour:'2-digit', minute:'2-digit' });
-        var tableClone = $('#suratRanapTable').clone();
-        var newWin = window.open('','_blank','width=1200,height=800');
 
-        newWin.document.write(`
-            <html><head><title>Print Pasien Ranap</title>
-            <style>
-                body{font-family:Arial,sans-serif;margin:20px;}
-                table{width:100%;border-collapse:collapse;}
-                th,td{border:1px solid #000;padding:6px;font-size:12px;}
-            </style></head>
-            <body>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                    <h2 style="margin:0;font-size:16pt;">DAFTAR PASIEN RANAP</h2>
-                    <span><strong>Tanggal:</strong>${tanggal} &nbsp;&nbsp; <strong>Jam:</strong>${jam}</span>
-                </div>
-                ${tableClone.prop('outerHTML')}
-            </body></html>
-        `);
-        newWin.document.close(); newWin.print();
-        table.page.len(10).draw(); table.page(currentPage).draw(false);
-    });
+        var dokterNama = $('#dokterFilter').val() || 'Semua Dokter';
+        var pasienCount = table.rows({ filter: 'applied' }).data().length;
 
-    // ===== Save as Image =====
-    $('#saveImage').on('click', function(){
-        captureTableAsImage('Daftar_Pasien_Ranap.png');
-    });
-
-    // ===== Kirim ke WA =====
-    $('#sendToWA').on('click', function(){
-        captureTableAsImage(null, function(imageData){
-            $.ajax({
-                url: "{{ route('ranap.save_wa') }}",
-                method: "POST",
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    image: imageData,
-                    phone: '6289601112787' // ganti nomor WA tujuan
-                },
-                success: function(res){
-                    alert(res.message);
-                },
-                error: function(err){
-                    alert('Gagal mengirim gambar ke WA!');
-                }
-            });
-        });
-    });
-
-    // ===== Function capture table as image =====
-    function captureTableAsImage(filename = null, callback = null){
-        var currentPage = table.page(); table.page.len(-1).draw();
         var now = new Date();
         var tanggal = now.toLocaleDateString('id-ID',{ day:'2-digit', month:'short', year:'numeric' });
         var jam = now.toLocaleTimeString('id-ID',{ hour:'2-digit', minute:'2-digit' });
 
         var container = $('<div>').css({ padding:'20px', fontFamily:'Arial,sans-serif' });
-        var header = $('<div>').css({ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px' });
-        header.append(`<h2 style="margin:0;font-size:16pt;">DAFTAR PASIEN RANAP</h2>`);
-        header.append(`<span><strong>Tanggal:</strong> ${tanggal} &nbsp;&nbsp; <strong>Jam:</strong> ${jam}</span>`);
-        container.append(header);
+        container.append(`
+            <div style="margin-bottom:10px;">
+                <h2 style="margin:0;font-size:16pt;">DAFTAR PASIEN RANAP</h2>
+                <p style="margin:0; font-size:12pt;">
+                    Dokter DPJP: <strong>${dokterNama}</strong> &nbsp;&nbsp;|&nbsp;&nbsp; Jumlah Pasien: <strong>${pasienCount}</strong>
+                </p>
+                <p style="margin:0; font-size:10pt;">
+                    Tanggal: ${tanggal} &nbsp;&nbsp; Jam: ${jam}
+                </p>
+            </div>
+        `);
         container.append($('#suratRanapTable').clone());
         $('body').append(container);
 
@@ -220,7 +201,26 @@ $(document).ready(function() {
             }
             if(callback) callback(canvas.toDataURL('image/png'));
             container.remove();
-            table.page.len(10).draw(); table.page(currentPage).draw(false);
+            table.page.len(10).draw();
+            table.page(currentPage).draw(false);
+        });
+    }
+
+    // Send WA function
+    function sendWA(imageData){
+        $.ajax({
+            url: "{{ route('ranap.save_wa') }}",
+            method: "POST",
+            data: { _token:'{{ csrf_token() }}', image:imageData, phone:'6289601112787' },
+            success: function(res){
+                var toastEl = new bootstrap.Toast(document.getElementById('waToast'));
+                toastEl.show();
+                console.log('WA terkirim:', res);
+            },
+            error: function(err){
+                alert('Gagal mengirim WA!');
+                console.error(err);
+            }
         });
     }
 
