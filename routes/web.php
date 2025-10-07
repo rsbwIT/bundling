@@ -113,18 +113,8 @@ use App\Http\Controllers\SuratBiometrik\Formulir\InputSepBiometrikRanap;
 use App\Http\Controllers\SuratBiometrik\Formulir\Sep_TTD;
 use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru;
 use App\Http\Controllers\PasienKamarInap\RanapController;
-
-
-
-
-
-
-
-
-
-
-
-
+use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
+use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,6 +248,34 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/panggil-farmasi1', [AntrianFarmasi1::class, 'panggilfarmasi']);
 
         Route::get('/tes', [AntrianFarmasi1::class, 'PanggilFarmasi1']);
+
+
+        // FARMASI TERBARU
+
+        Route::get('/farmasi/antrian', PanggilanFarmasiBaru::class)->name('farmasi.antrian');
+        Route::post('/farmasi/antrian/update-status/{nomor}', [PanggilanFarmasiBaru::class, 'updateStatus'])
+                ->name('farmasi.antrian.update-status');
+
+
+
+
+
+
+        Route::get('/display-farmasi', DisplayFarmasiBaru::class)->name('display.farmasi');
+
+
+
+        //display farmasi
+        Route::get('/antrian-farmasi/api-tv', [PanggilanFarmasiBaru::class, 'apiTv'])
+            ->name('antrian.farmasi.data');
+
+        // 📺 Tampilan layar TV untuk display farmasi
+        Route::get('/displayfarmasi', function () {
+            return view('livewire.antrian-farmasi.displayfarmasibaru');
+        })->name('antrian.farmasi.display');
+
+
+
         //DISPLAY
         Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
 
@@ -281,7 +299,7 @@ Route::group(['middleware' => 'default'], function () {
 
         //AntrianFarmasi
         Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
-        Route::get('/display-farmasi', [DisplayController::class, 'index'])->name('display-farmasi');
+        // Route::get('/display-farmasi', [DisplayController::class, 'index'])->name('display-farmasi');
 
         //PasienKamarInap
         Route::get('/rawat-inap', [RawatInap::class, 'RawatInap']);
@@ -413,7 +431,7 @@ Route::group(['middleware' => 'default'], function () {
                 ->name('kamarinapdr.index');
 
             Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
-            
+
 
 
 

@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.css" rel="stylesheet"> --}}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.x/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
 
@@ -805,12 +805,21 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi1') }}" class="nav-link">
+                                    <a href="{{ url('farmasi/antrian') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Panggil & Display</p>
+                                        <p>Panggil Antrian</p>
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('display-farmasi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Display TV</p>
+                                    </a>
+                                </li>
+                            </ul>
+
                             {{-- MENU RM --}}
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}

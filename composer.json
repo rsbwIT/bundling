@@ -22,6 +22,7 @@
         "setasign/fpdi": "^2.4",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/eloquent-sortable": "^4.0",
+        "twilio/sdk": "^8.8",
         "vinkla/hashids": "^10.0",
         "virusphp/bridging-bpjs": "^2.1"
     },
