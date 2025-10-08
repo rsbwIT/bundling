@@ -159,6 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Tambahkan nama khusus yang panjang
         if(pasien.toUpperCase() === 'SUHERNIYATI , SH') return 'Suher Niyati, SH';
         if(pasien.toUpperCase() === 'SATUI') return 'Satui';
+        if(pasien.toUpperCase() === 'NIRLAWATY') return 'Nirla Waty';
         if(pasien.toUpperCase() === 'NG TJONG YONG ALIAS SUJANTO') return 'Ng Tjong Yong alias Sujanto';
         // default
         return pasien.replace(/\s+/g, ' ').replace(/[,\.]/g, '');
