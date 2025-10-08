@@ -95,7 +95,7 @@
                                     <span class="badge {{ $badgeClass }}">{{ $status }}</span>
                                 </td>
                                 <td class="text-center">
-                                    {{-- 🔔 Tombol panggil SELALU MUNCUL --}}
+                                    {{-- 🔔 Tombol panggil --}}
                                     <div class="btn-group mb-1">
                                         <button class="btn btn-call btn-sm dropdown-toggle"
                                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -120,7 +120,7 @@
                                         </ul>
                                     </div>
 
-                                    {{-- ✅ Tombol selesai SELALU MUNCUL --}}
+                                    {{-- ✅ Tombol selesai --}}
                                     <form action="{{ route('antrian.selesai') }}" method="POST"
                                           onsubmit="return confirm('Tandai antrian ini sudah selesai?');"
                                           style="display:inline-block;">
@@ -154,6 +154,16 @@
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
+    function formatNama(pasien) {
+        // Tambahkan nama khusus yang panjang
+        if(pasien.toUpperCase() === 'SUHERNIYATI , SH') return 'Suher Niyati, SH';
+        if(pasien.toUpperCase() === 'SATUI') return 'Satui';
+        if(pasien.toUpperCase() === 'NG TJONG YONG ALIAS SUJANTO') return 'Ng Tjong Yong alias Sujanto';
+        // default
+        return pasien.replace(/\s+/g, ' ').replace(/[,\.]/g, '');
+    }
+
     document.querySelectorAll('.call-form').forEach(function (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -163,11 +173,10 @@ document.addEventListener("DOMContentLoaded", function () {
             let pasien = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
             let dokter = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
-            // Bersihkan spasi ganda atau karakter aneh
-            pasien = pasien.replace(/\s+/g, ' ');
-            dokter = dokter.replace(/\s+/g, ' ');
+            // Format nama khusus agar tidak eja
+            pasien = formatNama(pasien);
+            dokter = dokter.replace(/\s+/g, ' ').replace(/[,\.]/g, '');
 
-            // Pecah teks menjadi bagian-bagian agar tidak putus
             const messages = [
                 `Nomor antrian ${noReg}`,
                 `Pasien ${pasien}`,
@@ -176,16 +185,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             function speakParts(index = 0) {
                 if (index >= messages.length) {
-                    form.submit(); // Submit form setelah semua selesai
+                    form.submit(); // Submit setelah semua selesai
                     return;
                 }
 
-                // Tambahkan jeda 0.5 detik di akhir setiap bagian
-                let textToSpeak = messages[index] + ' .';
-
+                let textToSpeak = messages[index] + ' .'; // jeda kecil
                 responsiveVoice.speak(textToSpeak, "Indonesian Female", {
                     pitch: 1,
-                    rate: 1,
+                    rate: 1, // lebih cepat
                     volume: 1,
                     wordgap: 0,
                     onend: function() {
@@ -199,5 +206,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-
 @endsection
