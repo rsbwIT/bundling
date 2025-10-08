@@ -158,19 +158,43 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const noReg = this.querySelector('input[name="no_reg"]').value;
-            const loket = this.querySelector('input[name="nama_loket"]').value;
-            const pasien = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
-            const dokter = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
+            let noReg = this.querySelector('input[name="no_reg"]').value.trim();
+            let loket = this.querySelector('input[name="nama_loket"]').value.trim();
+            let pasien = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
+            let dokter = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
-            const text = `Nomor antrian ${noReg}, pasien ${pasien}, menuju ${dokter} di ${loket}`;
-            responsiveVoice.speak(text, "Indonesian Female", {
-                pitch: 1,
-                rate: 0.9,
-                volume: 1
-            });
+            // Bersihkan spasi ganda atau karakter aneh
+            pasien = pasien.replace(/\s+/g, ' ');
+            dokter = dokter.replace(/\s+/g, ' ');
 
-            setTimeout(() => this.submit(), 500);
+            // Pecah teks menjadi bagian-bagian agar tidak putus
+            const messages = [
+                `Nomor antrian ${noReg}`,
+                `Pasien ${pasien}`,
+                `Menuju ${dokter} di ${loket}`
+            ];
+
+            function speakParts(index = 0) {
+                if (index >= messages.length) {
+                    form.submit(); // Submit form setelah semua selesai
+                    return;
+                }
+
+                // Tambahkan jeda 0.5 detik di akhir setiap bagian
+                let textToSpeak = messages[index] + ' .';
+
+                responsiveVoice.speak(textToSpeak, "Indonesian Female", {
+                    pitch: 1,
+                    rate: 1,
+                    volume: 1,
+                    wordgap: 0,
+                    onend: function() {
+                        speakParts(index + 1);
+                    }
+                });
+            }
+
+            speakParts();
         });
     });
 });

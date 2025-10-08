@@ -141,40 +141,53 @@ class AntrianPendaftaranBaru extends Controller
     }
 
     /**
-     * 📺 Halaman tampilan TV antrian
-     */
-    public function displayTv()
-    {
-        $antrian = DB::table('loket_pendaftaran as lp')
-            ->select('lp.no_reg', 'lp.status', 'lp.nama_loket', 'lp.nm_pasien', 'lp.nm_dokter')
-            ->whereIn('lp.id', function ($query) {
-                $query->selectRaw('MAX(id)')
-                      ->from('loket_pendaftaran')
-                      ->groupBy('no_reg');
-            })
-            ->orderByRaw("CASE WHEN lp.status = 'DIPANGGIL' THEN 0 ELSE 1 END")
-            ->orderBy('lp.no_reg', 'asc')
-            ->get();
+ * 📺 Halaman tampilan TV antrian
+ */
+public function displayTv()
+{
+    $antrian = DB::table('loket_pendaftaran as lp')
+        ->select('lp.no_reg', 'lp.status', 'lp.nama_loket', 'lp.nm_pasien', 'lp.nm_dokter')
+        ->whereIn('lp.id', function ($query) {
+            $query->selectRaw('MAX(id)')
+                  ->from('loket_pendaftaran')
+                  ->groupBy('no_reg');
+        })
+        ->orderByRaw("
+            CASE
+                WHEN lp.status = 'DIPANGGIL' THEN 0
+                WHEN lp.status = 'MENUNGGU' THEN 1
+                WHEN lp.status = 'SELESAI' THEN 2
+            END ASC
+        ")
+        ->orderBy('lp.updated_at', 'desc') // supaya pasien selesai terakhir muncul paling bawah
+        ->get();
 
-        return view('livewire.antrian-pendaftaran.displaypendaftaranbaru', compact('antrian'));
-    }
+    return view('livewire.antrian-pendaftaran.displaypendaftaranbaru', compact('antrian'));
+}
 
-    /**
-     * 📡 API JSON untuk TV
-     */
-    public function apiTv()
-    {
-        $antrian = DB::table('loket_pendaftaran as lp')
-            ->select('lp.no_reg', 'lp.status', 'lp.nama_loket', 'lp.nm_pasien', 'lp.nm_dokter')
-            ->whereIn('lp.id', function ($query) {
-                $query->selectRaw('MAX(id)')
-                      ->from('loket_pendaftaran')
-                      ->groupBy('no_reg');
-            })
-            ->orderByRaw("CASE WHEN lp.status = 'DIPANGGIL' THEN 0 ELSE 1 END")
-            ->orderBy('lp.no_reg', 'asc')
-            ->get();
+/**
+ * 📡 API JSON untuk TV
+ */
+public function apiTv()
+{
+    $antrian = DB::table('loket_pendaftaran as lp')
+        ->select('lp.no_reg', 'lp.status', 'lp.nama_loket', 'lp.nm_pasien', 'lp.nm_dokter')
+        ->whereIn('lp.id', function ($query) {
+            $query->selectRaw('MAX(id)')
+                  ->from('loket_pendaftaran')
+                  ->groupBy('no_reg');
+        })
+        ->orderByRaw("
+            CASE
+                WHEN lp.status = 'DIPANGGIL' THEN 0
+                WHEN lp.status = 'MENUNGGU' THEN 1
+                WHEN lp.status = 'SELESAI' THEN 2
+            END ASC
+        ")
+        ->orderBy('lp.updated_at', 'desc')
+        ->get();
 
-        return response()->json($antrian);
-    }
+    return response()->json($antrian);
+}
+
 }
