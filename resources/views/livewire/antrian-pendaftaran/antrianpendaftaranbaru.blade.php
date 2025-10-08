@@ -156,13 +156,32 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     function formatNama(pasien) {
-        // Tambahkan nama khusus yang panjang
-        if(pasien.toUpperCase() === 'SUHERNIYATI , SH') return 'Suher Niyati, SH';
-        if(pasien.toUpperCase() === 'SATUI') return 'Satui';
-        if(pasien.toUpperCase() === 'NIRLAWATY') return 'Nirla Waty';
-        if(pasien.toUpperCase() === 'NG TJONG YONG ALIAS SUJANTO') return 'Ng Tjong Yong alias Sujanto';
-        // default
-        return pasien.replace(/\s+/g, ' ').replace(/[,\.]/g, '');
+        pasien = pasien.trim();
+
+        // Nama khusus -> langsung return pelafalan yang benar
+        const khusus = {
+            "SUHERNIYATI , SH": "Suher Niyati SH",
+            "SATUI": "Satui",
+            "NIRLAWATY": "Nirla Waty",
+            "NG TJONG YONG ALIAS SUJANTO": "Ng Tjong Yong alias Sujanto"
+        };
+        if (khusus[pasien.toUpperCase()]) {
+            return khusus[pasien.toUpperCase()];
+        }
+
+        // 🧠 Perbaiki nama umum agar tidak dieja:
+        // - jadi huruf kecil semua
+        // - kapital di awal kata
+        // - hapus koma dan titik
+        pasien = pasien
+            .toLowerCase()
+            .replace(/[,\.]/g, '')
+            .split(' ')
+            .filter(Boolean)
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+
+        return pasien;
     }
 
     document.querySelectorAll('.call-form').forEach(function (form) {
@@ -174,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let pasien = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
             let dokter = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
-            // Format nama khusus agar tidak eja
+            // ✅ Format nama supaya tidak dieja
             pasien = formatNama(pasien);
             dokter = dokter.replace(/\s+/g, ' ').replace(/[,\.]/g, '');
 
@@ -186,14 +205,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             function speakParts(index = 0) {
                 if (index >= messages.length) {
-                    form.submit(); // Submit setelah semua selesai
+                    form.submit();
                     return;
                 }
 
-                let textToSpeak = messages[index] + ' .'; // jeda kecil
+                let textToSpeak = messages[index] + ' .';
                 responsiveVoice.speak(textToSpeak, "Indonesian Female", {
                     pitch: 1,
-                    rate: 1, // lebih cepat
+                    rate: 1,
                     volume: 1,
                     wordgap: 0,
                     onend: function() {
@@ -207,4 +226,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
 @endsection
