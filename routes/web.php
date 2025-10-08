@@ -424,6 +424,8 @@ Route::group(['middleware' => 'default'], function () {
             Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
             Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
             Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
+            Route::post('/antrian/selesai', [AntrianPendaftaranBaru::class, 'selesai'])->name('antrian.selesai');
+
 
         // kamarinapdr
 

@@ -80,7 +80,11 @@
                         @forelse ($antrian ?? [] as $item)
                             @php
                                 $status = $item->status ?? 'MENUNGGU';
-                                $badgeClass = $status === 'DIPANGGIL' ? 'bg-success' : 'bg-warning text-dark';
+                                $badgeClass = match($status) {
+                                    'DIPANGGIL' => 'bg-success',
+                                    'SELESAI'   => 'bg-secondary',
+                                    default     => 'bg-warning text-dark'
+                                };
                             @endphp
                             <tr>
                                 <td class="text-center fw-semibold">{{ $item->no_reg }}</td>
@@ -91,39 +95,47 @@
                                     <span class="badge {{ $badgeClass }}">{{ $status }}</span>
                                 </td>
                                 <td class="text-center">
-                                    @if($status !== 'DIPANGGIL')
-                                        {{-- 🔔 Dropdown Loket --}}
-                                        <div class="btn-group">
-                                            <button class="btn btn-call btn-sm dropdown-toggle"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-bullhorn"></i> Panggil
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                @for ($i = 1; $i <= 7; $i++)
-                                                    <li>
-                                                        <form action="{{ route('antrian.update-status') }}"
-                                                              method="POST" class="px-3 py-1 call-form">
-                                                            @csrf
-                                                            <input type="hidden" name="no_reg" value="{{ $item->no_reg }}">
-                                                            <input type="hidden" name="nama_loket" value="Loket {{ $i }}">
-                                                            <input type="hidden" name="nm_pasien" value="{{ $item->nm_pasien }}">
-                                                            <input type="hidden" name="nm_dokter" value="{{ $item->nm_dokter }}">
-                                                            <button type="submit" class="dropdown-item">
-                                                                Loket {{ $i }}
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                @endfor
-                                            </ul>
-                                        </div>
-                                    @else
-                                        <span class="text-muted small">✔️ Sudah dipanggil</span>
-                                    @endif
+                                    {{-- 🔔 Tombol panggil SELALU MUNCUL --}}
+                                    <div class="btn-group mb-1">
+                                        <button class="btn btn-call btn-sm dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-bullhorn"></i> Panggil
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            @for ($i = 1; $i <= 7; $i++)
+                                                <li>
+                                                    <form action="{{ route('antrian.update-status') }}"
+                                                          method="POST" class="px-3 py-1 call-form">
+                                                        @csrf
+                                                        <input type="hidden" name="no_reg" value="{{ $item->no_reg }}">
+                                                        <input type="hidden" name="nama_loket" value="Loket {{ $i }}">
+                                                        <input type="hidden" name="nm_pasien" value="{{ $item->nm_pasien }}">
+                                                        <input type="hidden" name="nm_dokter" value="{{ $item->nm_dokter }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            Loket {{ $i }}
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endfor
+                                        </ul>
+                                    </div>
+
+                                    {{-- ✅ Tombol selesai SELALU MUNCUL --}}
+                                    <form action="{{ route('antrian.selesai') }}" method="POST"
+                                          onsubmit="return confirm('Tandai antrian ini sudah selesai?');"
+                                          style="display:inline-block;">
+                                        @csrf
+                                        <input type="hidden" name="no_reg" value="{{ $item->no_reg }}">
+                                        <button type="submit"
+                                            class="btn btn-outline-success btn-sm {{ $status === 'SELESAI' ? 'disabled' : '' }}">
+                                            <i class="fas fa-check-circle"></i> Selesai
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="6" class="text-center text-muted py-4">
                                     Tidak ada antrian untuk dokter ini.
                                 </td>
                             </tr>
@@ -138,7 +150,7 @@
 {{-- ✅ Bootstrap JS --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-{{-- ✅ Suara Panggilan Lengkap --}}
+{{-- 🔊 Suara panggilan --}}
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -146,13 +158,11 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Ambil data dari tabel
             const noReg = this.querySelector('input[name="no_reg"]').value;
             const loket = this.querySelector('input[name="nama_loket"]').value;
             const pasien = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
             const dokter = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
-            // 🔊 Suara panggilan
             const text = `Nomor antrian ${noReg}, pasien ${pasien}, menuju ${dokter} di ${loket}`;
             responsiveVoice.speak(text, "Indonesian Female", {
                 pitch: 1,
@@ -160,7 +170,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 volume: 1
             });
 
-            // Submit form setelah delay
             setTimeout(() => this.submit(), 500);
         });
     });
@@ -168,5 +177,3 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 @endsection
-
-

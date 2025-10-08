@@ -246,96 +246,105 @@
     <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
     <script>
-        let lastDipanggil = {};
-        const loketFix = ["Loket 1","Loket 2","Loket 3","Loket 4","Loket 5","Loket 6","Loket 7"];
+    let lastDipanggil = {};
+    const loketFix = ["Loket 1","Loket 2","Loket 3","Loket 4","Loket 5","Loket 6","Loket 7"];
 
-        // ambil loket yang aktif dari checkbox
-        function getActiveLokets() {
-            let aktif = [];
-            document.querySelectorAll(".toggle-loket:checked").forEach(cb => aktif.push(cb.value));
-            return aktif;
-        }
+    // ambil loket yang aktif dari checkbox
+    function getActiveLokets() {
+        let aktif = [];
+        document.querySelectorAll(".toggle-loket:checked").forEach(cb => aktif.push(cb.value));
+        return aktif;
+    }
 
-        function renderAntrian(data) {
-            let container = document.getElementById("antrian-container");
-            container.innerHTML = "";
+    function renderAntrian(data) {
+        let container = document.getElementById("antrian-container");
+        container.innerHTML = "";
 
-            // grupkan data
-            let grouped = {};
-            data.forEach(item => {
-                if (!grouped[item.nama_loket]) grouped[item.nama_loket] = [];
-                grouped[item.nama_loket].push(item);
-            });
-
-            // gabungkan dengan loket fix
-            loketFix.forEach(loket => { if (!grouped[loket]) grouped[loket] = []; });
-
-            // filter hanya yang aktif
-            let lokets = Object.keys(grouped).filter(l => getActiveLokets().includes(l)).sort();
-
-            lokets.forEach(loket => {
-                let col = document.createElement("div");
-                col.className = "col-md-4 col-sm-6";
-
-                let card = document.createElement("div");
-                card.className = "loket-card";
-
-                let title = document.createElement("div");
-                title.className = "loket-title";
-                title.innerText = loket.toUpperCase();
-
-                let content = document.createElement("div");
-
-                if (grouped[loket].length === 0) {
-                    content.innerHTML = `<div class="text-muted"><i class="fas fa-user-clock"></i> BELUM ADA ANTRIAN</div>`;
-                } else {
-                    let dipanggil = grouped[loket].find(item => item.status === "DIPANGGIL");
-                    let pasien = dipanggil ? dipanggil : grouped[loket][0];
-
-                    content.innerHTML = `
-                        <div class="slide-item ${pasien.status === "DIPANGGIL" ? "highlight" : ""}">
-                            <div class="antrian-no">${pasien.no_reg}</div>
-                            <div class="antrian-pasien">${pasien.nm_pasien.toUpperCase()}</div>
-                            <div class="antrian-dokter"><i class="fas fa-user-md"></i> ${pasien.nm_dokter.toUpperCase()}</div>
-                            <div class="mt-3"><span class="badge bg-dark text-white fs-6">${pasien.status}</span></div>
-                        </div>
-                    `;
-
-                    if (pasien.status === "DIPANGGIL") {
-                        let pasienDipanggil = pasien.nm_pasien.toUpperCase();
-                        if (lastDipanggil[loket] !== pasienDipanggil) {
-                            lastDipanggil[loket] = pasienDipanggil;
-                            let bell = document.getElementById("bell-sound");
-                            bell.play().then(() => {
-                                setTimeout(() => {
-                                    const text = `Nomor antrian ${pasien.no_reg}, pasien ${pasien.nm_pasien}, menuju ${pasien.nm_dokter} di ${loket}`;
-                                    responsiveVoice.speak(text, "Indonesian Female",{pitch:1,rate:0.9,volume:1});
-                                }, 1000);
-                            }).catch(err => console.log("Autoplay blok:", err));
-                        }
-                    }
-                }
-
-                card.appendChild(title);
-                card.appendChild(content);
-                col.appendChild(card);
-                container.appendChild(col);
-            });
-        }
-
-        function fetchAntrian() {
-            fetch("{{ route('antrian.apiTv') }}")
-                .then(res => res.json())
-                .then(data => renderAntrian(data))
-                .catch(err => console.error("Gagal ambil data:", err));
-        }
-
-        // reload ketika toggle berubah
-        document.querySelectorAll(".toggle-loket").forEach(cb => {
-            cb.addEventListener("change", fetchAntrian);
+        // grupkan data berdasarkan nama_loket
+        let grouped = {};
+        data.forEach(item => {
+            const loketKey = item.nama_loket.trim();
+            if (!grouped[loketKey]) grouped[loketKey] = [];
+            grouped[loketKey].push(item);
         });
 
+        // gabungkan dengan loket fix agar semua loket muncul
+        loketFix.forEach(loket => { if (!grouped[loket]) grouped[loket] = []; });
+
+        // filter hanya yang aktif dari checkbox (case insensitive)
+        let aktifLower = getActiveLokets().map(l => l.toLowerCase());
+        let lokets = Object.keys(grouped).filter(l => aktifLower.includes(l.toLowerCase())).sort();
+
+        lokets.forEach(loket => {
+            let col = document.createElement("div");
+            col.className = "col-md-4 col-sm-6";
+
+            let card = document.createElement("div");
+            card.className = "loket-card";
+
+            let title = document.createElement("div");
+            title.className = "loket-title";
+            title.innerText = loket.toUpperCase();
+
+            let content = document.createElement("div");
+
+            if (grouped[loket].length === 0) {
+                content.innerHTML = `<div class="text-muted"><i class="fas fa-user-clock"></i> BELUM ADA ANTRIAN</div>`;
+            } else {
+                // ambil pasien yang DIPANGGIL, kalau tidak ada ambil pasien pertama
+                let dipanggil = grouped[loket].find(item => item.status.toUpperCase() === "DIPANGGIL");
+                let pasien = dipanggil ? dipanggil : grouped[loket][0];
+
+                content.innerHTML = `
+                    <div class="slide-item ${pasien.status.toUpperCase() === "DIPANGGIL" ? "highlight" : ""}">
+                        <div class="antrian-no">${pasien.no_reg}</div>
+                        <div class="antrian-pasien">${pasien.nm_pasien.toUpperCase()}</div>
+                        <div class="antrian-dokter"><i class="fas fa-user-md"></i> ${pasien.nm_dokter.toUpperCase()}</div>
+                        <div class="mt-3"><span class="badge bg-dark text-white fs-6">${pasien.status.toUpperCase()}</span></div>
+                    </div>
+                `;
+
+                // mainkan bell & suara hanya kalau pasien DIPANGGIL baru
+                if (pasien.status.toUpperCase() === "DIPANGGIL") {
+                    let pasienDipanggil = pasien.nm_pasien.toUpperCase();
+                    if (lastDipanggil[loket] !== pasienDipanggil) {
+                        lastDipanggil[loket] = pasienDipanggil;
+                        let bell = document.getElementById("bell-sound");
+                        bell.play().then(() => {
+                            setTimeout(() => {
+                                const text = `Nomor antrian ${pasien.no_reg}, pasien ${pasien.nm_pasien}, menuju ${pasien.nm_dokter} di ${loket}`;
+                                responsiveVoice.speak(text, "Indonesian Female", {pitch:1, rate:0.9, volume:1});
+                            }, 1000);
+                        }).catch(err => console.log("Autoplay blok:", err));
+                    }
+                }
+            }
+
+            card.appendChild(title);
+            card.appendChild(content);
+            col.appendChild(card);
+            container.appendChild(col);
+        });
+    }
+
+    function fetchAntrian() {
+        fetch("{{ route('antrian.apiTv') }}")
+            .then(res => res.json())
+            .then(data => {
+                console.log("Data antrian API:", data); // debug
+                renderAntrian(data);
+            })
+            .catch(err => console.error("Gagal ambil data:", err));
+    }
+
+    // reload ketika toggle berubah
+    document.querySelectorAll(".toggle-loket").forEach(cb => {
+        cb.addEventListener("change", fetchAntrian);
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
         fetchAntrian();
-        setInterval(fetchAntrian, 10000);
-    </script>
+        setInterval(fetchAntrian, 5000); // update tiap 5 detik
+    });
+</script>
 </div>
