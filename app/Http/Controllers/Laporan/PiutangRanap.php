@@ -24,44 +24,94 @@ class PiutangRanap extends Controller
         $status = ($request->statusLunas == "Lunas") ? "Lunas" : (($request->statusLunas == "Belum Lunas") ? "Belum Lunas" : "");
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
 
+
+        // qwery lama berdasarkan tanggal pulang
+
+
+        // $piutangRanap = DB::table('kamar_inap')
+        //     ->select(
+        //         'kamar_inap.no_rawat',
+        //         'reg_periksa.no_rkm_medis',
+        //         'pasien.nm_pasien',
+        //         'kamar_inap.tgl_keluar',
+        //         'penjab.png_jawab',
+        //         'kamar_inap.stts_pulang',
+        //         'kamar.kd_kamar',
+        //         'bangsal.nm_bangsal',
+        //         'piutang_pasien.uangmuka',
+        //         'piutang_pasien.totalpiutang',
+        //         'reg_periksa.status_lanjut'
+        //     )
+        //     ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+        //     ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        //     ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        //     ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+        //     ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+        //     ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        //     ->whereBetween('kamar_inap.tgl_keluar', [$tanggl1, $tanggl2])
+        //     ->where(function ($query) use ($status, $kdPenjamin) {
+        //         if ($status) {
+        //             $query->where('piutang_pasien.status', $status);
+        //         }
+        //         if ($kdPenjamin) {
+        //             $query->whereIn('penjab.kd_pj', $kdPenjamin);
+        //         }
+        //     })
+        //     ->where(function ($query) use ($cariNomor) {
+        //         $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+        //         $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+        //         $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+        //     })
+        //     ->orderBy('kamar_inap.tgl_keluar')
+        //     ->orderBy('kamar_inap.jam_keluar')
+        //     ->groupBy('kamar_inap.no_rawat')
+        //     ->get();
+
+        //qwery baru
+
         $piutangRanap = DB::table('kamar_inap')
-            ->select(
-                'kamar_inap.no_rawat',
-                'reg_periksa.no_rkm_medis',
-                'pasien.nm_pasien',
-                'kamar_inap.tgl_keluar',
-                'penjab.png_jawab',
-                'kamar_inap.stts_pulang',
-                'kamar.kd_kamar',
-                'bangsal.nm_bangsal',
-                'piutang_pasien.uangmuka',
-                'piutang_pasien.totalpiutang',
-                'reg_periksa.status_lanjut'
-            )
-            ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-            ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
-            ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->whereBetween('kamar_inap.tgl_keluar', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($status, $kdPenjamin) {
-                if ($status) {
-                    $query->where('piutang_pasien.status', $status);
-                }
-                if ($kdPenjamin) {
-                    $query->whereIn('penjab.kd_pj', $kdPenjamin);
-                }
-            })
-            ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-            })
-            ->orderBy('kamar_inap.tgl_keluar')
-            ->orderBy('kamar_inap.jam_keluar')
-            ->groupBy('kamar_inap.no_rawat')
-            ->get();
+                ->select(
+                    'kamar_inap.no_rawat',
+                    'reg_periksa.no_rkm_medis',
+                    'pasien.nm_pasien',
+                    'kamar_inap.tgl_keluar',
+                    'penjab.png_jawab',
+                    'kamar_inap.stts_pulang',
+                    'kamar.kd_kamar',
+                    'bangsal.nm_bangsal',
+                    'piutang_pasien.uangmuka',
+                    'piutang_pasien.totalpiutang',
+                    'reg_periksa.status_lanjut'
+                )
+                ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+                ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+                ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat') // 🔹 Tambahkan join billing
+                ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2]) // 🔹 Ganti filter tanggal
+                ->where(function ($query) use ($status, $kdPenjamin) {
+                    if ($status) {
+                        $query->where('piutang_pasien.status', $status);
+                    }
+                    if ($kdPenjamin) {
+                        $query->whereIn('penjab.kd_pj', $kdPenjamin);
+                    }
+                })
+                ->where(function ($query) use ($cariNomor) {
+                    $query->where(function ($sub) use ($cariNomor) {
+                        $sub->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                            ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                            ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                    });
+                })
+                ->orderBy('billing.tgl_byr') // 🔹 Urutkan berdasarkan tanggal cetak billing
+                ->orderBy('kamar_inap.jam_keluar')
+                ->groupBy('kamar_inap.no_rawat')
+                ->get();
+
+
         $piutangRanap->map(function ($item) {
             // NOMOR SEP
             $item->getNoSep = DB::table('bridging_sep')
