@@ -8,7 +8,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-    body { background:#f4f4f4; }
+    body { background:#f4f4f4; overflow-anchor: none; }
     .card-header {
         background: linear-gradient(135deg,#0d6efd,#0a58ca);
         color:#fff;font-weight:600;border-bottom:none;
@@ -83,7 +83,7 @@
             </div>
 
             <!-- Table -->
-            <div class="table-responsive">
+            <div class="table-responsive" id="tableAntrian">
                 <table class="table table-hover align-middle shadow-sm">
                     <thead class="text-center">
                         <tr>
@@ -98,7 +98,7 @@
                     </thead>
                     <tbody>
                         @forelse($antrians as $a)
-                        <tr>
+                        <tr id="row-{{ $a->nomor_antrian }}">
                             <td class="fw-bold text-primary text-center">{{ $a->nomor_antrian }}</td>
                             <td>{{ $a->nama_pasien }}</td>
                             <td>{{ $a->tanggal }}</td>
@@ -112,7 +112,7 @@
                                 @endif
                             </td>
                             <td>{{ $a->nm_dokter }}</td>
-                           <td class="text-center">
+                            <td class="text-center status-cell">
                                 @if($a->status == 'MENUNGGU')
                                     <span class="badge bg-warning text-dark">MENUNGGU</span>
                                 @elseif($a->status == 'SELESAI')
@@ -128,35 +128,22 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-1">
                                     <!-- Tombol Panggil -->
-                                    <form method="POST" action="{{ route('farmasi.antrian.update-status', $a->nomor_antrian) }}" class="form-panggil">
-                                        @csrf
-                                        <input type="hidden" name="status" value="DIPANGGIL">
-                                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                                        <button type="button" class="btn btn-sm btn-call btn-panggil"
-                                            data-nomor="{{ $a->nomor_antrian }}"
-                                            data-pasien="{{ $a->nama_pasien }}"
-                                            data-dokter="{{ $a->nm_dokter }}"
-                                            data-keterangan="{{ $a->keterangan }}">
-                                            <i class="fas fa-volume-up"></i> Panggil
-                                        </button>
-                                    </form>
-
+                                    <button type="button"
+                                        class="btn btn-sm btn-call btn-panggil"
+                                        data-nomor="{{ $a->nomor_antrian }}"
+                                        data-pasien="{{ $a->nama_pasien }}"
+                                        data-dokter="{{ $a->nm_dokter }}"
+                                        data-keterangan="{{ $a->keterangan }}">
+                                        <i class="fas fa-volume-up"></i> Panggil
+                                    </button>
 
                                     <!-- Tombol Ada -->
-                                    <form method="POST" action="{{ route('farmasi.antrian.update-status', $a->nomor_antrian) }}">
-                                        @csrf
-                                        <input type="hidden" name="status" value="SELESAI">
-                                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                                        <button type="submit" class="btn btn-sm btn-primary">Ada</button>
-                                    </form>
+                                    <button type="button" class="btn btn-sm btn-primary btn-update"
+                                        data-status="SELESAI" data-nomor="{{ $a->nomor_antrian }}">Ada</button>
 
                                     <!-- Tombol Tidak Ada -->
-                                    <form method="POST" action="{{ route('farmasi.antrian.update-status', $a->nomor_antrian) }}">
-                                        @csrf
-                                        <input type="hidden" name="status" value="TIDAK ADA">
-                                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                                        <button type="submit" class="btn btn-sm btn-danger">Tidak Ada</button>
-                                    </form>
+                                    <button type="button" class="btn btn-sm btn-danger btn-update"
+                                        data-status="TIDAK ADA" data-nomor="{{ $a->nomor_antrian }}">Tidak Ada</button>
                                 </div>
                             </td>
                         </tr>
@@ -174,31 +161,66 @@
 
 </div>
 
-{{-- ✅ JS untuk suara panggilan --}}
+{{-- ✅ JS untuk suara panggilan + update tanpa reload --}}
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".btn-panggil").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-            let nomor = this.getAttribute("data-nomor");
-            let pasien = this.getAttribute("data-pasien");
-            let dokter = this.getAttribute("data-dokter");
-            let keterangan = this.getAttribute("data-keterangan");
 
-            // Jika keterangan RACIK, jangan panggil suara
+    // ✅ Fungsi panggil suara
+    document.querySelectorAll(".btn-panggil").forEach(btn => {
+        btn.addEventListener("click", function() {
+            let nomor = this.dataset.nomor;
+            let pasien = this.dataset.pasien;
+            let keterangan = this.dataset.keterangan;
+
+            let namaPasien = pasien
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .split(' ')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+
+            let text = `Nomor antrian, ${nomor}. Pasien ${namaPasien}. Menuju loket ${keterangan}.`;
+
             if (keterangan.toUpperCase() !== 'RACIK') {
-                let text = `Nomor antrian ${nomor}, pasien ${pasien}, menuju loket ${keterangan}`;
-                responsiveVoice.speak(text, "Indonesian Female", {
-                    pitch: 1,
-                    rate: 0.9,
-                    volume: 1
-                });
+                responsiveVoice.speak(text, "Indonesian Female", { pitch: 1, rate: 0.9, volume: 1 });
             }
 
-            // Submit form untuk update status PANGGIL
-            this.closest('form').submit();
+            setTimeout(() => {
+                updateStatus(nomor, "DIPANGGIL");
+            }, 3500);
         });
     });
+
+    // ✅ Fungsi update status tanpa reload
+    document.querySelectorAll(".btn-update").forEach(btn => {
+        btn.addEventListener("click", function() {
+            updateStatus(this.dataset.nomor, this.dataset.status);
+        });
+    });
+
+    function updateStatus(nomor, status) {
+        fetch(`{{ url('/farmasi/antrian/update-status') }}/${nomor}`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ status: status, tanggal: "{{ $tanggal }}" })
+        })
+        .then(res => res.ok ? res.text() : Promise.reject(res))
+        .then(() => {
+            const row = document.getElementById(`row-${nomor}`);
+            if (!row) return;
+            let cell = row.querySelector(".status-cell");
+            if (status === "SELESAI") cell.innerHTML = '<span class="badge bg-success">SELESAI</span>';
+            else if (status === "TIDAK ADA") cell.innerHTML = '<span class="badge bg-danger">TIDAK ADA</span>';
+            else if (status === "DIPANGGIL") cell.innerHTML = '<span class="badge bg-info text-dark">PANGGIL</span>';
+            else cell.innerHTML = '<span class="badge bg-warning text-dark">MENUNGGU</span>';
+        })
+        .catch(err => console.error(err));
+    }
 });
 </script>
+
 @endsection
