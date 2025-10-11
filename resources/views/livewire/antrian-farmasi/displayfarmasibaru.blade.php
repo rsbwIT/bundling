@@ -10,7 +10,6 @@
             padding-top: 130px;
         }
 
-        /* Header */
         .header-bar {
             background: #fff;
             display: flex;
@@ -32,7 +31,6 @@
             letter-spacing: 1px;
         }
 
-        /* Grid Container */
         .container-antrian {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -41,7 +39,6 @@
             align-items: start;
         }
 
-        /* Kartu Antrian */
         .loket-card {
             background: #ffffff;
             border-radius: 20px;
@@ -70,7 +67,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Status Styles */
         .status-dipanggil {
             background: #00796b;
             color: #fff;
@@ -86,7 +82,6 @@
             padding: 1.5rem;
         }
 
-        /* Nomor & Nama */
         .antrian-no {
             font-size: 5rem;
             font-weight: 800;
@@ -102,7 +97,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Empty state (tetap keren & tidak abu-abu) */
         .empty {
             border: 2px dashed #00796b;
             background: rgba(0, 121, 107, 0.05);
@@ -126,7 +120,6 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 121, 107, 0); }
         }
 
-        /* Footer */
         .footer-tv {
             background: #004d40;
             color: #fff;
@@ -161,18 +154,21 @@
         <img src="{{ asset('img/bpjs.png') }}" alt="Logo BPJS" style="height:40px;">
     </div>
 
-    <!-- Antrian -->
+    <!-- Container Antrian -->
     <div class="container-antrian">
-        @php $kelompok = $antrians->groupBy('keterangan'); @endphp
+        @php
+            $kelompok = collect(['NON RACIK', 'RACIKAN']);
+        @endphp
 
-        @forelse($kelompok as $keterangan => $daftar)
+        @foreach($kelompok as $jenis)
+            @php
+                $daftar = $antrians->where('keterangan', $jenis);
+                $dipanggil = $daftar->where('status','DIPANGGIL')->first();
+                $menunggu = $daftar->where('status','MENUNGGU')->first();
+            @endphp
+
             <div class="loket-card">
-                <div class="loket-title">{{ strtoupper($keterangan) }}</div>
-
-                @php
-                    $dipanggil = $daftar->where('status','DIPANGGIL')->first();
-                    $menunggu = $daftar->where('status','MENUNGGU')->first();
-                @endphp
+                <div class="loket-title">{{ strtoupper($jenis) }}</div>
 
                 @if($dipanggil)
                     <div class="status-dipanggil">
@@ -191,9 +187,7 @@
                     </div>
                 @endif
             </div>
-        @empty
-            <div class="text-center text-muted fs-4 mt-5">Tidak ada data antrian hari ini.</div>
-        @endforelse
+        @endforeach
     </div>
 
     <!-- Footer -->
