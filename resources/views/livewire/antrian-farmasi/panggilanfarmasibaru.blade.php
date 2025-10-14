@@ -8,25 +8,97 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-    body { background:#f4f4f4; overflow-anchor: none; }
+    body {
+        background: #f4f4f4;
+        overflow-anchor: none;
+        font-family: "Poppins", sans-serif;
+    }
+
     .card-header {
-        background: linear-gradient(135deg,#0d6efd,#0a58ca);
-        color:#fff;font-weight:600;border-bottom:none;
-        padding:1rem 1.25rem;border-radius:.5rem .5rem 0 0;
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: #fff;
+        font-weight: 600;
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+        border-radius: .5rem .5rem 0 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
     }
+
     .filter-section {
-        background:#f8f9fa;padding:1rem;border-radius:.5rem;
-        margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.08);
+        background: #ffffff;
+        padding: 1rem;
+        border-radius: .75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
     }
+
     .table thead th {
-        background:#f1f3f5;color:#495057;text-transform:uppercase;
-        font-size:.85rem;
+        background: #f1f3f5;
+        color: #495057;
+        text-transform: uppercase;
+        font-size: .85rem;
     }
+
+    /* 🔹 Tombol elastis dan lembut */
+    .btn {
+        border: none;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+        padding: 0.4rem 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .25rem;
+    }
+
+    .btn i {
+        font-size: .85rem;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
+    }
+
+    .btn:active {
+        transform: scale(0.97);
+    }
+
     .btn-call {
-        background: linear-gradient(135deg,#198754,#157347);
-        color:#fff;border:none;
+        background: linear-gradient(135deg, #198754, #157347);
+        color: #fff;
     }
-    .btn-call:hover { background:#157347; }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        color: #fff;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #bb2d3b);
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268, #4e555b);
+    }
+
+    .badge {
+        font-size: .8rem;
+        border-radius: .4rem;
+        padding: .35em .6em;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s;
+    }
 </style>
 
 <div class="container-fluid px-4 py-4">
@@ -43,7 +115,6 @@
             <!-- Filter -->
             <div class="filter-section">
                 <form method="GET" action="{{ route('farmasi.antrian') }}" class="row g-3">
-
                     <div class="col-md-3">
                         <label for="keterangan" class="form-label fw-bold">Keterangan</label>
                         <select id="keterangan" name="keterangan" class="form-select">
@@ -126,8 +197,7 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <div class="d-flex justify-content-center gap-1">
-                                    <!-- Tombol Panggil -->
+                                <div class="d-flex flex-wrap justify-content-center gap-2">
                                     <button type="button"
                                         class="btn btn-sm btn-call btn-panggil"
                                         data-nomor="{{ $a->nomor_antrian }}"
@@ -137,18 +207,19 @@
                                         <i class="fas fa-volume-up"></i> Panggil
                                     </button>
 
-                                    <!-- Tombol Ada -->
                                     <button type="button" class="btn btn-sm btn-primary btn-update"
-                                        data-status="SELESAI" data-nomor="{{ $a->nomor_antrian }}">Ada</button>
+                                        data-status="SELESAI" data-nomor="{{ $a->nomor_antrian }}">
+                                        <i class="fas fa-check"></i> Ada
+                                    </button>
 
-                                    <!-- Tombol Tidak Ada -->
                                     <button type="button" class="btn btn-sm btn-danger btn-update"
-                                        data-status="TIDAK ADA" data-nomor="{{ $a->nomor_antrian }}">Tidak Ada</button>
+                                        data-status="TIDAK ADA" data-nomor="{{ $a->nomor_antrian }}">
+                                        <i class="fas fa-times"></i> Tidak Ada
+                                    </button>
 
-                                    <!-- ✅ Tombol Print Nomor Antrian -->
                                     <button type="button" class="btn btn-sm btn-secondary btn-print"
                                         data-nomor="{{ $a->nomor_antrian }}">
-                                        <i class="fas fa-print"></i> Print
+                                        <i class="fas fa-print"></i> Cetak
                                     </button>
                                 </div>
                             </td>
@@ -161,18 +232,16 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-
 </div>
 
-{{-- ✅ JS untuk suara panggilan + update tanpa reload --}}
+{{-- ✅ JS --}}
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    // ✅ Fungsi panggil suara
+    // ✅ Panggilan suara
     document.querySelectorAll(".btn-panggil").forEach(btn => {
         btn.addEventListener("click", function() {
             let nomor = this.dataset.nomor;
@@ -192,13 +261,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 responsiveVoice.speak(text, "Indonesian Female", { pitch: 1, rate: 0.9, volume: 1 });
             }
 
-            setTimeout(() => {
-                updateStatus(nomor, "DIPANGGIL");
-            }, 3500);
+            setTimeout(() => updateStatus(nomor, "DIPANGGIL"), 3500);
         });
     });
 
-    // ✅ Fungsi update status tanpa reload
+    // ✅ Update status
     document.querySelectorAll(".btn-update").forEach(btn => {
         btn.addEventListener("click", function() {
             updateStatus(this.dataset.nomor, this.dataset.status);
@@ -227,15 +294,13 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(err => console.error(err));
     }
 
-    // ✅ Fungsi Print Nomor Antrian → buka halaman cetak tanpa IP
+    // ✅ Cetak antrian tanpa IP
     document.querySelectorAll(".btn-print").forEach(btn => {
         btn.addEventListener("click", function() {
             let nomor = this.dataset.nomor;
-            // 🔗 Gunakan path relatif Laravel (tanpa http://192.168.20.196)
             window.open(`/antrian-farmasi/cetak/${nomor}`, "_blank");
         });
     });
 });
 </script>
-
 @endsection
