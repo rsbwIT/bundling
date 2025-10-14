@@ -144,6 +144,12 @@
                                     <!-- Tombol Tidak Ada -->
                                     <button type="button" class="btn btn-sm btn-danger btn-update"
                                         data-status="TIDAK ADA" data-nomor="{{ $a->nomor_antrian }}">Tidak Ada</button>
+
+                                    <!-- ✅ Tombol Print Nomor Antrian -->
+                                    <button type="button" class="btn btn-sm btn-secondary btn-print"
+                                        data-nomor="{{ $a->nomor_antrian }}">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -220,6 +226,15 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(err => console.error(err));
     }
+
+    // ✅ Fungsi Print Nomor Antrian → buka halaman cetak tanpa IP
+    document.querySelectorAll(".btn-print").forEach(btn => {
+        btn.addEventListener("click", function() {
+            let nomor = this.dataset.nomor;
+            // 🔗 Gunakan path relatif Laravel (tanpa http://192.168.20.196)
+            window.open(`/antrian-farmasi/cetak/${nomor}`, "_blank");
+        });
+    });
 });
 </script>
 
