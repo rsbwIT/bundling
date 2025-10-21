@@ -115,6 +115,11 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru;
 use App\Http\Controllers\PasienKamarInap\RanapController;
 use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
 use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -466,4 +471,26 @@ Route::group(['middleware' => 'default'], function () {
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
     Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
     Route::get('/info-kamar3', [InfoKamar::class, 'InfoKamar3']);
+});
+
+    // file bundling scan
+    // Contoh di routes/web.php (Linux server)
+Route::post('/upload-api', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'file' => 'required|file',
+        'no_rawat' => 'required|string',
+        'kode' => 'required|string'
+    ]);
+
+    $file = $request->file('file');
+    $no_rawatSTR = str_replace('/', '', $request->no_rawat);
+    $file_name = $request->kode . '-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+
+    $uploadDir = '/opt/lampp/htdocs/webapps/berkasrawat/pages/upload/';
+    $file->move($uploadDir, $file_name);
+
+    return response()->json([
+        'success' => true,
+        'file_path' => 'pages/upload/' . $file_name
+    ]);
 });

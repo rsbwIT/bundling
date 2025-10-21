@@ -59,7 +59,9 @@ class GabungPdfService
     {
         $cekINACBG = DB::table('bw_file_casemix_inacbg')->where('no_rawat', $no_rawat)->first();
         $cekRESUMEDLL = DB::table('bw_file_casemix_remusedll')->where('no_rawat', $no_rawat)->first();
-        $cekSCAN = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+        // $cekSCAN = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+        $cekSCAN = DB::table('berkas_digital_perawatan')->where('no_rawat', $no_rawat)->first();
+
 
         // Ambil path file jika ada
         $pdfFiles = [];
@@ -69,9 +71,24 @@ class GabungPdfService
         if ($cekRESUMEDLL) {
             $pdfFiles[] = public_path('storage/resume_dll/' . $cekRESUMEDLL->file);
         }
+        // if ($cekSCAN) {
+        //     $pdfFiles[] = public_path('storage/file_scan/' . $cekSCAN->file);
+        // }
+        // if ($cekSCAN) {
+        //     $pdfFiles[] = public_path('storage/' . $cekSCAN->lokasi_file);
+        // }
         if ($cekSCAN) {
-            $pdfFiles[] = public_path('storage/file_scan/' . $cekSCAN->file);
-        }
+    // Ambil nama file dari path relatif di DB
+    $file_name = basename($cekSCAN->lokasi_file); // misal pages/upload/021-20251021000350.pdf → 021-20251021000350.pdf
+
+    // Path publik Laravel
+    $public_file_path = public_path('storage/file_scan/' . $file_name);
+
+    if (file_exists($public_file_path)) {
+        $pdfFiles[] = $public_file_path;
+    }
+}
+
 
         // Pastikan tidak ada file yang diambil dua kali
         $pdfFiles = array_unique($pdfFiles);

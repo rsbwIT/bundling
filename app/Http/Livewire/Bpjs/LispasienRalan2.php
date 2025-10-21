@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use phpseclib3\Net\SFTP;
+
 
 
 class LispasienRalan2 extends Component
@@ -180,7 +182,69 @@ class LispasienRalan2 extends Component
     //}
 
 
-    // B
+    // B (SCAN YANG LAMA FIXX GANTI BARU)
+    // public function SetmodalScan($key)
+    // {
+    //     $this->keyModal = $key;
+    //     $this->no_rawat = $this->getPasien[$key]['no_rawat'];
+    //     $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
+    //     $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
+    // }
+    // public $upload_file_scan = [];
+    // public function UploadScan($key, $no_rawat, $no_rkm_medis)
+    // {
+    //     // CEK apakah file-nya ada
+    //     $file = $this->upload_file_scan[$key] ?? null;
+    //     if (!$file || !$file->isValid()) {
+    //         session()->flash('errorBundling', 'Gagal!! File tidak ditemukan atau tidak valid!');
+    //         return;
+    //     }
+
+    //     try {
+    //         $no_rawatSTR = str_replace('/', '', $no_rawat);
+
+    //         $file_name = 'SCAN-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+    //         $file->storeAs('file_scan', $file_name, 'public');
+
+    //         // Hapus file temp Livewire kalau ada
+    //         if (Storage::exists('livewire-tmp/' . $file->getFileName())) {
+    //             Storage::delete('livewire-tmp/' . $file->getFileName());
+    //         }
+
+    //         // Cek apakah sudah ada file untuk no_rawat
+    //         $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+
+    //         if ($cekBerkas) {
+    //             // Jika ada, update file baru
+    //             DB::table('bw_file_casemix_scan')
+    //                 ->where('no_rawat', $no_rawat)
+    //                 ->update([
+    //                     'file' => $file_name,
+    //                 ]);
+    //         } else {
+    //             // Jika belum ada, insert baru
+    //             DB::table('bw_file_casemix_scan')->insert([
+    //                 'no_rkm_medis' => $no_rkm_medis,
+    //                 'no_rawat'     => $no_rawat,
+    //                 'file'         => $file_name,
+    //             ]);
+    //         }
+
+    //         // Flash message sukses
+    //         session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
+
+    //         // 🔹 Tutup modal otomatis
+    //         $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
+
+    //         // 🔹 Reset input file
+    //         $this->upload_file_scan[$key] = null;
+    //     } catch (\Throwable $th) {
+    //         session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());
+    //     }
+    // }
+
+    //BARU UPLOAD KE BERKAS DIGITAL
+
     public function SetmodalScan($key)
     {
         $this->keyModal = $key;
@@ -188,11 +252,21 @@ class LispasienRalan2 extends Component
         $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
         $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
     }
+
     public $upload_file_scan = [];
+    public $kode_berkas = [];
+
+
     public function UploadScan($key, $no_rawat, $no_rkm_medis)
     {
-        // CEK apakah file-nya ada
         $file = $this->upload_file_scan[$key] ?? null;
+        $kode = $this->kode_berkas[$key] ?? null;
+
+        if (!$kode) {
+            session()->flash('errorBundling', 'Pilih jenis berkas terlebih dahulu!');
+            return;
+        }
+
         if (!$file || !$file->isValid()) {
             session()->flash('errorBundling', 'Gagal!! File tidak ditemukan atau tidak valid!');
             return;
@@ -200,46 +274,75 @@ class LispasienRalan2 extends Component
 
         try {
             $no_rawatSTR = str_replace('/', '', $no_rawat);
+            $file_name = $kode . '-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
 
-            $file_name = 'SCAN-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('file_scan', $file_name, 'public');
+            // 🔹 Simpan sementara di lokal (storage/app/temp)
+            $local_path = $file->storeAs('temp', $file_name, 'local');
+            $local_full_path = storage_path('app/' . $local_path);
 
-            // Hapus file temp Livewire kalau ada
-            if (Storage::exists('livewire-tmp/' . $file->getFileName())) {
-                Storage::delete('livewire-tmp/' . $file->getFileName());
+            // 🔹 Koneksi SFTP menggunakan phpseclib
+            $sftp = new SFTP('192.168.5.88', 22);
+            if (!$sftp->login('rsbumiwaras', '#RsBumiWaras123#')) {
+                throw new \Exception('Gagal login ke server SFTP.');
             }
 
-            // Cek apakah sudah ada file untuk no_rawat
-            $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+            // Path relatif untuk database
+            $remote_path = 'pages/upload/' . $file_name;
 
-            if ($cekBerkas) {
-                // Jika ada, update file baru
-                DB::table('bw_file_casemix_scan')
+            // Path full di server Linux untuk SFTP
+            $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
+
+            // Upload file via SFTP
+            if (!$sftp->put($sftp_full_path, $local_full_path, SFTP::SOURCE_LOCAL_FILE)) {
+                throw new \Exception('Gagal upload file ke server SFTP.');
+            }
+
+            // 🔹 Copy file ke public storage (public/storage/file_scan)
+            $public_storage_path = public_path('storage/file_scan/' . $file_name);
+            if (!file_exists(dirname($public_storage_path))) {
+                mkdir(dirname($public_storage_path), 0755, true);
+            }
+            copy($local_full_path, $public_storage_path);
+
+            // 🔹 Hapus file sementara lokal
+            if (file_exists($local_full_path)) {
+                unlink($local_full_path);
+            }
+
+            // 🔹 Simpan record di DB (gunakan path relatif)
+            $cekSCAN = DB::table('berkas_digital_perawatan')
+                ->where('no_rawat', $no_rawat)
+                ->where('kode', $kode)
+                ->first();
+
+            if ($cekSCAN) {
+                DB::table('berkas_digital_perawatan')
                     ->where('no_rawat', $no_rawat)
+                    ->where('kode', $kode)
                     ->update([
-                        'file' => $file_name,
+                        'lokasi_file' => $remote_path,
                     ]);
             } else {
-                // Jika belum ada, insert baru
-                DB::table('bw_file_casemix_scan')->insert([
-                    'no_rkm_medis' => $no_rkm_medis,
-                    'no_rawat'     => $no_rawat,
-                    'file'         => $file_name,
+                DB::table('berkas_digital_perawatan')->insert([
+                    'no_rawat'    => $no_rawat,
+                    'kode'        => $kode,
+                    'lokasi_file' => $remote_path,
                 ]);
             }
 
-            // Flash message sukses
-            session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan');
-
-            // 🔹 Tutup modal otomatis
+            session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan ke server dan public storage.');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
 
-            // 🔹 Reset input file
+            // Reset input
             $this->upload_file_scan[$key] = null;
+            $this->kode_berkas[$key] = null;
+
         } catch (\Throwable $th) {
+            Log::error('UploadScan SFTP Error: ' . $th->getMessage());
             session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());
         }
     }
+
 
     // 3 PROSES SIMPAN KHANZA ==================================================================================
     public function SimpanKhanza($no_rawat, $no_sep)

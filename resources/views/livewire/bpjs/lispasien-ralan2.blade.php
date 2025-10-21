@@ -341,7 +341,9 @@
                         </div>
                     </div> --}}
 
-                    <div class="modal fade" id="UploadScan" tabindex="-1" role="dialog" aria-hidden="true"
+                    {{-- ini diganti baru scan fix --}}
+
+                    {{-- <div class="modal fade" id="UploadScan" tabindex="-1" role="dialog" aria-hidden="true"
                         wire:ignore.self>
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -377,7 +379,62 @@
                                 </div>
                             </div>
                         </div>
+                    </div> --}}
+
+                    <div class="modal fade" id="UploadScan" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title">
+                                        Upload Berkas <b>SCAN</b> : <u>{{ $nm_pasien }}</u>
+                                    </h6>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    {{-- 🔹 Pilih Jenis Berkas --}}
+                                    <div class="form-group">
+                                        <label>Jenis Berkas</label>
+                                        <select class="form-control" wire:model="kode_berkas.{{ $keyModal }}">
+                                            <option value="">-- Pilih Jenis Berkas --</option>
+                                            @foreach(DB::table('master_berkas_digital')->orderBy('nama')->get() as $berkas)
+                                                <option value="{{ $berkas->kode }}">{{ $berkas->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('kode_berkas.' . $keyModal)
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    {{-- 🔹 File Upload --}}
+                                    <div class="form-group mt-2">
+                                        <label>File Scan</label>
+                                        <input type="file" class="form-control" wire:model="upload_file_scan.{{ $keyModal }}">
+                                        @error('upload_file_scan.' . $keyModal)
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-primary"
+                                        wire:click="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        wire:loading.attr="disabled"
+                                        wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
+                                        @if (!isset($upload_file_scan[$keyModal]) || !isset($kode_berkas[$keyModal])) disabled @endif>
+                                        Submit
+                                        <span wire:loading
+                                            wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
+                                            Uploading...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                     @push('scripts')
                         <script>
                             window.addEventListener('close-modal', event => {
