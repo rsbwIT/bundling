@@ -115,10 +115,9 @@ use App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru;
 use App\Http\Controllers\PasienKamarInap\RanapController;
 use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
 use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Operasi\JadwalOperasi;
+
+
 
 
 /*
@@ -438,6 +437,13 @@ Route::group(['middleware' => 'default'], function () {
                 ->name('kamarinapdr.index');
 
             Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
+
+            // 🔹 Jadwal Operasi
+                Route::get('/jadwal-operasi', [JadwalOperasi::class, 'index'])->name('jadwal.operasi');
+                Route::post('/jadwal-operasi', [JadwalOperasi::class, 'store'])->name('jadwal.operasi.store');
+                Route::put('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'update'])->name('jadwal.operasi.update');
+                Route::delete('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'destroy'])->name('jadwal.operasi.destroy');
+
 
 
 
