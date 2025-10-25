@@ -284,64 +284,125 @@ class QueryResumeDll
     }
 
     // 4 Get Resume Ralan
-    static function getResumeRalan($noRawat)
-    {
-        return DB::table('resume_pasien')
-            ->select(
-                'reg_periksa.tgl_registrasi',
-                'poliklinik.nm_poli',
-                'reg_periksa.almt_pj',
-                'pasien.pekerjaan',
-                'reg_periksa.umurdaftar',
-                'reg_periksa.no_rkm_medis',
-                'pasien.nm_pasien',
-                'pasien.tmp_lahir',
-                'pasien.tgl_lahir',
-                'dokter.kd_dokter',
-                'dokter.nm_dokter',
-                'pasien.jk',
-                'pasien.alamat',
-                'pasien.umur',
-                'reg_periksa.status_lanjut',
-                'reg_periksa.kd_pj',
-                'resume_pasien.no_rawat',
-                'resume_pasien.kd_dokter',
-                'resume_pasien.keluhan_utama',
-                'resume_pasien.jalannya_penyakit',
-                'resume_pasien.pemeriksaan_penunjang',
-                'resume_pasien.hasil_laborat',
-                'resume_pasien.diagnosa_utama',
-                'resume_pasien.kd_diagnosa_utama',
-                'resume_pasien.diagnosa_sekunder',
-                'resume_pasien.kd_diagnosa_sekunder',
-                'resume_pasien.diagnosa_sekunder2',
-                'resume_pasien.kd_diagnosa_sekunder2',
-                'resume_pasien.diagnosa_sekunder3',
-                'resume_pasien.kd_diagnosa_sekunder3',
-                'resume_pasien.diagnosa_sekunder4',
-                'resume_pasien.kd_diagnosa_sekunder4',
-                'resume_pasien.prosedur_utama',
-                'resume_pasien.kd_prosedur_utama',
-                'resume_pasien.prosedur_sekunder',
-                'resume_pasien.kd_prosedur_sekunder',
-                'resume_pasien.prosedur_sekunder2',
-                'resume_pasien.kd_prosedur_sekunder2',
-                'resume_pasien.prosedur_sekunder3',
-                'resume_pasien.kd_prosedur_sekunder3',
-                'resume_pasien.kondisi_pulang',
-                'resume_pasien.obat_pulang'
+    // static function getResumeRalan($noRawat)
+    // {
+    //     return DB::table('resume_pasien')
+    //         ->select(
+    //             'reg_periksa.tgl_registrasi',
+    //             'poliklinik.nm_poli',
+    //             'reg_periksa.almt_pj',
+    //             'pasien.pekerjaan',
+    //             'reg_periksa.umurdaftar',
+    //             'reg_periksa.no_rkm_medis',
+    //             'pasien.nm_pasien',
+    //             'pasien.tmp_lahir',
+    //             'pasien.tgl_lahir',
+    //             'dokter.kd_dokter',
+    //             'dokter.nm_dokter',
+    //             'pasien.jk',
+    //             'pasien.alamat',
+    //             'pasien.umur',
+    //             'reg_periksa.status_lanjut',
+    //             'reg_periksa.kd_pj',
+    //             'resume_pasien.no_rawat',
+    //             'resume_pasien.kd_dokter',
+    //             'resume_pasien.keluhan_utama',
+    //             'resume_pasien.jalannya_penyakit',
+    //             'resume_pasien.pemeriksaan_penunjang',
+    //             'resume_pasien.hasil_laborat',
+    //             'resume_pasien.diagnosa_utama',
+    //             'resume_pasien.kd_diagnosa_utama',
+    //             'resume_pasien.diagnosa_sekunder',
+    //             'resume_pasien.kd_diagnosa_sekunder',
+    //             'resume_pasien.diagnosa_sekunder2',
+    //             'resume_pasien.kd_diagnosa_sekunder2',
+    //             'resume_pasien.diagnosa_sekunder3',
+    //             'resume_pasien.kd_diagnosa_sekunder3',
+    //             'resume_pasien.diagnosa_sekunder4',
+    //             'resume_pasien.kd_diagnosa_sekunder4',
+    //             'resume_pasien.prosedur_utama',
+    //             'resume_pasien.kd_prosedur_utama',
+    //             'resume_pasien.prosedur_sekunder',
+    //             'resume_pasien.kd_prosedur_sekunder',
+    //             'resume_pasien.prosedur_sekunder2',
+    //             'resume_pasien.kd_prosedur_sekunder2',
+    //             'resume_pasien.prosedur_sekunder3',
+    //             'resume_pasien.kd_prosedur_sekunder3',
+    //             'resume_pasien.kondisi_pulang',
+    //             'resume_pasien.obat_pulang'
 
-            )
-            ->join('reg_periksa', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('dokter', function ($join) {
-                $join->on('resume_pasien.kd_dokter', '=', 'dokter.kd_dokter')
-                    ->on('reg_periksa.kd_dokter', '=', 'dokter.kd_dokter');
-            })
-            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
-            ->where('resume_pasien.no_rawat', '=', $noRawat)
-            ->first();
-    }
+    //         )
+    //         ->join('reg_periksa', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+    //         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+    //         ->join('dokter', function ($join) {
+    //             $join->on('resume_pasien.kd_dokter', '=', 'dokter.kd_dokter')
+    //                 ->on('reg_periksa.kd_dokter', '=', 'dokter.kd_dokter');
+    //         })
+    //         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+    //         ->where('resume_pasien.no_rawat', '=', $noRawat)
+    //         ->first();
+    // }
+    
+public static function getResumeRalan($noRawat)
+{
+    return DB::table('resume_pasien')
+        ->select(
+            'reg_periksa.tgl_registrasi',
+            'poliklinik.nm_poli',
+            'reg_periksa.almt_pj',
+            'pasien.pekerjaan',
+            'reg_periksa.umurdaftar',
+            'reg_periksa.no_rkm_medis',
+            'pasien.nm_pasien',
+            'pasien.tmp_lahir',
+            'pasien.tgl_lahir',
+            // gunakan COALESCE agar kd_dokter tetap muncul meski salah satu null
+            DB::raw('COALESCE(resume_pasien.kd_dokter, reg_periksa.kd_dokter) as kd_dokter'),
+            'dokter.nm_dokter',
+            'pasien.jk',
+            'pasien.alamat',
+            'pasien.umur',
+            'reg_periksa.status_lanjut',
+            'reg_periksa.kd_pj',
+            'resume_pasien.no_rawat',
+            'resume_pasien.keluhan_utama',
+            'resume_pasien.jalannya_penyakit',
+            'resume_pasien.pemeriksaan_penunjang',
+            'resume_pasien.hasil_laborat',
+            'resume_pasien.diagnosa_utama',
+            'resume_pasien.kd_diagnosa_utama',
+            'resume_pasien.diagnosa_sekunder',
+            'resume_pasien.kd_diagnosa_sekunder',
+            'resume_pasien.diagnosa_sekunder2',
+            'resume_pasien.kd_diagnosa_sekunder2',
+            'resume_pasien.diagnosa_sekunder3',
+            'resume_pasien.kd_diagnosa_sekunder3',
+            'resume_pasien.diagnosa_sekunder4',
+            'resume_pasien.kd_diagnosa_sekunder4',
+            'resume_pasien.prosedur_utama',
+            'resume_pasien.kd_prosedur_utama',
+            'resume_pasien.prosedur_sekunder',
+            'resume_pasien.kd_prosedur_sekunder',
+            'resume_pasien.prosedur_sekunder2',
+            'resume_pasien.kd_prosedur_sekunder2',
+            'resume_pasien.prosedur_sekunder3',
+            'resume_pasien.kd_prosedur_sekunder3',
+            'resume_pasien.kondisi_pulang',
+            'resume_pasien.obat_pulang'
+        )
+        // gunakan LEFT JOIN agar tidak error kalau data di tabel lain kosong
+        ->leftJoin('reg_periksa', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        // gabungkan dokter dari dua sumber (resume_pasien & reg_periksa)
+        ->leftJoin('dokter', function ($join) {
+            $join->on('dokter.kd_dokter', '=', 'resume_pasien.kd_dokter')
+                 ->orOn('dokter.kd_dokter', '=', 'reg_periksa.kd_dokter');
+        })
+        ->leftJoin('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+        ->where('resume_pasien.no_rawat', $noRawat)
+        ->first();
+}
+
 
     // 5 Get Biling
     static function getBiling($noRawat)

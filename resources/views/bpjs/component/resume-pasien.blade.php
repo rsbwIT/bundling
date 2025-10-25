@@ -312,7 +312,7 @@
                             <td>: 1. {{ $getResume->prosedur_sekunder }}</td>
                             <td width="20px" class="text-right">(</td>
                             <td width="80px" class="text-center">
-                                {{ $getResume->prosedur_sekunder }}
+                                {{ $getResume->kd_prosedur_sekunder }}
                             </td>
                             <td>)</td>
                         </tr>
@@ -908,7 +908,7 @@
                             <td>: 1. {{ $getResume->prosedur_sekunder }}</td>
                             <td width="20px" class="text-right">(</td>
                             <td width="80px" class="text-center">
-                                {{ $getResume->prosedur_sekunder }}
+                                {{ $getResume->kd_prosedur_sekunder }}
                             </td>
                             <td>)</td>
                         </tr>
