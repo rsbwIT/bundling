@@ -281,8 +281,8 @@ class LispasienRalan2 extends Component
             $local_full_path = storage_path('app/' . $local_path);
 
             // 🔹 Koneksi SFTP menggunakan phpseclib
-            $sftp = new SFTP('192.168.5.88', 22);
-            if (!$sftp->login('rsbumiwaras', '#RsBumiWaras123#')) {
+            $sftp = new SFTP(env('SFTP_HOST'), env('SFTP_PORT'));
+            if (!$sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
                 throw new \Exception('Gagal login ke server SFTP.');
             }
 
