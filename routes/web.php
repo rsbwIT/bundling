@@ -116,6 +116,7 @@ use App\Http\Controllers\PasienKamarInap\RanapController;
 use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
 use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
 use App\Http\Controllers\Operasi\JadwalOperasi;
+use App\Http\Controllers\Regperiksa\KroscekPasien;
 
 
 
@@ -444,7 +445,16 @@ Route::group(['middleware' => 'default'], function () {
                 Route::put('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'update'])->name('jadwal.operasi.update');
                 Route::delete('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'destroy'])->name('jadwal.operasi.destroy');
 
+        // KROSCEK PASIEN
+            Route::get('/kroscek-pasien', [KroscekPasien::class, 'index'])->name('kroscek.pasien.view');
 
+        // KROSCEK PASIEN - API
+            Route::prefix('kroscek-pasien')->name('kroscek.pasien.')->group(function () {
+            Route::post('/statistik-tanggal', [KroscekPasien::class, 'getStatistikPasien'])->name('statistik.tanggal');
+            Route::get('/statistik-hari-ini', [KroscekPasien::class, 'getStatistikHariIni'])->name('statistik.hari.ini');
+            Route::post('/statistik-rentang-tanggal', [KroscekPasien::class, 'getStatistikRentangTanggal'])->name('statistik.rentang.tanggal');
+            Route::post('/daftar-belum-nota', [KroscekPasien::class, 'getDaftarPasienBelumNota'])->name('daftar.belum.nota');
+        });
 
 
 

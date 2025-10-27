@@ -836,6 +836,12 @@
                                         <p>Sensus Bulanan</p>
                                     </a>
                                 </li>
+                                   <li class="nav-item">
+                                    <a href="{{ url('kroscek-pasien') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Kroscek Pasien</p>
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a href="{{ url('laporan-pasien') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
