@@ -171,7 +171,7 @@
 </style>
 
 {{-- 🔹 Script Copy Table --}}
-<script>
+{{-- <script>
 document.getElementById("copyButton").addEventListener("click", function () {
     const table = document.getElementById("tableToCopy");
     const rows = Array.from(table.querySelectorAll("tr"));
@@ -204,5 +204,62 @@ document.getElementById("copyButton").addEventListener("click", function () {
             alert("✅ Data berhasil disalin! Silakan paste ke Excel.");
         });
 });
+</script> --}}
+<script>
+document.getElementById("copyButton").addEventListener("click", function () {
+    const table = document.getElementById("tableToCopy");
+    if (!table) return alert("❌ Tabel tidak ditemukan.");
+
+    let tsv = "";
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll("th, td");
+        const rowData = Array.from(cols).map(col => {
+            // Ambil teks dan hilangkan format ribet
+            let text = col.innerText
+                .replace(/\r?\n|\r/g, " ") // hapus newline
+                .replace(/\t/g, " ")       // hapus tab
+                .trim();
+
+            // Jika angka besar, pastikan Excel tidak salah baca (pakai format teks)
+            if (/^\d{5,}$/.test(text)) text = "'" + text;
+            return text;
+        });
+        tsv += rowData.join("\t") + "\n";
+    });
+
+    // ✅ Gunakan Clipboard API (jika tersedia)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tsv)
+            .then(() => alert("✅ Data berhasil disalin! Silakan paste ke Excel."))
+            .catch(err => {
+                console.error("Clipboard error:", err);
+                fallbackCopy(tsv);
+            });
+    } else {
+        // 🔁 Fallback untuk browser lama
+        fallbackCopy(tsv);
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = 0;
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            document.execCommand("copy");
+            alert("✅ Data berhasil disalin! Silakan paste ke Excel.");
+        } catch (err) {
+            alert("❌ Gagal menyalin data. Salin manual dari tabel.");
+        }
+        document.body.removeChild(textarea);
+    }
+});
 </script>
+
 @endsection
+
