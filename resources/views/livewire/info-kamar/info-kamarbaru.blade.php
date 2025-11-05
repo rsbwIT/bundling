@@ -62,7 +62,7 @@
             <div style="font-size:12px; color:#64748b; margin-top:2px;">Auto ganti ruangan tiap 10 detik</div>
         </div>
     </div>
-
+    {{-- //tess  --}}
     {{-- DATA RUANGAN --}}
     @if(!empty($ruangan) && isset($ruangan['kamar']))
         {{-- SUMMARY --}}
