@@ -15,3 +15,4 @@
     @stack('scripts') {{-- This is where the script from @push('scripts') will be included --}}
 </body>
 </html>
+{{-- // joss --}}
