@@ -13,22 +13,19 @@
         <img src="{{ asset('img/bw2.png') }}" alt="Logo RS" style="height:110px;">
 
         <h2 style="
-    margin:0 40px;
-    font-size:28px;                  /* ukuran lebih nyaman, tidak terlalu besar */
-    font-weight:700;                 /* cukup tegas tapi tidak terlalu berat */
-    color:#00796b;                   /* hijau segar, lebih modern */
-    letter-spacing:0.5px;            /* rapat tapi tetap readable */
-    text-align:center;
-    flex:1;
-    line-height:1.4;                 /* jarak antar baris lebih nyaman */
-    text-transform: none;            /* huruf normal, lebih natural */
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-">
-    Informasi Ketersediaan Tempat Tidur
-</h2>
-
-
-
+            margin:0 40px;
+            font-size:28px;
+            font-weight:700;
+            color:#00796b;
+            letter-spacing:0.5px;
+            text-align:center;
+            flex:1;
+            line-height:1.4;
+            text-transform: none;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        ">
+            Informasi Ketersediaan Tempat Tidur
+        </h2>
 
         <img src="{{ asset('img/bpjs.png') }}" alt="Logo BPJS" style="height:40px;">
     </div>
@@ -62,9 +59,21 @@
             <div style="font-size:12px; color:#64748b; margin-top:2px;">Auto ganti ruangan tiap 10 detik</div>
         </div>
     </div>
-    {{-- //tess  --}}
+
     {{-- DATA RUANGAN --}}
     @if(!empty($ruangan) && isset($ruangan['kamar']))
+        @php
+            // Hitung total maintenance
+            $total_maintenance = 0;
+            foreach($ruangan['kamar'] as $kamar){
+                foreach($kamar['beds'] as $bed){
+                    if($bed->status == 2){
+                        $total_maintenance++;
+                    }
+                }
+            }
+        @endphp
+
         {{-- SUMMARY --}}
         <div style="display:flex; gap:12px; padding:12px 24px;">
             <div style="flex:1; background:#ffffff; border-radius:8px; padding:14px; border:1px solid #e6eef8; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
@@ -80,6 +89,11 @@
             <div style="flex:1; background:#16a34a; border-radius:8px; padding:14px; color:white; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
                 <div style="font-size:14px; opacity:0.9;">Kosong</div>
                 <div style="font-size:28px; font-weight:800;">{{ $ruangan['total_kosong'] ?? 0 }}</div>
+            </div>
+
+            <div style="flex:1; background:#ffeb3b; border-radius:8px; padding:14px; color:#000; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                <div style="font-size:14px; opacity:0.9;">Maintenance</div>
+                <div style="font-size:28px; font-weight:800;">{{ $total_maintenance }}</div>
             </div>
         </div>
 
@@ -103,7 +117,10 @@
 
                         <div style="font-size:13px; color:#475569; margin-bottom:10px;">
                             Terisi: <strong>{{ $kamar['jumlah_isi'] }}</strong> |
-                            Kosong: <strong>{{ $kamar['jumlah_kosong'] }}</strong>
+                            Kosong: <strong>{{ $kamar['jumlah_kosong'] }}</strong> |
+                            Maintenance: <strong>
+                                {{ collect($kamar['beds'])->where('status', 2)->count() }}
+                            </strong>
                         </div>
 
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -114,7 +131,18 @@
                             @foreach($kamar['beds'] as $bed)
                                 @php
                                     $label = $bed->no_bed ?? '-';
-                                    $isi = $bed->status == 1;
+
+                                    // Warna berdasarkan status
+                                    if($bed->status == 1){
+                                        $bg = '#0b3a66';      // Terisi: biru
+                                        $color = '#ffffff';
+                                    } elseif($bed->status == 2){
+                                        $bg = '#ffeb3b';      // Cadangan/Maintenance: kuning
+                                        $color = '#000000';
+                                    } else {
+                                        $bg = '#ffffff';      // Kosong: putih
+                                        $color = '#0b3a66';
+                                    }
                                 @endphp
                                 <div style="width:{{ $width }}; min-width:60px;">
                                     <div style="
@@ -122,8 +150,8 @@
                                         border-radius:8px;
                                         border:1px solid #cfe2f6;
                                         text-align:center;
-                                        background:{{ $isi ? '#0b3a66' : '#ffffff' }};
-                                        color:{{ $isi ? '#ffffff' : '#0b3a66' }};
+                                        background:{{ $bg }};
+                                        color:{{ $color }};
                                         font-weight:800;
                                         transition: background 0.2s, color 0.2s;
                                     ">

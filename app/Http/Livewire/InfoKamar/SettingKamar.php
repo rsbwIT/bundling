@@ -76,17 +76,45 @@ class SettingKamar extends Component
         }
     }
 
+    // public function actionIsi($status, $id, $kd_kelas_bpjs, $nm_ruangan_bpjs)
+    // {
+    //     date_default_timezone_set('Asia/Jakarta');
+    //     if ($status == '1') {
+    //         $updateStatus = '0';
+    //     } else {
+    //         $updateStatus = '1';
+    //     }
+    //     DB::table('bw_display_bad')
+    //         ->where('id', $id)
+    //         ->update(['status' => $updateStatus]);
+    //     DB::table('bw_display_bad')
+    //         ->where('nm_ruangan_bpjs', $nm_ruangan_bpjs)
+    //         ->where('kd_kelas_bpjs', $kd_kelas_bpjs)
+    //         ->update(['times_update' => now()]);
+
+    //     $this->UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs);
+    // }
+
     public function actionIsi($status, $id, $kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
         date_default_timezone_set('Asia/Jakarta');
-        if ($status == '1') {
-            $updateStatus = '0';
-        } else {
-            $updateStatus = '1';
+
+        // logika status: 0 → 1 → 2 → 0 ...
+        switch ($status) {
+            case '0':
+                $updateStatus = '1';
+                break; // kosong → terisi
+            case '1':
+                $updateStatus = '2';
+                break; // terisi → cadangan
+            case '2':
+                $updateStatus = '0';
+                break; // cadangan → kosong
+            default:
+                $updateStatus = '0';
         }
-        DB::table('bw_display_bad')
-            ->where('id', $id)
-            ->update(['status' => $updateStatus]);
+
+        DB::table('bw_display_bad')->where('id', $id)->update(['status' => $updateStatus]);
         DB::table('bw_display_bad')
             ->where('nm_ruangan_bpjs', $nm_ruangan_bpjs)
             ->where('kd_kelas_bpjs', $kd_kelas_bpjs)
@@ -171,6 +199,4 @@ class SettingKamar extends Component
             $this->respone = null;
         }
     }
-
-
 }
