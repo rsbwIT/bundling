@@ -117,6 +117,11 @@ use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
 use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
 use App\Http\Controllers\Operasi\JadwalOperasi;
 use App\Http\Controllers\Regperiksa\KroscekPasien;
+use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
+use App\Http\Livewire\InfoKamar\InfoKamarbaru;
+
+
+
 
 
 
@@ -279,6 +284,11 @@ Route::group(['middleware' => 'default'], function () {
             return view('livewire.antrian-farmasi.displayfarmasibaru');
         })->name('antrian.farmasi.display');
 
+        // Laporan Farmasi
+
+        Route::get('/laporanfarmasi', LaporanFarmasi::class)->name('laporanfarmasi');
+
+
 
 
         //DISPLAY
@@ -414,6 +424,8 @@ Route::group(['middleware' => 'default'], function () {
             Route::get('/sep/ttd/{no_sep}', [Sep_TTD::class, 'form'])->name('sep.formTtd');
             Route::post('/sep/ttd', [Sep_TTD::class, 'simpan'])->name('sep.simpanTtd');
 
+        
+
 
 
 
@@ -488,6 +500,9 @@ Route::group(['middleware' => 'default'], function () {
     Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
     Route::get('/info-kamar3', [InfoKamar::class, 'InfoKamar3']);
 });
+
+    //display informasi kamar igd
+    Route::get('/info-kamar-baru', InfoKamarbaru::class)->name('info.kamar.baru');
 
     // file bundling scan
     // Contoh di routes/web.php (Linux server)
