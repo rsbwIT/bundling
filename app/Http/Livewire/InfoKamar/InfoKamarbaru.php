@@ -7,50 +7,78 @@ use Illuminate\Support\Facades\DB;
 
 class InfoKamarbaru extends Component
 {
-    public $getRuangan = [];
+    public $ruanganList = [];
+    public $currentIndex = 0;
+    public $ruangan = [];
+    public $namaRuangan = '';
 
-    protected $listeners = ['refreshData' => 'loadData']; // untuk manual refresh jika diperlukan
+    protected $listeners = ['next-room' => 'nextRoom'];
 
     public function mount()
     {
         $this->loadData();
+        $this->setCurrentRoom();
     }
 
     public function render()
     {
-        // Auto-refresh setiap render
         return view('livewire.info-kamar.info-kamarbaru');
+    }
+
+    public function nextRoom()
+    {
+        $this->currentIndex = ($this->currentIndex + 1) % count($this->ruanganList);
+        $this->setCurrentRoom();
     }
 
     public function loadData()
     {
-        try {
-            $allBeds = DB::table('bw_display_bad')
-                ->select('id', 'ruangan', 'kamar', 'bad', 'status', 'kelas')
+        $this->ruanganList = DB::table('bw_display_bad')
+            ->select('ruangan')
+            ->groupBy('ruangan')
+            ->pluck('ruangan')
+            ->toArray();
+    }
+
+    public function setCurrentRoom()
+    {
+        $ruang = $this->ruanganList[$this->currentIndex] ?? null;
+        if (!$ruang) return;
+
+        $this->namaRuangan = $ruang;
+
+        $kamar = DB::table('bw_display_bad')
+            ->select('kamar', 'kelas')
+            ->where('ruangan', $ruang)
+            ->groupBy('kamar')
+            ->get();
+
+        $result = [
+            'total_bad' => 0,
+            'total_isi' => DB::table('bw_display_bad')->where('ruangan', $ruang)->where('status', 1)->count(),
+            'total_kosong' => DB::table('bw_display_bad')->where('ruangan', $ruang)->where('status', 0)->count(),
+            'kamar' => []
+        ];
+
+        foreach ($kamar as $km) {
+
+            $beds = DB::table('bw_display_bad')
+                ->select('bad', 'bad as no_bed', 'status') // ✅ FIX: tambah 'bad'
+                ->where('kamar', $km->kamar)
+                ->where('ruangan', $ruang)
+                ->orderBy('bad')
                 ->get();
 
-            $this->getRuangan = $allBeds
-                ->groupBy('ruangan')
-                ->map(function ($beds, $ruangan) {
-                    $kamarGrouped = $beds->groupBy('kamar')->map(function ($kamarBeds, $kamar) {
-                        return [
-                            'kelas' => $kamarBeds->first()->kelas,
-                            'beds'  => $kamarBeds,
-                            'jumlah_isi' => $kamarBeds->where('status', '1')->count(),
-                            'jumlah_kosong' => $kamarBeds->where('status', '0')->count(),
-                        ];
-                    });
+            $result['kamar'][$km->kamar] = [
+                'kelas' => $km->kelas,
+                'jumlah_isi' => $beds->where('status', 1)->count(),
+                'jumlah_kosong' => $beds->where('status', 0)->count(),
+                'beds' => $beds
+            ];
 
-                    return [
-                        'total_bed' => $beds->count(),
-                        'total_isi' => $beds->where('status', '1')->count(),
-                        'total_kosong' => $beds->where('status', '0')->count(),
-                        'kamar' => $kamarGrouped,
-                    ];
-                });
-        } catch (\Throwable $th) {
-            logger()->error($th->getMessage());
-            $this->getRuangan = collect();
+            $result['total_bad'] += count($beds);
         }
+
+        $this->ruangan = $result;
     }
 }
