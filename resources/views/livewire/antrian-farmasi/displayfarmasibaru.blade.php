@@ -47,7 +47,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            min-height: 380px;
+            min-height: 400px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid #d0ece7;
@@ -95,6 +95,37 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+        }
+
+        /* --- Keterangan Bawah --- */
+        .keterangan-bawah {
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: 2rem;
+            font-style: italic;
+            font-weight: 600;
+            animation: blink 1.2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .keterangan-bawah.nonracik {
+            color: #f57f17;
+        }
+
+        .keterangan-bawah.racikan {
+            color: #1565c0;
+        }
+
+        .keterangan-bawah .emoji {
+            font-size: 3rem;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .empty {
@@ -175,11 +206,19 @@
                         <div class="antrian-no">{{ $dipanggil->nomor_antrian }}</div>
                         <div class="antrian-pasien">{{ strtoupper($dipanggil->nama_pasien) }}</div>
                     </div>
+                    <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
+                        📢 PANGGIL
+                    </div>
+
                 @elseif($menunggu)
                     <div class="status-menunggu">
                         <div class="antrian-no">{{ $menunggu->nomor_antrian }}</div>
                         <div class="antrian-pasien">{{ strtoupper($menunggu->nama_pasien) }}</div>
                     </div>
+                    <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
+                        <span class="emoji">💊</span> Obat sedang disiapkan...
+                    </div>
+
                 @else
                     <div class="empty">
                         <i class="fas fa-clipboard-list"></i>

@@ -4,97 +4,78 @@ namespace App\Http\Livewire\AntrianFarmasi;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class LaporanFarmasi extends Component
 {
-    public $tgl1;
-    public $tgl2;
-    public $search = '';
-    public $labels = [];
-    public $values = [];
+    public $tgl1, $tgl2, $search = '';
     public $listData;
 
     public function mount()
     {
-        $this->resetFilter();
-    }
-
-    public function resetFilter()
-    {
-        $this->tgl1 = Carbon::today()->toDateString();
-        $this->tgl2 = Carbon::today()->toDateString();
-        $this->search = '';
-
-        $this->loadData();
+        // Awalnya kosong agar tidak langsung menampilkan semua data
+        $this->listData = collect();
     }
 
     public function loadData()
     {
-        if (!$this->tgl1 || !$this->tgl2) {
-            $this->listData = collect();
-            $this->labels = [];
-            $this->values = [];
+        // Validasi tanggal
+        if (empty($this->tgl1) || empty($this->tgl2)) {
+            $this->dispatchBrowserEvent('show-toast', [
+                'type' => 'warning',
+                'message' => 'Silakan pilih rentang tanggal terlebih dahulu.'
+            ]);
             return;
         }
 
-        // Format tanggal lengkap
-        $tgl1 = Carbon::parse($this->tgl1)->startOfDay()->toDateTimeString();
-        $tgl2 = Carbon::parse($this->tgl2)->endOfDay()->toDateTimeString();
+        try {
+            // Query ambil data dari tabel antrian
+            $this->listData = DB::table('antrian')
+                ->select(
+                    'tanggal',
+                    'nomor_antrian',
+                    'rekam_medik',
+                    'nama_pasien',
+                    'status',
+                    'keterangan',
+                    'no_rawat',
+                    'created_at',
+                    'updated_at',
+                    'racik_non_racik'
+                )
+                ->whereBetween(DB::raw('DATE(tanggal)'), [$this->tgl1, $this->tgl2])
+                ->when($this->search, function ($query) {
+                    $search = trim($this->search);
+                    $query->where(function ($q) use ($search) {
+                        $q->where('nama_pasien', 'like', "%{$search}%")
+                            ->orWhere('rekam_medik', 'like', "%{$search}%")
+                            ->orWhere('no_rawat', 'like', "%{$search}%")
+                            ->orWhere('nomor_antrian', 'like', "%{$search}%");
+                    });
+                })
+                ->orderBy('tanggal', 'desc')
+                ->get(); // hasil berupa object collection
 
-        // Statistik status
-        $statistik = DB::table('antrian as a')
-            ->join('reg_periksa as r', 'r.no_rawat', '=', 'a.no_rawat')
-            ->join('pasien as p', 'p.no_rkm_medis', '=', 'r.no_rkm_medis')
-            ->select(
-                DB::raw("COALESCE(a.status,'Tidak Ada') as status"),
-                DB::raw("COUNT(*) as total")
-            )
-            ->whereBetween('r.tgl_registrasi', [$tgl1, $tgl2])
-            ->when($this->search, function($q){
-                $q->where(function($x){
-                    $x->where('r.no_rawat','like',"%{$this->search}%")
-                      ->orWhere('r.no_rkm_medis','like',"%{$this->search}%")
-                      ->orWhere('p.nm_pasien','like',"%{$this->search}%");
-                });
-            })
-            ->groupBy('a.status')
-            ->get();
+            // Jika tidak ada data
+            if ($this->listData->isEmpty()) {
+                $this->dispatchBrowserEvent('show-toast', [
+                    'type' => 'info',
+                    'message' => 'Tidak ada data ditemukan untuk rentang tanggal tersebut.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Tangani error SQL
+            $this->dispatchBrowserEvent('show-toast', [
+                'type' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
+            $this->listData = collect();
+        }
+    }
 
-        $this->labels = $statistik->pluck('status')->toArray();
-        $this->values = $statistik->pluck('total')->toArray();
-
-        // Data pasien
-        $query = DB::table('antrian as a')
-            ->join('reg_periksa as r', 'r.no_rawat', '=', 'a.no_rawat')
-            ->join('pasien as p', 'p.no_rkm_medis', '=', 'r.no_rkm_medis')
-            ->select(
-                'a.no_rawat',
-                'p.no_rkm_medis',
-                'p.nm_pasien',
-                'r.tgl_registrasi',
-                'a.created_at as masuk',
-                'a.updated_at as selesai',
-                DB::raw("COALESCE(a.status,'Tidak Ada') as status"),
-                'a.keterangan',
-                DB::raw("TIMESTAMPDIFF(MINUTE, a.created_at, a.updated_at) as durasi_menit")
-            )
-            ->whereBetween('r.tgl_registrasi', [$tgl1, $tgl2])
-            ->when($this->search, function($q){
-                $q->where(function($x){
-                    $x->where('p.nm_pasien','like',"%{$this->search}%")
-                      ->orWhere('p.no_rkm_medis','like',"%{$this->search}%")
-                      ->orWhere('a.no_rawat','like',"%{$this->search}%");
-                });
-            });
-
-        $this->listData = $query->orderBy('r.tgl_registrasi','desc')->get();
-
-        // Emit chart update
-        $this->emit('refreshChart', [
-            'labels' => $this->labels,
-            'values' => $this->values
-        ]);
+    public function resetFilter()
+    {
+        $this->reset(['tgl1', 'tgl2', 'search']);
+        $this->listData = collect();
     }
 
     public function render()

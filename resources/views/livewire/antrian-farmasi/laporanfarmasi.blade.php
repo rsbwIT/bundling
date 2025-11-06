@@ -1,139 +1,108 @@
 @extends('layout.layoutDashboard')
+
 @section('title', 'Laporan Antrian Farmasi')
 
 @section('konten')
-<style>
-    .filter-input { border-radius: 0.25rem; }
-    .btn-round { border-radius: 0.25rem; }
-    .chart-legend { margin-top: 10px; font-size: 0.9rem; }
-    .chart-legend .circle { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:5px; }
-</style>
-
-<div class="container-fluid mt-2">
-
-    {{-- FILTER --}}
-    <div class="row g-2 mb-3">
-        <div class="col-md-3">
-            <label class="fw-bold small">Tanggal 1</label>
-            <input type="date" class="form-control filter-input" wire:model.defer="tgl1">
-        </div>
-
-        <div class="col-md-3">
-            <label class="fw-bold small">Tanggal 2</label>
-            <input type="date" class="form-control filter-input" wire:model.defer="tgl2">
-        </div>
-
-        <div class="col-md-3">
-            <label class="fw-bold small">Pencarian</label>
-            <input type="text" class="form-control filter-input" placeholder="Cari No Rawat / RM / Nama" wire:model.debounce.500ms="search">
-        </div>
-
-        <div class="col-md-3 d-flex align-items-end gap-2">
-            <button class="btn btn-primary btn-round w-50" wire:click="loadData">
-                <i class="fa fa-filter"></i> Filter
-            </button>
-            <button class="btn btn-secondary btn-round w-50" wire:click="resetFilter">
-                <i class="fa fa-rotate-left"></i> Reset
-            </button>
-        </div>
-    </div>
-
-    {{-- CHART & TABLE --}}
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-2">
-                <div class="card-header bg-light fw-bold">
-                    <i class="fa fa-chart-pie text-primary"></i> Statistik Status
+<div class="container-fluid mt-3">
+    {{-- 🔍 FILTER --}}
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="fw-bold small mb-1">Tanggal Awal</label>
+                    <input type="date" class="form-control" wire:model.defer="tgl1">
                 </div>
-                <div class="card-body text-center" style="height:300px;">
-                    <canvas id="statusChart"></canvas>
-                    <div id="chartLegend" class="chart-legend"></div>
+
+                <div class="col-md-3">
+                    <label class="fw-bold small mb-1">Tanggal Akhir</label>
+                    <input type="date" class="form-control" wire:model.defer="tgl2">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="fw-bold small mb-1">Pencarian</label>
+                    <input type="text" class="form-control"
+                        placeholder="Cari Nama / RM / No Rawat / Antrian"
+                        wire:model.debounce.500ms="search">
+                </div>
+
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-primary w-50" wire:click="loadData" wire:loading.attr="disabled">
+                        <i class="fa fa-search me-1"></i> Filter
+                    </button>
+                    <button class="btn btn-secondary w-50" wire:click="resetFilter" wire:loading.attr="disabled">
+                        <i class="fa fa-rotate-left me-1"></i> Reset
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-8">
-            <div class="card mb-2">
-                <div class="card-header bg-light fw-bold">
-                    <i class="fa fa-list text-success"></i> Data Pasien
-                </div>
-                <div class="card-body p-0 table-responsive" style="max-height:450px;">
-                    <table class="table table-hover table-bordered mb-0">
-                        <thead class="table-light text-center">
+    {{-- 📋 TABEL DATA --}}
+    <div class="card shadow-sm">
+        <div class="card-header bg-light fw-bold">
+            <i class="fa fa-list text-success me-1"></i> Data Antrian Farmasi
+        </div>
+        <div class="card-body p-0 position-relative">
+            {{-- 🔄 Spinner saat loading --}}
+            <div wire:loading class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
+                style="background: rgba(255,255,255,0.6); z-index: 10;">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Nomor Antrian</th>
+                            <th>Rekam Medik</th>
+                            <th>Nama Pasien</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($listData as $row)
                             <tr>
-                                <th>No Rawat</th>
-                                <th>No RM</th>
-                                <th>Nama</th>
-                                <th>Masuk</th>
-                                <th>Selesai</th>
-                                <th>Durasi</th>
-                                <th>Status</th>
-                                <th>Keterangan</th>
+                                <td class="text-center">
+                                    {{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}
+                                </td>
+                                <td class="text-center">{{ $row->nomor_antrian }}</td>
+                                <td class="text-center">{{ $row->rekam_medik }}</td>
+                                <td>{{ $row->nama_pasien }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-{{ $row->status == 'SELESAI' ? 'success' : 'secondary' }}">
+                                        {{ strtoupper($row->status) }}
+                                    </span>
+                                </td>
+                                <td>{{ $row->keterangan ?? '-' }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($listData as $item)
-                                @php
-                                    $badge = match(strtoupper($item->status)) {
-                                        'SELESAI' => 'success',
-                                        'DIPROSES','MENUNGGU' => 'warning',
-                                        'DIPANGGIL' => 'info',
-                                        default => 'secondary'
-                                    };
-                                @endphp
-                                <tr>
-                                    <td>{{ $item->no_rawat }}</td>
-                                    <td>{{ $item->no_rkm_medis }}</td>
-                                    <td>{{ $item->nm_pasien }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->masuk)->format('d-m-Y H:i') }}</td>
-                                    <td>{{ $item->selesai ? \Carbon\Carbon::parse($item->selesai)->format('d-m-Y H:i') : '-' }}</td>
-                                    <td>{{ $item->durasi_menit ? $item->durasi_menit.' mnt' : '-' }}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-{{ $badge }}">{{ strtoupper($item->status) }}</span>
-                                    </td>
-                                    <td>{{ $item->keterangan ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center py-2">Tidak ada data</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-3 text-muted">
+                                    <i class="fa fa-info-circle me-1"></i> Tidak ada data
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-{{-- CHART JS --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{-- 🔔 SweetAlert2 Toast --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('livewire:load', () => {
-    let chart;
-
-    function renderChart(labels, values) {
-        const ctx = document.getElementById('statusChart').getContext('2d');
-        if(chart) chart.destroy();
-
-        const colors = ["#007bff","#ffc107","#28a745","#dc3545","#6f42c1","#17a2b8"];
-
-        chart = new Chart(ctx, {
-            type:'pie',
-            data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    window.addEventListener('show-toast', event => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: event.detail.type || 'info',
+            title: event.detail.message,
+            showConfirmButton: false,
+            timer: 2000
         });
-
-        let legendHtml = "";
-        labels.forEach((label, i) => {
-            legendHtml += `<div><span class="circle" style="background:${colors[i]}"></span>${label}: <b>${values[i]}</b></div>`;
-        });
-        document.getElementById('chartLegend').innerHTML = legendHtml;
-    }
-
-    renderChart(@json($labels), @json($values));
-
-    Livewire.on('refreshChart', data => renderChart(data.labels, data.values));
-});
+    });
 </script>
 @endsection
