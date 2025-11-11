@@ -11,14 +11,11 @@ class KroscekPasien extends Controller
 {
     /**
      * Menampilkan halaman view kroscek pasien
-     *
-     * @param Request $request
-     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
-        // Set default values - DEFAULT FILTER IS 'semua' (All Patients)
-        $tanggal = $request->get('tanggal', Carbon::now()->format('Y-m-d'));
+        // 1. Ambil semua input
+        $tanggal = $request->get('tanggal', '');
         $tanggalMulai = $request->get('tanggal_mulai', '');
         $tanggalSelesai = $request->get('tanggal_selesai', '');
         $searchTerm = $request->get('search', '');
@@ -26,11 +23,27 @@ class KroscekPasien extends Controller
         $filterType = $request->get('filter_type', 'semua');
         $perPage = $request->get('per_page', 100);
 
-        // Ambil statistik
-        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai);
+        // 2. Tentukan Mode Tanggal Aktif & Set Default
+        $isRangeActive = !empty($tanggalMulai) && !empty($tanggalSelesai);
 
-        // Ambil daftar pasien berdasarkan filter
-        $daftarPasienBelumNota = $this->getDaftarPasienData($tanggal, $searchTerm, $filterStatus, $filterType, $perPage);
+        if ($isRangeActive) {
+            // Jika mode range aktif, kosongkan tanggal tunggal
+            $tanggal = '';
+        } else {
+            // Jika mode range tidak aktif, kosongkan tanggal range
+            $tanggalMulai = '';
+            $tanggalSelesai = '';
+
+            // Jika tanggal tunggal kosong, set default hari ini
+            if (empty($tanggal)) {
+                $tanggal = Carbon::now()->format('Y-m-d');
+            }
+        }
+
+        // 3. Ambil data dengan mode tanggal yang sudah disinkronkan
+        // getStatistikData dan getDaftarPasienData akan memprioritaskan $tanggalMulai/$tanggalSelesai jika tidak kosong
+        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai);
+        $daftarPasienBelumNota = $this->getDaftarPasienData($tanggal, $tanggalMulai, $tanggalSelesai, $searchTerm, $filterStatus, $filterType, $perPage);
 
         return view('regperiksa.kroscek-pasien', compact(
             'statistik',
@@ -56,7 +69,7 @@ class KroscekPasien extends Controller
                 ->leftJoin('nota_inap as ni', 'rp.no_rawat', '=', 'ni.no_rawat')
                 ->leftJoin('nota_jalan as nj', 'rp.no_rawat', '=', 'nj.no_rawat');
 
-            // Filter tanggal
+            // Filter tanggal: Prioritaskan Rentang Tanggal
             if ($tanggalMulai && $tanggalSelesai) {
                 $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
             } else {
@@ -65,40 +78,24 @@ class KroscekPasien extends Controller
 
             $result = $query->selectRaw('
                 COUNT(DISTINCT rp.no_rawat) as total_pasien,
-
-                -- Rawat Jalan (status_lanjut = Ralan dan bukan IGD)
                 SUM(CASE WHEN rp.status_lanjut = "Ralan" AND rp.kd_poli != "IGDK" THEN 1 ELSE 0 END) as total_ralan,
-
-                -- Total IGD (semua yang kd_poli = IGDK)
                 SUM(CASE WHEN rp.kd_poli = "IGDK" THEN 1 ELSE 0 END) as total_igd,
-
-                -- Rawat Inap lewat IGD (status_lanjut = Ranap AND kd_poli = IGDK)
                 SUM(CASE WHEN rp.status_lanjut = "Ranap" AND rp.kd_poli = "IGDK" THEN 1 ELSE 0 END) as total_ranap_igd,
-
-                -- Rawat Inap lewat Poli (status_lanjut = Ranap AND kd_poli != IGDK)
                 SUM(CASE WHEN rp.status_lanjut = "Ranap" AND rp.kd_poli != "IGDK" THEN 1 ELSE 0 END) as total_ranap_poli,
-
-                -- Batal
                 SUM(CASE WHEN rp.stts = "Batal" THEN 1 ELSE 0 END) as total_batal,
-
-                -- Belum ada nota RAWAT JALAN (tidak batal, rawat jalan, bukan IGD, belum ada nota)
                 SUM(CASE
                     WHEN rp.stts <> "Batal"
-                         AND rp.status_lanjut = "Ralan"
-                         AND rp.kd_poli != "IGDK"
-                         AND ni.no_nota IS NULL
-                         AND nj.no_nota IS NULL
+                        AND rp.status_lanjut = "Ralan"
+                        AND rp.kd_poli != "IGDK"
+                        AND ni.no_nota IS NULL
+                        AND nj.no_nota IS NULL
                     THEN 1 ELSE 0
                 END) as total_belum_nota,
-
-                -- Sudah ada nota (tidak batal dan sudah ada nota - untuk progress)
                 SUM(CASE
                     WHEN rp.stts <> "Batal"
-                         AND (ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL)
+                        AND (ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL)
                     THEN 1 ELSE 0
                 END) as total_sudah_nota,
-
-                -- Total pasien yang tidak batal (untuk perhitungan progress)
                 SUM(CASE WHEN rp.stts <> "Batal" THEN 1 ELSE 0 END) as total_pasien_aktif
             ')->first();
 
@@ -121,65 +118,65 @@ class KroscekPasien extends Controller
 
     /**
      * Mendapatkan daftar pasien berdasarkan filter dengan sorting berdasarkan no_rawat ASC
-     * Filter "Belum Nota" hanya menampilkan pasien rawat jalan
      */
-    private function getDaftarPasienData($tanggal, $searchTerm = '', $filterStatus = '', $filterType = 'semua', $perPage = 100)
+    private function getDaftarPasienData($tanggal, $tanggalMulai = null, $tanggalSelesai = null, $searchTerm = '', $filterStatus = '', $filterType = 'semua', $perPage = 100)
     {
         try {
             $query = DB::table('reg_periksa as rp')
                 ->join('pasien as p', 'rp.no_rkm_medis', '=', 'p.no_rkm_medis')
                 ->leftJoin('nota_inap as ni', 'rp.no_rawat', '=', 'ni.no_rawat')
                 ->leftJoin('nota_jalan as nj', 'rp.no_rawat', '=', 'nj.no_rawat')
-                ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli')
-                ->where('rp.tgl_registrasi', $tanggal)
-                ->select([
-                    'rp.no_rawat',
-                    'rp.no_rkm_medis',
-                    'p.nm_pasien',
-                    'rp.status_lanjut',
-                    'rp.kd_poli',
-                    'pol.nm_poli',
-                    'rp.tgl_registrasi',
-                    'rp.jam_reg',
-                    'rp.stts',
-                    DB::raw('CASE
-                        WHEN ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL THEN "Sudah Nota"
-                        WHEN rp.stts = "Batal" THEN "Batal"
-                        ELSE "Belum Nota"
-                    END as status_nota')
-                ]);
+                ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli');
+
+            // Filter tanggal: Prioritaskan Rentang Tanggal
+            if ($tanggalMulai && $tanggalSelesai) {
+                $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
+            } else {
+                $query->where('rp.tgl_registrasi', $tanggal);
+            }
+
+            $query->select([
+                'rp.no_rawat',
+                'rp.no_rkm_medis',
+                'p.nm_pasien',
+                'rp.status_lanjut',
+                'rp.kd_poli',
+                'pol.nm_poli',
+                'rp.tgl_registrasi',
+                'rp.jam_reg',
+                'rp.stts',
+                DB::raw('CASE
+                    WHEN ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL THEN "Sudah Nota"
+                    WHEN rp.stts = "Batal" THEN "Batal"
+                    ELSE "Belum Nota"
+                END as status_nota')
+            ]);
 
             // Filter berdasarkan filter type
             switch ($filterType) {
                 case 'semua':
-                    // Tampilkan semua reg pasien (tidak ada filter tambahan) - DEFAULT
                     break;
                 case 'batal':
-                    // Hanya yang batal
                     $query->where('rp.stts', 'Batal');
                     break;
                 case 'igd':
-                    // Pasien ranap IGD (ranap yang lewat IGD)
                     $query->where('rp.status_lanjut', 'Ranap')
-                          ->where('rp.kd_poli', 'IGDK');
+                            ->where('rp.kd_poli', 'IGDK');
                     break;
                 case 'ralan':
-                    // Pasien khusus rawat jalan (bukan IGD)
                     $query->where('rp.status_lanjut', 'Ralan')
-                          ->where('rp.kd_poli', '!=', 'IGDK');
+                            ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'ranap_poli':
-                    // Pasien ranap poli (ranap yang tidak lewat IGD)
                     $query->where('rp.status_lanjut', 'Ranap')
-                          ->where('rp.kd_poli', '!=', 'IGDK');
+                            ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'belum_nota':
-                    // CHANGED: Yang belum nota KHUSUS RAWAT JALAN saja
                     $query->where('rp.stts', '<>', 'Batal')
-                          ->where('rp.status_lanjut', 'Ralan') // Tambah filter rawat jalan
-                          ->where('rp.kd_poli', '!=', 'IGDK') // Exclude IGD
-                          ->whereNull('ni.no_nota')
-                          ->whereNull('nj.no_nota');
+                            ->where('rp.status_lanjut', 'Ralan')
+                            ->where('rp.kd_poli', '!=', 'IGDK')
+                            ->whereNull('ni.no_nota')
+                            ->whereNull('nj.no_nota');
                     break;
             }
 
@@ -222,6 +219,7 @@ class KroscekPasien extends Controller
             // Sort by no_rawat ascending (natural sorting for varchar with numbers)
             return $query->orderByRaw('CAST(rp.no_rawat AS UNSIGNED) ASC, rp.no_rawat ASC')
                          ->paginate($perPage);
+
         } catch (\Exception $e) {
             // Return empty paginator if error
             return new \Illuminate\Pagination\LengthAwarePaginator(
@@ -232,24 +230,36 @@ class KroscekPasien extends Controller
 
     /**
      * Mendapatkan statistik kroscek pasien berdasarkan tanggal registrasi
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getStatistikPasien(Request $request)
     {
         $request->validate([
-            'tanggal' => 'required|date|date_format:Y-m-d'
+            'tanggal' => 'nullable|date|date_format:Y-m-d',
+            'tanggal_mulai' => 'nullable|date|date_format:Y-m-d',
+            'tanggal_selesai' => 'nullable|date|date_format:Y-m-d|after_or_equal:tanggal_mulai',
         ]);
 
-        $tanggal = $request->input('tanggal');
-        $statistik = $this->getStatistikData($tanggal);
+        $tanggal = $request->input('tanggal', Carbon::now()->format('Y-m-d'));
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalSelesai = $request->input('tanggal_selesai');
+
+        // Sinkronisasi data filter: jika ada range, abaikan tanggal tunggal.
+        if (!empty($tanggalMulai) && !empty($tanggalSelesai)) {
+            $tanggal = null;
+        } else {
+            $tanggalMulai = null;
+            $tanggalSelesai = null;
+        }
+
+        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai);
 
         return response()->json([
             'success' => true,
             'message' => 'Data kroscek pasien berhasil diambil',
             'data' => [
                 'tanggal' => $tanggal,
+                'tanggal_mulai' => $tanggalMulai,
+                'tanggal_selesai' => $tanggalSelesai,
                 'statistik' => $statistik,
                 'progress' => [
                     'total_pasien_aktif' => $statistik->total_pasien_aktif,
@@ -265,8 +275,6 @@ class KroscekPasien extends Controller
 
     /**
      * Mendapatkan statistik kroscek pasien untuk hari ini
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getStatistikHariIni()
     {
@@ -293,9 +301,6 @@ class KroscekPasien extends Controller
 
     /**
      * Mendapatkan statistik kroscek pasien dalam rentang tanggal
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getStatistikRentangTanggal(Request $request)
     {
@@ -306,6 +311,7 @@ class KroscekPasien extends Controller
 
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
+        // Panggil helper dengan tanggal tunggal diset null
         $statistik = $this->getStatistikData(null, $tanggalMulai, $tanggalSelesai);
 
         return response()->json([
@@ -329,82 +335,99 @@ class KroscekPasien extends Controller
 
     /**
      * Mendapatkan detail daftar pasien berdasarkan filter dengan sorting no_rawat ASC
-     * Filter "Belum Nota" hanya menampilkan pasien rawat jalan
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function getDaftarPasienBelumNota(Request $request)
     {
         $request->validate([
-            'tanggal' => 'required|date|date_format:Y-m-d',
+            'tanggal' => 'nullable|date|date_format:Y-m-d',
+            'tanggal_mulai' => 'nullable|date|date_format:Y-m-d',
+            'tanggal_selesai' => 'nullable|date|date_format:Y-m-d|after_or_equal:tanggal_mulai',
             'search' => 'nullable|string|max:100',
             'filter_status' => 'nullable|string|in:Ranap,Ralan,IGD,Sudah_Nota,Belum_Nota',
             'filter_type' => 'nullable|string|in:semua,batal,igd,ralan,ranap_poli,belum_nota',
             'per_page' => 'nullable|integer|min:10|max:500'
         ]);
 
-        $tanggal = $request->input('tanggal');
+        $tanggal = $request->input('tanggal', Carbon::now()->format('Y-m-d'));
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalSelesai = $request->input('tanggal_selesai');
         $searchTerm = $request->input('search', '');
         $filterStatus = $request->input('filter_status', '');
         $filterType = $request->input('filter_type', 'semua');
         $perPage = $request->input('per_page', 100);
+
+        // Sinkronisasi data filter: jika ada range, abaikan tanggal tunggal.
+        if (!empty($tanggalMulai) && !empty($tanggalSelesai)) {
+            $tanggal = null;
+        } else {
+            $tanggalMulai = null;
+            $tanggalSelesai = null;
+        }
+        // Jika mode tunggal, pastikan $tanggal ada nilainya (minimal hari ini)
+        if (!$tanggalMulai && !$tanggalSelesai && empty($tanggal)) {
+            $tanggal = Carbon::now()->format('Y-m-d');
+        }
 
         try {
             $query = DB::table('reg_periksa as rp')
                 ->join('pasien as p', 'rp.no_rkm_medis', '=', 'p.no_rkm_medis')
                 ->leftJoin('nota_inap as ni', 'rp.no_rawat', '=', 'ni.no_rawat')
                 ->leftJoin('nota_jalan as nj', 'rp.no_rawat', '=', 'nj.no_rawat')
-                ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli')
-                ->where('rp.tgl_registrasi', $tanggal)
-                ->select([
-                    'rp.no_rawat',
-                    'rp.no_rkm_medis',
-                    'p.nm_pasien',
-                    'rp.status_lanjut',
-                    'rp.kd_poli',
-                    'pol.nm_poli',
-                    'rp.tgl_registrasi',
-                    'rp.jam_reg',
-                    'rp.stts',
-                    DB::raw('CASE
-                        WHEN ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL THEN "Sudah Nota"
-                        WHEN rp.stts = "Batal" THEN "Batal"
-                        ELSE "Belum Nota"
-                    END as status_nota')
-                ]);
+                ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli');
 
-            // Apply filter type with 'semua' as default
+            // Filter tanggal: Prioritaskan Rentang Tanggal
+            if ($tanggalMulai && $tanggalSelesai) {
+                $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
+            } else {
+                $query->where('rp.tgl_registrasi', $tanggal);
+            }
+
+            $query->select([
+                'rp.no_rawat',
+                'rp.no_rkm_medis',
+                'p.nm_pasien',
+                'rp.status_lanjut',
+                'rp.kd_poli',
+                'pol.nm_poli',
+                'rp.tgl_registrasi',
+                'rp.jam_reg',
+                'rp.stts',
+                DB::raw('CASE
+                    WHEN ni.no_nota IS NOT NULL OR nj.no_nota IS NOT NULL THEN "Sudah Nota"
+                    WHEN rp.stts = "Batal" THEN "Batal"
+                    ELSE "Belum Nota"
+                END as status_nota')
+            ]);
+
+            // Filter berdasarkan filter type
             switch ($filterType) {
                 case 'semua':
-                    // Tampilkan semua - DEFAULT
                     break;
                 case 'batal':
                     $query->where('rp.stts', 'Batal');
                     break;
                 case 'igd':
                     $query->where('rp.status_lanjut', 'Ranap')
-                          ->where('rp.kd_poli', 'IGDK');
+                            ->where('rp.kd_poli', 'IGDK');
                     break;
                 case 'ralan':
                     $query->where('rp.status_lanjut', 'Ralan')
-                          ->where('rp.kd_poli', '!=', 'IGDK');
+                            ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'ranap_poli':
                     $query->where('rp.status_lanjut', 'Ranap')
-                          ->where('rp.kd_poli', '!=', 'IGDK');
+                            ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'belum_nota':
-                    // CHANGED: Yang belum nota KHUSUS RAWAT JALAN saja
                     $query->where('rp.stts', '<>', 'Batal')
-                          ->where('rp.status_lanjut', 'Ralan') // Tambah filter rawat jalan
-                          ->where('rp.kd_poli', '!=', 'IGDK') // Exclude IGD
-                          ->whereNull('ni.no_nota')
-                          ->whereNull('nj.no_nota');
+                            ->where('rp.status_lanjut', 'Ralan')
+                            ->where('rp.kd_poli', '!=', 'IGDK')
+                            ->whereNull('ni.no_nota')
+                            ->whereNull('nj.no_nota');
                     break;
             }
 
-            // Apply search and other filters
+            // Apply search filter
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
@@ -414,6 +437,7 @@ class KroscekPasien extends Controller
                 });
             }
 
+            // Apply status filter (filter tambahan di dalam kategori yang dipilih)
             if ($filterStatus) {
                 switch ($filterStatus) {
                     case 'Ranap':
@@ -439,7 +463,7 @@ class KroscekPasien extends Controller
                 }
             }
 
-            // Sort by no_rawat ascending (natural sorting)
+            // Sort by no_rawat ascending (natural sorting for varchar with numbers)
             $result = $query->orderByRaw('CAST(rp.no_rawat AS UNSIGNED) ASC, rp.no_rawat ASC')->get();
 
             return response()->json([
@@ -447,6 +471,8 @@ class KroscekPasien extends Controller
                 'message' => 'Daftar pasien berhasil diambil',
                 'data' => [
                     'tanggal' => $tanggal,
+                    'tanggal_mulai' => $tanggalMulai,
+                    'tanggal_selesai' => $tanggalSelesai,
                     'filter_type' => $filterType,
                     'filter_status' => $filterStatus,
                     'search_term' => $searchTerm,

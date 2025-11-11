@@ -3,7 +3,6 @@
 
 @section('konten')
 <div class="container-fluid">
-    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 text-dark">Kroscek Pasien</h4>
@@ -14,29 +13,46 @@
         </div>
     </div>
 
-    <!-- Filter Form - Compact with Auto Submit -->
+    {{-- Logic untuk menentukan mode tanggal yang sedang aktif --}}
+    @php
+        $isRangeModeActive = !empty($tanggalMulai) && !empty($tanggalSelesai);
+    @endphp
+
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
             <form method="GET" action="{{ url('kroscek-pasien') }}" id="filterForm">
                 <div class="row g-2 align-items-end">
+
                     <div class="col-md-2">
+                        <label class="form-label small text-muted">Mode Tanggal</label>
+                        <select id="dateMode" class="form-select form-select-sm">
+                            <option value="single" {{ !$isRangeModeActive ? 'selected' : '' }}>Tanggal Tunggal</option>
+                            <option value="range" {{ $isRangeModeActive ? 'selected' : '' }}>Rentang Tanggal</option>
+                        </select>
+                    </div>
+
+                    {{-- 1. Tanggal Tunggal --}}
+                    <div class="col-md-2 date-input-group" id="singleDateGroup">
                         <label class="form-label small text-muted">Tanggal</label>
-                        <input type="date" name="tanggal" class="form-control form-control-sm auto-submit"
-                               value="{{ $tanggal }}" max="{{ date('Y-m-d') }}">
+                        <input type="date" name="tanggal" class="form-control form-control-sm"
+                            value="{{ $tanggal }}" max="{{ date('Y-m-d') }}" required>
                     </div>
-                    <div class="col-md-2">
+
+                    {{-- 2. Rentang Tanggal --}}
+                    <div class="col-md-2 date-input-group" id="rangeStartGroup">
                         <label class="form-label small text-muted">Dari</label>
-                        <input type="date" name="tanggal_mulai" class="form-control form-control-sm auto-submit"
-                               value="{{ $tanggalMulai }}" max="{{ date('Y-m-d') }}">
+                        <input type="date" name="tanggal_mulai" class="form-control form-control-sm"
+                            value="{{ $tanggalMulai }}" max="{{ date('Y-m-d') }}" required>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 date-input-group" id="rangeEndGroup">
                         <label class="form-label small text-muted">Sampai</label>
-                        <input type="date" name="tanggal_selesai" class="form-control form-control-sm auto-submit"
-                               value="{{ $tanggalSelesai }}" max="{{ date('Y-m-d') }}">
+                        <input type="date" name="tanggal_selesai" class="form-control form-control-sm"
+                            value="{{ $tanggalSelesai }}" max="{{ date('Y-m-d') }}" required>
                     </div>
+
                     <div class="col-md-2">
                         <label class="form-label small text-muted">Filter Data</label>
-                        <select name="filter_type" class="form-select form-select-sm auto-submit">
+                        <select name="filter_type" class="form-select form-select-sm">
                             <option value="semua" {{ request('filter_type', 'semua') == 'semua' ? 'selected' : '' }}>Semua Pasien</option>
                             <option value="belum_nota" {{ request('filter_type') == 'belum_nota' ? 'selected' : '' }}>Ralan Belum Nota</option>
                             <option value="batal" {{ request('filter_type') == 'batal' ? 'selected' : '' }}>Pasien Batal</option>
@@ -45,6 +61,7 @@
                             <option value="ranap_poli" {{ request('filter_type') == 'ranap_poli' ? 'selected' : '' }}>Ranap Poli</option>
                         </select>
                     </div>
+
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary btn-sm w-100" id="submitBtn">
                             <i class="fas fa-search"></i> Cari
@@ -57,25 +74,25 @@
                     </div>
                 </div>
 
-                <!-- Quick Filters -->
                 <div class="row mt-3">
                     <div class="col-12">
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="{{ url('kroscek-pasien') }}?tanggal={{ date('Y-m-d') }}"
-                               class="btn {{ $tanggal == date('Y-m-d') ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                Hari Ini
+                            {{-- Quick filter dijamin mengirim parameter kosong untuk variabel yang tidak digunakan --}}
+                            <a href="{{ url('kroscek-pasien') }}?tanggal={{ date('Y-m-d') }}&tanggal_mulai=&tanggal_selesai="
+                               class="btn {{ $tanggal == date('Y-m-d') && !$isRangeModeActive ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                 Hari Ini
                             </a>
-                            <a href="{{ url('kroscek-pasien') }}?tanggal={{ date('Y-m-d', strtotime('-1 day')) }}"
-                               class="btn {{ $tanggal == date('Y-m-d', strtotime('-1 day')) ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                Kemarin
+                            <a href="{{ url('kroscek-pasien') }}?tanggal={{ date('Y-m-d', strtotime('-1 day')) }}&tanggal_mulai=&tanggal_selesai="
+                               class="btn {{ $tanggal == date('Y-m-d', strtotime('-1 day')) && !$isRangeModeActive ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                 Kemarin
                             </a>
-                            <a href="{{ url('kroscek-pasien') }}?tanggal_mulai={{ date('Y-m-d', strtotime('-6 days')) }}&tanggal_selesai={{ date('Y-m-d') }}"
-                               class="btn btn-outline-secondary">
-                                7 Hari
+                            <a href="{{ url('kroscek-pasien') }}?tanggal_mulai={{ date('Y-m-d', strtotime('-6 days')) }}&tanggal_selesai={{ date('Y-m-d') }}&tanggal="
+                               class="btn {{ $isRangeModeActive && $tanggalMulai == date('Y-m-d', strtotime('-6 days')) && $tanggalSelesai == date('Y-m-d') ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                 7 Hari
                             </a>
-                            <a href="{{ url('kroscek-pasien') }}?tanggal_mulai={{ date('Y-m-01') }}&tanggal_selesai={{ date('Y-m-d') }}"
-                               class="btn btn-outline-secondary">
-                                Bulan Ini
+                            <a href="{{ url('kroscek-pasien') }}?tanggal_mulai={{ date('Y-m-01') }}&tanggal_selesai={{ date('Y-m-d') }}&tanggal="
+                               class="btn {{ $isRangeModeActive && $tanggalMulai == date('Y-m-01') && $tanggalSelesai == date('Y-m-d') ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                 Bulan Ini
                             </a>
                         </div>
                     </div>
@@ -84,7 +101,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards - Warna yang lebih jelas dan kontras tinggi -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
@@ -97,7 +113,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
                 <div class="card-body p-3 text-center">
@@ -109,7 +124,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
                 <div class="card-body p-3 text-center">
@@ -121,7 +135,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);">
                 <div class="card-body p-3 text-center">
@@ -133,7 +146,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
                 <div class="card-body p-3 text-center">
@@ -145,7 +157,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f8d7da 0%, #f1c2c7 100%);">
                 <div class="card-body p-3 text-center">
@@ -157,9 +168,8 @@
                 </div>
             </div>
         </div>
-
         <div class="col-6 col-md-4 col-lg">
-            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffe8a1 0%, #ffd93d 100__);">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffe8a1 0%, #ffd93d 100%);">
                 <div class="card-body p-3 text-center">
                     <div class="text-dark mb-2">
                         <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -171,7 +181,6 @@
         </div>
     </div>
 
-    <!-- Progress Bar - Menggunakan total_pasien_aktif -->
     @if(($statistik->total_pasien_aktif ?? 0) > 0)
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
@@ -188,7 +197,7 @@
 
             <div class="progress mb-2" style="height: 12px;">
                 <div class="progress-bar bg-success" role="progressbar"
-                     style="width: {{ $progressPercentage }}%"></div>
+                    style="width: {{ $progressPercentage }}%"></div>
             </div>
 
             <div class="text-center">
@@ -208,8 +217,7 @@
     </div>
     @endif
 
-    <!-- Data Table with Auto-filter Search and 100 items per page -->
-    @if($daftarPasienBelumNota->count() > 0)
+    @if($daftarPasienBelumNota->count() > 0 || request('search') || request('filter_status'))
     <div class="card border-0 shadow-sm">
         <div class="card-header border-0 bg-white py-3">
             <div class="row align-items-center">
@@ -218,7 +226,7 @@
                         @php
                             $titles = [
                                 'semua' => 'Semua Pasien',
-                                'belum_nota' => 'Pasien Rawat Jalan Belum Nota', // Updated title
+                                'belum_nota' => 'Pasien Rawat Jalan Belum Nota',
                                 'batal' => 'Pasien Batal',
                                 'igd' => 'Pasien Ranap IGD',
                                 'ralan' => 'Pasien Rawat Jalan',
@@ -231,10 +239,13 @@
                     <small class="text-muted">{{ $daftarPasienBelumNota->total() }} data ({{ $perPage ?? 100 }} per halaman)</small>
                 </div>
 
-                <!-- Items per page selector -->
                 <div class="col-auto me-3">
                     <form method="GET" action="{{ url('kroscek-pasien') }}" class="d-flex align-items-center">
-                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+                        {{-- Sinkronisasi filter tanggal aktif untuk pagination/per_page --}}
+                        <input type="hidden" name="tanggal" value="{{ $isRangeModeActive ? '' : $tanggal }}">
+                        <input type="hidden" name="tanggal_mulai" value="{{ $isRangeModeActive ? $tanggalMulai : '' }}">
+                        <input type="hidden" name="tanggal_selesai" value="{{ $isRangeModeActive ? $tanggalSelesai : '' }}">
+
                         <input type="hidden" name="filter_type" value="{{ request('filter_type', 'semua') }}">
                         <input type="hidden" name="search" value="{{ $searchTerm }}">
                         <input type="hidden" name="filter_status" value="{{ $filterStatus }}">
@@ -249,9 +260,12 @@
                 </div>
 
                 <div class="col-auto">
-                    <!-- Search Form with Auto Submit -->
                     <form method="GET" action="{{ url('kroscek-pasien') }}" class="d-flex" id="searchForm">
-                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+                        {{-- Sinkronisasi filter tanggal aktif untuk search --}}
+                        <input type="hidden" name="tanggal" value="{{ $isRangeModeActive ? '' : $tanggal }}">
+                        <input type="hidden" name="tanggal_mulai" value="{{ $isRangeModeActive ? $tanggalMulai : '' }}">
+                        <input type="hidden" name="tanggal_selesai" value="{{ $isRangeModeActive ? $tanggalSelesai : '' }}">
+
                         <input type="hidden" name="filter_type" value="{{ request('filter_type', 'semua') }}">
                         <input type="hidden" name="per_page" value="{{ $perPage ?? 100 }}">
                         <div class="input-group input-group-sm me-2">
@@ -346,7 +360,6 @@
             </table>
         </div>
 
-        <!-- Pagination with page info -->
         @if($daftarPasienBelumNota->hasPages())
         <div class="card-footer border-0 bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
@@ -364,8 +377,7 @@
     </div>
     @endif
 
-    <!-- Empty State -->
-    @if(($statistik->total_pasien ?? 0) == 0)
+    @if(($statistik->total_pasien ?? 0) == 0 && $daftarPasienBelumNota->count() == 0)
     <div class="text-center py-5">
         <div class="mb-3">
             <i class="fas fa-calendar-times fa-4x text-muted opacity-50"></i>
@@ -376,7 +388,6 @@
     @endif
 </div>
 
-<!-- Loading Indicator -->
 <div id="loadingIndicator" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(0,0,0,0.1); z-index: 9999;">
     <div class="d-flex justify-content-center align-items-center h-100">
         <div class="spinner-border text-primary" role="status">
@@ -386,112 +397,34 @@
 </div>
 
 <style>
-/* Card hover effects */
-.card {
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-}
-
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-}
-
-/* Button styling */
-.btn-group-sm .btn {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    border-width: 2px;
-}
-
-/* Table styling */
-.table td {
-    vertical-align: middle;
-    padding: 1rem 0.7rem;
-    border-bottom: 1px solid #f1f3f4;
-}
-
-.table tr:hover {
-    background-color: #f8f9fa !important;
-}
-
-/* Badge styling dengan kontras tinggi */
-.badge {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.8rem;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Progress bar */
-.progress {
-    border-radius: 15px;
-    background-color: #e9ecef;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.progress-bar {
-    border-radius: 15px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Input styling */
-.form-control, .form-select {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-/* Loading indicator */
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-/* Responsive adjustments */
+/* Style section (No change) */
+.card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05) !important; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important; }
+.btn-group-sm .btn { padding: 0.3rem 0.6rem; font-size: 0.8rem; border-width: 2px; }
+.table td { vertical-align: middle; padding: 1rem 0.7rem; border-bottom: 1px solid #f1f3f4; }
+.table tr:hover { background-color: #f8f9fa !important; }
+.badge { font-size: 0.75rem; padding: 0.4rem 0.8rem; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.progress { border-radius: 15px; background-color: #e9ecef; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
+.progress-bar { border-radius: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.form-control, .form-select { border: 2px solid #e9ecef; border-radius: 8px; }
+.form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+.spinner-border { width: 3rem; height: 3rem; }
 @media (max-width: 991px) {
-    .col-6:nth-child(odd) {
-        padding-right: 0.5rem;
-    }
-    .col-6:nth-child(even) {
-        padding-left: 0.5rem;
-    }
-
-    .btn-group-sm .btn {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.7rem;
-    }
-
-    .table-responsive {
-        font-size: 0.9rem;
-    }
-
-    .card-body {
-        padding: 1.5rem !important;
-    }
+    .col-6:nth-child(odd) { padding-right: 0.5rem; }
+    .col-6:nth-child(even) { padding-left: 0.5rem; }
+    .btn-group-sm .btn { padding: 0.2rem 0.4rem; font-size: 0.7rem; }
+    .table-responsive { font-size: 0.9rem; }
+    .card-body { padding: 1.5rem !important; }
 }
-
-/* High contrast mode support */
 @media (prefers-contrast: high) {
-    .card {
-        border: 2px solid #000 !important;
-    }
-
-    .text-muted {
-        color: #333 !important;
-    }
+    .card { border: 2px solid #000 !important; }
+    .text-muted { color: #333 !important; }
 }
 </style>
 
-<!-- JavaScript for Auto Submit and Debounce -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Debounce function untuk mencegah terlalu banyak request
+    // --- UTILITIES ---
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -503,51 +436,91 @@ document.addEventListener('DOMContentLoaded', function() {
             timeout = setTimeout(later, wait);
         };
     }
-
-    // Show loading indicator
     function showLoading() {
         document.getElementById('loadingIndicator').classList.remove('d-none');
     }
-
-    // Hide loading indicator
     function hideLoading() {
         document.getElementById('loadingIndicator').classList.add('d-none');
     }
 
-    // Auto submit untuk form filter utama (date, filter_type, per_page)
-    const autoSubmitElements = document.querySelectorAll('.auto-submit');
-    autoSubmitElements.forEach(element => {
-        element.addEventListener('change', function() {
-            showLoading();
+    // --- LOGIKA FILTER TANGGAL (Visibility Control & Cleanup) ---
+    const dateModeSelect = document.getElementById('dateMode');
+    const singleDateGroup = document.getElementById('singleDateGroup');
+    const rangeStartGroup = document.getElementById('rangeStartGroup');
+    const rangeEndGroup = document.getElementById('rangeEndGroup');
 
-            // Submit the correct form based on element
-            if (element.name === 'per_page') {
-                element.closest('form').submit();
-            } else {
-                document.getElementById('filterForm').submit();
-            }
+    const singleDateInput = singleDateGroup ? singleDateGroup.querySelector('input') : null;
+    const rangeStartInput = rangeStartGroup ? rangeStartGroup.querySelector('input') : null;
+    const rangeEndInput = rangeEndGroup ? rangeEndGroup.querySelector('input') : null;
+
+    // Status awal mode range diambil dari PHP
+    const isInitialLoadRange = {{ $isRangeModeActive ? 'true' : 'false' }};
+
+    function toggleDateInputs() {
+        const mode = dateModeSelect.value;
+        const isRange = mode === 'range';
+
+        // Atur status tampilan dan input
+        // Mode Single
+        if (singleDateGroup) {
+            singleDateGroup.style.display = isRange ? 'none' : 'block';
+            singleDateInput.disabled = isRange;
+            singleDateInput.required = !isRange;
+            // Penting: Hapus nilai jika dinonaktifkan
+            if (isRange) singleDateInput.value = '';
+        }
+
+        // Mode Range
+        if (rangeStartGroup) {
+            rangeStartGroup.style.display = isRange ? 'block' : 'none';
+            rangeStartInput.disabled = !isRange;
+            rangeStartInput.required = isRange;
+            // Penting: Hapus nilai jika dinonaktifkan
+            if (!isRange) rangeStartInput.value = '';
+        }
+        if (rangeEndGroup) {
+            rangeEndGroup.style.display = isRange ? 'block' : 'none';
+            rangeEndInput.disabled = !isRange;
+            rangeEndInput.required = isRange;
+            // Penting: Hapus nilai jika dinonaktifkan
+            if (!isRange) rangeEndInput.value = '';
+        }
+    }
+
+    if (dateModeSelect) {
+        dateModeSelect.addEventListener('change', toggleDateInputs);
+        // Panggil saat inisialisasi untuk memastikan tampilan sesuai dengan state PHP
+        toggleDateInputs();
+    }
+
+
+    // --- LOGIKA AUTO SUBMIT (di header tabel) ---
+
+    // Auto submit untuk Items per page
+    const perPageSelect = document.querySelector('select[name="per_page"].auto-submit');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            showLoading();
+            this.closest('form').submit();
         });
-    });
+    }
 
     // Auto submit untuk search form dengan debounce
     const searchInput = document.getElementById('searchInput');
     const searchForm = document.getElementById('searchForm');
     const filterStatusSelect = document.querySelector('.auto-submit-search');
 
-    // Debounced search function
     const debouncedSearch = debounce(function() {
         showLoading();
         searchForm.submit();
-    }, 500); // Wait 500ms after user stops typing
+    }, 500);
 
-    // Search input dengan debounce
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             debouncedSearch();
         });
     }
 
-    // Filter status langsung submit
     if (filterStatusSelect) {
         filterStatusSelect.addEventListener('change', function() {
             showLoading();
@@ -555,12 +528,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Hide loading on page load
-    window.addEventListener('load', function() {
-        hideLoading();
-    });
-
-    // Hide loading if page is already loaded
+    // --- HIDE LOADING ---
+    window.addEventListener('load', hideLoading);
     if (document.readyState === 'complete') {
         hideLoading();
     }
