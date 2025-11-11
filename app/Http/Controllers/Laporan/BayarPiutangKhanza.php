@@ -18,6 +18,7 @@ class BayarPiutangKhanza extends Controller
 
     public function BayarPiutangKhanza(Request $request)
     {
+        // 🔹 Ambil data awal dan filter
         $penjab       = $this->cacheService->getPenjab();
         $url          = '/bayar-piutang-khanza';
         $cariNomor    = $request->cariNomor;
@@ -25,7 +26,7 @@ class BayarPiutangKhanza extends Controller
         $tgl2         = $request->tgl2 ?? now()->format('Y-m-d');
         $kdPenjamin   = $request->kdPenjamin ? explode(',', $request->kdPenjamin) : [];
 
-        // 🔍 Query utama (filter)
+        // 🔍 Query utama (filter + relasi)
         $query = DB::table('bayar_piutang')
             ->select(
                 'bayar_piutang.tgl_bayar',
@@ -41,11 +42,25 @@ class BayarPiutangKhanza extends Controller
                 'bayar_piutang.tidak_terbayar',
                 'bayar_piutang.kd_rek_tidak_terbayar',
                 'penjab.kd_pj',
-                'penjab.png_jawab'
+                'penjab.png_jawab',
+
+                // 🆕 Kolom dari tabel piutang (dipertahankan)
+                'piutang.nota_piutang',
+                'piutang.tgl_piutang AS tgl_piutang_piutang',
+
+                // 🆕 Kolom tambahan dari tabel piutang_pasien
+                'piutang_pasien.tgl_piutang AS tgl_piutang_pasien'
             )
             ->join('pasien', 'bayar_piutang.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->leftJoin('reg_periksa', 'bayar_piutang.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+
+            // ✅ Join tabel piutang (sudah ada sebelumnya)
+            ->leftJoin('piutang', 'piutang.nota_piutang', '=', 'bayar_piutang.no_rawat')
+
+            // ✅ Tambahan join ke piutang_pasien (baru)
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
+
             ->whereBetween('bayar_piutang.tgl_bayar', [$tgl1, $tgl2])
             ->when($kdPenjamin, function ($q) use ($kdPenjamin) {
                 $q->whereIn('penjab.kd_pj', $kdPenjamin);
@@ -67,13 +82,11 @@ class BayarPiutangKhanza extends Controller
         // 🔹 Koleksi data yang ditampilkan di halaman ini
         $displayedCollection = $bayarPiutang->getCollection();
 
-        // ✅ Total baris (sesuai nomor urut tabel yang tampil)
-        $totalBarisDisplayed = $displayedCollection->count();
+        // ✅ Hitung total baris dan pasien unik di halaman
+        $totalBarisDisplayed   = $displayedCollection->count();
+        $totalPasienDisplayed  = $displayedCollection->pluck('no_rkm_medis')->filter()->unique()->count();
 
-        // ✅ Total pasien unik di halaman ini
-        $totalPasienDisplayed = $displayedCollection->pluck('no_rkm_medis')->filter()->unique()->count();
-
-        // 🔹 Data summary (ambil semua data sesuai filter — tanpa paginate)
+        // 🔹 Data summary (tanpa paginate)
         $allData = (clone $query)->get();
 
         $totalPasienAll       = $allData->pluck('no_rkm_medis')->filter()->unique()->count();
@@ -82,30 +95,25 @@ class BayarPiutangKhanza extends Controller
         $totalTidakTerbayar   = $allData->sum('tidak_terbayar');
         $totalKeseluruhan     = $totalCicilan + $totalDiskon + $totalTidakTerbayar;
 
-        // 🔹 Tambahkan info nota per item (untuk setiap baris pada paginator)
+        // 🔹 Tambahkan info nota untuk setiap baris
         $bayarPiutang->getCollection()->transform(function ($item) {
             $item->getNomorNota = DB::table('billing')
                 ->select('nm_perawatan')
                 ->where('no_rawat', $item->no_rawat)
                 ->where('no', '=', 'No.Nota')
                 ->get();
+
             return $item;
         });
 
+        // 🔹 Return ke view
         return view('laporan.bayarPiutangKhanza', [
             'penjab'               => $penjab,
             'url'                  => $url,
             'bayarPiutang'         => $bayarPiutang,
-
-            // 🔹 Total sesuai tabel (baris ditampilkan)
             'totalBaris'           => $totalBarisDisplayed,
-
-            // 🔹 Total pasien unik di halaman sekarang
             'totalPasien'          => $totalPasienDisplayed,
-
-            // 🔹 Total pasien unik seluruh data (tanpa paginate)
             'totalPasienAll'       => $totalPasienAll,
-
             'totalCicilan'         => $totalCicilan,
             'totalDiskon'          => $totalDiskon,
             'totalTidakTerbayar'   => $totalTidakTerbayar,

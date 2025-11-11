@@ -119,6 +119,11 @@ use App\Http\Controllers\Operasi\JadwalOperasi;
 use App\Http\Controllers\Regperiksa\KroscekPasien;
 use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
 use App\Http\Livewire\InfoKamar\InfoKamarbaru;
+// use App\Http\Controllers\LaporanFarmasiController;
+use App\Http\Controllers\AntrianFarmasi\LaporanFarmasiController;
+
+// Route::get('/laporan-farmasi', [LaporanFarmasiController::class, 'index'])->name('laporan.farmasi');
+
 
 
 
@@ -287,6 +292,8 @@ Route::group(['middleware' => 'default'], function () {
         // Laporan Farmasi
 
         Route::get('/laporanfarmasi', LaporanFarmasi::class)->name('laporanfarmasi');
+
+
 
 
 

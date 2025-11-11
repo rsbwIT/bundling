@@ -143,6 +143,7 @@
                         <th>No</th>
                         <th>Tgl. Bayar</th>
                         <th>Nama Pasien</th>
+                        <th>Tgl Piutang</th>
                         <th>No. Rawat</th>
                         <th>Cicilan (Rp)</th>
                         <th>Keterangan</th>
@@ -157,6 +158,7 @@
                             <td>{{ $bayarPiutang->firstItem() + $key }}</td>
                             <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->nm_pasien }}</td>
+                            <td>{{ $item->tgl_piutang_pasien ?? $item->tgl_piutang_piutang ?? '' }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ number_format($item->besar_cicilan, 0, ',', '.') }}</td>
                             <td>{{ $item->catatan }}</td>

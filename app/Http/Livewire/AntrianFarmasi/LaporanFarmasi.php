@@ -3,83 +3,67 @@
 namespace App\Http\Livewire\AntrianFarmasi;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 
 class LaporanFarmasi extends Component
 {
-    public $tgl1, $tgl2, $search = '';
-    public $listData;
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
 
-    public function mount()
-    {
-        // Awalnya kosong agar tidak langsung menampilkan semua data
-        $this->listData = collect();
-    }
+    public $tgl1;            // tanggal awal filter
+    public $tgl2;            // tanggal akhir filter
+    public $jenisRacik = ''; // filter racik/non-racik
 
-    public function loadData()
-    {
-        // Validasi tanggal
-        if (empty($this->tgl1) || empty($this->tgl2)) {
-            $this->dispatchBrowserEvent('show-toast', [
-                'type' => 'warning',
-                'message' => 'Silakan pilih rentang tanggal terlebih dahulu.'
-            ]);
-            return;
-        }
+    // Reset pagination saat filter berubah
+    public function updatingTgl1() { $this->resetPage(); }
+    public function updatingTgl2() { $this->resetPage(); }
+    public function updatingJenisRacik() { $this->resetPage(); }
 
-        try {
-            // Query ambil data dari tabel antrian
-            $this->listData = DB::table('antrian')
-                ->select(
-                    'tanggal',
-                    'nomor_antrian',
-                    'rekam_medik',
-                    'nama_pasien',
-                    'status',
-                    'keterangan',
-                    'no_rawat',
-                    'created_at',
-                    'updated_at',
-                    'racik_non_racik'
-                )
-                ->whereBetween(DB::raw('DATE(tanggal)'), [$this->tgl1, $this->tgl2])
-                ->when($this->search, function ($query) {
-                    $search = trim($this->search);
-                    $query->where(function ($q) use ($search) {
-                        $q->where('nama_pasien', 'like', "%{$search}%")
-                            ->orWhere('rekam_medik', 'like', "%{$search}%")
-                            ->orWhere('no_rawat', 'like', "%{$search}%")
-                            ->orWhere('nomor_antrian', 'like', "%{$search}%");
-                    });
-                })
-                ->orderBy('tanggal', 'desc')
-                ->get(); // hasil berupa object collection
-
-            // Jika tidak ada data
-            if ($this->listData->isEmpty()) {
-                $this->dispatchBrowserEvent('show-toast', [
-                    'type' => 'info',
-                    'message' => 'Tidak ada data ditemukan untuk rentang tanggal tersebut.'
-                ]);
-            }
-        } catch (\Exception $e) {
-            // Tangani error SQL
-            $this->dispatchBrowserEvent('show-toast', [
-                'type' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-            ]);
-            $this->listData = collect();
-        }
-    }
-
+    // Reset semua filter
     public function resetFilter()
     {
-        $this->reset(['tgl1', 'tgl2', 'search']);
-        $this->listData = collect();
+        $this->reset(['tgl1', 'tgl2', 'jenisRacik']);
+        $this->resetPage();
     }
 
     public function render()
     {
-        return view('livewire.antrian-farmasi.laporanfarmasi');
+        $query = DB::table('antrian')
+            ->select(
+                'tanggal',
+                'nomor_antrian',
+                'rekam_medik',
+                'nama_pasien',
+                'created_at',
+                'updated_at',
+                'racik_non_racik',
+                'status',
+                'no_rawat',
+                'keterangan'
+            );
+
+        // Filter tanggal
+        if (!empty($this->tgl1) && empty($this->tgl2)) {
+            $query->whereDate('tanggal', $this->tgl1);
+        } elseif (!empty($this->tgl1) && !empty($this->tgl2)) {
+            $query->whereBetween(DB::raw('DATE(tanggal)'), [$this->tgl1, $this->tgl2]);
+        } else {
+            // default tanggal = hari ini
+            $query->whereDate('tanggal', now());
+        }
+
+        // Filter racik / non-racik
+        if (!empty($this->jenisRacik)) {
+            $query->where('racik_non_racik', $this->jenisRacik);
+        } else {
+            $query->where('keterangan', 'RACIKAN');
+        }
+
+        $listData = $query->orderBy('tanggal', 'desc')->paginate(10);
+
+        return view('livewire.antrian-farmasi.laporanfarmasi', [
+            'listData' => $listData
+        ]);
     }
 }
