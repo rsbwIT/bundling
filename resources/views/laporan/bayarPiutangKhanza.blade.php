@@ -181,7 +181,7 @@ $(function () {
         });
     }
 
-    // ✅ Copy tabel ke clipboard agar bisa di-paste langsung ke Excel
+    // ✅ Copy Tabel ke Clipboard (kompatibel di semua browser)
     $('#copyButton').on('click', function() {
         let table = document.getElementById("tableToCopy");
         if (!table) return;
@@ -192,25 +192,42 @@ $(function () {
             tr.querySelectorAll("th, td").forEach(td => {
                 let text = td.innerText.trim();
 
-                // Hilangkan titik di nominal (misal 1.234.500 → 1234500)
+                // Hilangkan titik di angka agar Excel bisa SUM
                 if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(text)) {
                     text = text.replace(/\./g, '');
                 }
-
-                // Ganti tab dan newline agar tidak rusak di Excel
                 text = text.replace(/\t/g, ' ').replace(/\n/g, ' ');
                 cols.push(text);
             });
-            rows.push(cols.join("\t")); // Pisah kolom pakai tab
+            rows.push(cols.join("\t"));
         });
 
         let tsv = rows.join("\n");
-        navigator.clipboard.writeText(tsv).then(() => {
-            alert("✅ Tabel berhasil disalin! Sekarang bisa langsung tempel di Excel (Ctrl+V).");
-        }).catch(err => {
-            console.error(err);
-            alert("❌ Gagal menyalin tabel!");
-        });
+
+        // ✅ Coba pakai Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(tsv)
+                .then(() => alert("✅ Tabel berhasil disalin ke clipboard!"))
+                .catch(() => fallbackCopy(tsv));
+        } else {
+            // ⚙️ fallback jika navigator.clipboard tidak tersedia
+            fallbackCopy(tsv);
+        }
+
+        // 🔧 fallback ke execCommand
+        function fallbackCopy(text) {
+            let textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert("✅ Tabel berhasil disalin ke clipboard!");
+            } catch (err) {
+                alert("❌ Gagal menyalin tabel!");
+            }
+            document.body.removeChild(textarea);
+        }
     });
 });
 </script>
