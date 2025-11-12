@@ -168,40 +168,51 @@
     </div>
 </div>
 
-{{-- 📜 SCRIPT --}}
 @push('scripts')
 <script>
-    $(function () {
-        // ✅ DualListBox Penjamin
-        if ($.fn.bootstrapDualListbox) {
-            let dual = $('select[name="duallistbox[]"]').bootstrapDualListbox();
-            $('form').on('submit', function() {
-                $('input[name="kdPenjamin"]').val(
-                    $('select[name="duallistbox[]"]').val()?.join(',') ?? ''
-                );
+$(function () {
+    // ✅ DualListBox Penjamin
+    if ($.fn.bootstrapDualListbox) {
+        let dual = $('select[name="duallistbox[]"]').bootstrapDualListbox();
+        $('form').on('submit', function() {
+            $('input[name="kdPenjamin"]').val(
+                $('select[name="duallistbox[]"]').val()?.join(',') ?? ''
+            );
+        });
+    }
+
+    // ✅ Copy tabel ke clipboard agar bisa di-paste langsung ke Excel
+    $('#copyButton').on('click', function() {
+        let table = document.getElementById("tableToCopy");
+        if (!table) return;
+
+        let rows = [];
+        table.querySelectorAll("tr").forEach(tr => {
+            let cols = [];
+            tr.querySelectorAll("th, td").forEach(td => {
+                let text = td.innerText.trim();
+
+                // Hilangkan titik di nominal (misal 1.234.500 → 1234500)
+                if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(text)) {
+                    text = text.replace(/\./g, '');
+                }
+
+                // Ganti tab dan newline agar tidak rusak di Excel
+                text = text.replace(/\t/g, ' ').replace(/\n/g, ' ');
+                cols.push(text);
             });
-        }
+            rows.push(cols.join("\t")); // Pisah kolom pakai tab
+        });
 
-        // ✅ Copy Tabel ke Clipboard
-        $('#copyButton').on('click', function() {
-            let table = document.getElementById("tableToCopy");
-            if (!table) return;
-
-            let range = document.createRange();
-            range.selectNode(table);
-            let selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            try {
-                document.execCommand("copy");
-                selection.removeAllRanges();
-                alert("✅ Tabel berhasil disalin ke clipboard!");
-            } catch (err) {
-                alert("❌ Gagal menyalin tabel!");
-            }
+        let tsv = rows.join("\n");
+        navigator.clipboard.writeText(tsv).then(() => {
+            alert("✅ Tabel berhasil disalin! Sekarang bisa langsung tempel di Excel (Ctrl+V).");
+        }).catch(err => {
+            console.error(err);
+            alert("❌ Gagal menyalin tabel!");
         });
     });
+});
 </script>
 @endpush
 @endsection
