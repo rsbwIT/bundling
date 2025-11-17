@@ -22,6 +22,7 @@ class KroscekPasien extends Controller
         $filterStatus = $request->get('filter_status', '');
         $filterType = $request->get('filter_type', 'semua');
         $perPage = $request->get('per_page', 100);
+        $excludedPoli = $request->get('excluded_poli', []); // <-- [UBAH] Ganti nama variabel
 
         // 2. Tentukan Mode Tanggal Aktif & Set Default
         $isRangeActive = !empty($tanggalMulai) && !empty($tanggalSelesai);
@@ -40,10 +41,17 @@ class KroscekPasien extends Controller
             }
         }
 
+        // Ambil daftar semua poli untuk view
+        $allPoli = DB::table('poliklinik')
+                        ->select('kd_poli', 'nm_poli')
+                        ->where('status', '1') // Asumsi '1' = aktif
+                        ->orderBy('nm_poli', 'asc')
+                        ->get();
+
         // 3. Ambil data dengan mode tanggal yang sudah disinkronkan
-        // getStatistikData dan getDaftarPasienData akan memprioritaskan $tanggalMulai/$tanggalSelesai jika tidak kosong
-        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai);
-        $daftarPasienBelumNota = $this->getDaftarPasienData($tanggal, $tanggalMulai, $tanggalSelesai, $searchTerm, $filterStatus, $filterType, $perPage);
+        // [UBAH] Teruskan $excludedPoli
+        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai, $excludedPoli);
+        $daftarPasienBelumNota = $this->getDaftarPasienData($tanggal, $tanggalMulai, $tanggalSelesai, $searchTerm, $filterStatus, $filterType, $perPage, $excludedPoli);
 
         return view('regperiksa.kroscek-pasien', compact(
             'statistik',
@@ -54,14 +62,17 @@ class KroscekPasien extends Controller
             'searchTerm',
             'filterStatus',
             'filterType',
-            'perPage'
+            'perPage',
+            'allPoli',
+            'excludedPoli'  // <-- [UBAH] Kirim ke view
         ));
     }
 
     /**
      * Mendapatkan data statistik dengan detail IGD dan exclude pasien batal dari progress
      */
-    private function getStatistikData($tanggal, $tanggalMulai = null, $tanggalSelesai = null)
+    // [UBAH] Tambahkan parameter $excludedPoli
+    private function getStatistikData($tanggal, $tanggalMulai = null, $tanggalSelesai = null, $excludedPoli = [])
     {
         try {
             $query = DB::table('reg_periksa as rp')
@@ -74,6 +85,11 @@ class KroscekPasien extends Controller
                 $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
             } else {
                 $query->where('rp.tgl_registrasi', $tanggal);
+            }
+
+            // [UBAH] Terapkan filter pengecualian poli
+            if (!empty($excludedPoli)) {
+                $query->whereNotIn('rp.kd_poli', $excludedPoli);
             }
 
             $result = $query->selectRaw('
@@ -119,7 +135,8 @@ class KroscekPasien extends Controller
     /**
      * Mendapatkan daftar pasien berdasarkan filter dengan sorting berdasarkan no_rawat ASC
      */
-    private function getDaftarPasienData($tanggal, $tanggalMulai = null, $tanggalSelesai = null, $searchTerm = '', $filterStatus = '', $filterType = 'semua', $perPage = 100)
+    // [UBAH] Tambahkan parameter $excludedPoli
+    private function getDaftarPasienData($tanggal, $tanggalMulai = null, $tanggalSelesai = null, $searchTerm = '', $filterStatus = '', $filterType = 'semua', $perPage = 100, $excludedPoli = [])
     {
         try {
             $query = DB::table('reg_periksa as rp')
@@ -133,6 +150,11 @@ class KroscekPasien extends Controller
                 $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
             } else {
                 $query->where('rp.tgl_registrasi', $tanggal);
+            }
+
+            // [UBAH] Terapkan filter pengecualian poli
+            if (!empty($excludedPoli)) {
+                $query->whereNotIn('rp.kd_poli', $excludedPoli);
             }
 
             $query->select([
@@ -161,22 +183,22 @@ class KroscekPasien extends Controller
                     break;
                 case 'igd':
                     $query->where('rp.status_lanjut', 'Ranap')
-                            ->where('rp.kd_poli', 'IGDK');
+                        ->where('rp.kd_poli', 'IGDK');
                     break;
                 case 'ralan':
                     $query->where('rp.status_lanjut', 'Ralan')
-                            ->where('rp.kd_poli', '!=', 'IGDK');
+                        ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'ranap_poli':
                     $query->where('rp.status_lanjut', 'Ranap')
-                            ->where('rp.kd_poli', '!=', 'IGDK');
+                        ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'belum_nota':
                     $query->where('rp.stts', '<>', 'Batal')
-                            ->where('rp.status_lanjut', 'Ralan')
-                            ->where('rp.kd_poli', '!=', 'IGDK')
-                            ->whereNull('ni.no_nota')
-                            ->whereNull('nj.no_nota');
+                        ->where('rp.status_lanjut', 'Ralan')
+                        ->where('rp.kd_poli', '!=', 'IGDK')
+                        ->whereNull('ni.no_nota')
+                        ->whereNull('nj.no_nota');
                     break;
             }
 
@@ -184,9 +206,9 @@ class KroscekPasien extends Controller
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
-                      ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
-                      ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
-                      ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
+                        ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
+                        ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
+                        ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
                 });
             }
 
@@ -205,20 +227,20 @@ class KroscekPasien extends Controller
                     case 'Sudah_Nota':
                         $query->where(function($q) {
                             $q->whereNotNull('ni.no_nota')
-                              ->orWhereNotNull('nj.no_nota');
+                                ->orWhereNotNull('nj.no_nota');
                         });
                         break;
                     case 'Belum_Nota':
                         $query->where('rp.stts', '<>', 'Batal')
-                              ->whereNull('ni.no_nota')
-                              ->whereNull('nj.no_nota');
+                            ->whereNull('ni.no_nota')
+                            ->whereNull('nj.no_nota');
                         break;
                 }
             }
 
             // Sort by no_rawat ascending (natural sorting for varchar with numbers)
             return $query->orderByRaw('CAST(rp.no_rawat AS UNSIGNED) ASC, rp.no_rawat ASC')
-                         ->paginate($perPage);
+                ->paginate($perPage);
 
         } catch (\Exception $e) {
             // Return empty paginator if error
@@ -237,11 +259,13 @@ class KroscekPasien extends Controller
             'tanggal' => 'nullable|date|date_format:Y-m-d',
             'tanggal_mulai' => 'nullable|date|date_format:Y-m-d',
             'tanggal_selesai' => 'nullable|date|date_format:Y-m-d|after_or_equal:tanggal_mulai',
+            'excluded_poli' => 'nullable|array' // <-- [UBAH] Validasi
         ]);
 
         $tanggal = $request->input('tanggal', Carbon::now()->format('Y-m-d'));
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
+        $excludedPoli = $request->input('excluded_poli', []); // <-- [UBAH] Ambil input
 
         // Sinkronisasi data filter: jika ada range, abaikan tanggal tunggal.
         if (!empty($tanggalMulai) && !empty($tanggalSelesai)) {
@@ -251,7 +275,8 @@ class KroscekPasien extends Controller
             $tanggalSelesai = null;
         }
 
-        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai);
+        // [UBAH] Teruskan $excludedPoli
+        $statistik = $this->getStatistikData($tanggal, $tanggalMulai, $tanggalSelesai, $excludedPoli);
 
         return response()->json([
             'success' => true,
@@ -260,6 +285,7 @@ class KroscekPasien extends Controller
                 'tanggal' => $tanggal,
                 'tanggal_mulai' => $tanggalMulai,
                 'tanggal_selesai' => $tanggalSelesai,
+                'excluded_poli' => $excludedPoli, // <-- [UBAH]
                 'statistik' => $statistik,
                 'progress' => [
                     'total_pasien_aktif' => $statistik->total_pasien_aktif,
@@ -279,6 +305,7 @@ class KroscekPasien extends Controller
     public function getStatistikHariIni()
     {
         $tanggalHariIni = Carbon::now()->format('Y-m-d');
+        // Panggil helper dengan $excludedPoli default (array kosong)
         $statistik = $this->getStatistikData($tanggalHariIni);
 
         return response()->json([
@@ -306,13 +333,17 @@ class KroscekPasien extends Controller
     {
         $request->validate([
             'tanggal_mulai' => 'required|date|date_format:Y-m-d',
-            'tanggal_selesai' => 'required|date|date_format:Y-m-d|after_or_equal:tanggal_mulai'
+            'tanggal_selesai' => 'required|date|date_format:Y-m-d|after_or_equal:tanggal_mulai',
+            'excluded_poli' => 'nullable|array' // <-- [UBAH] Validasi
         ]);
 
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
+        $excludedPoli = $request->input('excluded_poli', []); // <-- [UBAH] Ambil input
+
         // Panggil helper dengan tanggal tunggal diset null
-        $statistik = $this->getStatistikData(null, $tanggalMulai, $tanggalSelesai);
+        // [UBAH] Teruskan $excludedPoli
+        $statistik = $this->getStatistikData(null, $tanggalMulai, $tanggalSelesai, $excludedPoli);
 
         return response()->json([
             'success' => true,
@@ -320,6 +351,7 @@ class KroscekPasien extends Controller
             'data' => [
                 'tanggal_mulai' => $tanggalMulai,
                 'tanggal_selesai' => $tanggalSelesai,
+                'excluded_poli' => $excludedPoli, // <-- [UBAH]
                 'statistik' => $statistik,
                 'progress' => [
                     'total_pasien_aktif' => $statistik->total_pasien_aktif,
@@ -345,7 +377,8 @@ class KroscekPasien extends Controller
             'search' => 'nullable|string|max:100',
             'filter_status' => 'nullable|string|in:Ranap,Ralan,IGD,Sudah_Nota,Belum_Nota',
             'filter_type' => 'nullable|string|in:semua,batal,igd,ralan,ranap_poli,belum_nota',
-            'per_page' => 'nullable|integer|min:10|max:500'
+            'per_page' => 'nullable|integer|min:10|max:500',
+            'excluded_poli' => 'nullable|array' // <-- [UBAH] Validasi
         ]);
 
         $tanggal = $request->input('tanggal', Carbon::now()->format('Y-m-d'));
@@ -355,6 +388,7 @@ class KroscekPasien extends Controller
         $filterStatus = $request->input('filter_status', '');
         $filterType = $request->input('filter_type', 'semua');
         $perPage = $request->input('per_page', 100);
+        $excludedPoli = $request->input('excluded_poli', []); // <-- [UBAH] Ambil input
 
         // Sinkronisasi data filter: jika ada range, abaikan tanggal tunggal.
         if (!empty($tanggalMulai) && !empty($tanggalSelesai)) {
@@ -380,6 +414,11 @@ class KroscekPasien extends Controller
                 $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
             } else {
                 $query->where('rp.tgl_registrasi', $tanggal);
+            }
+
+            // [UBAH] Terapkan filter pengecualian poli
+            if (!empty($excludedPoli)) {
+                $query->whereNotIn('rp.kd_poli', $excludedPoli);
             }
 
             $query->select([
@@ -408,22 +447,22 @@ class KroscekPasien extends Controller
                     break;
                 case 'igd':
                     $query->where('rp.status_lanjut', 'Ranap')
-                            ->where('rp.kd_poli', 'IGDK');
+                        ->where('rp.kd_poli', 'IGDK');
                     break;
                 case 'ralan':
                     $query->where('rp.status_lanjut', 'Ralan')
-                            ->where('rp.kd_poli', '!=', 'IGDK');
+                        ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'ranap_poli':
                     $query->where('rp.status_lanjut', 'Ranap')
-                            ->where('rp.kd_poli', '!=', 'IGDK');
+                        ->where('rp.kd_poli', '!=', 'IGDK');
                     break;
                 case 'belum_nota':
                     $query->where('rp.stts', '<>', 'Batal')
-                            ->where('rp.status_lanjut', 'Ralan')
-                            ->where('rp.kd_poli', '!=', 'IGDK')
-                            ->whereNull('ni.no_nota')
-                            ->whereNull('nj.no_nota');
+                        ->where('rp.status_lanjut', 'Ralan')
+                        ->where('rp.kd_poli', '!=', 'IGDK')
+                        ->whereNull('ni.no_nota')
+                        ->whereNull('nj.no_nota');
                     break;
             }
 
@@ -431,9 +470,9 @@ class KroscekPasien extends Controller
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
-                      ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
-                      ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
-                      ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
+                        ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
+                        ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
+                        ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
                 });
             }
 
@@ -452,13 +491,13 @@ class KroscekPasien extends Controller
                     case 'Sudah_Nota':
                         $query->where(function($q) {
                             $q->whereNotNull('ni.no_nota')
-                              ->orWhereNotNull('nj.no_nota');
+                                ->orWhereNotNull('nj.no_nota');
                         });
                         break;
                     case 'Belum_Nota':
                         $query->where('rp.stts', '<>', 'Batal')
-                              ->whereNull('ni.no_nota')
-                              ->whereNull('nj.no_nota');
+                            ->whereNull('ni.no_nota')
+                            ->whereNull('nj.no_nota');
                         break;
                 }
             }
@@ -477,6 +516,7 @@ class KroscekPasien extends Controller
                     'filter_status' => $filterStatus,
                     'search_term' => $searchTerm,
                     'per_page' => $perPage,
+                    'excluded_poli' => $excludedPoli, // <-- [UBAH]
                     'total' => $result->count(),
                     'pasien' => $result
                 ]
