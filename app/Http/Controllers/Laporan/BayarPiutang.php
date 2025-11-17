@@ -23,6 +23,7 @@ class BayarPiutang extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $statusLanjut = $request->status_lanjut;
 
         $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
@@ -59,10 +60,14 @@ class BayarPiutang extends Controller
             // ->leftJoin('penjab as penjabCOB', 'detail_piutang_pasien.kd_pj', '=', 'penjabCOB.kd_pj')
             // // /Testing
 
-            ->where(function ($query) use ($status, $kdPenjamin,$tanggl1, $tanggl2) {
+            ->where(function ($query) use ($status, $kdPenjamin, $tanggl1, $tanggl2, $statusLanjut) {
+
+                // Filter Penjamin
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
+
+                // Filter Status Piutang
                 if ($status == "Lunas") {
                     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
                         ->where('piutang_pasien.status', 'Lunas');
@@ -70,12 +75,18 @@ class BayarPiutang extends Controller
                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
                         ->where('piutang_pasien.status', 'Belum Lunas');
                 }
+
+                // ⭐ Filter Status Lanjut (Ralan / Ranap)
+                if ($statusLanjut != null) {
+                    $query->where('reg_periksa.status_lanjut', $statusLanjut);
+                }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                    ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
+
             // ->groupBy('bayar_piutang.no_rawat')
             ->orderBy('bayar_piutang.no_rawat', 'asc')
             ->paginate(1000);
@@ -86,9 +97,9 @@ class BayarPiutang extends Controller
                 ->where('no_rawat', $item->no_rawat)
                 ->where(function ($query) use ($item) {
                     if ($item->status_lanjut == 'Ralan') {
-                       $query->where('jnspelayanan', '=' , '2');
+                        $query->where('jnspelayanan', '=', '2');
                     } else {
-                        $query->where('jnspelayanan', '=' , '1');
+                        $query->where('jnspelayanan', '=', '1');
                     }
                 })
                 ->get();

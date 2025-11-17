@@ -24,6 +24,18 @@
         <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
+                    <select class="form-control" name="status_lanjut">
+                        <option value="">Semua Perawatan</option>
+                        <option value="Ralan" {{ request('status_lanjut')=='Ralan' ? 'selected' : '' }}>Rawat Jalan</option>
+                        <option value="Ranap" {{ request('status_lanjut')=='Ranap' ? 'selected' : '' }}>Rawat Inap</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
                     <input type="date" name="tgl1" class="form-control form-control-xs"
                         value="{{ request('tgl1', now()->format('Y-m-d')) }}">
                     <div class="input-group-append">
