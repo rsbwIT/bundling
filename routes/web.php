@@ -119,10 +119,7 @@ use App\Http\Controllers\Operasi\JadwalOperasi;
 use App\Http\Controllers\Regperiksa\KroscekPasien;
 use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
 use App\Http\Livewire\InfoKamar\InfoKamarbaru;
-// use App\Http\Controllers\LaporanFarmasiController;
-use App\Http\Controllers\AntrianFarmasi\LaporanFarmasiController;
-
-// Route::get('/laporan-farmasi', [LaporanFarmasiController::class, 'index'])->name('laporan.farmasi');
+use App\Http\Controllers\Fisioterapi\Fisioterapi;
 
 
 
@@ -205,7 +202,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-bayar-piutang', [BayarPiutang::class, 'CariBayarPiutang']);
         // Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza']);
         Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza'])
-        ->name('bayar.piutang.khanza');
+            ->name('bayar.piutang.khanza');
         Route::get('/bayar-piutang-karyawan', [BayarPiutangKaryawan::class, 'bayarPiutangKaryawan']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
@@ -269,7 +266,7 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/farmasi/antrian', PanggilanFarmasiBaru::class)->name('farmasi.antrian');
         Route::post('/farmasi/antrian/update-status/{nomor}', [PanggilanFarmasiBaru::class, 'updateStatus'])
-                ->name('farmasi.antrian.update-status');
+            ->name('farmasi.antrian.update-status');
 
 
 
@@ -284,22 +281,94 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/antrian-farmasi/api-tv', [PanggilanFarmasiBaru::class, 'apiTv'])
             ->name('antrian.farmasi.data');
 
-        // 📺 Tampilan layar TV untuk display farmasi
+        //Tampilan layar TV untuk display farmasi
         Route::get('/displayfarmasi', function () {
             return view('livewire.antrian-farmasi.displayfarmasibaru');
         })->name('antrian.farmasi.display');
 
         // Laporan Farmasi
-
         Route::get('/laporanfarmasi', LaporanFarmasi::class)->name('laporanfarmasi');
-
-
-
-
-
 
         //DISPLAY
         Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
+
+
+        //fisioterapi
+
+
+        // ===========================
+        // // LIST PASIEN
+        // // ===========================
+        // Route::get('/fisioterapi/pasien', [Fisioterapi::class, 'listPasien'])
+        //     ->name('fisioterapi.pasien');
+
+
+        // // ===========================
+        // // TAMPIL FORM FISIOTERAPI
+        // // FORMAT URL BENAR:
+        // // /fisioterapi/form/2025/11/22/000197
+        // // ===========================
+        // Route::get(
+        //     '/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}',
+        //     [Fisioterapi::class, 'form']
+        // )->where([
+        //     'tahun' => '[0-9]{4}',
+        //     'bulan' => '[0-9]{1,2}',
+        //     'hari'  => '[0-9]{1,2}',
+        // ])->name('fisioterapi.form');
+
+
+        // // ===========================
+        // // SIMPAN FORM
+        // // URL BENAR:
+        // // /fisioterapi/form/2025/11/22/000197/save
+        // // ===========================
+        // Route::post(
+        //     '/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}/save',
+        //     [Fisioterapi::class, 'saveForm']
+        // )->where([
+        //     'tahun' => '[0-9]{4}',
+        //     'bulan' => '[0-9]{1,2}',
+        //     'hari'  => '[0-9]{1,2}',
+        // ])->name('fisioterapi.form.save');
+
+
+        // // ===========================
+        // // CARI PASIEN BERDASAR NO RAWAT
+        // // ===========================
+        // Route::get('/fisioterapi/cari/{no_rawat}', [Fisioterapi::class, 'cariPasien'])
+        //     ->name('fisioterapi.cari');
+
+
+
+
+        Route::get('/fisioterapi', [Fisioterapi::class, 'listPasien'])->name('fisioterapi.pasien');
+
+        Route::get('/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'form'])
+            ->name('fisioterapi.form');
+
+        Route::post('/fisioterapi/form/save/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'saveForm'])
+            ->name('fisioterapi.form.save');
+
+        Route::post('/fisioterapi/lembar/new/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'newLembar'])
+            ->name('fisioterapi.lembar.new');
+
+        // Route::get(
+        //     '/fisioterapi/print/{tahun}/{bulan}/{hari}/{no_rawat}',
+        //     [PrintController::class, 'index']
+        // )->name('fisioterapi.print');
+
+        Route::get(
+            '/fisioterapi/print/{no_rkm_medis}/{lembar}',
+            [App\Http\Controllers\Fisioterapi\Print\PrintController::class, 'print']
+        )->name('fisioterapi.print');
+
+
+
+
+
+
+
 
 
         // RM
@@ -428,10 +497,10 @@ Route::group(['middleware' => 'default'], function () {
 
         // Sep TTD
 
-            Route::get('/sep/ttd/{no_sep}', [Sep_TTD::class, 'form'])->name('sep.formTtd');
-            Route::post('/sep/ttd', [Sep_TTD::class, 'simpan'])->name('sep.simpanTtd');
+        Route::get('/sep/ttd/{no_sep}', [Sep_TTD::class, 'form'])->name('sep.formTtd');
+        Route::post('/sep/ttd', [Sep_TTD::class, 'simpan'])->name('sep.simpanTtd');
 
-        
+
 
 
 
@@ -439,36 +508,36 @@ Route::group(['middleware' => 'default'], function () {
         // antrianpendaftaranbaru
 
 
-            Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
-            Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('antrian.update-status');
-            Route::post('/antrian/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])
-                ->name('antrian.update-status');
+        Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
+        Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('antrian.update-status');
+        Route::post('/antrian/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])
+            ->name('antrian.update-status');
 
-            Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
-            Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
-            Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
-            Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
-            Route::post('/antrian/selesai', [AntrianPendaftaranBaru::class, 'selesai'])->name('antrian.selesai');
+        Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
+        Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
+        Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
+        Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
+        Route::post('/antrian/selesai', [AntrianPendaftaranBaru::class, 'selesai'])->name('antrian.selesai');
 
 
         // kamarinapdr
 
-            Route::get('/kamar-inap-dr', [App\Http\Controllers\PasienKamarInap\KamarInapDr::class, 'index'])
-                ->name('kamarinapdr.index');
+        Route::get('/kamar-inap-dr', [App\Http\Controllers\PasienKamarInap\KamarInapDr::class, 'index'])
+            ->name('kamarinapdr.index');
 
-            Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
+        Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
 
-            // 🔹 Jadwal Operasi
-                Route::get('/jadwal-operasi', [JadwalOperasi::class, 'index'])->name('jadwal.operasi');
-                Route::post('/jadwal-operasi', [JadwalOperasi::class, 'store'])->name('jadwal.operasi.store');
-                Route::put('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'update'])->name('jadwal.operasi.update');
-                Route::delete('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'destroy'])->name('jadwal.operasi.destroy');
+        // 🔹 Jadwal Operasi
+        Route::get('/jadwal-operasi', [JadwalOperasi::class, 'index'])->name('jadwal.operasi');
+        Route::post('/jadwal-operasi', [JadwalOperasi::class, 'store'])->name('jadwal.operasi.store');
+        Route::put('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'update'])->name('jadwal.operasi.update');
+        Route::delete('/jadwal-operasi/{no_rawat}', [JadwalOperasi::class, 'destroy'])->name('jadwal.operasi.destroy');
 
         // KROSCEK PASIEN
-            Route::get('/kroscek-pasien', [KroscekPasien::class, 'index'])->name('kroscek.pasien.view');
+        Route::get('/kroscek-pasien', [KroscekPasien::class, 'index'])->name('kroscek.pasien.view');
 
         // KROSCEK PASIEN - API
-            Route::prefix('kroscek-pasien')->name('kroscek.pasien.')->group(function () {
+        Route::prefix('kroscek-pasien')->name('kroscek.pasien.')->group(function () {
             Route::post('/statistik-tanggal', [KroscekPasien::class, 'getStatistikPasien'])->name('statistik.tanggal');
             Route::get('/statistik-hari-ini', [KroscekPasien::class, 'getStatistikHariIni'])->name('statistik.hari.ini');
             Route::post('/statistik-rentang-tanggal', [KroscekPasien::class, 'getStatistikRentangTanggal'])->name('statistik.rentang.tanggal');
@@ -508,11 +577,11 @@ Route::group(['middleware' => 'default'], function () {
     Route::get('/info-kamar3', [InfoKamar::class, 'InfoKamar3']);
 });
 
-    //display informasi kamar igd
-    Route::get('/info-kamar-baru', InfoKamarbaru::class)->name('info.kamar.baru');
+//display informasi kamar igd
+Route::get('/info-kamar-baru', InfoKamarbaru::class)->name('info.kamar.baru');
 
-    // file bundling scan
-    // Contoh di routes/web.php (Linux server)
+// file bundling scan
+// Contoh di routes/web.php (Linux server)
 Route::post('/upload-api', function (\Illuminate\Http\Request $request) {
     $request->validate([
         'file' => 'required|file',
