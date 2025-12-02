@@ -9,28 +9,15 @@
         table { width:100%; border-collapse: collapse; margin-top:10px; table-layout: fixed; }
         th, td { padding:6px; border:1px solid #000; text-align:left; vertical-align:top; word-wrap: break-word; }
         th { background-color: #f0f0f0; }
-        /* TTD default */
-        .ttd-img { 
-            height:50px;
-            width:auto;
-            display:block;
-            margin:auto;
-        }
-        /* TTD print */
-        @media print {
-            .ttd-img { height:30px !important; }
-        }
-        /* Footer dokter penanggung jawab */
-        .footer-dokter {
-            margin-top:30px;
-            text-align:right;
-            font-size:14px;
-        }
+        .ttd-img { height:50px; width:auto; display:block; margin:auto; }
+        @media print { .ttd-img { height:30px !important; } }
+        .footer-dokter { margin-top:30px; text-align:right; font-size:14px; }
+        .qr-footer { margin-top:10px; text-align:right; }
     </style>
 </head>
 <body>
 
-{{-- HEADER (KOP SURAT) --}}
+{{-- KOP SURAT --}}
 <div style="width:100%; display:flex; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
     <div style="width:120px; text-align:left;">
         <img src="{{ asset('img/bw2.png') }}" style="height:80px;">
@@ -47,7 +34,7 @@
     </div>
 </div>
 
-{{-- HEADER DATA PASIEN --}}
+{{-- DATA PASIEN --}}
 <div class="header-box">
     <table>
         <tr><td><b>No. Rawat</b></td><td>{{ $first->no_rawat }}</td></tr>
@@ -57,9 +44,9 @@
     </table>
 </div>
 
-{{-- DERETAN PROTOKOL TERAPI --}}
+{{-- PROTOKOL TERAPI --}}
 <h3>Protokol Terapi</h3>
-<div style="display:flex; gap:15px; margin-top:10px; margin-bottom:20px;">
+<div style="display:flex; gap:15px; margin-bottom:20px;">
     <div style="border:1px solid #000; padding:10px; width:33%; font-size:13px;">
         <b>Diagnosa:</b><br>{{ $first->diagnosa }}
     </div>
@@ -85,38 +72,71 @@
         </tr>
     </thead>
     <tbody>
+        @php
+            $namaDokter    = $dokterPJ->nm_dokter ?? '-';
+            $kdDokter      = $dokterPJ->kd_dokter ?? '-';
+            $tglRegistrasi = $first->tgl_registrasi ?? now()->format('Y-m-d');
+        @endphp
+
         @foreach ($data as $row)
-        <tr>
-            <td>{{ $row->kunjungan }}</td>
-            <td>{{ $row->program }}</td>
-            <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}</td>
-            <td>
-                @if ($row->ttd_pasien)
-                    <img src="{{ asset('storage/ttd/' . $row->ttd_pasien) }}" class="ttd-img">
-                @else - @endif
-            </td>
-            <td>
-                @if ($row->ttd_dokter)
-                    <img src="{{ asset('storage/ttd/' . $row->ttd_dokter) }}" class="ttd-img">
-                @else - @endif
-            </td>
-            <td>
-                @if ($row->ttd_terapis)
-                    <img src="{{ asset('storage/ttd/' . $row->ttd_terapis) }}" class="ttd-img">
-                @else - @endif
-            </td>
-        </tr>
+            @if (trim($row->program) != '')
+                <tr>
+                    <td>{{ $row->kunjungan }}</td>
+                    <td>{{ $row->program }}</td>
+                    <td>
+                        @if ($row->tanggal)
+                            {{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if ($row->ttd_pasien)
+                            <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-img">
+                        @else - @endif
+                    </td>
+                    <td>
+                        @php
+                            $qrText = 'Dikeluarkan di '.$setting->nama_instansi.
+                                      ', Kabupaten/Kota '.$setting->kabupaten.
+                                      ' Ditandatangani secara elektronik oleh '.$namaDokter.
+                                      ' ID '.$kdDokter.
+                                      ' '.$tglRegistrasi;
+                            $qrBase64 = DNS2D::getBarcodePNG($qrText, 'QRCODE');
+                        @endphp
+                        @if ($row->ttd_dokter && file_exists(storage_path('app/public/qr_dokter/'.$row->ttd_dokter)))
+                            <img src="{{ asset('storage/qr_dokter/'.$row->ttd_dokter) }}" class="ttd-img">
+                        @else
+                            <img src="data:image/png;base64,{{ $qrBase64 }}" class="ttd-img">
+                        @endif
+                    </td>
+                    <td>
+                        @if ($row->ttd_terapis)
+                            <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-img">
+                        @else - @endif
+                    </td>
+                </tr>
+            @endif
         @endforeach
     </tbody>
 </table>
 
-{{-- TANGGAL KUNJUNGAN PERTAMA --}}
-<p style="text-align:right;"><b>Tanggal Kunjungan Pertama:</b> {{ \Carbon\Carbon::parse($tanggalPertama)->format('d-m-Y') }}</p>
+{{-- FOOTER DOKTER (RATA TENGAH) --}}
+<div style="text-align:right; margin-top:20px;">
+    <p style="margin-bottom:10px;">
+        <b>Tanggal Kunjungan Pertama:</b>
+        {{ \Carbon\Carbon::parse($tanggalPertama)->format('d-m-Y') }}
+    </p>
 
-{{-- FOOTER DOKTER PENANGGUNG JAWAB --}}
-<div class="footer-dokter"><br><br><br>
-    <b>{{ $dokterPJ->nm_dokter ?? '-' }}</b>
+    <img src="data:image/png;base64,{{ $qrBase64 }}" alt="QR Dokter" 
+         style="width:100px; height:100px; display:block; margin-left:auto; margin-right:03%;">
+
+    <div class="footer-dokter" style="margin-top:10px; text-align:right;">
+        <b>{{ $namaDokter }}</b>
+    </div>
 </div>
+
+
 
 <script>
     window.print();

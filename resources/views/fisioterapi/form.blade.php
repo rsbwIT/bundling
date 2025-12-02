@@ -1,58 +1,117 @@
 @extends('layout.layoutDashboard')
-
 @section('title', 'Form Fisioterapi')
-
 @section('konten')
 
 <style>
-    .card-premium {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    .card-premium { border-radius:18px; border:none; box-shadow:0 4px 18px rgba(0,0,0,0.08); }
+    .section-title { font-weight:700; font-size:1.3rem; }
+
+    /* ==== DATE INPUT FIX FINAL ==== */
+    .date-wrap { position:relative; width:100%; }
+
+    .date-input {
+        width:100%;
+        padding:10px 12px;
+        border-radius:10px;
+        border:1px solid #ccc;
+        font-size:14px;
+        background:white;
+        transition:0.25s;
     }
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 15px;
-        color: #2c3e50;
+
+    /* Sembunyikan yyyy-mm-dd saat kosong */
+    .date-input:not(.has-value)::-webkit-datetime-edit {
+        color:transparent;
     }
-    .signature-pad {
-        border: 1px solid #dcdcdc;
+
+    .date-input.has-value::-webkit-datetime-edit {
+        color:black !important;
+    }
+
+    .date-input:focus {
+        border-color:#006de9;
+        box-shadow:0 0 0 2px rgba(0,109,233,0.12);
+    }
+
+    .date-label {
+        position:absolute;
+        left:12px; top:50%;
+        transform:translateY(-50%);
+        color:#777;
+        font-size:14px;
+        background:white;
+        padding:0 4px;
+        pointer-events:none;
+        transition:0.25s;
+    }
+
+    .date-input.has-value + .date-label,
+    .date-input:focus + .date-label {
+        top:-6px;
+        font-size:11px;
+        color:#006de9;
+    }
+
+    /* Signature */
+    .signature-pad { width:140px; height:90px; border:1px solid #aaa; border-radius:10px; }
+    .ttd-preview { width:80px; height:80px; object-fit:contain; display:block; margin:auto; }
+
+    .table-premium th { background:#f3f6fa; font-weight:700; }
+
+    .form-select {
+        width: 100%;                /* Full width */
+        padding: 0.5rem 1rem;       /* Spasi dalam */
+        font-size: 1rem;            /* Ukuran font */
+        border-radius: 8px;         /* Sudut membulat */
+        border: 1px solid #ccc;     /* Border standar */
+        background-color: #fff;     
+        transition: border-color 0.3s, box-shadow 0.3s;
+        appearance: none;           /* Hilangkan style default browser */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .form-select:focus {
+        border-color: #4A90E2;      /* Warna border saat focus */
+        box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        outline: none;
+    }
+
+    /* Tambahan ikon dropdown di kanan */
+    .form-select-wrapper {
+        position: relative;
+        display: inline-block;
         width: 100%;
-        height: 130px;
-        border-radius: 10px;
-        background: #fff;
-        touch-action: none;
     }
-    .table-premium th {
-        background: #f3f6fa;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-    .ttd-preview {
-        max-height: 120px;
-        object-fit: contain;
+
+    .form-select-wrapper::after {
+        content: "▼";               /* Simbol dropdown */
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;       /* Supaya tidak mengganggu klik */
+        color: #888;
+        font-size: 0.8rem;
     }
 </style>
 
-{{-- Flash messages --}}
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+@if(session('success')) 
+    <div class="alert alert-success">{{ session('success') }}</div> 
 @endif
-@if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
+@if(session('error')) 
+    <div class="alert alert-danger">{{ session('error') }}</div> 
 @endif
 
-{{-- ===================================== --}}
-{{-- IDENTITAS PASIEN --}}
-{{-- ===================================== --}}
-<div class="card card-premium p-4 mb-3">
+
+<!-- ===================== IDENTITAS ===================== -->
+<div class="card card-premium p-4 mb-4">
     <div class="d-flex justify-content-between align-items-center">
         <h4 class="section-title mb-0">Identitas Pasien</h4>
 
         <div class="d-flex align-items-center">
-            <strong>Lembar: </strong>
-            <select id="selectLembar" class="form-select ms-2" style="width: auto;">
+            <strong>Lembar:</strong>
+            <select id="selectLembar" class="form-select ms-2" style="width:auto;">
                 @for ($l = 1; $l <= ($lembarMax ?? $lembar); $l++)
                     <option value="{{ $l }}" {{ $l == $lembar ? 'selected' : '' }}>
                         Lembar {{ $l }}
@@ -62,56 +121,70 @@
         </div>
     </div>
 
-    <div class="row g-3 mt-3">
+    <div class="row mt-3 g-3">
         <div class="col-md-6">
             <label class="fw-semibold">Nama Pasien</label>
-            <input class="form-control" value="{{ $data->nm_pasien }}" readonly>
+            <input class="form-control" readonly value="{{ $data->nm_pasien }}">
         </div>
-
         <div class="col-md-3">
             <label class="fw-semibold">No. RM</label>
-            <input class="form-control" value="{{ $data->no_rkm_medis }}" readonly>
+            <input class="form-control" readonly value="{{ $data->no_rkm_medis }}">
         </div>
-
         <div class="col-md-3">
             <label class="fw-semibold">Dokter</label>
-            <input class="form-control" value="{{ $dokter }}" readonly>
+            <input class="form-control" readonly value="{{ $dokter ?? '' }}">
         </div>
     </div>
 </div>
 
-{{-- ===================================== --}}
-{{-- FORM --}}
-{{-- ===================================== --}}
-<form id="fisioterapiForm" method="POST"
-      action="{{ route('fisioterapi.form.save', [$tahun,$bulan,$hari,$no_rawat]) }}">
-@csrf
 
+<!-- ===================== FORM ===================== -->
+<form id="fisioterapiForm" method="POST" action="{{ route('fisioterapi.form.save', [$tahun,$bulan,$hari,$no_rawat]) }}">
+@csrf
 <input type="hidden" name="lembar" id="lembarInput" value="{{ $lembar }}">
 
+
+<!-- ===================== PROTOKOL ===================== -->
 <div class="card card-premium p-4 mb-5">
     <h4 class="section-title">Protokol Terapi</h4>
 
     <div class="mb-3">
         <label class="fw-semibold">Diagnosa</label>
-        <textarea name="diagnosa" class="form-control" rows="2">{{ $form->diagnosa }}</textarea>
+        <textarea name="diagnosa" class="form-control" rows="2">{{ $form->diagnosa ?? '' }}</textarea>
     </div>
 
     <div class="row g-3">
         <div class="col-md-6">
             <label class="fw-semibold">FT</label>
-            <input name="ft" class="form-control" value="{{ $form->ft }}">
+            <input name="ft" class="form-control" value="{{ $form->ft ?? '' }}">
         </div>
         <div class="col-md-6">
             <label class="fw-semibold">ST</label>
-            <input name="st" class="form-control" value="{{ $form->st }}">
+            <input name="st" class="form-control" value="{{ $form->st ?? '' }}">
         </div>
     </div>
 </div>
 
-{{-- ===================================== --}}
-{{-- TABEL KUNJUNGAN --}}
-{{-- ===================================== --}}
+
+@php
+$programList = [
+    'Electrical Stimulation','Electrical Stimulation + Exercise','Fisioterapi Diathermy','Fisioterapi IRR',
+    'Fisioterapi IRR + Exercise','Fisioterapi MWD','Fisioterapi MWD + Exercise','Fisioterapi TENS',
+    'Fisioterapi TENS + Exercise','Fisioterapi TENS + IRR','Fisioterapi Traksi','Fisioterapi US',
+    'Fisioterapi US + Exercise','Fisioterapi Exercise','Chest Fisioterapi','Speech Therapy / Terapi Wicara',
+    'ST Latihan Menelan','REASSESMENT – Electrical Stimulation','REASSESMENT – Electrical Stimulation + Exercise',
+    'REASSESMENT – Diathermy','REASSESMENT – IRR','REASSESMENT – IRR + Exercise','REASSESMENT – MWD',
+    'REASSESMENT – MWD + Exercise','REASSESMENT – TENS','REASSESMENT – TENS + Exercise',
+    'REASSESMENT – TENS + IRR','REASSESMENT – Traksi','REASSESMENT – US','REASSESMENT – US + Exercise',
+    'REASSESMENT – Chest','EVALUASI – Electrical Stimulation','EVALUASI – Electrical Stimulation + Exercise',
+    'EVALUASI – Diathermy','EVALUASI – IRR','EVALUASI – IRR + Exercise','EVALUASI – MWD',
+    'EVALUASI – MWD + Exercise','EVALUASI – TENS','EVALUASI – TENS + Exercise','EVALUASI – TENS + IRR',
+    'EVALUASI – Traksi','EVALUASI – US','EVALUASI – US + Exercise','EVALUASI – Chest'
+];
+@endphp
+
+
+<!-- ===================== KUNJUNGAN ===================== -->
 <div class="card card-premium p-4 mb-5">
     <h4 class="section-title">Kunjungan Fisioterapi (Lembar {{ $lembar }})</h4>
 
@@ -129,155 +202,143 @@
             </thead>
 
             <tbody>
-                @for ($i = 1; $i <= 8; $i++)
-                    @php $row = $kunjungan[$i] ?? null; @endphp
+            @for($i=1;$i<=8;$i++)
+                @php $row = $kunjungan[$i] ?? null; @endphp
+                <tr>
+                    <td>{{ $i }}</td>
 
-                    <tr>
-                        <td>{{ $i }}</td>
+                    <td>
+                        <select name="program[{{ $i }}]" class="form-select">
+                            <option value=""></option>
+                            @foreach($programList as $p)
+                                <option value="{{ $p }}" {{ (isset($row->program) && $row->program==$p) ? 'selected' : '' }}>
+                                    {{ $p }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
 
-                        <td>
-                            <input class="form-control" name="program[{{ $i }}]"
-                                   value="{{ $row->program ?? '' }}">
-                        </td>
-
-                        <td>
-                            <input type="date" class="form-control"
+                    <td>
+                        <div class="date-wrap">
+                            <input
+                                type="date"
                                 name="tanggal[{{ $i }}]"
-                                value="{{ $row->tanggal ?? '' }}">
-                        </td>
+                                value="{{ $row->tanggal ?? '' }}"
+                                class="date-input {{ ($row && $row->tanggal) ? 'has-value' : '' }}"
+                                oninput="this.classList.add('has-value')"
+                            >
+                            <label class="date-label">Pilih Tanggal</label>
+                        </div>
+                    </td>
 
-                        {{-- PASIEN --}}
-                        <td>
-                            @if($row && $row->ttd_pasien)
-                                <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-preview">
-                            @else
-                                <canvas id="pad_pasien_{{ $i }}" class="signature-pad"
-                                        data-role="pasien" data-index="{{ $i }}"></canvas>
-                                <input type="hidden" name="ttd_pasien[{{ $i }}]" id="input_pasien_{{ $i }}">
-                                <button class="btn btn-sm btn-outline-danger mt-2" type="button"
-                                    onclick="clearPad('pasien', {{ $i }})">Hapus</button>
-                            @endif
-                        </td>
+                    <td>
+                        @if($row && $row->ttd_pasien)
+                            <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-preview" id="img_pasien_{{ $i }}">
+                            <button type="button" class="btn btn-sm btn-outline-warning mt-1" onclick="editTtd('pasien', {{ $i }})">Edit</button>
+                        @else
+                            <canvas id="pad_pasien_{{ $i }}" data-role="pasien" data-index="{{ $i }}" class="signature-pad"></canvas>
+                            <input type="hidden" name="ttd_pasien[{{ $i }}]" id="input_pasien_{{ $i }}">
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearPad('pasien',{{ $i }})">Hapus</button>
+                        @endif
+                    </td>
 
-                        {{-- DOKTER --}}
-                        <td>
-                            @if($row && $row->ttd_dokter)
-                                <img src="{{ asset('storage/ttd/'.$row->ttd_dokter) }}" class="ttd-preview">
-                            @else
-                                <canvas id="pad_dokter_{{ $i }}" class="signature-pad"
-                                        data-role="dokter" data-index="{{ $i }}"></canvas>
-                                <input type="hidden" name="ttd_dokter[{{ $i }}]" id="input_dokter_{{ $i }}">
-                                <button class="btn btn-sm btn-outline-danger mt-2" type="button"
-                                    onclick="clearPad('dokter', {{ $i }})">Hapus</button>
-                            @endif
-                        </td>
 
-                        {{-- TERAPIS --}}
-                        <td>
-                            @if($row && $row->ttd_terapis)
-                                <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-preview">
-                            @else
-                                <canvas id="pad_terapis_{{ $i }}" class="signature-pad"
-                                        data-role="terapis" data-index="{{ $i }}"></canvas>
-                                <input type="hidden" name="ttd_terapis[{{ $i }}]" id="input_terapis_{{ $i }}">
-                                <button class="btn btn-sm btn-outline-danger mt-2" type="button"
-                                    onclick="clearPad('terapis', {{ $i }})">Hapus</button>
-                            @endif
-                        </td>
-                    </tr>
-                @endfor
+                    <td>
+                        @php
+                            $settingName = $getSetting->nama_instansi ?? '';
+                            $kab = $getSetting->kabupaten ?? '';
+                            $dokName = $dokter ?? '';
+                            $kdDoc = $kd_dokter ?? '';
+                            $tglReg = $tgl_registrasi ?? '';
+                            $qrText = "Dikeluarkan di {$settingName}, Kabupaten/Kota {$kab} Ditandatangani secara elektronik oleh {$dokName} ID {$kdDoc} {$tglReg}";
+                            $qrBase64 = DNS2D::getBarcodePNG($qrText, 'QRCODE');
+                        @endphp
+
+                        @if($row && $row->ttd_dokter)
+                            <img src="{{ asset('storage/qr/'.$row->ttd_dokter) }}" class="ttd-preview">
+                        @else
+                            <img src="data:image/png;base64,{{ $qrBase64 }}" class="ttd-preview">
+                            <input type="hidden" name="ttd_dokter[{{ $i }}]" value="{{ base64_encode($qrBase64) }}">
+                        @endif
+                    </td>
+
+                    <td>
+                        @if($row && $row->ttd_terapis)
+                            <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-preview" id="img_terapis_{{ $i }}">
+                            <button type="button" class="btn btn-sm btn-outline-warning mt-1" onclick="editTtd('terapis', {{ $i }})">Edit</button>
+                        @else
+                            <canvas id="pad_terapis_{{ $i }}" data-role="terapis" data-index="{{ $i }}" class="signature-pad"></canvas>
+                            <input type="hidden" name="ttd_terapis[{{ $i }}]" id="input_terapis_{{ $i }}">
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearPad('terapis',{{ $i }})">Hapus</button>
+                        @endif
+                    </td>
+
+                </tr>
+            @endfor
             </tbody>
         </table>
     </div>
 </div>
 
-{{-- ===================================== --}}
-{{-- BUTTON --}}
-{{-- ===================================== --}}
+
+<!-- ===================== BUTTONS ===================== -->
 <div class="d-flex justify-content-between mb-5">
-    <a href="{{ route('fisioterapi.pasien') }}" class="btn btn-outline-secondary px-4">
-        Kembali
-    </a>
+    <a href="{{ route('fisioterapi.pasien') }}" class="btn btn-outline-secondary px-4">Kembali</a>
 
     <div>
-
-        <form id="newLembarForm" method="POST"
-              action="{{ route('fisioterapi.lembar.new', [$tahun,$bulan,$hari,$no_rawat]) }}"
-              style="display:inline;">
+        <form method="POST" action="{{ route('fisioterapi.lembar.new', [$tahun,$bulan,$hari,$no_rawat]) }}" style="display:inline;">
             @csrf
-            <button type="submit" class="btn btn-outline-primary me-2"
-                onclick="return confirm('Buat lembar kosong baru?')">
-                New Lembar
-            </button>
+            <button type="submit" class="btn btn-outline-primary me-2">New Lembar</button>
         </form>
 
-        <button class="btn btn-primary px-5 fw-bold" type="submit" form="fisioterapiForm">
-            Simpan
-        </button>
+        <button type="submit" form="fisioterapiForm" class="btn btn-primary px-5 fw-bold">Simpan</button>
     </div>
 </div>
 
 </form>
 
-{{-- ===================================== --}}
-{{-- SIGNATURE PAD --}}
-{{-- ===================================== --}}
+
+<!-- ===================== JS ===================== -->
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
 
 <script>
 let pads = {};
 
-function resizeCanvas(c) {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    c.width = c.offsetWidth * ratio;
-    c.height = c.offsetHeight * ratio;
-    c.getContext("2d").scale(ratio, ratio);
-}
-
 function initPads() {
     document.querySelectorAll('.signature-pad').forEach(c => {
-        resizeCanvas(c);
+        const pad = new SignaturePad(c, { backgroundColor: '#fff' });
         const role = c.dataset.role;
         const idx = c.dataset.index;
-        const key = `${role}_${idx}`;
 
-        const pad = new SignaturePad(c, { backgroundColor: "white" });
-        pads[key] = pad;
+        pads[`${role}_${idx}`] = pad;
 
-        pad.addEventListener("endStroke", () => {
-            document.getElementById(`input_${role}_${idx}`).value = pad.toDataURL();
+        pad.addEventListener('endStroke', () => {
+            const input = document.getElementById(`input_${role}_${idx}`);
+            input.value = pad.toDataURL();
         });
     });
 }
 
-function clearPad(role, i) {
-    const key = `${role}_${i}`;
-    if (pads[key]) pads[key].clear();
-    const input = document.getElementById(`input_${role}_${i}`);
-    if (input) input.value = "";
+function clearPad(role, idx) {
+    const pad = pads[`${role}_${idx}`];
+    if (pad) pad.clear();
+    document.getElementById(`input_${role}_${idx}`).value = '';
 }
 
-function syncAll() {
-    Object.keys(pads).forEach(key => {
-        const pad = pads[key];
-        const [role, idx] = key.split('_');
-        if (!pad.isEmpty()) {
-            document.getElementById(`input_${role}_${idx}`).value = pad.toDataURL();
-        }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
     initPads();
 
-    document.getElementById("fisioterapiForm").addEventListener("submit", () => {
-        syncAll();
+    document.querySelectorAll('.date-input').forEach(el => {
+        if (el.value) {
+            el.classList.add('has-value');
+        }
+        el.addEventListener('change', function(){
+            this.classList.toggle('has-value', this.value !== '');
+        });
     });
 
-    document.getElementById('selectLembar').addEventListener('change', function() {
-        const selected = this.value;
-        window.location.href =
-            `/fisioterapi/form/{{ $tahun }}/{{ $bulan }}/{{ $hari }}/{{ $no_rawat }}?lembar=${selected}`;
+    document.getElementById('selectLembar').addEventListener('change', function(){
+        window.location.href = `/fisioterapi/form/{{ $tahun }}/{{ $bulan }}/{{ $hari }}/{{ $no_rawat }}?lembar=${this.value}`;
     });
 });
 </script>
