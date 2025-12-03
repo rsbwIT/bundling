@@ -3,10 +3,14 @@
 @section('konten')
 
 <style>
-    .card-premium { border-radius:18px; border:none; box-shadow:0 4px 18px rgba(0,0,0,0.08); }
+    .card-premium { 
+        border-radius:18px; 
+        border:none; 
+        box-shadow:0 4px 18px rgba(0,0,0,0.08); 
+    }
     .section-title { font-weight:700; font-size:1.3rem; }
 
-    /* ==== DATE INPUT FIX FINAL ==== */
+    /* =============== DATE INPUT FLOATING LABEL =============== */
     .date-wrap { position:relative; width:100%; }
 
     .date-input {
@@ -18,15 +22,8 @@
         background:white;
         transition:0.25s;
     }
-
-    /* Sembunyikan yyyy-mm-dd saat kosong */
-    .date-input:not(.has-value)::-webkit-datetime-edit {
-        color:transparent;
-    }
-
-    .date-input.has-value::-webkit-datetime-edit {
-        color:black !important;
-    }
+    .date-input:not(.has-value)::-webkit-datetime-edit { color:transparent; }
+    .date-input.has-value::-webkit-datetime-edit { color:black !important; }
 
     .date-input:focus {
         border-color:#006de9;
@@ -35,7 +32,8 @@
 
     .date-label {
         position:absolute;
-        left:12px; top:50%;
+        left:12px; 
+        top:50%;
         transform:translateY(-50%);
         color:#777;
         font-size:14px;
@@ -52,49 +50,59 @@
         color:#006de9;
     }
 
-    /* Signature */
-    .signature-pad { width:140px; height:90px; border:1px solid #aaa; border-radius:10px; }
-    .ttd-preview { width:80px; height:80px; object-fit:contain; display:block; margin:auto; }
+    /* =============== SIGNATURE AREA =============== */
 
-    .table-premium th { background:#f3f6fa; font-weight:700; }
+    .signature-container {
+        width: 100%;
+        height: 160px;
+        border: 1px solid #aaa;
+        border-radius: 10px;
+        overflow: hidden;
+        background:#fff;
+    }
+
+    .signature-pad, .ttd-preview {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* =============== SELECT STYLING =============== */
 
     .form-select {
-        width: 100%;                /* Full width */
-        padding: 0.5rem 1rem;       /* Spasi dalam */
-        font-size: 1rem;            /* Ukuran font */
-        border-radius: 8px;         /* Sudut membulat */
-        border: 1px solid #ccc;     /* Border standar */
-        background-color: #fff;     
+        width: 100%;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        appearance: none;
         transition: border-color 0.3s, box-shadow 0.3s;
-        appearance: none;           /* Hilangkan style default browser */
-        -webkit-appearance: none;
-        -moz-appearance: none;
     }
 
     .form-select:focus {
-        border-color: #4A90E2;      /* Warna border saat focus */
-        box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        border-color: #4A90E2;
+        box-shadow: 0 0 5px rgba(74,144,226,0.5);
         outline: none;
     }
 
-    /* Tambahan ikon dropdown di kanan */
     .form-select-wrapper {
-        position: relative;
-        display: inline-block;
-        width: 100%;
+        position: relative; width:100%;
     }
 
     .form-select-wrapper::after {
-        content: "▼";               /* Simbol dropdown */
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;       /* Supaya tidak mengganggu klik */
-        color: #888;
-        font-size: 0.8rem;
+        content: "▼";
+        position:absolute;
+        right:1rem;
+        top:50%;
+        transform:translateY(-50%);
+        pointer-events:none;
+        color:#888;
+        font-size:0.8rem;
     }
+
+    .table-premium th { background:#f3f6fa; font-weight:700; }
 </style>
+
 
 @if(session('success')) 
     <div class="alert alert-success">{{ session('success') }}</div> 
@@ -231,16 +239,25 @@ $programList = [
                         </div>
                     </td>
 
-                    <td>
-                        @if($row && $row->ttd_pasien)
-                            <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-preview" id="img_pasien_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-warning mt-1" onclick="editTtd('pasien', {{ $i }})">Edit</button>
-                        @else
-                            <canvas id="pad_pasien_{{ $i }}" data-role="pasien" data-index="{{ $i }}" class="signature-pad"></canvas>
+                   <td>
+                        <div class="signature-container">
+                            @if($row && $row->ttd_pasien)
+                                <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-preview" id="img_pasien_{{ $i }}">
+                            @else
+                                <canvas id="pad_pasien_{{ $i }}" data-role="pasien" data-index="{{ $i }}" class="signature-pad"></canvas>
+                            @endif
+                        </div>
+
+                        @if(!$row || !$row->ttd_pasien)
                             <input type="hidden" name="ttd_pasien[{{ $i }}]" id="input_pasien_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearPad('pasien',{{ $i }})">Hapus</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1"
+                                    onclick="clearPad('pasien',{{ $i }})">Hapus</button>
+                        @else
+                            <button type="button" class="btn btn-sm btn-outline-warning mt-1"
+                                    onclick="editTtd('pasien', {{ $i }})">Edit</button>
                         @endif
                     </td>
+
 
 
                     <td>
@@ -263,15 +280,24 @@ $programList = [
                     </td>
 
                     <td>
-                        @if($row && $row->ttd_terapis)
-                            <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-preview" id="img_terapis_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-warning mt-1" onclick="editTtd('terapis', {{ $i }})">Edit</button>
-                        @else
-                            <canvas id="pad_terapis_{{ $i }}" data-role="terapis" data-index="{{ $i }}" class="signature-pad"></canvas>
+                        <div class="signature-container">
+                            @if($row && $row->ttd_terapis)
+                                <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-preview" id="img_terapis_{{ $i }}">
+                            @else
+                                <canvas id="pad_terapis_{{ $i }}" data-role="terapis" data-index="{{ $i }}" class="signature-pad"></canvas>
+                            @endif
+                        </div>
+
+                        @if(!$row || !$row->ttd_terapis)
                             <input type="hidden" name="ttd_terapis[{{ $i }}]" id="input_terapis_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearPad('terapis',{{ $i }})">Hapus</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1"
+                                    onclick="clearPad('terapis',{{ $i }})">Hapus</button>
+                        @else
+                            <button type="button" class="btn btn-sm btn-outline-warning mt-1"
+                                    onclick="editTtd('terapis', {{ $i }})">Edit</button>
                         @endif
                     </td>
+
 
                 </tr>
             @endfor
