@@ -50,17 +50,24 @@
     .search-btn-group button {
         margin-right: 5px;
     }
+
+    /* Highlight permanen merah untuk kunjungan */
+    .visited {
+        background-color: #ffb3b3 !important;
+    }
+
+    /* Highlight search kuning */
+    .highlight {
+        background-color: #FFE07A !important;
+    }
 </style>
 
-
-{{-- ========================================
-    FLOATING SEARCH BAR (TOP RIGHT)
-=========================================== --}}
+{{-- FLOATING SEARCH BAR --}}
 <div class="floating-search" id="floatBox">
-    <div class="floating-title">Cari No. RM</div>
+    <div class="floating-title">Cari No. RM / Nama Pasien</div>
 
     <input type="text" id="searchRM" class="form-control mb-2"
-           placeholder="Masukkan No. RM" onkeyup="autoCariRM()">
+           placeholder="Masukkan No. RM atau Nama" onkeyup="autoCariRM()">
 
     <div class="d-flex search-btn-group">
 
@@ -85,13 +92,10 @@
     </div>
 </div>
 
-
 <div class="card shadow-sm border-0 rounded-4 mt-5">
     <div class="card-body">
 
-        {{-- ========================================
-            FILTER TANGGAL
-        ========================================= --}}
+        {{-- FILTER TANGGAL --}}
         <form method="GET" action="{{ route('fisioterapi.pasien') }}">
             <div class="row g-2 mb-3">
                 <div class="col-md-3">
@@ -112,10 +116,7 @@
             </div>
         </form>
 
-
-        {{-- ========================================
-            SEARCH SCRIPT
-        ========================================= --}}
+        {{-- SEARCH SCRIPT --}}
         <script>
             let results = [];
             let currentIndex = 0;
@@ -137,17 +138,22 @@
             }
 
             function goCariRM() {
-                const keyword = document.getElementById("searchRM").value.trim();
+                const keyword = document.getElementById("searchRM").value.trim().toLowerCase();
                 const rows = document.querySelectorAll("table tbody tr");
 
-                rows.forEach(r => r.style.backgroundColor = "");
+                // hapus highlight kuning lama tapi tetap pertahankan merah (class visited)
+                rows.forEach(r => r.classList.remove("highlight"));
 
                 results = [];
                 if (keyword === "") return;
 
                 rows.forEach(row => {
-                    const rm = row.children[2].innerText.trim();
-                    if (rm.includes(keyword)) results.push(row);
+                    const noRM = row.children[3].innerText.trim().toLowerCase(); // No RM
+                    const nama = row.children[4].innerText.trim().toLowerCase(); // Nama Pasien
+
+                    if (noRM.includes(keyword) || nama.includes(keyword)) {
+                        results.push(row);
+                    }
                 });
 
                 if (results.length === 0) return;
@@ -157,13 +163,13 @@
             }
 
             function highlightAndScroll() {
-                document.querySelectorAll("table tbody tr")
-                    .forEach(r => r.style.backgroundColor = "");
+                // hapus highlight kuning lama
+                document.querySelectorAll("table tbody tr").forEach(r => r.classList.remove("highlight"));
 
                 if (results.length === 0) return;
 
                 const row = results[currentIndex];
-                row.style.backgroundColor = "#FFE07A";
+                row.classList.add("highlight");
 
                 row.scrollIntoView({
                     behavior: "smooth",
@@ -184,19 +190,14 @@
             }
 
             function resetHighlight() {
-                document.querySelectorAll("table tbody tr")
-                    .forEach(r => r.style.backgroundColor = "");
-
+                document.querySelectorAll("table tbody tr").forEach(r => r.classList.remove("highlight"));
                 document.getElementById("searchRM").value = "";
                 results = [];
                 currentIndex = 0;
             }
         </script>
 
-
-        {{-- ========================================
-            TABLE DATA PASIEN
-        ========================================= --}}
+        {{-- TABLE DATA PASIEN --}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
                 <thead class="table-primary">
@@ -217,17 +218,14 @@
                     @forelse ($data as $index => $row)
 
                         @php
-                            // ambil tanggal registrasi
                             $tglReg = $row->tgl_registrasi ?? null;
-
-                            // Cek apakah ada kunjungan untuk no RM & tanggal ini
                             $adaKunjungan = DB::table('fisioterapi_kunjungan')
                                 ->where('no_rkm_medis', $row->no_rkm_medis)
                                 ->where('tanggal', $tglReg)
                                 ->exists();
                         @endphp
 
-                        <tr style="{{ $adaKunjungan ? 'background-color:#ffb3b3 !important;' : '' }}">
+                        <tr class="{{ $adaKunjungan ? 'visited' : '' }}">
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $row->no_rawat }}</td>
                             <td>{{ $row->tgl_registrasi }}</td>
@@ -269,7 +267,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted">
+                            <td colspan="8" class="text-center text-muted">
                                 Tidak ada data pasien pada rentang tanggal ini.
                             </td>
                         </tr>
