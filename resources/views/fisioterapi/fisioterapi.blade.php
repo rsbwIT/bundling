@@ -32,7 +32,6 @@
             backdrop-filter 0.25s ease;
     }
 
-    /* Efek mengambang saat scroll */
     .floating-search.active {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(18px);
@@ -65,26 +64,25 @@
 
     <div class="d-flex search-btn-group">
 
-    <button class="btn btn-secondary btn-sm d-flex align-items-center"
-            onclick="prevResult()">
-        <i class="fas fa-arrow-left me-1"></i>
-        Prev
-    </button>
+        <button class="btn btn-secondary btn-sm d-flex align-items-center"
+                onclick="prevResult()">
+            <i class="fas fa-arrow-left me-1"></i>
+            Prev
+        </button>
 
-    <button class="btn btn-primary btn-sm d-flex align-items-center"
-            onclick="nextResult()">
-        <i class="fas fa-arrow-right me-1"></i>
-        Next
-    </button>
+        <button class="btn btn-primary btn-sm d-flex align-items-center"
+                onclick="nextResult()">
+            <i class="fas fa-arrow-right me-1"></i>
+            Next
+        </button>
 
-    <button class="btn btn-danger btn-sm d-flex align-items-center"
-            onclick="resetHighlight()">
-        <i class="fas fa-rotate-right me-1"></i>
-        Reset
-    </button>
+        <button class="btn btn-danger btn-sm d-flex align-items-center"
+                onclick="resetHighlight()">
+            <i class="fas fa-rotate-right me-1"></i>
+            Reset
+        </button>
 
-</div>
-
+    </div>
 </div>
 
 
@@ -116,27 +114,21 @@
 
 
         {{-- ========================================
-            SEARCH SCRIPT (CTRL + F STYLE)
+            SEARCH SCRIPT
         ========================================= --}}
         <script>
             let results = [];
             let currentIndex = 0;
             let timeout = null;
 
-            // Floating sticky effect
             document.addEventListener("DOMContentLoaded", () => {
                 const floatBox = document.getElementById("floatBox");
-
                 window.addEventListener("scroll", () => {
-                    if (window.pageYOffset > 20) {
-                        floatBox.classList.add("active");
-                    } else {
-                        floatBox.classList.remove("active");
-                    }
+                    if (window.pageYOffset > 20) floatBox.classList.add("active");
+                    else floatBox.classList.remove("active");
                 });
             });
 
-            // AUTO SEARCH
             function autoCariRM() {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
@@ -144,7 +136,6 @@
                 }, 250);
             }
 
-            // Pencarian RM dalam tabel
             function goCariRM() {
                 const keyword = document.getElementById("searchRM").value.trim();
                 const rows = document.querySelectorAll("table tbody tr");
@@ -212,6 +203,7 @@
                     <tr>
                         <th>No</th>
                         <th>No. Rawat</th>
+                        <th>Tgl Registrasi</th>
                         <th>No RM</th>
                         <th>Nama Pasien</th>
                         <th>Poli</th>
@@ -221,10 +213,24 @@
                 </thead>
 
                 <tbody>
+
                     @forelse ($data as $index => $row)
-                        <tr>
+
+                        @php
+                            // ambil tanggal registrasi
+                            $tglReg = $row->tgl_registrasi ?? null;
+
+                            // Cek apakah ada kunjungan untuk no RM & tanggal ini
+                            $adaKunjungan = DB::table('fisioterapi_kunjungan')
+                                ->where('no_rkm_medis', $row->no_rkm_medis)
+                                ->where('tanggal', $tglReg)
+                                ->exists();
+                        @endphp
+
+                        <tr style="{{ $adaKunjungan ? 'background-color:#ffb3b3 !important;' : '' }}">
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $row->no_rawat }}</td>
+                            <td>{{ $row->tgl_registrasi }}</td>
                             <td>{{ $row->no_rkm_medis }}</td>
                             <td class="fw-bold">{{ $row->nm_pasien }}</td>
                             <td>{{ $row->nm_poli }}</td>
@@ -249,8 +255,8 @@
 
                                 @php
                                     $lembar = DB::table('fisioterapi_kunjungan')
-                                                ->where('no_rkm_medis', $row->no_rkm_medis)
-                                                ->max('lembar') ?? 1;
+                                        ->where('no_rkm_medis', $row->no_rkm_medis)
+                                        ->max('lembar') ?? 1;
                                 @endphp
 
                                 <a href="{{ route('fisioterapi.print', [$row->no_rkm_medis, $lembar]) }}"
@@ -268,6 +274,7 @@
                             </td>
                         </tr>
                     @endforelse
+
                 </tbody>
 
             </table>

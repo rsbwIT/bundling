@@ -29,6 +29,7 @@ class Fisioterapi extends Controller
             ->orderByDesc('reg_periksa.tgl_registrasi')
             ->select(
                 'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'poliklinik.nm_poli',
