@@ -3,16 +3,14 @@
 <head>
     <title>Print Fisioterapi</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size:14px; margin:0; padding:20px; }
+        body { font-family: DejaVu Sans, sans-serif; font-size:14px; margin:0; padding:20px; }
         h3, h4 { margin: 5px 0; }
         .header-box { border:1px solid #000; padding:15px; margin-bottom:15px; }
         table { width:100%; border-collapse: collapse; margin-top:10px; table-layout: fixed; }
         th, td { padding:6px; border:1px solid #000; text-align:left; vertical-align:top; word-wrap: break-word; }
         th { background-color: #f0f0f0; }
         .ttd-img { height:50px; width:auto; display:block; margin:auto; }
-        @media print { .ttd-img { height:30px !important; } }
         .footer-dokter { margin-top:30px; text-align:right; font-size:14px; }
-        .qr-footer { margin-top:10px; text-align:right; }
     </style>
 </head>
 <body>
@@ -20,7 +18,7 @@
 {{-- KOP SURAT --}}
 <div style="width:100%; display:flex; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
     <div style="width:120px; text-align:left;">
-        <img src="{{ asset('img/bw2.png') }}" style="height:80px;">
+        <img src="{{ public_path('img/bw2.png') }}" style="height:80px;">
     </div>
     <div style="flex:1; text-align:center;">
         <div style="font-size:20px; font-weight:bold;">
@@ -92,7 +90,7 @@
                     </td>
                     <td>
                         @if ($row->ttd_pasien)
-                            <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-img">
+                            <img src="{{ storage_path('app/public/ttd/'.$row->ttd_pasien) }}" class="ttd-img">
                         @else - @endif
                     </td>
                     <td>
@@ -105,14 +103,14 @@
                             $qrBase64 = DNS2D::getBarcodePNG($qrText, 'QRCODE');
                         @endphp
                         @if ($row->ttd_dokter && file_exists(storage_path('app/public/qr_dokter/'.$row->ttd_dokter)))
-                            <img src="{{ asset('storage/qr_dokter/'.$row->ttd_dokter) }}" class="ttd-img">
+                            <img src="{{ storage_path('app/public/qr_dokter/'.$row->ttd_dokter) }}" class="ttd-img">
                         @else
                             <img src="data:image/png;base64,{{ $qrBase64 }}" class="ttd-img">
                         @endif
                     </td>
                     <td>
                         @if ($row->ttd_terapis)
-                            <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-img">
+                            <img src="{{ storage_path('app/public/ttd/'.$row->ttd_terapis) }}" class="ttd-img">
                         @else - @endif
                     </td>
                 </tr>
@@ -121,26 +119,20 @@
     </tbody>
 </table>
 
-{{-- FOOTER DOKTER (RATA TENGAH) --}}
+{{-- FOOTER DOKTER --}}
 <div style="text-align:right; margin-top:20px;">
     <p style="margin-bottom:10px;">
         <b>Tanggal Kunjungan Pertama:</b>
         {{ \Carbon\Carbon::parse($tanggalPertama)->format('d-m-Y') }}
     </p>
 
-    <img src="data:image/png;base64,{{ $qrBase64 }}" alt="QR Dokter" 
-         style="width:100px; height:100px; display:block; margin-left:auto; margin-right:03%;">
+    <img src="data:image/png;base64,{{ $qrBase64 }}" 
+         style="width:100px; height:100px; display:block; margin-left:auto; margin-right:3%;">
 
     <div class="footer-dokter" style="margin-top:10px; text-align:right;">
         <b>{{ $namaDokter }}</b>
     </div>
 </div>
-
-
-
-<script>
-    window.print();
-</script>
 
 </body>
 </html>
