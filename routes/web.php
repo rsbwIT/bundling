@@ -120,6 +120,8 @@ use App\Http\Controllers\Regperiksa\KroscekPasien;
 use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
 use App\Http\Livewire\InfoKamar\InfoKamarbaru;
 use App\Http\Controllers\Fisioterapi\Fisioterapi;
+use App\Http\Controllers\Urologi\Urologi;
+
 
 
 
@@ -543,6 +545,23 @@ Route::group(['middleware' => 'default'], function () {
             Route::post('/statistik-rentang-tanggal', [KroscekPasien::class, 'getStatistikRentangTanggal'])->name('statistik.rentang.tanggal');
             Route::post('/daftar-belum-nota', [KroscekPasien::class, 'getDaftarPasienBelumNota'])->name('daftar.belum.nota');
         });
+
+
+        // Urologi
+
+        Route::get('/urologi', [Urologi::class, 'index']);
+        Route::get('/form_usg', [Urologi::class, 'formUsg']);
+
+        Route::post('/urologi/usg/simpan', [Urologi::class, 'simpanUsg'])
+            ->name('urologi.usg.simpan');
+
+        Route::get(
+            '/urologi/usg/cetak/{no_rawat}',
+            [\App\Http\Controllers\Urologi\Urologi::class, 'cetakUsg']
+        )->where('no_rawat', '.*');
+
+
+
 
 
 
