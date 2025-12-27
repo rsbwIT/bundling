@@ -304,7 +304,6 @@
                         {{-- Sinkronisasi filter lain --}}
                         <input type="hidden" name="filter_type" value="{{ request('filter_type', 'semua') }}">
                         <input type="hidden" name="search" value="{{ $searchTerm }}">
-                        <input type="hidden" name="filter_status" value="{{ $filterStatus }}">
                         {{-- [UBAH] Tambahkan filter poli yang aktif (pengecualian) --}}
                         @foreach($excludedPoli as $poli_id)
                             <input type="hidden" name="excluded_poli[]" value="{{ $poli_id }}">
@@ -338,14 +337,6 @@
                         <div class="input-group input-group-sm me-2">
                             <input type="text" name="search" class="form-control" id="searchInput"
                                    placeholder="Cari pasien..." value="{{ $searchTerm }}" style="width: 180px;">
-                            <select name="filter_status" class="form-select auto-submit-search">
-                                <option value="">Semua Status</option>
-                                <option value="Ranap" {{ $filterStatus == 'Ranap' ? 'selected' : '' }}>Rawat Inap</option>
-                                <option value="Ralan" {{ $filterStatus == 'Ralan' ? 'selected' : '' }}>Rawat Jalan</option>
-                                <option value="IGD" {{ $filterStatus == 'IGD' ? 'selected' : '' }}>IGD</option>
-                                <option value="Sudah_Nota" {{ $filterStatus == 'Sudah_Nota' ? 'selected' : '' }}>Sudah Nota</option>
-                                <option value="Belum_Nota" {{ $filterStatus == 'Belum_Nota' ? 'selected' : '' }}>Belum Nota</option>
-                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm" id="searchBtn">
                             <i class="fas fa-search"></i>

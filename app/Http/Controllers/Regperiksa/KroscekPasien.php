@@ -102,7 +102,6 @@ class KroscekPasien extends Controller
                 SUM(CASE
                     WHEN rp.stts <> "Batal"
                         AND rp.status_lanjut = "Ralan"
-                        AND rp.kd_poli != "IGDK"
                         AND ni.no_nota IS NULL
                         AND nj.no_nota IS NULL
                     THEN 1 ELSE 0
@@ -196,7 +195,6 @@ class KroscekPasien extends Controller
                 case 'belum_nota':
                     $query->where('rp.stts', '<>', 'Batal')
                         ->where('rp.status_lanjut', 'Ralan')
-                        ->where('rp.kd_poli', '!=', 'IGDK')
                         ->whereNull('ni.no_nota')
                         ->whereNull('nj.no_nota');
                     break;
@@ -460,7 +458,6 @@ class KroscekPasien extends Controller
                 case 'belum_nota':
                     $query->where('rp.stts', '<>', 'Batal')
                         ->where('rp.status_lanjut', 'Ralan')
-                        ->where('rp.kd_poli', '!=', 'IGDK')
                         ->whereNull('ni.no_nota')
                         ->whereNull('nj.no_nota');
                     break;
