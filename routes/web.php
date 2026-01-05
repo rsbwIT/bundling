@@ -121,6 +121,7 @@ use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
 use App\Http\Livewire\InfoKamar\InfoKamarbaru;
 use App\Http\Controllers\Fisioterapi\Fisioterapi;
 use App\Http\Controllers\Urologi\Urologi;
+use App\Http\Controllers\SkriningTBC\SkriningTBC;
 
 
 
@@ -551,7 +552,6 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/urologi', [Urologi::class, 'index']);
         Route::get('/form_usg', [Urologi::class, 'formUsg']);
-
         Route::post('/urologi/usg/simpan', [Urologi::class, 'simpanUsg'])
             ->name('urologi.usg.simpan');
 
@@ -559,6 +559,12 @@ Route::group(['middleware' => 'default'], function () {
             '/urologi/usg/cetak/{no_rawat}',
             [\App\Http\Controllers\Urologi\Urologi::class, 'cetakUsg']
         )->where('no_rawat', '.*');
+
+
+        // skrining tbc
+        Route::get('/skriningtbc', [SkriningTBC::class, 'index'])
+            ->name('skriningtbc.index');
+
 
 
 
