@@ -311,15 +311,24 @@ class BundlingFarmasi extends Controller
     // ============================================================
     // GABUNG PDF (SCAN + SEP-RESEP)
     // ============================================================
-    function GabungBergkas(Request $request)
+    public function gabungBerkas(Request $request)
     {
-        $cekNorawat = DB::table('reg_periksa')
-            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis')
+        if (!$request->no_rawat) {
+            return back()->with('errorGabung', 'No Rawat tidak valid');
+        }
+
+        // CEK PASIEN
+        $getpasien = DB::table('reg_periksa')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->where('no_rawat', $request->no_rawat);
+            ->select('reg_periksa.no_rkm_medis', 'pasien.nm_pasien')
+            ->where('reg_periksa.no_rawat', $request->no_rawat)
+            ->first();
 
-        $getpasien = $cekNorawat->first();
+        if (!$getpasien) {
+            return back()->with('errorGabung', 'Data pasien tidak ditemukan');
+        }
 
+        // CEK FILE
         $cekFileScan = DB::table('file_farmasi')
             ->where('no_rawat', $request->no_rawat)
             ->where('jenis_berkas', 'FILE-SCAN-FARMASI')
@@ -330,37 +339,33 @@ class BundlingFarmasi extends Controller
             ->where('jenis_berkas', 'SEP-RESEP')
             ->first();
 
-        if (!$cekFileScan) {
-            return back()->with('errorGabung', 'FILE SCAN tidak ditemukan');
+        if (!$cekFileScan || !$cekSepResep) {
+            return back()->with('errorGabung', 'File SEP atau File Scan tidak ditemukan');
         }
 
+        // PATH FILE
+        $pdfSepResep = public_path('storage/file_sepresep_farmasi/' . $cekSepResep->file);
+        $pdfScan     = public_path('storage/file_scan_farmasi/' . $cekFileScan->file);
+
+        if (!file_exists($pdfSepResep) || !file_exists($pdfScan)) {
+            return back()->with('errorGabung', 'File PDF tidak ditemukan di server');
+        }
+
+        // GABUNG PDF
         $pdf = new Fpdi();
 
-        // FILE SEP RESEP
-        $pdfSepResep = public_path('storage/file_sepresep_farmasi/' . $cekSepResep->file);
-        $sepCount = $pdf->setSourceFile($pdfSepResep);
-
-        for ($i = 1; $i <= $sepCount; $i++) {
-            $template = $pdf->importPage($i);
-            $size = $pdf->getTemplateSize($template);
-            $pdf->AddPage($size['orientation'], $size);
-            $pdf->useTemplate($template);
+        foreach ([$pdfSepResep, $pdfScan] as $file) {
+            $pageCount = $pdf->setSourceFile($file);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tpl  = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tpl);
+                $pdf->AddPage($size['orientation'], $size);
+                $pdf->useTemplate($tpl);
+            }
         }
 
-        // FILE SCAN FARMASI
-        $pdfScan = public_path('storage/file_scan_farmasi/' . $cekFileScan->file);
-        $scanCount = $pdf->setSourceFile($pdfScan);
-
-        for ($i = 1; $i <= $scanCount; $i++) {
-            $template = $pdf->importPage($i);
-            $size = $pdf->getTemplateSize($template);
-            $pdf->AddPage($size['orientation'], $size);
-            $pdf->useTemplate($template);
-        }
-
-        $no_rawatSTR = str_replace('/', '', $request->no_rawat);
-        $outputName  = 'HASIL-FARMASI-' . $no_rawatSTR . '.pdf';
-
+        // OUTPUT
+        $outputName = 'HASIL-FARMASI-' . str_replace('/', '', $request->no_rawat) . '.pdf';
         $outputPath = public_path('hasil_farmasi_pdf/' . $outputName);
         $pdf->Output($outputPath, 'F');
 

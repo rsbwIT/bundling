@@ -344,7 +344,7 @@
                             </tr>
                             <tr>
                                 <td>No. Rawat</td>
-                                <td>: {{ $itemresep->no_rawat }}</td>
+                                <td>: {{ $itemresep->nota_piutang }}</td>
                             </tr>
                             <tr>
                                 <td>Jenis Bayar</td>
@@ -368,7 +368,7 @@
                             @php
                                 $nm_dokter = $itemresep->nm_dokter;
                                 $kd_dokter = $itemresep->kd_dokter;
-                                $tgl_peresepan = $itemresep->tgl_peresepan;
+                                $tgl_peresepan = $itemresep->tgl_piutang;
                             @endphp
                             @foreach ($itemresep->detailberkasResep as $itemresep)
                                 <tr>

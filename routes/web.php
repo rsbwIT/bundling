@@ -187,7 +187,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/download-sepresep-farmasi', [ViewSepResepController::class, 'DonwloadSEPResep']);
         Route::get('/download-hasilgabungberks', [ViewSepResepController::class, 'DonwloadHasilGabung']);
         Route::get('/print-sep-resep', [BundlingFarmasi::class, 'PrintBerkasSepResep']);
-        Route::get('/gabung-berkas-farmasi', [BundlingFarmasi::class, 'GabungBergkas']);
+        // Route::get('/gabung-berkas-farmasi', [BundlingFarmasi::class, 'GabungBergkas']);
+        Route::post('/gabung-berkas-farmasi', [BundlingFarmasi::class, 'gabungBerkas'])
+            ->name('gabung-berkas-farmasi');
+
         Route::get('/minimal-stok-obat', [MinimalStokController::class, 'MinimalStokObat']);
         Route::get('/list-pasien-farmasi2', [BundlingResepobat2::class, 'Listpasien2']);
         Route::get('/view-sep-resep2', [ViewSepResepController2::class, 'ViewSepResepController2']);
@@ -564,16 +567,6 @@ Route::group(['middleware' => 'default'], function () {
         // skrining tbc
         Route::get('/skriningtbc', [SkriningTBC::class, 'index'])
             ->name('skriningtbc.index');
-
-
-
-
-
-
-
-
-
-
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);

@@ -30,21 +30,12 @@
     {{-- Modal skrining --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-
-
-
     {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 
         {{-- 🧩 Konten halaman --}}
         <main class="p-4">
             @yield('content')  {{-- <== bagian ini yang wajib ada --}}
         </main>
-
-
-
-
-
-
 
     {{-- DUALIS --}}
     <link rel="stylesheet" href="/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
