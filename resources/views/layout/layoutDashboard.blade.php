@@ -947,25 +947,6 @@
                                 </li>
                             </ul>
                         </li>
-                        {{-- MENU KEPERAWATAN --}}
-                        <li class="nav-item">{{-- menu-open --}}
-                            <a href="#" class="nav-link">{{-- active --}}
-                                <i class="nav-icon fas fa-user-nurse"></i>
-                                <p>
-                                    Keperawatan
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('home-keperawatan') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Kegiatan Keperawtan</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
                         {{-- Pasien --}}
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -1086,25 +1067,8 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-diagnoses"></i>
-                                <p>
-                                    Fisioterapi
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/fisioterapi') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pasien Fisioterapi</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
+                        <li class="nav-header user-panel"></li>
+                        <li class="nav-header">Tools - Keperawatan</li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-user-md"></i>
@@ -1148,7 +1112,42 @@
                                 </li>
                             </ul>
                         </li>
+                        {{-- MENU KEPERAWATAN --}}
+                        <li class="nav-item">{{-- menu-open --}}
+                            <a href="#" class="nav-link">{{-- active --}}
+                                <i class="nav-icon fas fa-user-nurse"></i>
+                                <p>
+                                    Keperawatan
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('home-keperawatan') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Kegiatan Keperawtan</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-diagnoses"></i>
+                                <p>
+                                    Fisioterapi
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
 
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/fisioterapi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pasien Fisioterapi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
                         <li class="nav-item mt-5">
                         </li>
