@@ -1137,6 +1137,12 @@
                                 <li class="nav-item">
                                     <a href="{{ url('/skriningtbc') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
+                                        <p>Skrining TBC</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/skrining-tbc') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Data Skrining TBC</p>
                                     </a>
                                 </li>
