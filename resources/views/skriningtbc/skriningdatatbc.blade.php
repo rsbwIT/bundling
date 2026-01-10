@@ -127,8 +127,10 @@
                         <td class="text-center">
                             <span class="badge bg-info">{{ $row->status_lanjut }}</span>
                         </td>
+
+                        {{-- STATUS SKRINING --}}
                         <td class="text-center">
-                            @if ($row->status_skrining_tbc === '✔')
+                            @if ($row->status_skrining_tbc == 1)
                                 <span class="badge badge-sudah">
                                     <i class="bi bi-check-circle-fill me-1"></i> Sudah
                                 </span>
@@ -155,7 +157,6 @@
 </div>
 @endsection
 
-
 {{-- ================= STYLE ================= --}}
 @push('styles')
 <style>
@@ -178,7 +179,6 @@
     font-size:1.8rem;
     font-weight:700;
 }
-
 .badge-sudah{
     background:#e6f4ea;
     color:#1e7e34;
