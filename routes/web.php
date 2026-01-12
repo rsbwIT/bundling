@@ -123,7 +123,7 @@ use App\Http\Controllers\Fisioterapi\Fisioterapi;
 use App\Http\Controllers\Urologi\Urologi;
 use App\Http\Controllers\SkriningTBC\SkriningTBC;
 use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
-
+use App\Http\Controllers\LaporanLAB\LaporanLab;
 
 
 
@@ -571,6 +571,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/skriningtbc', [SkriningTBC::class, 'index'])
             ->name('skriningtbc.index');
         Route::get('/skrining-tbc', [SkriningDataTBC::class, 'index']);
+
+        //LAPORAN LAB
+        Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);
+
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
