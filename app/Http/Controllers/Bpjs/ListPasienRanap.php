@@ -29,6 +29,7 @@ class ListPasienRanap extends Controller
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
+            ->where('bridging_sep.jnspelayanan', '1')
             ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
             ->get();
 
@@ -64,6 +65,7 @@ class ListPasienRanap extends Controller
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
+            ->where('bridging_sep.jnspelayanan', '1')
             ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
             ->get();
 
