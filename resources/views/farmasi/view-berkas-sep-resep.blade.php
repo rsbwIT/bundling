@@ -105,9 +105,9 @@
                     @endif
 
                     {{-- LAB --}}
-                    @if (!empty($getLaborat))
+                    {{-- @if (!empty($getLaborat))
                         @include('farmasi.component.berkas-lab')
-                    @endif
+                    @endif --}}
 
                 @else
                     <div class="card-body">

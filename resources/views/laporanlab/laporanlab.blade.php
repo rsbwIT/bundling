@@ -99,6 +99,7 @@
                     <tr>
                         <th width="40">No</th>
                         <th>No Rawat</th>
+                        <th>No KTP</th>
                         <th>No RM</th>
                         <th>Nama Pasien</th>
                         <th width="120">Tgl Lahir</th>
@@ -119,7 +120,7 @@
                         <td class="fw-semibold text-primary">
                             {{ $row->no_rawat }}
                         </td>
-
+                        <td>{{ $row->no_ktp }}</td>
                         <td>{{ $row->no_rkm_medis }}</td>
                         <td>{{ $row->nm_pasien }}</td>
 

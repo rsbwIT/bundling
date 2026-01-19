@@ -395,11 +395,11 @@
                 </div>
             @endforeach
         @else
-            {{-- NULL --}}
-        @endif
+            {{-- NULL
+        @endif --}}
 
         {{-- BERKAS LAB --}}
-        @if ($getLaborat)
+        {{-- @if ($getLaborat)
         @foreach ($getLaborat as $periksa)
             <div class="card-body">
                 <div class="">
@@ -533,8 +533,8 @@
                     </table>
                 </div>
             </div>
-        @endforeach
-    @else
+        @endforeach --}}
+    {{-- @else --}}
         {{-- NULL --}}
     @endif
         {{-- ERROR HANDLING ============================================================= --}}
