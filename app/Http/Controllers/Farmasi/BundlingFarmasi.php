@@ -31,7 +31,7 @@ class BundlingFarmasi extends Controller
 
         // Inisialisasi variabel default
         $berkasResep = collect();
-        $resepKronis = collect();
+        // $resepKronis = collect();
         $getLaborat  = collect();
         $getSEP      = null;
         $getpasien   = null;
@@ -73,48 +73,37 @@ class BundlingFarmasi extends Controller
                 ->select(
                     'piutang.nota_piutang',
                     'piutang.nm_pasien',
-                    'piutang.no_rkm_medis',
-                    'piutang.tgl_piutang',
-                    'piutang.tgltempo',
-                    'piutang.nip',
-                    'piutang.catatan',
-                    'piutang.ongkir',
-                    'piutang.uangmuka',
-                    'piutang.sisapiutang',
-                    'bangsal.nm_bangsal',
-                    'resep_obat.no_resep',
-                    'resep_obat.no_rawat as resep_no_rawat',
-                    'resep_obat.kd_dokter as kd_dokter',
-                    'dokter.nm_dokter',
-                    'petugas.nama as nama_petugas'
-                )
-                ->join('petugas', 'piutang.nip', '=', 'petugas.nip')
-                ->leftJoin('bangsal', 'piutang.kd_bangsal', '=', 'bangsal.kd_bangsal')
-                ->join('detailpiutang', 'piutang.nota_piutang', '=', 'detailpiutang.nota_piutang')
-                ->join('databarang', 'detailpiutang.kode_brng', '=', 'databarang.kode_brng')
-                ->leftJoin('resep_obat', 'resep_obat.no_rawat', '=', 'piutang.nota_piutang')
-                ->leftJoin('dokter', 'resep_obat.kd_dokter', '=', 'dokter.kd_dokter')
-                ->where('piutang.nota_piutang', $noRawat)
-                ->groupBy(
-                    'piutang.nota_piutang',
-                    'piutang.nm_pasien',
-                    'piutang.no_rkm_medis',
-                    'piutang.tgl_piutang',
-                    'piutang.tgltempo',
-                    'piutang.nip',
-                    'piutang.catatan',
-                    'piutang.ongkir',
-                    'piutang.uangmuka',
-                    'piutang.sisapiutang',
-                    'bangsal.nm_bangsal',
-                    'resep_obat.no_resep',
                     'resep_obat.no_rawat',
+                    'petugas.nama as nama_petugas',
+                    'piutang.tgltempo',
+                    'piutang.tgl_piutang',
+                    'resep_obat.no_resep',
+                    'piutang.nip',
+                    'piutang.no_rkm_medis',
+                    'piutang.catatan',
+                    'piutang.ongkir',
+                    'piutang.uangmuka',
+                    'piutang.sisapiutang',
+                    'bangsal.nm_bangsal',
                     'resep_obat.kd_dokter',
                     'dokter.nm_dokter',
-                    'petugas.nama'
+                    'resep_obat.tgl_peresepan'
                 )
+                ->join('petugas', 'piutang.nip', '=', 'petugas.nip')
+                ->join('bangsal', 'piutang.kd_bangsal', '=', 'bangsal.kd_bangsal')
+                ->join('detailpiutang', 'piutang.nota_piutang', '=', 'detailpiutang.nota_piutang')
+                ->join('databarang', 'detailpiutang.kode_brng', '=', 'databarang.kode_brng')
+                ->join('jenis', 'databarang.kdjns', '=', 'jenis.kdjns')
+                ->join('kodesatuan', 'detailpiutang.kode_sat', '=', 'kodesatuan.kode_sat')
+                ->leftJoin('resep_obat', 'resep_obat.no_rawat', '=', 'piutang.nota_piutang')
+                ->join('dokter', 'resep_obat.kd_dokter', '=', 'dokter.kd_dokter')
+                ->where('piutang.nota_piutang', $noRawat)
+                ->groupBy('piutang.nota_piutang')
                 ->orderBy('piutang.tgl_piutang', 'asc')
+                ->orderBy('piutang.nota_piutang', 'asc')
                 ->get();
+
+
 
             // DETAIL RESEP
             foreach ($berkasResep as $itemresep) {
@@ -137,7 +126,7 @@ class BundlingFarmasi extends Controller
                         'detailpiutang.aturan_pakai'
                     )
                     ->join('databarang', 'detailpiutang.kode_brng', '=', 'databarang.kode_brng')
-                    ->join('kodesatuan', 'detailpiutang.kode_sat', '=', 'kodesatuan.kode_sat')
+                    ->leftJoin('kodesatuan', 'detailpiutang.kode_sat', '=', 'kodesatuan.kode_sat')
                     ->where('detailpiutang.nota_piutang', $itemresep->nota_piutang)
                     ->orderBy('detailpiutang.kode_brng', 'asc')
                     ->get();
@@ -145,33 +134,34 @@ class BundlingFarmasi extends Controller
                 $itemresep->detailberkasResep = $detailberkasResep;
             }
 
+
             // ============================================================
             // RESEP KRONIS (PAKAI QUERY DARI USER)
             // ============================================================
-            $resepKronis = DB::table('pasien')
-                ->select(
-                    'pasien.nm_pasien',
-                    'reg_periksa.no_rkm_medis',
-                    'reg_periksa.no_rawat',
-                    'penjab.png_jawab',
-                    'dokter.nm_dokter',
-                    'detailpiutang.nota_piutang',
-                    'databarang.nama_brng',
-                    'detailpiutang.jumlah',
-                    'detailpiutang.aturan_pakai',
-                    'piutang.catatan'
-                )
-                ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-                ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-                ->join('piutang', 'pasien.no_rkm_medis', '=', 'piutang.no_rkm_medis')
-                ->join('detailpiutang', 'piutang.nota_piutang', '=', 'detailpiutang.nota_piutang')
-                ->join('databarang', 'detailpiutang.kode_brng', '=', 'databarang.kode_brng')
-                ->where('reg_periksa.no_rawat', $noRawat)
-                ->where('piutang.catatan', 'LIKE', '%KRONIS%')
-                ->whereColumn('piutang.nota_piutang', 'reg_periksa.no_rawat')
-                ->orderBy('databarang.nama_brng', 'asc')
-                ->get();
+            // $resepKronis = DB::table('pasien')
+            //     ->select(
+            //         'pasien.nm_pasien',
+            //         'reg_periksa.no_rkm_medis',
+            //         'reg_periksa.no_rawat',
+            //         'penjab.png_jawab',
+            //         'dokter.nm_dokter',
+            //         'detailpiutang.nota_piutang',
+            //         'databarang.nama_brng',
+            //         'detailpiutang.jumlah',
+            //         'detailpiutang.aturan_pakai',
+            //         'piutang.catatan'
+            //     )
+            //     ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            //     ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            //     ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+            //     ->join('piutang', 'pasien.no_rkm_medis', '=', 'piutang.no_rkm_medis')
+            //     ->join('detailpiutang', 'piutang.nota_piutang', '=', 'detailpiutang.nota_piutang')
+            //     ->join('databarang', 'detailpiutang.kode_brng', '=', 'databarang.kode_brng')
+            //     ->where('reg_periksa.no_rawat', $noRawat)
+            //     ->where('piutang.catatan', 'LIKE', '%KRONIS%')
+            //     ->whereColumn('piutang.nota_piutang', 'reg_periksa.no_rawat')
+            //     ->orderBy('databarang.nama_brng', 'asc')
+            //     ->get();
 
             // ============================================================
             // LABORATORIUM
@@ -270,7 +260,7 @@ class BundlingFarmasi extends Controller
             'getSEP'       => $getSEP,
             'berkasResep'  => $berkasResep,
             'getLaborat'   => $getLaborat,
-            'resepKronis'  => $resepKronis,
+            // 'resepKronis'  => $resepKronis,
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);
