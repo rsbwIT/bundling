@@ -124,12 +124,7 @@ use App\Http\Controllers\Urologi\Urologi;
 use App\Http\Controllers\SkriningTBC\SkriningTBC;
 use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
 use App\Http\Controllers\LaporanLAB\LaporanLab;
-
-
-
-
-
-
+use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 
 
 
@@ -182,6 +177,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/data-inacbg', [DataInacbg::class, 'Inacbg']);
         Route::get('/setting-bpjs-casemix', [SettingBpjs::class, 'settingBpjsCasemix']);
         Route::get('/croscheck-coding', [HomeCasemix::class, 'crosCheckCoding']);
+        Route::get('/bpjs/croscek-pasien-pulang', [CroscekPasienPulang::class, 'index'])
+            ->name('bpjs.croscekpasienpulang');
+
 
         // FARMASI
         Route::get('/list-pasien-farmasi', [SepResepController::class, 'ListPasienFarmasi']);
