@@ -100,10 +100,12 @@
                         <th width="40">No</th>
                         <th>No Rawat</th>
                         <th>No KTP</th>
+                        <th>No Peserta</th>
                         <th>No RM</th>
                         <th>Nama Pasien</th>
                         <th width="120">Tgl Lahir</th>
                         <th>Alamat</th>
+                        <th>No Telpone</th>
                         <th width="130">Tgl Periksa</th>
                         <th>Pemeriksaan</th>
                         <th width="120">Nilai</th>
@@ -121,6 +123,7 @@
                             {{ $row->no_rawat }}
                         </td>
                         <td>{{ $row->no_ktp }}</td>
+                        <td>{{ $row->no_peserta }}</td>
                         <td>{{ $row->no_rkm_medis }}</td>
                         <td>{{ $row->nm_pasien }}</td>
 
@@ -129,6 +132,7 @@
                         </td>
 
                         <td>{{ $row->alamat }}</td>
+                        <td>{{ $row->no_tlp }}</td>
 
                         <td class="text-center">
                             {{ \Carbon\Carbon::parse($row->tgl_periksa)->format('d-m-Y') }}

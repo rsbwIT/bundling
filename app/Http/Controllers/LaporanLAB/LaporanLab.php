@@ -18,7 +18,7 @@ class LaporanLab extends Controller
         $tglAkhir = $request->filled('tgl_akhir')
             ? $request->tgl_akhir
             : Carbon::today()->toDateString();
-            
+
         $data = DB::select("
         SELECT
             reg_periksa.no_rawat,
@@ -26,6 +26,8 @@ class LaporanLab extends Controller
             pasien.nm_pasien,
             pasien.tgl_lahir,
             pasien.no_ktp,
+            pasien.no_tlp,
+            pasien.no_peserta,
             pasien.alamat,
             detail_periksa_lab.tgl_periksa,
             jns_perawatan_lab.nm_perawatan,
