@@ -125,6 +125,10 @@ use App\Http\Controllers\SkriningTBC\SkriningTBC;
 use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
 use App\Http\Controllers\LaporanLAB\LaporanLab;
 use App\Http\Controllers\Bpjs\CroscekPasienPulang;
+use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
+
+
+
 
 
 
@@ -300,53 +304,6 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
 
 
-        //fisioterapi
-
-
-        // ===========================
-        // // LIST PASIEN
-        // // ===========================
-        // Route::get('/fisioterapi/pasien', [Fisioterapi::class, 'listPasien'])
-        //     ->name('fisioterapi.pasien');
-
-
-        // // ===========================
-        // // TAMPIL FORM FISIOTERAPI
-        // // FORMAT URL BENAR:
-        // // /fisioterapi/form/2025/11/22/000197
-        // // ===========================
-        // Route::get(
-        //     '/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}',
-        //     [Fisioterapi::class, 'form']
-        // )->where([
-        //     'tahun' => '[0-9]{4}',
-        //     'bulan' => '[0-9]{1,2}',
-        //     'hari'  => '[0-9]{1,2}',
-        // ])->name('fisioterapi.form');
-
-
-        // // ===========================
-        // // SIMPAN FORM
-        // // URL BENAR:
-        // // /fisioterapi/form/2025/11/22/000197/save
-        // // ===========================
-        // Route::post(
-        //     '/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}/save',
-        //     [Fisioterapi::class, 'saveForm']
-        // )->where([
-        //     'tahun' => '[0-9]{4}',
-        //     'bulan' => '[0-9]{1,2}',
-        //     'hari'  => '[0-9]{1,2}',
-        // ])->name('fisioterapi.form.save');
-
-
-        // // ===========================
-        // // CARI PASIEN BERDASAR NO RAWAT
-        // // ===========================
-        // Route::get('/fisioterapi/cari/{no_rawat}', [Fisioterapi::class, 'cariPasien'])
-        //     ->name('fisioterapi.cari');
-
-
 
 
         Route::get('/fisioterapi', [Fisioterapi::class, 'listPasien'])->name('fisioterapi.pasien');
@@ -416,16 +373,38 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/antrian-farmasi/pasien/{no_rkm_medis}', [AntrianFarmasiController::class, 'getPasien'])->name('antrian-farmasi.getPasien');
         Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian-farmasi.cetak');
 
-        //REGPERIKSA
-        // Route::get('/reg-periksa', [RegPeriksa::class, 'regperiksa']);
-        // Route::post('/reg-periksa/update-stts', [RegPeriksa::class, 'updateStts'])->name('reg_periksa.update_stts');
+        // FARMASI2026
 
-        // Route::get('/reg-periksa', [RegPeriksa::class, 'regperiksa']);
-        // Route::post('/ubah-status', [App\Http\Controllers\RegPeriksa\RegPeriksa::class, 'ubahStatus'])->name('ubah.status');
-        // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
-        // Route::post('/regperiksa/update-status', [RegPeriksa::class, 'updateStatus'])->name('regperiksa.updateStatus');
-        // Route::get('/regperiksa', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.index');
-        // Route::get('/regperiksa/cari', [RegPeriksa::class, 'regperiksa'])->name('regperiksa.cari');
+        // Route::get('/antrian-farmasi', [AntrianFarmasi2026::class, 'index']);
+        // Route::post('/antrian-farmasi/panggil/proses', [AntrianFarmasi2026::class, 'panggilAntrian']);
+        // Route::get('/antrian-farmasi/panggil', [AntrianFarmasi2026::class, 'halamanPanggil']);
+        // Route::get(
+        //     '/antrian-farmasi/petugas',
+        //     [AntrianFarmasi2026::class, 'halamanPanggilPetugas']
+        // );
+        // // Route::get(
+        // //     '/antrian-farmasi/data-display',
+        // //     [AntrianFarmasi2026::class, 'dataDisplay']
+        // // );
+        // Route::post('/antrian-farmasi/selesai', [AntrianFarmasi2026::class, 'selesaiAntrian']);
+
+
+        Route::get('/antrian-farmasi', [AntrianFarmasi2026::class, 'index']);
+        Route::get('/antrian-farmasi/panggil', [AntrianFarmasi2026::class, 'halamanPanggil']);
+        Route::get('/antrian-farmasi/petugas', [AntrianFarmasi2026::class, 'halamanPanggilPetugas']);
+
+        Route::post('/antrian-farmasi/panggil/proses', [AntrianFarmasi2026::class, 'panggilAntrian']);
+        Route::post('/antrian-farmasi/selesai', [AntrianFarmasi2026::class, 'selesaiAntrian']);
+
+        Route::get('/antrian-farmasi/data-display', [AntrianFarmasi2026::class, 'dataDisplay']);
+
+
+
+
+
+
+
+        //REGPERIKSA
 
         Route::get('/regperiksabilling', [RegPeriksaBillingController::class, 'regperiksabilling'])->name('regperiksabilling.index1');
         Route::post('/update-status', [RegPeriksaBillingController::class, 'updateStatus'])->name('updateStatus');

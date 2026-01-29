@@ -830,6 +830,22 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('antrian-farmasi/panggil') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Panggil Antrian<span class="badge bg-success">Baru</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('antrian-farmasi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Display Farmasi<span class="badge bg-success">Baru</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('display-farmasi') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display TV</p>
