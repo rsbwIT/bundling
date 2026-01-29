@@ -389,7 +389,7 @@ Route::group(['middleware' => 'default'], function () {
         // Route::post('/antrian-farmasi/selesai', [AntrianFarmasi2026::class, 'selesaiAntrian']);
 
 
-        Route::get('/antrian-farmasi', [AntrianFarmasi2026::class, 'index']);
+        Route::get('/antrian-farmasi-baru', [AntrianFarmasi2026::class, 'index']);
         Route::get('/antrian-farmasi/panggil', [AntrianFarmasi2026::class, 'halamanPanggil']);
         Route::get('/antrian-farmasi/petugas', [AntrianFarmasi2026::class, 'halamanPanggilPetugas']);
 

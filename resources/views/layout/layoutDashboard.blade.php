@@ -838,7 +838,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi-baru') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display Farmasi<span class="badge bg-success">Baru</span></p>
                                     </a>
