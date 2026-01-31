@@ -143,10 +143,50 @@
         }
     </style>
 
+    <style>
+        /* ================= WELCOME NOTIFICATION ================= */
+        .welcome-toast {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            opacity: 0;
+            transform: translateX(40px);
+            z-index: 9999;
+            transition: all 0.5s ease;
+        }
 
+        .welcome-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .welcome-toast strong {
+            font-size: 15px;
+        }
+
+        .welcome-toast p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* DARK MODE */
+        body.dark-mode .welcome-toast {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+    </style>
 
     @stack('styles')
 </head>
+<div id="welcomeNotif" class="welcome-toast">
+    <strong>👋 Selamat Datang</strong>
+    <p>di <b>Bundling 2026</b></p>
+</div>
 
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -1430,6 +1470,25 @@
             }
         }
     </script>
+    {{-- notif login --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (!sessionStorage.getItem("welcome_shown")) {
+                const notif = document.getElementById("welcomeNotif");
+
+                setTimeout(() => {
+                    notif.classList.add("show");
+                }, 500);
+
+                setTimeout(() => {
+                    notif.classList.remove("show");
+                }, 4500);
+
+                sessionStorage.setItem("welcome_shown", "yes");
+            }
+        });
+    </script>
+
 
 </body>
 
