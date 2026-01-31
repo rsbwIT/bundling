@@ -52,6 +52,99 @@
             position: relative;
         }
     </style>
+
+    <style>
+        .main-sidebar {
+            background-color: #1d7969 !important;
+        }
+
+        .brand-link {
+            background-color: #1d7969 !important;
+        }
+
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #eb6e25 !important;
+        }
+    </style>
+    <style>
+        /* ================= DARK MODE CORE (SOFT) ================= */
+        body.dark-mode {
+            background-color: #0f172a !important; /* dark blue-gray */
+            color: #e5e7eb !important;
+        }
+
+        /* ================= CONTENT ================= */
+        body.dark-mode .content-wrapper {
+            background-color: #111827 !important;
+        }
+
+        /* ================= CARD ================= */
+        body.dark-mode .card {
+            background-color: #111827 !important;
+            color: #e5e7eb !important;
+            border-color: #1f2937 !important;
+        }
+
+        /* ================= TABLE ================= */
+        body.dark-mode .table {
+            background-color: #111827 !important;
+            color: #e5e7eb !important;
+        }
+
+        body.dark-mode .table thead th {
+            background-color: #1f2937 !important;
+            color: #93c5fd !important;
+            border-color: #374151 !important;
+        }
+
+        body.dark-mode .table td {
+            border-color: #374151 !important;
+        }
+
+        /* ================= FORM ================= */
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #111827 !important;
+            color: #e5e7eb !important;
+            border-color: #374151 !important;
+        }
+
+        /* ================= BUTTON ================= */
+        body.dark-mode .btn {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            border-color: #374151;
+        }
+
+        /* ================= DROPDOWN ================= */
+        body.dark-mode .dropdown-menu {
+            background-color: #1f2937 !important;
+            color: #e5e7eb !important;
+            border-color: #374151 !important;
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #e5e7eb !important;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background-color: #374151 !important;
+        }
+
+        /* ================= NAVBAR ================= */
+        body.dark-mode .main-header {
+            background-color: #111827 !important;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        body.dark-mode .main-header .nav-link {
+            color: #e5e7eb !important;
+        }
+    </style>
+
+
+
     @stack('styles')
 </head>
 
@@ -65,38 +158,54 @@
             <img class="animation__shake" src="/img/rs.png" height="50" width="60" />
         </div> --}}
 
+
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
-                            class="fas fa-bars"></i></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
                 </li>
             </ul>
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-lg" data-toggle="dropdown" href="#">
-                        <i class="far fa-user"></i>
+                {{-- 🌙☀️ TOGGLE DARK MODE --}}
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="toggleTheme()" title="Dark / Light Mode">
+                        <i id="themeIcon" class="fas fa-moon"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                </li>
+                {{-- USER --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#">
+                        <img src="{{ session('user')->foto ?? asset('img/user.jpg') }}"
+                            class="img-circle"
+                            style="width:32px;height:32px;object-fit:cover">
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#profileModal">
+                            <i class="fas fa-user-circle mr-2"></i> Profile
+                        </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" tabindex="-1" href="#">Action</a>
-                        <a class="dropdown-item" tabindex="-1" href="#">Another action</a>
-                        <a class="dropdown-item" tabindex="-1" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" tabindex="-1" href="{{ route('logout') }}">
-                            <i class='fas fa-sign-out-alt'></i> Logout
+                        <a class="dropdown-item" href="{{ route('logout') }}">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
                         </a>
                     </div>
                 </li>
+
             </ul>
         </nav>
+
+        
         <!-- /.navbar -->
+
+
 
         <!-- INI MENUUU SAMPING -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -1289,6 +1398,39 @@
         })
     </script>
     @include('layout.component.allert')
+
+    {{-- navbar js efek malam --}}
+    <script>
+        (function () {
+            // Saat halaman dibuka, cek mode terakhir
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                setIcon(true);
+            }
+        })();
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+
+            // Simpan ke localStorage
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            setIcon(isDark);
+        }
+
+        function setIcon(isDark) {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+    </script>
+
 </body>
 
 </html>
