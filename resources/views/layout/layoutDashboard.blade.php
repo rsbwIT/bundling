@@ -412,15 +412,15 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a href="{{ url('/chat') }}" class="nav-link">
                                 <i class="nav-icon fas fa-robot"></i>
                                 <p>
                                     AI Chat
-                                    {{-- <span class="right badge badge-danger">New</span> --}}
+                                   
                                 </p>
                             </a>
-                        </li>
+                        </li> --}}
 
                         {{-- MENU KEUANGAN --}}
                         <li class="nav-header user-panel"></li>
