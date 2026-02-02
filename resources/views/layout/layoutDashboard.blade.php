@@ -1402,10 +1402,10 @@
 
         <footer class="main-footer">
             <strong>Template &copy; By
-                <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-            All rights reserved.
+                <a href="https://rsbumiwaras.co.id/">Rs Bumi Waras</a>.</strong>
+            {{-- All rights reserved. --}}
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> 3.2.0
+                <b>Version</b> 11.2.0
             </div>
         </footer>
 
