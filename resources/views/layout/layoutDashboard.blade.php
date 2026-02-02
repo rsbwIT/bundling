@@ -67,81 +67,123 @@
         }
     </style>
     <style>
-        /* ================= DARK MODE CORE (SOFT) ================= */
-        body.dark-mode {
-            background-color: #0f172a !important; /* dark blue-gray */
-            color: #e5e7eb !important;
-        }
+/* ================= DARK MODE CORE ================= */
+body.dark-mode {
+    background-color: #1f1f20 !important;
+    color: #e5e7eb !important;
+}
 
-        /* ================= CONTENT ================= */
-        body.dark-mode .content-wrapper {
-            background-color: #111827 !important;
-        }
+/* ================= WRAPPER / CONTENT ================= */
+body.dark-mode .content-wrapper {
+    background-color: #1f1f20 !important;
+}
 
-        /* ================= CARD ================= */
-        body.dark-mode .card {
-            background-color: #111827 !important;
-            color: #e5e7eb !important;
-            border-color: #1f2937 !important;
-        }
+/* ================= NAVBAR ================= */
+body.dark-mode .main-header {
+    background-color: #1f1f20 !important;
+    border-bottom: 1px solid #2a2a2c;
+}
 
-        /* ================= TABLE ================= */
-        body.dark-mode .table {
-            background-color: #111827 !important;
-            color: #e5e7eb !important;
-        }
+body.dark-mode .main-header .nav-link,
+body.dark-mode .main-header i {
+    color: #e5e7eb !important;
+}
 
-        body.dark-mode .table thead th {
-            background-color: #1f2937 !important;
-            color: #93c5fd !important;
-            border-color: #374151 !important;
-        }
+/* ================= SIDEBAR ================= */
+body.dark-mode .main-sidebar {
+    background-color: #1f1f20 !important;
+}
 
-        body.dark-mode .table td {
-            border-color: #374151 !important;
-        }
+body.dark-mode .nav-sidebar .nav-link {
+    color: #d1d5db !important;
+}
 
-        /* ================= FORM ================= */
-        body.dark-mode input,
-        body.dark-mode select,
-        body.dark-mode textarea {
-            background-color: #111827 !important;
-            color: #e5e7eb !important;
-            border-color: #374151 !important;
-        }
+body.dark-mode .nav-sidebar .nav-link.active {
+    background-color: #2a2a2c !important;
+    color: #93c5fd !important;
+}
 
-        /* ================= BUTTON ================= */
-        body.dark-mode .btn {
-            background-color: #1f2937;
-            color: #e5e7eb;
-            border-color: #374151;
-        }
+/* ================= CARD ================= */
+body.dark-mode .card {
+    background-color: #252527 !important;
+    color: #e5e7eb !important;
+    border: 1px solid #2a2a2c !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
 
-        /* ================= DROPDOWN ================= */
-        body.dark-mode .dropdown-menu {
-            background-color: #1f2937 !important;
-            color: #e5e7eb !important;
-            border-color: #374151 !important;
-        }
+/* ================= TABLE ================= */
+body.dark-mode .table {
+    background-color: #252527 !important;
+    color: #e5e7eb !important;
+}
 
-        body.dark-mode .dropdown-item {
-            color: #e5e7eb !important;
-        }
+body.dark-mode .table thead th {
+    background-color: #2a2a2c !important;
+    color: #93c5fd !important;
+    border-color: #3a3a3c !important;
+}
 
-        body.dark-mode .dropdown-item:hover {
-            background-color: #374151 !important;
-        }
+body.dark-mode .table td {
+    border-color: #3a3a3c !important;
+}
 
-        /* ================= NAVBAR ================= */
-        body.dark-mode .main-header {
-            background-color: #111827 !important;
-            border-bottom: 1px solid #1f2937;
-        }
+body.dark-mode .table tbody tr:hover {
+    background-color: #2f2f32 !important;
+}
 
-        body.dark-mode .main-header .nav-link {
-            color: #e5e7eb !important;
-        }
-    </style>
+/* ================= FORM ================= */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #252527 !important;
+    color: #e5e7eb !important;
+    border: 1px solid #3a3a3c !important;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: #93c5fd !important;
+    box-shadow: 0 0 0 .15rem rgba(147,197,253,.25);
+}
+
+/* ================= BUTTON ================= */
+body.dark-mode .btn {
+    background-color: #2a2a2c;
+    color: #e5e7eb;
+    border-color: #3a3a3c;
+}
+
+body.dark-mode .btn:hover {
+    background-color: #333336;
+}
+
+/* ================= DROPDOWN ================= */
+body.dark-mode .dropdown-menu {
+    background-color: #252527 !important;
+    border-color: #3a3a3c !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #2f2f32 !important;
+}
+
+body.dark-mode .brand-link {
+    background-color: #1f1f20 !important;
+    border-bottom: 1px solid #2a2a2c;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .brand-link img {
+    filter: brightness(0.95);
+}
+
+</style>
+
 
     <style>
         /* ================= WELCOME NOTIFICATION ================= */
@@ -177,7 +219,7 @@
 
         /* DARK MODE */
         body.dark-mode .welcome-toast {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, #222324, #222324);
         }
 
         /* ================= THEME TOGGLE ICON ================= */
