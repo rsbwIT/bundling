@@ -205,6 +205,47 @@
             75%  { transform: translate(120px,40px) rotate(10deg); }
             100% { transform: translate(0,0) rotate(0deg); }
         }
+
+        .footer-cat {
+            position: relative;
+            overflow: hidden;
+            min-height: 55px;
+        }
+
+        /* KUCING */
+        .cat-walk {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            font-size: 26px;
+            transform: translateX(-50%);
+            animation: catWalk 14s linear infinite;
+            pointer-events: none;
+        }
+
+        /* ANIMASI JALAN BOLAK-BALIK */
+        @keyframes catWalk {
+            0% {
+                transform: translateX(-150px) scaleX(1);
+            }
+            49% {
+                transform: translateX(150px) scaleX(1);
+            }
+            50% {
+                transform: translateX(150px) scaleX(-1);
+            }
+            99% {
+                transform: translateX(-150px) scaleX(-1);
+            }
+            100% {
+                transform: translateX(-150px) scaleX(1);
+            }
+        }
+
+        /* DARK MODE */
+        body.dark-mode .cat-walk {
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.35));
+        }
     </style>
 
 
@@ -1466,15 +1507,16 @@
         <!-- KONTENT UTAMA -->
 
         <footer class="main-footer footer-animal">
-            {{-- <div class="animal-walk">
-                🐱
-            </div> --}}
-            <div class="butterfly">🦋</div>
+            {{-- <div class="butterfly">🦋</div> --}}
 
 
             <strong>Template &copy; By
                 <a href="https://rsbumiwaras.co.id/">Rs Bumi Waras</a>.
             </strong>
+
+            <!-- KUCING JALAN -->
+            {{-- <div class="cat-walk">🐈</div> --}}
+
             <div class="float-right d-none d-sm-inline-block">
                 <b>Version</b> 11.2.0
             </div>
