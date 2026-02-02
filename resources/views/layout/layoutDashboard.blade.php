@@ -33,7 +33,7 @@
     {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 
         {{-- 🧩 Konten halaman --}}
-        <main class="p-4">
+        <main class="p-0,5">
             @yield('content')  {{-- <== bagian ini yang wajib ada --}}
         </main>
 
