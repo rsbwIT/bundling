@@ -179,6 +179,25 @@
         body.dark-mode .welcome-toast {
             background: linear-gradient(135deg, #0f172a, #1e293b);
         }
+
+        /* ================= THEME TOGGLE ICON ================= */
+        .rotate-icon {
+            font-size: 1.2rem;
+            transition: transform .4s ease, color .3s ease;
+            will-change: transform;
+        }
+
+        /* Dark mode → icon muter + kuning */
+        body.dark-mode .rotate-icon {
+            transform: rotate(180deg);
+            color: #facc15; /* kuning soft */
+        }
+
+        /* Light mode → posisi normal + biru */
+        body:not(.dark-mode) .rotate-icon {
+            transform: rotate(0deg);
+            color: #60a5fa; /* biru soft */
+        }
     </style>
 
     @stack('styles')
@@ -216,8 +235,8 @@
 
                 {{-- 🌙☀️ TOGGLE DARK MODE --}}
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="toggleTheme()" title="Dark / Light Mode">
-                        <i id="themeIcon" class="fas fa-moon"></i>
+                    <a href="#" class="nav-link" onclick="toggleTheme(event)" title="Dark / Light Mode">
+                        <i id="themeIcon" class="fas fa-sun rotate-icon"></i>
                     </a>
                 </li>
                 {{-- USER --}}
@@ -1440,36 +1459,34 @@
     @include('layout.component.allert')
 
     {{-- navbar js efek malam --}}
-    <script>
-        (function () {
-            // Saat halaman dibuka, cek mode terakhir
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                setIcon(true);
-            }
-        })();
+        <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const isDark = localStorage.getItem('theme') === 'dark';
 
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('dark-mode', isDark);
+        setIcon(isDark);
+    });
 
-            // Simpan ke localStorage
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            setIcon(isDark);
-        }
+    function toggleTheme(e) {
+        if (e) e.preventDefault();
 
-        function setIcon(isDark) {
-            const icon = document.getElementById('themeIcon');
-            if (!icon) return;
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
-            if (isDark) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
-        }
+        setIcon(isDark);
+    }
+
+    function setIcon(isDark) {
+        const icon = document.getElementById('themeIcon');
+        if (!icon) return;
+
+        // ganti ikon
+        icon.classList.remove('fa-sun', 'fa-moon');
+        icon.classList.add(isDark ? 'fa-moon' : 'fa-sun');
+    }
     </script>
+
+
     {{-- notif login --}}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
