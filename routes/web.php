@@ -126,6 +126,7 @@ use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
 use App\Http\Controllers\LaporanLAB\LaporanLab;
 use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
+use App\Http\Controllers\Lan\Lan;
 
 
 
@@ -374,20 +375,21 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/antrian-farmasi/cetak/{nomorAntrian}', [AntrianFarmasiController::class, 'cetakAntrian'])->name('antrian-farmasi.cetak');
 
         // FARMASI2026
-        
+
         Route::get('/antrian-farmasi-baru', [AntrianFarmasi2026::class, 'index']);
         Route::get('/antrian-farmasi/panggil', [AntrianFarmasi2026::class, 'halamanPanggil']);
         Route::get('/antrian-farmasi/petugas', [AntrianFarmasi2026::class, 'halamanPanggilPetugas']);
-
         Route::post('/antrian-farmasi/panggil/proses', [AntrianFarmasi2026::class, 'panggilAntrian']);
         Route::post('/antrian-farmasi/selesai', [AntrianFarmasi2026::class, 'selesaiAntrian']);
-
         Route::get('/antrian-farmasi/data-display', [AntrianFarmasi2026::class, 'dataDisplay']);
+        Route::get('/antrian-farmasi/display-v2',[AntrianFarmasi2026::class, 'dispalv2']);
+        Route::get('/cetakantrianbaru/{id}',[AntrianFarmasi2026::class, 'cetakAntrian'])->name('antrianfarmasi.cetak');
 
-
-
-
-
+        //LAN MESENGGER
+        Route::get('/lan', [Lan::class, 'index']);
+        Route::post('/lan/heartbeat', [Lan::class, 'heartbeat']);
+        Route::post('/lan/send', [Lan::class, 'sendMessage']);
+        Route::get('/lan/fetch', [Lan::class, 'fetchMessage']);
 
 
         //REGPERIKSA

@@ -27,6 +27,31 @@ class AntrianFarmasi2026 extends Controller
         return view('antrian-farmasi.antrianfarmasi2026', compact('antrian', 'tanggal'));
     }
 
+    public function dispalv2(Request $request)
+    {
+        $tanggal = $request->filled('tanggal')
+            ? $request->tanggal
+            : \Carbon\Carbon::today()->format('Y-m-d');
+
+        $lane = $request->get('lane', 'ALL');
+
+        $antrian = collect($this->ambilDataAntrian($tanggal))
+            ->flatten(1);
+
+        // FILTER LANE
+        if ($lane !== 'ALL') {
+            $antrian = $antrian->where('jalur', $lane);
+        }
+
+        return view(
+            'antrian-farmasi.antrianfarmasiv22026',
+            compact('antrian', 'tanggal', 'lane')
+        );
+    }
+
+
+
+
     // ============================================================
     // 🔥 AMBIL DATA + AUTO CREATE NOMOR
     // ============================================================
@@ -78,6 +103,7 @@ class AntrianFarmasi2026 extends Controller
         // =============================
         $final = DB::select("
             SELECT
+                ap.id,
                 x.jalur,
                 ap.nomor_antrian AS no_antrian,
                 x.no_rawat,
@@ -194,7 +220,7 @@ class AntrianFarmasi2026 extends Controller
             return response()->json(['status' => 'ok']);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return response()->json(['status'=>'error','msg'=>$e->getMessage()],500);
+            return response()->json(['status' => 'error', 'msg' => $e->getMessage()], 500);
         }
     }
 
@@ -227,5 +253,41 @@ class AntrianFarmasi2026 extends Controller
     public function halamanPanggilPetugas()
     {
         return $this->halamanPanggil();
+    }
+
+    public function cetakAntrian($id)
+    {
+        $antrian = DB::selectOne("
+        SELECT
+            ap.id,
+            ap.tanggal,
+            ap.jalur,
+            ap.nomor_antrian,
+            rp.no_rawat,
+            p.no_rkm_medis,
+            p.nm_pasien,
+            CASE 
+                WHEN pj.png_jawab LIKE '%BPJS%' THEN 'BPJS' 
+                ELSE 'NON BPJS' 
+            END AS kelompok_pj
+        FROM antrian_farmasi_panggil ap
+        JOIN reg_periksa rp ON rp.no_rawat = ap.no_rawat
+        JOIN pasien p ON p.no_rkm_medis = rp.no_rkm_medis
+        JOIN penjab pj ON rp.kd_pj = pj.kd_pj
+        WHERE ap.id = ?
+        LIMIT 1
+    ", [$id]);
+
+        if (!$antrian) {
+            abort(404, 'Data antrian tidak ditemukan');
+        }
+
+        $setting = DB::table('setting')->first();
+        $loket   = 'FARMASI';
+
+        return view(
+            'antrian-farmasi.cetakan.cetakanantrian',
+            compact('antrian', 'setting', 'loket')
+        );
     }
 }

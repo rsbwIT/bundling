@@ -1120,6 +1120,14 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('antrian-farmasi/display-v2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Display Farmasi V2<span class="badge bg-success">Baru</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('display-farmasi') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display TV</p>
