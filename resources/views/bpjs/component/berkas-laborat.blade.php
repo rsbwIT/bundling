@@ -123,7 +123,7 @@
                             <td width="250px" class="text-center">
                                 Hasil : {{ date('d-m-Y', strtotime($periksa->tgl_periksa)) }}
                                 <br>
-                                Petugas Laboratorium
+                                Petugas Radiologi
                                 <div class="barcode mt-1">
                                     <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $periksa->nama_petugas . ' ID ' . $periksa->nip . ' ' . $periksa->tgl_periksa, 'QRCODE') }}"
                                         alt="barcode" width="80px" height="75px" />
