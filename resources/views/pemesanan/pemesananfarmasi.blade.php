@@ -476,24 +476,50 @@
     </div> --}}
 
     <div class="card-body p-0">
-    <div class="table-scroll">
-        <table class="table table-modern table-hover mb-0">
+        <div class="table-scroll">
+            <table class="table table-modern table-hover mb-0">
                 <thead>
-                <tr>
-                    <th>No Faktur</th>
-                    <th>No Pajak</th>
-                    <th class="text-start">Supplier</th>
-                    <th>No Order</th>
-                    <th class="text-start">Bangsal</th>
-                    <th>Tgl Datang</th>
-                    <th>Tgl Faktur</th>
-                    <th>Tgl Tempo</th>
-                    <th class="text-end">Total</th>
-                    <th>Status</th>
-                </tr>
+                    <tr>
+                        <th>No Faktur</th>
+                        <th>No Pajak</th>
+                        <th class="text-start">Supplier</th>
+                        <th>No Order</th>
+                        <th class="text-start">Bangsal</th>
+                        <th>Tgl Datang</th>
+                        <th>Tgl Faktur</th>
+                        <th>Tgl Tempo</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">PPN (Total)</th>
+                        <th>Status</th>
+                        <th class="text-end">DPP</th>
+                        <th class="text-end">DPP Nilai Lain</th>
+                        <th class="text-end">PPN (DPP)</th>
+                        <th class="text-end">Selisih</th>
+                    </tr>
                 </thead>
+
                 <tbody>
                 @forelse($data as $row)
+
+                @php
+                    $total = $row->tagihan ?? 0;
+
+                    // 1️⃣ DPP
+                    $dpp = $total > 0 ? round($total / 1.11, 0) : 0;
+
+                    // 2️⃣ PPN dari Total
+                    $ppn_total = $total > 0 ? round(($total / 1.11) * 0.11, 0) : 0;
+
+                    // 3️⃣ DPP Nilai Lain
+                    $dpp_lain = round($dpp * 11 / 12, 0);
+
+                    // 4️⃣ PPN dari DPP Nilai Lain (12%)
+                    $ppn_dpp = round($dpp_lain * 0.12, 0);
+
+                    // 5️⃣ Selisih (PPN Total - PPN DPP)
+                    $selisih = $ppn_total - $ppn_dpp;
+                @endphp
+
                 <tr>
                     <td class="text-center text-primary fw-bold">
                         {{ $row->no_faktur }}
@@ -501,16 +527,16 @@
 
                     <td class="text-center">
                         @if($row->no_pajak=='Belum Ada')
-                        <button class="btn btn-sm btn-outline-warning rounded-circle"
-                                data-toggle="modal"
-                                data-target="#modalPajak"
-                                data-faktur="{{ $row->no_faktur }}">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                            <button class="btn btn-sm btn-outline-warning rounded-circle"
+                                    data-toggle="modal"
+                                    data-target="#modalPajak"
+                                    data-faktur="{{ $row->no_faktur }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         @else
-                        <span class="badge badge-soft badge-soft-success">
-                            {{ $row->no_pajak }}
-                        </span>
+                            <span class="badge badge-soft badge-soft-success">
+                                {{ $row->no_pajak }}
+                            </span>
                         @endif
                     </td>
 
@@ -520,8 +546,18 @@
                     <td class="text-center">{{ date('d-m-Y',strtotime($row->tgl_pesan)) }}</td>
                     <td class="text-center">{{ date('d-m-Y',strtotime($row->tgl_faktur)) }}</td>
                     <td class="text-center">{{ date('d-m-Y',strtotime($row->tgl_tempo)) }}</td>
-                    <td class="text-money">{{ number_format($row->tagihan,0,',','.') }}</td>
 
+                    <!-- TOTAL -->
+                    <td class="text-money text-end">
+                        {{ number_format($total,0,',','.') }}
+                    </td>
+
+                    <!-- PPN TOTAL -->
+                    <td class="text-money text-end">
+                        {{ number_format($ppn_total,0,',','.') }}
+                    </td>
+
+                    <!-- STATUS -->
                     <td class="text-center">
                         @if($row->status=='Sudah Dibayar')
                             <span class="badge badge-soft badge-soft-success">
@@ -533,18 +569,39 @@
                             </span>
                         @endif
                     </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10" class="text-center text-muted py-4">
-                        Tidak ada data
+
+                    <!-- DPP -->
+                    <td class="text-money text-end">
+                        {{ number_format($dpp,0,',','.') }}
                     </td>
+
+                    <!-- DPP NILAI LAIN -->
+                    <td class="text-money text-end">
+                        {{ number_format($dpp_lain,0,',','.') }}
+                    </td>
+
+                    <!-- PPN DPP -->
+                    <td class="text-money text-end">
+                        {{ number_format($ppn_dpp,0,',','.') }}
+                    </td>
+
+                    <!-- SELISIH -->
+                    <td class="text-money text-end {{ $selisih != 0 ? 'text-danger fw-bold' : '' }}">
+                        {{ number_format($selisih,0,',','.') }}
+                    </td>
+
                 </tr>
+
+                @empty
+                    <tr>
+                        <td colspan="15" class="text-center text-muted py-4">
+                            Tidak ada data
+                        </td>
+                    </tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
 </div>
 
 </div>
