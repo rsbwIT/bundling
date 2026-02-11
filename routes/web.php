@@ -127,6 +127,9 @@ use App\Http\Controllers\LaporanLAB\LaporanLab;
 use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
 use App\Http\Controllers\Lan\Lan;
+use App\Http\Controllers\Pemesanan\PemesananFarmasi;
+
+
 
 
 
@@ -329,11 +332,10 @@ Route::group(['middleware' => 'default'], function () {
         )->name('fisioterapi.print');
 
 
-
-
-
-
-
+        //PEMESANAN
+        Route::get('/pemesanan-farmasi', [PemesananFarmasi::class, 'pemesanan']);
+        Route::post('/pajak/simpan', [PemesananFarmasi::class, 'simpanPajak'])
+            ->name('pajak.simpan');
 
 
         // RM
@@ -382,8 +384,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/antrian-farmasi/panggil/proses', [AntrianFarmasi2026::class, 'panggilAntrian']);
         Route::post('/antrian-farmasi/selesai', [AntrianFarmasi2026::class, 'selesaiAntrian']);
         Route::get('/antrian-farmasi/data-display', [AntrianFarmasi2026::class, 'dataDisplay']);
-        Route::get('/antrian-farmasi/display-v2',[AntrianFarmasi2026::class, 'dispalv2']);
-        Route::get('/cetakantrianbaru/{id}',[AntrianFarmasi2026::class, 'cetakAntrian'])->name('antrianfarmasi.cetak');
+        Route::get('/antrian-farmasi/display-v2', [AntrianFarmasi2026::class, 'dispalv2']);
+        Route::get('/cetakantrianbaru/{id}', [AntrianFarmasi2026::class, 'cetakAntrian'])->name('antrianfarmasi.cetak');
 
         //LAN MESENGGER
         Route::get('/lan', [Lan::class, 'index']);

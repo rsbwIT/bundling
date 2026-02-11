@@ -1,0 +1,197 @@
+<?php
+
+namespace App\Http\Controllers\Pemesanan;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class PemesananFarmasi extends Controller
+{
+    public function pemesanan(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | DEFAULT TANGGAL HARI INI
+        |--------------------------------------------------------------------------
+        */
+        $today = Carbon::today()->format('Y-m-d');
+
+        $tglPesanDari   = $request->input('tgl_pesan_dari', $today);
+        $tglPesanSampai = $request->input('tgl_pesan_sampai', $today);
+
+        $tglTempoDari   = $request->input('tgl_tempo_dari', $today);
+        $tglTempoSampai = $request->input('tgl_tempo_sampai', $today);
+
+        /*
+        |--------------------------------------------------------------------------
+        | QUERY UTAMA
+        |--------------------------------------------------------------------------
+        */
+        $query = DB::table('pemesanan')
+            ->select(
+                'pemesanan.no_faktur',
+                DB::raw("IFNULL(no_pajak.no_pajak, 'Belum Ada') AS no_pajak"),
+                'datasuplier.nama_suplier',
+                'pemesanan.no_order',
+                'pemesanan.tgl_pesan',
+                'pemesanan.tgl_faktur',
+                'pemesanan.tgl_tempo',
+                'pemesanan.tagihan',
+                'pemesanan.status',
+                'bangsal.nm_bangsal'
+            )
+            ->join('bangsal', 'pemesanan.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->join('datasuplier', 'pemesanan.kode_suplier', '=', 'datasuplier.kode_suplier')
+            ->leftJoin('no_pajak', 'pemesanan.no_faktur', '=', 'no_pajak.no_faktur');
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK FIRST LOAD (TANPA FILTER)
+        |--------------------------------------------------------------------------
+        */
+        $firstLoad = !$request->hasAny([
+            'filter_pesan',
+            'filter_tempo',
+            'status_bayar',
+            'supplier',
+            'bangsal'
+        ]);
+
+        if ($firstLoad) {
+
+            // Default: tampilkan data hari ini
+            $query->whereDate('pemesanan.tgl_pesan', $today);
+
+        } else {
+
+            /*
+            |----------------------------------------------------------------------
+            | FILTER TANGGAL PESAN
+            |----------------------------------------------------------------------
+            */
+            if ($request->filled('filter_pesan')) {
+                $query->whereBetween('pemesanan.tgl_pesan', [
+                    $tglPesanDari,
+                    $tglPesanSampai
+                ]);
+            }
+
+            /*
+            |----------------------------------------------------------------------
+            | FILTER TANGGAL TEMPO
+            |----------------------------------------------------------------------
+            */
+            if ($request->filled('filter_tempo')) {
+                $query->whereBetween('pemesanan.tgl_tempo', [
+                    $tglTempoDari,
+                    $tglTempoSampai
+                ]);
+            }
+
+            /*
+            |----------------------------------------------------------------------
+            | FILTER STATUS BAYAR
+            |----------------------------------------------------------------------
+            */
+            if ($request->filled('status_bayar')) {
+                $query->where('pemesanan.status', $request->status_bayar);
+            }
+
+            /*
+            |----------------------------------------------------------------------
+            | FILTER SUPPLIER
+            |----------------------------------------------------------------------
+            */
+            if ($request->filled('supplier')) {
+                $query->where('pemesanan.kode_suplier', $request->supplier);
+            }
+
+            /*
+            |----------------------------------------------------------------------
+            | FILTER BANGSAL
+            |----------------------------------------------------------------------
+            */
+            if ($request->filled('bangsal')) {
+                $query->where('pemesanan.kd_bangsal', $request->bangsal);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | EKSEKUSI QUERY
+        |--------------------------------------------------------------------------
+        */
+        $data = $query
+            ->orderByDesc('pemesanan.tgl_faktur')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUMMARY DATA (UNTUK CARD ATAS)
+        |--------------------------------------------------------------------------
+        */
+        $total_pasien   = $data->count();
+
+        $sudah_dibayar  = $data->where('status', 'Sudah Dibayar')->count();
+
+        $belum_dibayar  = $data->where('status', 'Belum Dibayar')->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASTER DATA
+        |--------------------------------------------------------------------------
+        */
+        $suppliers = DB::table('datasuplier')
+            ->orderBy('nama_suplier')
+            ->get();
+
+        $bangsals = DB::table('bangsal')
+            ->whereIn('nm_bangsal', [
+                'GUDANG FARMASI RAJAL',
+                'GUDANG FARMASI RANAP'
+            ])
+            ->orderBy('nm_bangsal')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+        return view(
+            'pemesanan.pemesananfarmasi',
+            compact(
+                'data',
+                'suppliers',
+                'bangsals',
+                'total_pasien',
+                'sudah_dibayar',
+                'belum_dibayar'
+            )
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN NOMOR PAJAK
+    |--------------------------------------------------------------------------
+    */
+    public function simpanPajak(Request $request)
+    {
+        $request->validate([
+            'no_faktur' => 'required',
+            'no_pajak'  => 'required|unique:no_pajak,no_pajak'
+        ]);
+
+        DB::table('no_pajak')->insert([
+            'no_faktur' => $request->no_faktur,
+            'no_pajak'  => $request->no_pajak
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Nomor Pajak berhasil disimpan');
+    }
+}
