@@ -128,7 +128,7 @@ use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
 use App\Http\Controllers\Lan\Lan;
 use App\Http\Controllers\Pemesanan\PemesananFarmasi;
-
+use App\Http\Controllers\RM\Diagnosa;
 
 
 
@@ -336,6 +336,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pemesanan-farmasi', [PemesananFarmasi::class, 'pemesanan']);
         Route::post('/pajak/simpan', [PemesananFarmasi::class, 'simpanPajak'])
             ->name('pajak.simpan');
+        Route::get('/pemesanan-farmasi/export', [PemesananFarmasi::class, 'export'])
+            ->name('pemesanan.export');
+
+
 
 
         // RM
@@ -354,6 +358,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-per-episode', [PasienPerEpisode::class, 'PasienPerEpisode']);
         Route::get('/pasien-meninggal', [PasienMeninggal::class, 'PasienMeninggal']);
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
+
+        //DIAGNOSA 
+        Route::get('/rm/diagnosa', [Diagnosa::class, 'index'])
+            ->name('rm.diagnosa');
+
 
         //AntrianFarmasi
         Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');

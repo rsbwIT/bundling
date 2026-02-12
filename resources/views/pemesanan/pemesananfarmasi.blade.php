@@ -457,8 +457,15 @@
                            class="btn btn-reset border w-100">
                             Reset
                         </a>
+                        <a href="{{ route('pemesanan.export', request()->query()) }}"
+                            class="btn btn-success">
+                            Export Excel
+                        </a>
+
+
                     </div>
                 </div>
+                
 
             </div>
 
