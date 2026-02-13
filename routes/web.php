@@ -360,8 +360,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
         //DIAGNOSA 
-        Route::get('/rm/diagnosa', [Diagnosa::class, 'index'])
-            ->name('rm.diagnosa');
+        Route::get('/rm/diagnosa', [Diagnosa::class, 'index'])->name('rm.diagnosa');
+
 
 
         //AntrianFarmasi

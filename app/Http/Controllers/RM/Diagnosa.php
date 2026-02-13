@@ -1,49 +1,65 @@
 <?php
+
 namespace App\Http\Controllers\RM;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class Diagnosa extends Controller
 {
     public function index(Request $request)
     {
+        // Default hari ini jika kosong
+        $tgl_awal  = $request->tgl_awal  ?? Carbon::today()->toDateString();
+        $tgl_akhir = $request->tgl_akhir ?? Carbon::today()->toDateString();
         $keyword   = $request->keyword;
-        $tgl_awal  = $request->tgl_awal;
-        $tgl_akhir = $request->tgl_akhir;
 
-        $data = DB::table('reg_periksa')
-            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('diagnosa_pasien as dp', 'reg_periksa.no_rawat', '=', 'dp.no_rawat')
+        // ================= QUERY DASAR =================
+        $query = DB::table('reg_periksa as rp')
+            ->join('pasien as ps', 'rp.no_rkm_medis', '=', 'ps.no_rkm_medis')
+            ->join('diagnosa_pasien as dp', 'rp.no_rawat', '=', 'dp.no_rawat')
             ->join('penyakit as p', 'dp.kd_penyakit', '=', 'p.kd_penyakit')
             ->select(
-                'reg_periksa.no_rawat',
-                'reg_periksa.tgl_registrasi',
-                'pasien.nm_pasien',
-                'reg_periksa.umurdaftar',
-                'reg_periksa.sttsumur',
-                'reg_periksa.almt_pj',
-                'pasien.jk',
+                'rp.no_rawat',
+                'rp.tgl_registrasi',
+                'ps.nm_pasien',
+                'rp.umurdaftar',
+                'rp.sttsumur',
+                'ps.jk',
                 'dp.kd_penyakit',
                 'p.nm_penyakit',
-                'reg_periksa.status_lanjut'
+                'rp.status_lanjut'
             )
-            ->when($keyword, function ($q) use ($keyword) {
-                $q->where(function ($sub) use ($keyword) {
-                    $sub->where('dp.kd_penyakit', 'like', "%$keyword%")
-                        ->orWhere('p.nm_penyakit', 'like', "%$keyword%");
+            ->whereBetween('rp.tgl_registrasi', [$tgl_awal, $tgl_akhir])
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('dp.kd_penyakit', 'like', "%$keyword%")
+                      ->orWhere('p.nm_penyakit', 'like', "%$keyword%");
                 });
-            })
-            ->when($tgl_awal, function ($q) use ($tgl_awal) {
-                $q->whereDate('reg_periksa.tgl_registrasi', '>=', $tgl_awal);
-            })
-            ->when($tgl_akhir, function ($q) use ($tgl_akhir) {
-                $q->whereDate('reg_periksa.tgl_registrasi', '<=', $tgl_akhir);
-            })
-            ->orderBy('reg_periksa.tgl_registrasi', 'desc')
-            ->get();
+            });
 
-        return view('rm.diagnosa', compact('data'));
+        // ================= PAGINATION =================
+        $data = (clone $query)
+            ->orderBy('rp.tgl_registrasi', 'desc')
+            ->paginate(50)
+            ->appends($request->query());
+
+        // ================= SUMMARY =================
+        $summary = (clone $query)
+            ->selectRaw("
+                SUM(CASE WHEN rp.status_lanjut = 'Ralan' THEN 1 ELSE 0 END) as ralan,
+                SUM(CASE WHEN rp.status_lanjut = 'Ranap' THEN 1 ELSE 0 END) as ranap,
+                SUM(CASE WHEN rp.status_lanjut = 'IGD' THEN 1 ELSE 0 END) as igd
+            ")
+            ->first();
+
+        return view('rm.diagnosa', compact(
+            'data',
+            'summary',
+            'tgl_awal',
+            'tgl_akhir'
+        ));
     }
 }

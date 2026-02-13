@@ -2,7 +2,7 @@
     <tr>
         <th></th>
         <th></th>
-        <th>Nama </th>
+        <th>Nama</th>
         <th>Jumlah Biaya</th>
         <th>No Kwit</th>
         <th>No Kartu</th>
@@ -10,53 +10,61 @@
         <th>Rm</th>
         <th>Tanggal Rawat</th>
     </tr>
-    @if ($getPasien)
+
+    @if ($getPasien && $getPasien->count())
         @foreach ($getPasien as $key => $item)
             <tr>
                 <td width="50px"></td>
-                <td width="15px">{{ $key + 1 }}. </td>
+                <td width="15px">{{ $key + 1 }}.</td>
                 <td>{{ $item->nm_pasien }}</td>
-                {{-- <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td> --}}
-                <td>Rp. {{ number_format($item->getTotalBiaya->sum('totalpiutang'), 0, ',', '.') }}</td>
+
+                {{-- TOTAL PIUTANG --}}
                 <td>
-                    @foreach ($item->getNomorNota as $detail)
-                        {{ substr(str_replace(':', '', $detail->nm_perawatan), -6) }}
-                    @endforeach
+                    Rp. {{ number_format($item->total_biaya ?? 0, 0, ',', '.') }}
                 </td>
+
+                {{-- NOMOR NOTA --}}
+                <td>
+                    @if (!empty($item->getNomorNota))
+                        @foreach ($item->getNomorNota as $detail)
+                            {{ substr(str_replace(':', '', $detail->nm_perawatan), -6) }}
+                        @endforeach
+                    @endif
+                </td>
+
                 <td>{{ $item->nomor_kartu }}</td>
                 <td>{{ $item->nomor_klaim }}</td>
                 <td>{{ $item->no_rkm_medis }}</td>
+
+                {{-- TANGGAL RAWAT --}}
                 <td>
-                    @foreach ($item->getTglKeluar as $detail)
-                        @php
-                            $tgl_keluar = $detail->tgl_keluar;
-                        @endphp
-                    @endforeach
-                    @if ($item->tgl_masuk == null && $item->tgl_keluar == null)
-                        {{ $item->tgl_byr }}
+                    @if (!$item->tgl_masuk && !$item->tgl_keluar)
+
+                        {{ date('d-m-Y', strtotime($item->tgl_byr)) }}
+
                     @else
-                        {{ date('d', strtotime($item->tgl_masuk)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }}
+
+                        {{ date('d', strtotime($item->tgl_masuk)) }}
+                        -{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }}
                         -
-                        {{ date('d', strtotime($tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_keluar))) }}-{{ date('Y', strtotime($tgl_keluar)) }}
+                        {{ date('d', strtotime($item->tgl_keluar)) }}
+                        -{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_keluar))) }}
+                        -{{ date('Y', strtotime($item->tgl_keluar)) }}
+
                     @endif
                 </td>
             </tr>
         @endforeach
+
+        {{-- TOTAL SEMUA --}}
         <tr>
             <td></td>
             <td></td>
             <td></td>
-            {{-- <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td> --}}
-            <td><b>Rp.
-                    {{ number_format(
-                        $getPasien->sum(function ($item) {
-                            return $item->getTotalBiaya->sum('totalpiutang');
-                        }),
-                        0,
-                        ',',
-                        '.',
-                    ) }}</b>
-            </td>
+            <td>
+                <b>
+                    Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}
+                </b>
             </td>
         </tr>
     @endif

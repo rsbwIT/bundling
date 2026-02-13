@@ -139,14 +139,10 @@
             {{-- //TEMPLATE --}}
             <table border="0px" width="1000px" class="mt-4">
                 <tr>
-                    <td><b>Terbilang : </b>
-                        @if ($getPasien)
-                            {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
-                                $getPasien->sum(function ($item) {
-                                    return $item->getTotalBiaya->sum('totalpiutang');
-                                }),
-                            ) }}
-                        @endif rupiah
+                    <td>
+                        <b>Terbilang :</b>
+                        {{ \App\Services\Keuangan\NomorInvoice::Terbilang($grandTotal ?? 0) }}
+                        rupiah
                     </td>
                 </tr>
             </table>
