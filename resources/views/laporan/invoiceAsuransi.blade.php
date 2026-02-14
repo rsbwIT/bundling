@@ -213,7 +213,7 @@
                     {{-- //TEMPLATE --}}
                     <table border="0px" width="1000px" class="mt-4">
                         <tr>
-                            {{-- <td><b>Terbilang : </b>
+                            <td><b>Terbilang : </b>
                                 @if ($getPasien)
                                     {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
                                         $getPasien->sum(function ($item) {
@@ -221,16 +221,7 @@
                                         }),
                                     ) }}
                                 @endif rupiah.
-                            </td> --}}
-                            <td><b>Terbilang : </b>
-                                @if ($getPasien && $getPasien->count())
-                                    {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
-                                        $getPasien->sum('total_biaya')
-                                    ) }}
-                                @endif
-                                rupiah.
                             </td>
-
 
                         </tr>
                     </table>
