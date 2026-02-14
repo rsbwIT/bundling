@@ -91,6 +91,10 @@
                         <a href="{{ url('/skrining-tbc') }}" class="btn btn-outline-secondary px-4">
                             <i class="bi bi-arrow-clockwise"></i> Hari Ini
                         </a>
+
+                        <button type="button" class="btn btn-success px-4" onclick="copyToExcel()">
+                            <i class="bi bi-file-earmark-excel"></i> Salin ke Excel
+                        </button>
                     </div>
 
                 </div>
@@ -101,7 +105,7 @@
     {{-- ================= TABEL ================= --}}
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
-            <table class="table table-hover table-bordered align-middle mb-0">
+            <table class="table table-hover table-bordered align-middle mb-0" id="table-skrining">
                 <thead class="table-primary text-center">
                     <tr>
                         <th width="40">No</th>
@@ -110,6 +114,7 @@
                         <th>Nama Pasien</th>
                         <th width="120">Tgl Registrasi</th>
                         <th width="120">Status Lanjut</th>
+                        <th>Ruang / Poli</th>
                         <th width="160">Skrining TBC</th>
                     </tr>
                 </thead>
@@ -126,6 +131,13 @@
                         </td>
                         <td class="text-center">
                             <span class="badge bg-info">{{ $row->status_lanjut }}</span>
+                        </td>
+                        <td>
+                            @if($row->status_lanjut == 'Ranap')
+                                {{ $row->nm_bangsal ?? $row->nm_poli }}
+                            @else
+                                {{ $row->nm_poli }}
+                            @endif
                         </td>
 
                         {{-- STATUS SKRINING --}}
@@ -194,4 +206,47 @@
     font-weight:600;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    function copyToExcel() {
+        var table = document.getElementById("table-skrining");
+        var html = table.outerHTML;
+        var url = 'data:application/vnd.ms-excel,' + escape(html); // Set your html table into url 
+        
+        // Create a link to download the excel
+        var link = document.createElement("a");
+        link.download = "Data_Skrining_TBC.xls";
+        link.href = url;
+        link.click();
+
+        // Alternatif jika ingin copy ke clipboard (karena browser modern kadang memblokir data URI untuk download langsung)
+        // const range = document.createRange();
+        // range.selectNode(table);
+        // window.getSelection().removeAllRanges();
+        // window.getSelection().addRange(range);
+        // document.execCommand("copy");
+        // window.getSelection().removeAllRanges();
+        // alert("Tabel berhasil disalin! Silakan paste di Excel.");
+    }
+
+    // Gunakan fungsi copy ke clipboard yang lebih modern dan aman
+    function copyToClipboard() {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("table-skrining"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();// to deselect
+        
+        // Tampilkan notifikasi sederhana
+        alert("Data berhasil disalin! Silakan Buka Excel dan Paste (Ctrl+V).");
+    }
+
+    // Override function di atas agar tombol memanggil yang copy
+    function copyToExcel() {
+        copyToClipboard();
+    }
+</script>
 @endpush

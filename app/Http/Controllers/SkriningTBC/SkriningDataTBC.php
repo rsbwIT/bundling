@@ -27,6 +27,16 @@ class SkriningDataTBC extends Controller
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.status_lanjut',
                 'pasien.nm_pasien',
+                'poliklinik.nm_poli',
+                DB::raw("
+                    (SELECT bangsal.nm_bangsal 
+                     FROM kamar_inap 
+                     JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar 
+                     JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal 
+                     WHERE kamar_inap.no_rawat = reg_periksa.no_rawat 
+                     ORDER BY kamar_inap.tgl_masuk DESC, kamar_inap.jam_masuk DESC 
+                     LIMIT 1) as nm_bangsal
+                 "),
                 DB::raw("
                     CASE 
                         WHEN skrining_tbc.no_rawat IS NOT NULL THEN 1
@@ -35,6 +45,7 @@ class SkriningDataTBC extends Controller
                 ")
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('skrining_tbc', 'reg_periksa.no_rawat', '=', 'skrining_tbc.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$tgl_dari, $tgl_sampai])
             ->orderBy('reg_periksa.tgl_registrasi')
