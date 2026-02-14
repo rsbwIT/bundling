@@ -27,11 +27,15 @@ class RanapDokterParamedis2 extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $statusLunas = $request->statusLunas;
+        $jenisTanggal = $request->jenisTanggal;
         // $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $RanapDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_inap_drpr.no_rawat',
+                'nota_inap.no_nota',
+                'nota_inap.tanggal',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'rawat_inap_drpr.kd_jenis_prw',
@@ -68,10 +72,17 @@ class RanapDokterParamedis2 extends Controller
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('petugas', 'rawat_inap_drpr.nip', '=', 'petugas.nip')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_inap_drpr.no_rawat')
-            ->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->where(function ($query) use ($jenisTanggal, $tanggl1, $tanggl2) {
+                if ($jenisTanggal == 'bayar') {
+                     $query->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2]);
+                } else {
+                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2]);
+                }
+            })
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $statusLunas) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -81,25 +92,26 @@ class RanapDokterParamedis2 extends Controller
                 if ($kdDokter) {
                     $query->whereIn('rawat_inap_drpr.kd_dokter', $kdDokter);
                 }
-                // if ($status == "Lunas") {
-                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Lunas');
-                // } elseif ($status == "Belum Lunas") {
-                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Belum Lunas');
-                // }
+                
+                if ($statusLunas == 'Lunas') {
+                    $query->where('piutang_pasien.status', 'Lunas');
+                } elseif ($statusLunas == 'Belum Lunas') {
+                    $query->where('piutang_pasien.status', 'Belum Lunas');
+                }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            // ->groupBy('rawat_inap_drpr.no_rawat','rawat_inap_drpr.kd_jenis_prw','rawat_inap_drpr.jam_rawat','rawat_inap_drpr.tarif_tindakanpr','rawat_inap_drpr.tgl_perawatan')
+            ->groupBy('rawat_inap_drpr.no_rawat', 'rawat_inap_drpr.kd_jenis_prw', 'rawat_inap_drpr.tgl_perawatan', 'rawat_inap_drpr.jam_rawat', 'rawat_inap_drpr.kd_dokter', 'rawat_inap_drpr.nip')
             ->orderBy('rawat_inap_drpr.no_rawat', 'DESC')
             ->get();
         $RalanDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_jl_drpr.no_rawat',
+                'nota_jalan.no_nota',
+                'nota_jalan.tanggal',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'rawat_jl_drpr.kd_jenis_prw',
@@ -129,11 +141,18 @@ class RanapDokterParamedis2 extends Controller
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
-            ->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
+            ->where(function ($query) use ($jenisTanggal, $tanggl1, $tanggl2) {
+                if ($jenisTanggal == 'bayar') {
+                     $query->whereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                } else {
+                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2]);
+                }
+            })
             ->where('reg_periksa.status_lanjut', 'Ranap')
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $statusLunas) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -143,20 +162,19 @@ class RanapDokterParamedis2 extends Controller
                 if ($kdDokter) {
                     $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
                 }
-                // if ($status == "Lunas") {
-                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Lunas');
-                // } elseif ($status == "Belum Lunas") {
-                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Belum Lunas');
-                // }
+                
+                if ($statusLunas == 'Lunas') {
+                    $query->where('piutang_pasien.status', 'Lunas');
+                } elseif ($statusLunas == 'Belum Lunas') {
+                    $query->where('piutang_pasien.status', 'Belum Lunas');
+                }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            // ->groupBy('rawat_jl_drpr.no_rawat','rawat_jl_drpr.kd_jenis_prw','rawat_jl_drpr.jam_rawat','rawat_jl_drpr.tarif_tindakanpr','rawat_jl_drpr.tgl_perawatan')
+            ->groupBy('rawat_jl_drpr.no_rawat', 'rawat_jl_drpr.kd_jenis_prw', 'rawat_jl_drpr.tgl_perawatan', 'rawat_jl_drpr.jam_rawat', 'rawat_jl_drpr.kd_dokter', 'rawat_jl_drpr.nip')
             ->orderBy('rawat_jl_drpr.no_rawat', 'desc')
             ->get();
 

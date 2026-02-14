@@ -43,7 +43,7 @@
                     @foreach ($RalanDokter2 as $item)
                         <tr>
                             <td>{{ $no++ }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
+                            <td>{{ $item->tanggal ?? $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>

@@ -28,6 +28,8 @@ class PeriksaRadiologi2 extends Controller
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
         $status_lanjut = $request->statusLanjut ?? null;
+        $statusLunas = $request->statusLunas;
+        $jenisTanggal = $request->jenisTanggal;
 
 
         // $getPeriksaRadiologi = DB::table('periksa_radiologi')
@@ -129,6 +131,7 @@ class PeriksaRadiologi2 extends Controller
              ORDER BY kamar_inap.tgl_masuk DESC LIMIT 1)
         ) AS ruangan"),
                 'bayar_piutang.tgl_bayar',
+                DB::raw("IF(reg_periksa.status_lanjut = 'Ranap', nota_inap.tanggal, nota_jalan.tanggal) as tanggal_nota"),
                 DB::raw("(SELECT MAX(tgl_keluar) FROM kamar_inap WHERE kamar_inap.no_rawat = periksa_radiologi.no_rawat) AS tgl_keluar")
             )
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -138,33 +141,46 @@ class PeriksaRadiologi2 extends Controller
             ->join('petugas', 'periksa_radiologi.nip', '=', 'petugas.nip')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->leftJoin('nota_jalan', 'periksa_radiologi.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'periksa_radiologi.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'periksa_radiologi.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_radiologi.no_rawat')
 
             // Filter berdasarkan tgl_registrasi atau tgl_keluar
-            ->where(function ($query) use ($tanggl1, $tanggl2) {
-                $query->where(function ($subQuery) use ($tanggl1, $tanggl2) {
-                    $subQuery->where('reg_periksa.status_lanjut', 'ralan')
-                             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2]); // Untuk pasien rawat jalan
-                })
-                ->orWhere(function ($subQuery) use ($tanggl1, $tanggl2) {
-                    $subQuery->where('reg_periksa.status_lanjut', 'ranap')
-                             ->whereRaw("
-                                 periksa_radiologi.no_rawat IN (
-                                     SELECT no_rawat FROM kamar_inap
-                                     WHERE tgl_keluar IS NOT NULL
-                                     AND tgl_keluar != '0000-00-00'
-                                     AND jam_keluar IS NOT NULL
-                                     AND jam_keluar != '00:00:00'
-                                     AND tgl_keluar BETWEEN ? AND ?
-                                 )
-                             ", [$tanggl1, $tanggl2]); // Untuk pasien rawat inap dengan tgl_keluar dan jam_keluar yang valid
-                });
+            ->where(function ($query) use ($tanggl1, $tanggl2, $jenisTanggal) {
+                if ($jenisTanggal == 'bayar') {
+                    $query->where(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ralan')
+                                 ->whereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                    })
+                    ->orWhere(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ranap')
+                                 ->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2]);
+                    });
+                } else {
+                    $query->where(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ralan')
+                                 ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2]); // Untuk pasien rawat jalan
+                    })
+                    ->orWhere(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ranap')
+                                 ->whereRaw("
+                                     periksa_radiologi.no_rawat IN (
+                                         SELECT no_rawat FROM kamar_inap
+                                         WHERE tgl_keluar IS NOT NULL
+                                         AND tgl_keluar != '0000-00-00'
+                                         AND jam_keluar IS NOT NULL
+                                         AND jam_keluar != '00:00:00'
+                                         AND tgl_keluar BETWEEN ? AND ?
+                                     )
+                                 ", [$tanggl1, $tanggl2]); // Untuk pasien rawat inap dengan tgl_keluar dan jam_keluar yang valid
+                    });
+                }
             })
 
 
 
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status_lanjut, $kdDokter) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status_lanjut, $kdDokter, $statusLunas) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -176,6 +192,12 @@ class PeriksaRadiologi2 extends Controller
                 }
                 if (!is_null($status_lanjut)) {
                     $query->where('reg_periksa.status_lanjut', strtolower($status_lanjut));
+                }
+                
+                if ($statusLunas == 'Lunas') {
+                    $query->where('piutang_pasien.status', 'Lunas');
+                } elseif ($statusLunas == 'Belum Lunas') {
+                    $query->where('piutang_pasien.status', 'Belum Lunas');
                 }
             })
 

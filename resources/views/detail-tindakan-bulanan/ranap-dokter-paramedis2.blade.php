@@ -69,7 +69,7 @@
                             <td>{{ round($item->kso) }}</td>
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
+                            <td>{{ $item->tanggal ?? $item->tgl_bayar }}</td>
                             <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach

@@ -41,6 +41,7 @@
                             <th>JM Perujuk</th>
                             <th>KSO</th>
                             <th>Manajemen</th>
+                            <th>Tgl Bayar</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -71,6 +72,7 @@
                                 <td>{{ round($item->tarif_perujuk) }}</td>
                                 <td>{{ round($item->kso) }}</td>
                                 <td>{{ round($item->menejemen) }}</td>
+                                <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
                                 <td>{{ round($item->biaya) }}</td>
 
                             </tr>

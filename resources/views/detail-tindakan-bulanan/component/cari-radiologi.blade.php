@@ -14,6 +14,29 @@
         <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
+                    <select class="form-control" name="jenisTanggal">
+                        <option value="registrasi" {{ request('jenisTanggal') == 'registrasi' ? 'selected' : '' }}>Tgl. Registrasi
+                        </option>
+                        <option value="bayar" {{ request('jenisTanggal') == 'bayar' ? 'selected' : '' }}>Tgl. Bayar</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
+                    <select class="form-control" name="statusLunas">
+                        <option value="">Semua Status</option>
+                        <option value="Lunas" {{ request('statusLunas') == 'Lunas' ? 'selected' : '' }}>Lunas</option>
+                        <option value="Belum Lunas" {{ request('statusLunas') == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
                     <input type="date" name="tgl2" class="form-control form-control-xs"
                         value="{{ request('tgl2', now()->format('Y-m-d')) }}">
                     <div class="input-group-append">

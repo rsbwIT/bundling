@@ -21,16 +21,29 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-md-2">
+        <div class="col-md-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">
-                    <select class="form-control" name="statusLunas" id="">
-                        <option value="Lunas">Lunas</option>
-                        <option value="Belum Lunas">Belum Lunas</option>
+                    <select class="form-control" name="jenisTanggal">
+                        <option value="registrasi" {{ request('jenisTanggal') == 'registrasi' ? 'selected' : '' }}>Tgl. Registrasi
+                        </option>
+                        <option value="bayar" {{ request('jenisTanggal') == 'bayar' ? 'selected' : '' }}>Tgl. Bayar</option>
                     </select>
                 </div>
             </div>
-        </div> --}}
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <div class="input-group input-group-xs">
+                    <select class="form-control" name="statusLunas">
+                        <option value="">Semua Status</option>
+                        <option value="Lunas" {{ request('statusLunas') == 'Lunas' ? 'selected' : '' }}>Lunas</option>
+                        <option value="Belum Lunas" {{ request('statusLunas') == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="col-2">
             <div class="form-group">
                 <div class="input-group input-group-xs">

@@ -28,11 +28,15 @@ class RalanDokterParamedis2 extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $statusLunas = $request->statusLunas;
+        $jenisTanggal = $request->jenisTanggal;
         // $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $RalanDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_jl_drpr.no_rawat',
+                'nota_jalan.no_nota',
+                'nota_jalan.tanggal',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'rawat_jl_drpr.kd_jenis_prw',
@@ -62,11 +66,18 @@ class RalanDokterParamedis2 extends Controller
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->where(function ($query) use ($jenisTanggal, $tanggl1, $tanggl2) {
+                if ($jenisTanggal == 'bayar') {
+                     $query->whereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                } else {
+                     $query->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2]);
+                }
+            })
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $statusLunas) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -76,13 +87,12 @@ class RalanDokterParamedis2 extends Controller
                 if ($kdDokter) {
                     $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
                 }
-                // if ($status == "Lunas") {
-                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Lunas');
-                // } elseif ($status == "Belum Lunas") {
-                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Belum Lunas');
-                // }
+                
+                if ($statusLunas == 'Lunas') {
+                    $query->where('piutang_pasien.status', 'Lunas');
+                } elseif ($statusLunas == 'Belum Lunas') {
+                    $query->where('piutang_pasien.status', 'Belum Lunas');
+                }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');

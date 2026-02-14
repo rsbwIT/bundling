@@ -26,6 +26,8 @@ class OperasiAndVK1 extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $statusLunas = $request->statusLunas;
+        $jenisTanggal = $request->jenisTanggal;
         // $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $OperasiAndVK1 = DB::table('operasi')
@@ -96,7 +98,8 @@ class OperasiAndVK1 extends Controller
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
                 'bayar_piutang.tgl_bayar',
-                'piutang_pasien.status'
+                'piutang_pasien.status',
+                DB::raw("IF(reg_periksa.status_lanjut = 'Ranap', nota_inap.tanggal, nota_jalan.tanggal) as tanggal_nota")
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -114,10 +117,25 @@ class OperasiAndVK1 extends Controller
             ->join('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
             ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
             ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
+            ->leftJoin('nota_jalan', 'operasi.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'operasi.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
+            ->where(function ($query) use ($tanggl1, $tanggl2, $jenisTanggal) {
+                if ($jenisTanggal == 'bayar') {
+                    $query->where(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ralan')
+                                 ->whereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                    })
+                    ->orWhere(function ($subQuery) use ($tanggl1, $tanggl2) {
+                        $subQuery->where('reg_periksa.status_lanjut', 'ranap')
+                                 ->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2]);
+                    });
+                } else {
+                    $query->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2]);
+                }
+            })
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $statusLunas) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
@@ -127,13 +145,12 @@ class OperasiAndVK1 extends Controller
                 if ($kdDokter) {
                     $query->whereIn('operator1.kd_dokter', $kdDokter);
                 }
-                // if ($status == "Lunas") {
-                //     $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Lunas');
-                // } elseif ($status == "Belum Lunas") {
-                //     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
-                //         ->where('piutang_pasien.status', 'Belum Lunas');
-                // }
+                
+                if ($statusLunas == 'Lunas') {
+                    $query->where('piutang_pasien.status', 'Lunas');
+                } elseif ($statusLunas == 'Belum Lunas') {
+                    $query->where('piutang_pasien.status', 'Belum Lunas');
+                }
             })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
