@@ -8,6 +8,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
+body{
+    opacity:0;
+    transition:0.2s ease-in;
+}
+
 .filter-bar{
     display:flex;
     flex-wrap:wrap;
@@ -27,15 +32,61 @@
     border-radius:20px;
     padding:6px 20px;
 }
+
+/* WARNA KALEM */
+.card-header{
+    background: linear-gradient(135deg, #4fb3a4, #3a8d84) !important;
+}
+
+.table thead{
+    background-color:#e6f4f2 !important;
+    color:#2c6e67 !important;
+}
+
+.badge-primary{
+    background-color:#6c8ebf !important;
+}
+
+.badge-warning{
+    background-color:#e6b566 !important;
+    color:#fff;
+}
+
+.badge-danger{
+    background-color:#d97b7b !important;
+}
+
+.badge-success{
+    background-color:#6fbf8f !important;
+}
+
+.table-hover tbody tr:hover{
+    background-color:#f3fbfa;
+    transition:0.2s;
+}
+
 .table td,.table th{
     vertical-align:middle;
+}
+
+/* TOMBOL CUSTOM SAMA HEADER */
+.btn-custom-green{
+    background: linear-gradient(135deg, #4fb3a4, #3a8d84);
+    border: none;
+    color: #fff;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-custom-green:hover{
+    background: linear-gradient(135deg, #3a8d84, #2f726b);
+    color:#fff;
 }
 </style>
 
 <div class="card shadow-sm border-0 rounded-4 mt-3">
 
     {{-- HEADER --}}
-    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+    <div class="card-header text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0 font-weight-bold">
             <i class="fas fa-lungs mr-2"></i> Data Skrining TBC
         </h5>
@@ -49,7 +100,6 @@
         <form method="GET" action="{{ url('skriningtbc') }}">
             <div class="filter-bar">
 
-                {{-- STATUS --}}
                 <div class="filter-item">
                     <span class="text-muted font-weight-semibold small">
                         Status Pelayanan
@@ -65,7 +115,6 @@
                     </select>
                 </div>
 
-                {{-- KESIMPULAN --}}
                 <div class="filter-item">
                     <span class="text-muted font-weight-semibold small">
                         Kesimpulan
@@ -81,7 +130,6 @@
                     </select>
                 </div>
 
-                {{-- TANGGAL DARI --}}
                 <div class="filter-item">
                     <span class="text-muted font-weight-semibold small">
                         Dari Tanggal
@@ -92,7 +140,6 @@
                            class="form-control form-control-sm filter-select">
                 </div>
 
-                {{-- TANGGAL SAMPAI --}}
                 <div class="filter-item">
                     <span class="text-muted font-weight-semibold small">
                         Sampai Tanggal
@@ -103,7 +150,7 @@
                            class="form-control form-control-sm filter-select">
                 </div>
 
-                <button class="btn btn-success btn-sm filter-btn">
+                <button class="btn btn-sm filter-btn btn-custom-green">
                     <i class="fas fa-filter mr-1"></i> Filter
                 </button>
 
@@ -127,7 +174,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-bordered table-hover table-sm mb-0">
-                <thead class="bg-success text-white text-center">
+                <thead class="text-center">
                     <tr>
                         <th>No</th>
                         <th>No Rawat</th>
@@ -173,7 +220,7 @@
                         </td>
 
                         <td class="text-center">
-                            <button class="btn btn-success btn-sm"
+                            <button class="btn btn-sm btn-custom-green"
                                 data-toggle="modal"
                                 data-target="#modalDetail{{ $i }}">
                                 <i class="fas fa-eye"></i>
@@ -199,7 +246,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
 
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header" style="background:linear-gradient(135deg,#4fb3a4,#3a8d84);color:white;">
                 <h5 class="modal-title font-weight-bold">
                     <i class="fas fa-lungs mr-2"></i>
                     Detail Skrining TBC - {{ $row->nm_pasien }}
@@ -214,7 +261,7 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="card h-100">
-                            <div class="card-header bg-success text-white font-weight-bold">
+                            <div class="card-header text-white font-weight-bold" style="background:#4fb3a4;">
                                 Antropometri
                             </div>
                             <div class="card-body small">
@@ -229,7 +276,7 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="card h-100">
-                            <div class="card-header bg-warning font-weight-bold">
+                            <div class="card-header font-weight-bold" style="background:#f4e3b2;">
                                 Riwayat & Faktor Risiko
                             </div>
                             <div class="card-body small">
@@ -246,7 +293,7 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="card h-100">
-                            <div class="card-header bg-primary text-white font-weight-bold">
+                            <div class="card-header text-white font-weight-bold" style="background:#6c8ebf;">
                                 Gejala & Kesimpulan
                             </div>
                             <div class="card-body small">
@@ -254,7 +301,7 @@
                                 BB Turun : {{ $row->gejala_tbc_bb_turun }}<br>
                                 Demam : {{ $row->gejala_tbc_demam }}<br>
                                 Keringat Malam : {{ $row->gejala_tbc_berkeringat_malam_hari }}<hr>
-                                <strong class="text-success">
+                                <strong style="color:#3a8d84;">
                                     {{ $row->kesimpulan_skrining }}
                                 </strong>
                             </div>
@@ -274,5 +321,11 @@
     </div>
 </div>
 @endforeach
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    document.body.style.opacity = "1";
+});
+</script>
 
 @endsection
