@@ -4,12 +4,10 @@
 
 @section('konten')
 
-{{-- FONT AWESOME --}}
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* ===== FILTER ===== */
 .filter-bar{
     display:flex;
     flex-wrap:wrap;
@@ -51,6 +49,7 @@
         <form method="GET" action="{{ url('skriningtbc') }}">
             <div class="filter-bar">
 
+                {{-- STATUS --}}
                 <div class="filter-item">
                     <span class="text-muted font-weight-semibold small">
                         Status Pelayanan
@@ -66,16 +65,60 @@
                     </select>
                 </div>
 
+                {{-- KESIMPULAN --}}
+                <div class="filter-item">
+                    <span class="text-muted font-weight-semibold small">
+                        Kesimpulan
+                    </span>
+                    <select name="kesimpulan" class="form-control form-control-sm filter-select">
+                        <option value="">Semua</option>
+                        <option value="terduga" {{ request('kesimpulan')=='terduga'?'selected':'' }}>
+                            Terduga TBC
+                        </option>
+                        <option value="bukan" {{ request('kesimpulan')=='bukan'?'selected':'' }}>
+                            Bukan Terduga TBC
+                        </option>
+                    </select>
+                </div>
+
+                {{-- TANGGAL DARI --}}
+                <div class="filter-item">
+                    <span class="text-muted font-weight-semibold small">
+                        Dari Tanggal
+                    </span>
+                    <input type="date"
+                           name="tgl_dari"
+                           value="{{ request('tgl_dari') }}"
+                           class="form-control form-control-sm filter-select">
+                </div>
+
+                {{-- TANGGAL SAMPAI --}}
+                <div class="filter-item">
+                    <span class="text-muted font-weight-semibold small">
+                        Sampai Tanggal
+                    </span>
+                    <input type="date"
+                           name="tgl_sampai"
+                           value="{{ request('tgl_sampai') }}"
+                           class="form-control form-control-sm filter-select">
+                </div>
+
                 <button class="btn btn-success btn-sm filter-btn">
                     <i class="fas fa-filter mr-1"></i> Filter
                 </button>
 
-                @if(request('status'))
+                @if(
+                    request('status') ||
+                    request('kesimpulan') ||
+                    request('tgl_dari') ||
+                    request('tgl_sampai')
+                )
                     <a href="{{ url('skriningtbc') }}"
                        class="btn btn-outline-secondary btn-sm filter-btn">
                         Reset
                     </a>
                 @endif
+
             </div>
         </form>
     </div>
@@ -106,15 +149,29 @@
                         <td>{{ $row->no_rawat }}</td>
                         <td>{{ $row->no_rkm_medis }}</td>
                         <td class="font-weight-bold">{{ $row->nm_pasien }}</td>
+
                         <td class="text-center">
                             <span class="badge {{ $row->status_lanjut=='ralan' ? 'badge-primary' : 'badge-warning' }}">
                                 {{ strtoupper($row->status_lanjut) }}
                             </span>
                         </td>
+
                         <td>{{ $row->png_jawab }}</td>
                         <td>{{ $row->tanggal }}</td>
                         <td class="text-center">{{ $row->imt }}</td>
-                        <td>{{ $row->kesimpulan_skrining }}</td>
+
+                        <td class="text-center">
+                            @if(stripos($row->kesimpulan_skrining, 'Terduga') !== false)
+                                <span class="badge badge-danger">
+                                    {{ $row->kesimpulan_skrining }}
+                                </span>
+                            @else
+                                <span class="badge badge-success">
+                                    {{ $row->kesimpulan_skrining }}
+                                </span>
+                            @endif
+                        </td>
+
                         <td class="text-center">
                             <button class="btn btn-success btn-sm"
                                 data-toggle="modal"
@@ -136,7 +193,7 @@
     </div>
 </div>
 
-{{-- ================= MODAL ================= --}}
+{{-- MODAL --}}
 @foreach($data as $i => $row)
 <div class="modal fade" id="modalDetail{{ $i }}" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">

@@ -10,7 +10,10 @@ class SkriningTBC extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->status; // ralan | ranap | null
+        $status      = $request->status;
+        $kesimpulan  = $request->kesimpulan;
+        $tgl_dari    = $request->tgl_dari;
+        $tgl_sampai  = $request->tgl_sampai;
 
         $query = DB::table('skrining_tbc')
             ->leftJoin('reg_periksa', 'skrining_tbc.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -52,17 +55,55 @@ class SkriningTBC extends Controller
                 'skrining_tbc.keterangan_hasil_skrining'
             );
 
-        // 🔥 FILTER STATUS RALAN / RANAP
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER STATUS
+        |--------------------------------------------------------------------------
+        */
         if ($status === 'ralan') {
             $query->where('reg_periksa.status_lanjut', 'ralan');
-        } elseif ($status === 'ranap') {
+        }
+
+        if ($status === 'ranap') {
             $query->where('reg_periksa.status_lanjut', 'ranap');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER KESIMPULAN
+        |--------------------------------------------------------------------------
+        */
+        if ($kesimpulan === 'terduga') {
+            $query->where('skrining_tbc.kesimpulan_skrining', 'Terduga TBC');
+        }
+
+        if ($kesimpulan === 'bukan') {
+            $query->where('skrining_tbc.kesimpulan_skrining', 'Bukan Terduga TBC');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER TANGGAL (RANGE)
+        |--------------------------------------------------------------------------
+        */
+        if ($tgl_dari && $tgl_sampai) {
+            $query->whereBetween('skrining_tbc.tanggal', [$tgl_dari, $tgl_sampai]);
+        } elseif ($tgl_dari) {
+            $query->whereDate('skrining_tbc.tanggal', '>=', $tgl_dari);
+        } elseif ($tgl_sampai) {
+            $query->whereDate('skrining_tbc.tanggal', '<=', $tgl_sampai);
         }
 
         $data = $query
             ->orderBy('skrining_tbc.tanggal', 'desc')
             ->get();
 
-        return view('skriningtbc.skriningtbc', compact('data', 'status'));
+        return view('skriningtbc.skriningtbc', compact(
+            'data',
+            'status',
+            'kesimpulan',
+            'tgl_dari',
+            'tgl_sampai'
+        ));
     }
 }
