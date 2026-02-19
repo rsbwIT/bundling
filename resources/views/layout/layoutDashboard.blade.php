@@ -1163,6 +1163,12 @@
                                         <p>Laporan Pasien</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('rm/diagnosa') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagnosa Pasien</p>
+                                    </a>
+                                </li>
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
