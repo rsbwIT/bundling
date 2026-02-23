@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SkriningTBC;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class SkriningTBC extends Controller
 {
@@ -83,14 +84,28 @@ class SkriningTBC extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | FILTER TANGGAL (RANGE)
+        | FILTER TANGGAL (DEFAULT HARI INI)
         |--------------------------------------------------------------------------
         */
-        if ($tgl_dari && $tgl_sampai) {
+        if (!$tgl_dari && !$tgl_sampai) {
+
+            $today = Carbon::today()->format('Y-m-d');
+            $query->whereDate('skrining_tbc.tanggal', $today);
+
+            // supaya input form otomatis terisi hari ini
+            $tgl_dari   = $today;
+            $tgl_sampai = $today;
+
+        } elseif ($tgl_dari && $tgl_sampai) {
+
             $query->whereBetween('skrining_tbc.tanggal', [$tgl_dari, $tgl_sampai]);
+
         } elseif ($tgl_dari) {
+
             $query->whereDate('skrining_tbc.tanggal', '>=', $tgl_dari);
+
         } elseif ($tgl_sampai) {
+
             $query->whereDate('skrining_tbc.tanggal', '<=', $tgl_sampai);
         }
 

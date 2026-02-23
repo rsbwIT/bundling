@@ -135,9 +135,9 @@ body{
                         Dari Tanggal
                     </span>
                     <input type="date"
-                           name="tgl_dari"
-                           value="{{ request('tgl_dari') }}"
-                           class="form-control form-control-sm filter-select">
+                        name="tgl_dari"
+                        value="{{ $tgl_dari }}"
+                        class="form-control form-control-sm filter-select">
                 </div>
 
                 <div class="filter-item">
@@ -145,9 +145,9 @@ body{
                         Sampai Tanggal
                     </span>
                     <input type="date"
-                           name="tgl_sampai"
-                           value="{{ request('tgl_sampai') }}"
-                           class="form-control form-control-sm filter-select">
+                        name="tgl_sampai"
+                        value="{{ $tgl_sampai }}"
+                        class="form-control form-control-sm filter-select">
                 </div>
 
                 <button class="btn btn-sm filter-btn btn-custom-green">
