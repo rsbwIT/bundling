@@ -129,6 +129,9 @@ use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
 use App\Http\Controllers\Lan\Lan;
 use App\Http\Controllers\Pemesanan\PemesananFarmasi;
 use App\Http\Controllers\RM\Diagnosa;
+use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
+
+
 
 
 
@@ -246,6 +249,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/ranap-dokter-paramedis2', [RanapDokterParamedis2::class, 'RanapDokterParamedis2']);
         Route::get('/periksa-radiologi', [PeriksaRadiologi::class, 'PeriksaRadiologi']);
         Route::get('/periksa-radiologi2', [PeriksaRadiologi2::class, 'PeriksaRadiologi2']);
+        Route::get('/periksalabpa', [PeriksaLabPA::class, 'index']);
+
+
 
         // DETAIL TINDAKAN Umum
         Route::get('/ralan-dokter-umum', [RalanDokterUm::class, 'RalanDokterUm']);
