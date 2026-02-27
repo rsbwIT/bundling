@@ -22,6 +22,7 @@
                             <tr>
                                 <th>Tanggal</th>
                                 <th>No.Rawat</th>
+                                <th>Tanggal Bayar</th>
                                 <th>No.Sep</th>
                                 <th>No.Nota</th>
                                 <th>No.RM</th>
@@ -51,6 +52,7 @@
                                 <tr>
                                     <td>{{ $item->tgl_registrasi }}</td>
                                     <td>{{ $item->no_rawat }}</td>
+                                    <td>{{ $item->tgl_bayar }}</td>
                                     <td>
                                         @foreach ($item->getNoSep as $detail)
                                             {{ $detail->no_sep }}

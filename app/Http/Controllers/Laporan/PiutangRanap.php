@@ -81,6 +81,7 @@ class PiutangRanap extends Controller
                     'bangsal.nm_bangsal',
                     'piutang_pasien.uangmuka',
                     'piutang_pasien.totalpiutang',
+                    'bayar_piutang.tgl_bayar',
                     'reg_periksa.status_lanjut'
                 )
                 ->join('reg_periksa', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -89,6 +90,7 @@ class PiutangRanap extends Controller
                 ->join('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
                 ->join('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
                 ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->leftJoin('bayar_piutang', 'bayar_piutang.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat') // 🔹 Tambahkan join billing
                 ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2]) // 🔹 Ganti filter tanggal
                 ->where(function ($query) use ($status, $kdPenjamin) {

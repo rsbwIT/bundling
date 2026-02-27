@@ -37,6 +37,7 @@ class PiutangRalan extends Controller
                 'penjab.png_jawab',
                 'piutang_pasien.uangmuka',
                 'piutang_pasien.totalpiutang',
+                'bayar_piutang.tgl_bayar',
                 'reg_periksa.status_lanjut'
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -44,6 +45,7 @@ class PiutangRalan extends Controller
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('bayar_piutang', 'bayar_piutang.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggl1, $tanggl2])
             ->where(function ($query) use ($status, $kdPenjamin) {
