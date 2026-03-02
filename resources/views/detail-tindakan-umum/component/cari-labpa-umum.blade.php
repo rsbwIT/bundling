@@ -1,17 +1,13 @@
 <form action="{{ url($action) }}" method="GET">
-    <div class="row">
+    <div class="row g-2 align-items-end"> {{-- g-2 untuk spacing antar kolom --}}
 
         {{-- PENCARIAN --}}
         <div class="col-md-6">
-            <div class="form-group">
-                <div class="input-group input-group-sm">
-                    <input type="text"
-                        name="cariNomor"
-                        class="form-control"
-                        placeholder="Cari Nama / No RM / No Rawat"
-                        value="{{ request('cariNomor') }}">
-                </div>
-            </div>
+            <input type="text"
+                name="cariNomor"
+                class="form-control form-control-sm"
+                placeholder="Cari Nama / No RM / No Rawat"
+                value="{{ request('cariNomor') }}">
         </div>
 
         {{-- TANGGAL AWAL --}}
@@ -30,8 +26,8 @@
                 value="{{ request('tgl2', now()->format('Y-m-d')) }}">
         </div>
 
-        {{-- BUTTON --}}
-        <div class="col-md-2">
+        {{-- BUTTON CARI --}}
+        <div class="col-md-2 d-flex">
             <button type="submit" class="btn btn-primary btn-sm w-100">
                 <i class="fa fa-search"></i> Cari
             </button>

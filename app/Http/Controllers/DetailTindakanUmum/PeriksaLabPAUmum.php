@@ -20,14 +20,16 @@ class PeriksaLabPAUmum extends Controller
     {
         $action = '/periksalabpaumum';
 
+        // Ambil data pendukung dari cache
         $penjab  = $this->cacheService->getPenjab();
         $petugas = $this->cacheService->getPetugas();
         $dokter  = $this->cacheService->getDokter();
 
-        $tgl1 = $request->tgl1;
-        $tgl2 = $request->tgl2;
+        // Ambil input filter dari request
+        $tgl1       = $request->tgl1;
+        $tgl2       = $request->tgl2;
         $kdPetugas  = $request->kdPetugas ? explode(',', $request->kdPetugas) : [];
-        $cari = $request->cariNomor;
+        $cari       = $request->cariNomor;
 
         /*
         ==================================================
@@ -77,13 +79,19 @@ class PeriksaLabPAUmum extends Controller
                 'periksa_lab.tarif_tindakan_petugas',
                 'periksa_lab.kso',
                 'periksa_lab.menejemen',
-                'periksa_lab.biaya'
-            )
+                'periksa_lab.biaya',
 
+                'nota_inap.tanggal as tgl_nota_inap',
+                'nota_jalan.tanggal as tgl_nota_jalan'
+            )
             ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+
+            // Join nota_inap dan nota_jalan
+            ->leftJoin('nota_inap', 'periksa_lab.no_rawat', '=', 'nota_inap.no_rawat')
+            ->leftJoin('nota_jalan', 'periksa_lab.no_rawat', '=', 'nota_jalan.no_rawat')
 
             ->leftJoin('dokter as dokter_lab', 'periksa_lab.kd_dokter', '=', 'dokter_lab.kd_dokter')
             ->leftJoin('dokter as dokter_perujuk', 'periksa_lab.dokter_perujuk', '=', 'dokter_perujuk.kd_dokter')
@@ -93,16 +101,29 @@ class PeriksaLabPAUmum extends Controller
 
         /*
         ==================================================
-        FILTER TANGGAL
+        FILTER TANGGAL BERDASARKAN NOTA
         ==================================================
         */
         if ($tgl1 && $tgl2) {
-            $query->whereBetween('periksa_lab.tgl_periksa', [$tgl1, $tgl2]);
+            $query->where(function($q) use ($tgl1, $tgl2) {
+                $q->whereBetween('nota_inap.tanggal', [$tgl1, $tgl2])
+                  ->orWhereBetween('nota_jalan.tanggal', [$tgl1, $tgl2]);
+            });
+        } elseif ($tgl1) {
+            $query->where(function($q) use ($tgl1) {
+                $q->where('nota_inap.tanggal', '>=', $tgl1)
+                  ->orWhere('nota_jalan.tanggal', '>=', $tgl1);
+            });
+        } elseif ($tgl2) {
+            $query->where(function($q) use ($tgl2) {
+                $q->where('nota_inap.tanggal', '<=', $tgl2)
+                  ->orWhere('nota_jalan.tanggal', '<=', $tgl2);
+            });
         }
 
         /*
         ==================================================
-        FILTER DOKTER
+        FILTER DOKTER / PETUGAS
         ==================================================
         */
         if (!empty($kdPetugas)) {
@@ -111,7 +132,7 @@ class PeriksaLabPAUmum extends Controller
 
         /*
         ==================================================
-        FILTER PENCARIAN
+        FILTER PENCARIAN (no_rawat, no_rkm_medis, nama pasien)
         ==================================================
         */
         if ($cari) {
@@ -124,7 +145,7 @@ class PeriksaLabPAUmum extends Controller
 
         /*
         ==================================================
-        GROUPING & ORDER
+        GROUPING & ORDER BY
         ==================================================
         */
         $data = $query->groupBy(
@@ -147,7 +168,9 @@ class PeriksaLabPAUmum extends Controller
                     'periksa_lab.tarif_tindakan_petugas',
                     'periksa_lab.kso',
                     'periksa_lab.menejemen',
-                    'periksa_lab.biaya'
+                    'periksa_lab.biaya',
+                    'nota_inap.tanggal',
+                    'nota_jalan.tanggal'
                 )
                 ->orderBy('periksa_lab.tgl_periksa', 'desc')
                 ->get();
