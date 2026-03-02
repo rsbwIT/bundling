@@ -130,6 +130,8 @@ use App\Http\Controllers\Lan\Lan;
 use App\Http\Controllers\Pemesanan\PemesananFarmasi;
 use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
+use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
+use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
 
 
 
@@ -250,6 +252,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/periksa-radiologi', [PeriksaRadiologi::class, 'PeriksaRadiologi']);
         Route::get('/periksa-radiologi2', [PeriksaRadiologi2::class, 'PeriksaRadiologi2']);
         Route::get('/periksalabpa', [PeriksaLabPA::class, 'index']);
+        Route::get('/periksalabpabulanan', [PeriksaLabPABulanan::class, 'index']);
+        Route::get('/periksalabpaumum', [PeriksaLabPAUmum::class, 'index']);
 
 
 

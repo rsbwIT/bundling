@@ -695,6 +695,17 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/periksalabpabulanan') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Periksa LAB PA
+                                            <span class="badge badge-danger right">NEW</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         {{-- DETAIL TINDAKAN UMUM --}}
                         @if (session('edit_registrasi') === 'true')
@@ -770,6 +781,17 @@
                                         </a>
                                     </li>
                                 </ul>
+                                <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/periksalabpaumum') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Periksa LAB PA (um)
+                                            <span class="badge badge-danger right">NEW</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                             </li>
                         @endif
                         {{-- MENU CASEMIX --}}

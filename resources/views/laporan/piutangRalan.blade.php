@@ -67,7 +67,7 @@
                                     <td>{{ $item->nm_pasien }}</td>
                                     <td>{{ $item->png_jawab }}</td>
                                     {{-- <td>Perujuk</td> --}}
-
+                                    
                                     <td>
                                         {{ $item->getRegistrasi->sum('totalbiaya') }}
                                     </td>
