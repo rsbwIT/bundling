@@ -42,6 +42,7 @@
                             <th>KSO</th>
                             <th>Manajemen</th>
                             <th>Tgl Bayar</th>
+                            <th>No Nota</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -73,6 +74,7 @@
                                 <td>{{ round($item->kso) }}</td>
                                 <td>{{ round($item->menejemen) }}</td>
                                 <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
+                                <td>{{ $item->no_nota }}</td>
                                 <td>{{ round($item->biaya) }}</td>
 
                             </tr>

@@ -51,7 +51,8 @@ class PeriksaRadiologiUm extends Controller
                 'reg_periksa.status_lanjut',
                 'periksa_radiologi.biaya',
                 DB::raw("IF(periksa_radiologi.status = 'Ralan', (SELECT nm_poli FROM poliklinik WHERE poliklinik.kd_poli = reg_periksa.kd_poli), (SELECT bangsal.nm_bangsal FROM kamar_inap INNER JOIN kamar INNER JOIN bangsal ON kamar_inap.kd_kamar = kamar.kd_kamar AND kamar.kd_bangsal = bangsal.kd_bangsal WHERE kamar_inap.no_rawat = periksa_radiologi.no_rawat LIMIT 1)) AS ruangan"),
-                'billing.tgl_byr'
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tgl_byr"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota")
             )
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -61,6 +62,8 @@ class PeriksaRadiologiUm extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
             ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where('billing.no','=','No.Nota')
             ->where('penjab.kd_pj','UMU')
             ->whereBetween('billing.tgl_byr',[$tanggl1, $tanggl2])

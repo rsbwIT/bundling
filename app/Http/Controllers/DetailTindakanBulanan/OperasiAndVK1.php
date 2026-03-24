@@ -97,8 +97,9 @@ class OperasiAndVK1 extends Controller
                 'operasi.biayasarpras',
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'piutang_pasien.status',
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
                 DB::raw("IF(reg_periksa.status_lanjut = 'Ranap', nota_inap.tanggal, nota_jalan.tanggal) as tanggal_nota")
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')

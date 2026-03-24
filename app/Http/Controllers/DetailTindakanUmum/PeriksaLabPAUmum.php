@@ -82,7 +82,9 @@ class PeriksaLabPAUmum extends Controller
                 'periksa_lab.biaya',
 
                 'nota_inap.tanggal as tgl_nota_inap',
-                'nota_jalan.tanggal as tgl_nota_jalan'
+                'nota_jalan.tanggal as tgl_nota_jalan',
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tgl_byr"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota")
             )
             ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -170,7 +172,9 @@ class PeriksaLabPAUmum extends Controller
                     'periksa_lab.menejemen',
                     'periksa_lab.biaya',
                     'nota_inap.tanggal',
-                    'nota_jalan.tanggal'
+                    'nota_jalan.tanggal',
+                    'nota_inap.no_nota',
+                    'nota_jalan.no_nota'
                 )
                 ->orderBy('periksa_lab.tgl_periksa', 'desc')
                 ->get();

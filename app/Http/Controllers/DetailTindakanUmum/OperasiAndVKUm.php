@@ -86,7 +86,8 @@ class OperasiAndVKUm extends Controller
                 'operasi.akomodasi',
                 'operasi.bagian_rs',
                 'operasi.biayasarpras',
-                'billing.tgl_byr'
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tgl_byr"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota")
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -105,6 +106,8 @@ class OperasiAndVKUm extends Controller
             ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
             ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
             ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where('billing.no','=','No.Nota')
             ->where('penjab.kd_pj','UMU')
             ->whereBetween('billing.tgl_byr',[$tanggl1, $tanggl2])

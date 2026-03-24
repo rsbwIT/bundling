@@ -42,7 +42,8 @@ class RalanParamedisUm extends Controller
                 'rawat_jl_pr.kso',
                 'rawat_jl_pr.menejemen',
                 'rawat_jl_pr.biaya_rawat',
-                'billing.tgl_byr')
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tgl_byr"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"))
             ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->join('rawat_jl_pr','rawat_jl_pr.no_rawat','=','reg_periksa.no_rawat')
             ->join('jns_perawatan','rawat_jl_pr.kd_jenis_prw','=','jns_perawatan.kd_jenis_prw')
@@ -50,6 +51,8 @@ class RalanParamedisUm extends Controller
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
             ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
             ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where('billing.no','=','No.Nota')
             ->where('penjab.kd_pj','UMU')
             ->where('reg_periksa.status_lanjut', 'Ralan')

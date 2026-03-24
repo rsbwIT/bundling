@@ -55,7 +55,8 @@ class RanapParamedis extends Controller
                 'rawat_inap_pr.kso',
                 'rawat_inap_pr.menejemen',
                 'rawat_inap_pr.biaya_rawat',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw('COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota'),
                 'piutang_pasien.status'
             )
             ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -65,6 +66,8 @@ class RanapParamedis extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_inap_pr.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
@@ -107,7 +110,8 @@ class RanapParamedis extends Controller
                 'rawat_jl_pr.kso',
                 'rawat_jl_pr.menejemen',
                 'rawat_jl_pr.biaya_rawat',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw('COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota'),
                 'piutang_pasien.status'
             )
             ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -118,6 +122,8 @@ class RanapParamedis extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_pr.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ranap')
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {

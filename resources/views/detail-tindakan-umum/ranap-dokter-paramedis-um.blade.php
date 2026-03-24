@@ -36,6 +36,7 @@
                         <th>KSO</th>
                         <th>Manajemen</th>
                         <th>Biaya Rawat</th>
+                        <th>No. Nota</th>
                         <th>Tanggal Bayar</th>
                     </tr>
                 </thead>
@@ -43,9 +44,19 @@
                     @php
                         $mergedData = $RanapDRParamedis->merge($RalanDRParamedis);
                         $sortedData = $mergedData->sortBy('no_rawat');
+                        $t_mat=0; $t_bhp=0; $t_jmd=0; $t_jmp=0; $t_kso=0; $t_man=0; $t_tot=0;
                     @endphp
 
                     @foreach ($sortedData as $item)
+                        @php
+                            $t_mat += $item->material;
+                            $t_bhp += $item->bhp;
+                            $t_jmd += $item->tarif_tindakandr;
+                            $t_jmp += $item->tarif_tindakanpr;
+                            $t_kso += $item->kso;
+                            $t_man += $item->menejemen;
+                            $t_tot += $item->biaya_rawat;
+                        @endphp
                         <tr>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
@@ -68,10 +79,26 @@
                             <td>{{ $item->kso }}</td>
                             <td>{{ $item->menejemen }}</td>
                             <td>{{ $item->biaya_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->tgl_byr }}</td>
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        @for($i=0; $i<12; $i++) <th></th> @endfor
+                        <th class="text-right">GRAND TOTAL :</th>
+                        <th>{{ number_format($t_mat) }}</th>
+                        <th>{{ number_format($t_bhp) }}</th>
+                        <th>{{ number_format($t_jmd) }}</th>
+                        <th>{{ number_format($t_jmp) }}</th>
+                        <th>{{ number_format($t_kso) }}</th>
+                        <th>{{ number_format($t_man) }}</th>
+                        <th>{{ number_format($t_tot) }}</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

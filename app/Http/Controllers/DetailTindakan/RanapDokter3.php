@@ -53,7 +53,7 @@ class RanapDokter3 extends Controller
                 'rawat_inap_dr.biaya_rawat',
                 DB::raw('SUM(rawat_inap_dr.biaya_rawat) as total_biaya_rawat'),
                 'bayar_piutang.besar_cicilan',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'operasi.operator1',
                 'operasi.dokter_anestesi',
                 'piutang_pasien.uangmuka',
@@ -67,6 +67,7 @@ class RanapDokter3 extends Controller
             ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('operasi', 'rawat_inap_dr.no_rawat', '=', 'operasi.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
             ->where('jns_perawatan_inap.nm_perawatan', 'like', '%'.'Visite Dokter Spesialis'.'%')
             ->where(function ($query) {
@@ -128,7 +129,7 @@ class RanapDokter3 extends Controller
                 'rawat_jl_dr.biaya_rawat',
                 DB::raw('SUM(rawat_jl_dr.biaya_rawat) as total_biaya_rawat'),
                 'bayar_piutang.besar_cicilan',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'operasi.operator1',
                 'operasi.dokter_anestesi',
                 'piutang_pasien.uangmuka',
@@ -143,6 +144,7 @@ class RanapDokter3 extends Controller
             ->leftJoin('operasi', 'rawat_jl_dr.no_rawat', '=', 'operasi.no_rawat')
             ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
             ->where('reg_periksa.status_lanjut', 'Ranap')
             ->where(function ($query) {

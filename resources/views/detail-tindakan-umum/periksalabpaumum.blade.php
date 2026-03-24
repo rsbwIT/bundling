@@ -30,6 +30,8 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>No. Nota</th>
+                            <th>Tgl Bayar</th>
                             <th>No.Rawat</th>
                             <th>No.RM</th>
                             <th>Nama Pasien</th>
@@ -54,12 +56,32 @@
                     </thead>
 
                     <tbody>
-                        @php $grandTotal = 0; @endphp
+                        @php 
+                            $tot_sarana = 0;
+                            $tot_bhp = 0;
+                            $tot_jm_dokter = 0;
+                            $tot_jm_petugas = 0;
+                            $tot_jm_perujuk = 0;
+                            $tot_kso = 0;
+                            $tot_manajemen = 0;
+                            $tot_biaya = 0; 
+                        @endphp
 
                         @foreach ($data as $key => $item)
-                        @php $grandTotal += $item->biaya; @endphp
+                        @php 
+                            $tot_sarana += $item->bagian_rs;
+                            $tot_bhp += $item->bhp;
+                            $tot_jm_dokter += $item->tarif_tindakan_dokter;
+                            $tot_jm_petugas += $item->tarif_tindakan_petugas;
+                            $tot_jm_perujuk += $item->tarif_perujuk;
+                            $tot_kso += $item->kso;
+                            $tot_manajemen += $item->menejemen;
+                            $tot_biaya += $item->biaya; 
+                        @endphp
                         <tr>
                             <td>{{ $key+1 }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_byr }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
@@ -86,8 +108,16 @@
 
                     <tfoot>
                         <tr>
-                            <th colspan="20" class="text-right">GRAND TOTAL :</th>
-                            <th>{{ number_format($grandTotal) }}</th>
+                            @for($i=0; $i<14; $i++) <th></th> @endfor
+                            <th class="text-right">GRAND TOTAL :</th>
+                            <th>{{ number_format($tot_sarana) }}</th>
+                            <th>{{ number_format($tot_bhp) }}</th>
+                            <th>{{ number_format($tot_jm_dokter) }}</th>
+                            <th>{{ number_format($tot_jm_petugas) }}</th>
+                            <th>{{ number_format($tot_jm_perujuk) }}</th>
+                            <th>{{ number_format($tot_kso) }}</th>
+                            <th>{{ number_format($tot_manajemen) }}</th>
+                            <th>{{ number_format($tot_biaya) }}</th>
                         </tr>
                     </tfoot>
 

@@ -28,6 +28,8 @@
                         <th>Tanggal</th>
                         <th>Jam</th>
                         <th>Cara Bayar</th>
+                        <th>Tgl Bayar</th>
+                        <th>No Nota</th>
                         <th>Ruang</th>
                         <th>Jasa Sarana</th>
                         <th>Paket BHP</th>
@@ -93,6 +95,8 @@
                             <td>{{ $item->tgl_perawatan }}</td>
                             <td>{{ $item->jam_rawat }}</td>
                             <td>{{ $item->png_jawab }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
+                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->ruang ?? $item->nm_poli }}</td>
                             <td>{{ round($item->total_material) }}</td>
                             <td>{{ round($item->total_bhp) }}</td>

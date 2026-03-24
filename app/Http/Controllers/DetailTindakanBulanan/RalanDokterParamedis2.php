@@ -35,7 +35,7 @@ class RalanDokterParamedis2 extends Controller
         $RalanDRParamedis2 = DB::table('pasien')
             ->select(
                 'rawat_jl_drpr.no_rawat',
-                'nota_jalan.no_nota',
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
                 'nota_jalan.tanggal',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
@@ -56,7 +56,7 @@ class RalanDokterParamedis2 extends Controller
                 'rawat_jl_drpr.kso',
                 'rawat_jl_drpr.menejemen',
                 'rawat_jl_drpr.biaya_rawat',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'piutang_pasien.status'
             )
             ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -67,6 +67,7 @@ class RalanDokterParamedis2 extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
             ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ralan')

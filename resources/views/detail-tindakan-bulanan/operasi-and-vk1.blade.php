@@ -86,6 +86,7 @@
                         <th>Bagian RS</th>
                         <th>Biaya Sarpras</th>
                         <th>Tgl Bayar</th>
+                        <th>No Nota</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -217,6 +218,7 @@
                             <td>{{ round($item->bagian_rs) }}</td>
                             <td>{{ round($item->biayasarpras) }}</td>
                             <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
+                            <td>{{ $item->no_nota }}</td>
                             <td>{{$item->status }}</td>
                         </tr>
                     @endforeach

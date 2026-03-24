@@ -40,6 +40,8 @@
                         <th>Tanggal</th>
                         <th>Jam</th>
                         <th>Cara Bayar</th>
+                        <th>Tgl Bayar</th>
+                        <th>No Nota</th>
                         <th>Jasa Sarana</th>
                         <th>Paket BHP</th>
                         <th>JM Dokter</th>
@@ -68,6 +70,8 @@
                         <td>{{ $item->tgl_periksa }}</td>
                         <td>{{ $item->jam }}</td>
                         <td>{{ $item->png_jawab }}</td>
+                        <td>{{ $item->tgl_bayar }}</td>
+                        <td>{{ $item->no_nota }}</td>
                         <td>{{ round($item->bagian_rs) }}</td>
                         <td>{{ round($item->bhp) }}</td>
                         <td>{{ round($item->tarif_tindakan_dokter) }}</td>

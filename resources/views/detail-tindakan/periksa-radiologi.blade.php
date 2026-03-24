@@ -32,6 +32,8 @@
                             <th>Tanggal</th>
                             <th>Jam</th>
                             <th>Cara Bayar</th>
+                            <th>Tgl Bayar</th>
+                            <th>No Nota</th>
                             <th>Ruangan</th>
                             <th>Jasa Sarana</th>
                             <th>Paket BHP</th>
@@ -62,6 +64,8 @@
                                 <td>{{ $item->tgl_periksa }}</td>
                                 <td>{{ $item->jam }}</td>
                                 <td>{{ $item->png_jawab }}</td>
+                                <td>{{ $item->tgl_bayar }}</td>
+                                <td>{{ $item->no_nota }}</td>
                                 <td>{{ $item->ruangan }}</td>
                                 <td>{{ round($item->bagian_rs) }}</td>
                                 <td>{{ round($item->bhp) }}</td>

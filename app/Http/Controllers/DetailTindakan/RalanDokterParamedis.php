@@ -50,7 +50,8 @@ class RalanDokterParamedis extends Controller
                 'rawat_jl_drpr.kso',
                 'rawat_jl_drpr.menejemen',
                 'rawat_jl_drpr.biaya_rawat',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                'nota_jalan.no_nota',
                 'piutang_pasien.status'
                 )
             ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
@@ -62,6 +63,7 @@ class RalanDokterParamedis extends Controller
             ->join('petugas','rawat_jl_drpr.nip','=','petugas.nip')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {

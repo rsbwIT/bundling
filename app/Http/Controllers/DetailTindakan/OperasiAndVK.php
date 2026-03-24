@@ -240,7 +240,8 @@ class OperasiAndVK extends Controller
                 // Pembayaran & Status
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
                 'piutang_pasien.status'
             )
 
@@ -263,6 +264,8 @@ class OperasiAndVK extends Controller
             ->leftJoin('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
+            ->leftJoin('nota_jalan', 'operasi.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'operasi.no_rawat', '=', 'nota_inap.no_rawat')
 
             // ===== FILTER SECTION =====
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status, $tanggl1, $tanggl2) {
