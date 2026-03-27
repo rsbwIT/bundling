@@ -17,6 +17,8 @@
                 <thead>
                     <tr>
                         <th>No.Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No.RM</th>
                         <th>Nama Pasien</th>
                         <th>Kd.Tindakan</th>
@@ -26,8 +28,6 @@
                         <th>Tanggal</th>
                         <th>Jam</th>
                         <th>Cara Bayar</th>
-                        <th>Tgl Bayar</th>
-                        <th>No Nota</th>
                         <th>Ruang</th>
                         <th>Jasa Sarana</th>
                         <th>Paket BHP</th>
@@ -47,6 +47,8 @@
                     @foreach ($sortedData as $item)
                         <tr>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>
@@ -56,8 +58,6 @@
                             <td>{{ $item->tgl_perawatan }}</td>
                             <td>{{ $item->jam_rawat }}</td>
                             <td>{{ $item->png_jawab }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->ruang ?? $item->nm_poli }}</td>
                             <!-- Tampilkan ruang jika ada, jika tidak, tampilkan nama poli -->
                             <td>{{ round($item->material) }}</td>

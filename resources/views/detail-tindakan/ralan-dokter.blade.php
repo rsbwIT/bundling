@@ -17,9 +17,9 @@
                 <tbody>
                     <tr>
                         <th>No.</th>
-                        <th>Tgl Bayar</th>
-                        <th>No Nota</th>
                         <th>No.Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No.RM</th>
                         <th>Nama Pasien</th>
                         <th>Kd.Tnd</th>
@@ -44,9 +44,9 @@
                     @foreach ($RalanDokter as $item)
                         <tr>
                             <td>{{ $no++ }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>

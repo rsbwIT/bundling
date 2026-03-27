@@ -19,6 +19,8 @@
                         <tr>
                             <th>No</th>
                             <th>No.Rawat</th>
+                            <th>No Nota</th>
+                            <th>Tgl Bayar</th>
                             <th>No.R.M</th>
                             <th>Nama Pasien</th>
                             <th>Sts Lanjut</th>
@@ -41,8 +43,6 @@
                             <th>JM Perujuk</th>
                             <th>KSO</th>
                             <th>Manajemen</th>
-                            <th>Tgl Bayar</th>
-                            <th>No Nota</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -51,6 +51,8 @@
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_nota }}</td>
+                                <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
                                 <td>{{ $item->no_rkm_medis }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->status_lanjut }}</td>
@@ -73,8 +75,6 @@
                                 <td>{{ round($item->tarif_perujuk) }}</td>
                                 <td>{{ round($item->kso) }}</td>
                                 <td>{{ round($item->menejemen) }}</td>
-                                <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
-                                <td>{{ $item->no_nota }}</td>
                                 <td>{{ round($item->biaya) }}</td>
 
                             </tr>

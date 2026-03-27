@@ -18,6 +18,8 @@
                     <tr>
                         <th>No. </th>
                         <th>No. Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Paket</th>
@@ -85,8 +87,6 @@
                         <th>Akomodasi</th>
                         <th>Bagian RS</th>
                         <th>Biaya Sarpras</th>
-                        <th>Tgl Bayar</th>
-                        <th>No Nota</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -98,6 +98,8 @@
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kode_paket }}</td>
@@ -217,8 +219,6 @@
                             <td>{{ round($item->akomodasi) }}</td>
                             <td>{{ round($item->bagian_rs) }}</td>
                             <td>{{ round($item->biayasarpras) }}</td>
-                            <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_nota }}</td>
                             <td>{{$item->status }}</td>
                         </tr>
                     @endforeach

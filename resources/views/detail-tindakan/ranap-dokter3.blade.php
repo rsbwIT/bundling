@@ -18,6 +18,8 @@
                     <tr>
                         <th>No</th>
                         <th>No. Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Jenis Perawatan</th>
@@ -28,8 +30,6 @@
                         <th>Tanggal</th>
                         <th>Jam</th>
                         <th>Cara Bayar</th>
-                        <th>Tgl Bayar</th>
-                        <th>No Nota</th>
                         <th>Ruang</th>
                         <th>Jasa Sarana</th>
                         <th>Paket BHP</th>
@@ -85,6 +85,8 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>
@@ -95,8 +97,6 @@
                             <td>{{ $item->tgl_perawatan }}</td>
                             <td>{{ $item->jam_rawat }}</td>
                             <td>{{ $item->png_jawab }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->ruang ?? $item->nm_poli }}</td>
                             <td>{{ round($item->total_material) }}</td>
                             <td>{{ round($item->total_bhp) }}</td>
@@ -119,6 +119,8 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>

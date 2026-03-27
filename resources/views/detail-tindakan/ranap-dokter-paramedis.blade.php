@@ -17,6 +17,8 @@
                 <thead>
                     <tr>
                         <th>No. Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tanggal Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Jenis Perawatan</th>
@@ -36,8 +38,6 @@
                         <th>KSO</th>
                         <th>Manajemen</th>
                         <th>Biaya Rawat</th>
-                        <th>Tanggal Bayar</th>
-                        <th>No Nota</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -50,6 +50,8 @@
                     @foreach ($sortedData as $item)
                         <tr>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>
@@ -70,8 +72,6 @@
                             <td>{{ round($item->kso) }}</td>
                             <td>{{ round($item->menejemen) }}</td>
                             <td>{{ round($item->biaya_rawat) }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->status }}</td>
                         </tr>
                     @endforeach
