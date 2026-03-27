@@ -17,6 +17,8 @@
                 <thead>
                     <tr>
                         <th>No. Rawat</th>
+                        <th>No. Nota</th>
+                        <th>Tanggal Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Jenis Perawatan</th>
@@ -36,8 +38,6 @@
                         <th>KSO</th>
                         <th>Manajemen</th>
                         <th>Biaya Rawat</th>
-                        <th>No. Nota</th>
-                        <th>Tanggal Bayar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,6 +59,8 @@
                         @endphp
                         <tr>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_byr }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kd_jenis_prw }}</td>
@@ -79,14 +81,12 @@
                             <td>{{ $item->kso }}</td>
                             <td>{{ $item->menejemen }}</td>
                             <td>{{ $item->biaya_rawat }}</td>
-                            <td>{{ $item->no_nota }}</td>
-                            <td>{{ $item->tgl_byr }}</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
-                        @for($i=0; $i<12; $i++) <th></th> @endfor
+                        @for($i=0; $i<14; $i++) <th></th> @endfor
                         <th class="text-right">GRAND TOTAL :</th>
                         <th>{{ number_format($t_mat) }}</th>
                         <th>{{ number_format($t_bhp) }}</th>
@@ -95,8 +95,6 @@
                         <th>{{ number_format($t_kso) }}</th>
                         <th>{{ number_format($t_man) }}</th>
                         <th>{{ number_format($t_tot) }}</th>
-                        <th></th>
-                        <th></th>
                     </tr>
                 </tfoot>
             </table>
