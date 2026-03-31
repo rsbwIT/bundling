@@ -133,6 +133,7 @@ use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
+use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 
 
 
@@ -385,6 +386,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/infokamarinap', [InfoKamarInap::class, 'InfoKamarInap']);
         Route::get('/kirim-rawat-inap', [SirsBridgingController::class, 'kirimRawatInap']);
         Route::get('/sdm', [SdmController::class, 'ambilDataSdm']);
+
+        // BERKAS PEGAWAI
+        Route::get('/berkas-pegawai', [BerkasPegawaiController::class, 'index'])->name('berkas.pegawai');
+        Route::post('/berkas-pegawai/upload', [BerkasPegawaiController::class, 'upload'])->name('berkas.pegawai.upload');
+        Route::delete('/berkas-pegawai/destroy', [BerkasPegawaiController::class, 'destroy'])->name('berkas.pegawai.destroy');
 
 
         //tes

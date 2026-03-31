@@ -53,6 +53,24 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
 
+        'sftp_berkas' => [
+            'driver' => 'sftp',
+            'host' => env('SFTP_HOST'),
+            'port' => (int) env('SFTP_PORT'),
+            'username' => env('SFTP_USERNAME'),
+            'password' => env('SFTP_PASSWORD'),
+            'root' => '/opt/lampp/htdocs/webapps/penggajian/pages/berkaspegawai/berkas',
+            'permissions' => [
+                'file' => [
+                    'public' => 0644,
+                ],
+                'dir' => [
+                    'public' => 0755,
+                ],
+            ],
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
