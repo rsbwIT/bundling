@@ -23,7 +23,7 @@
                         <th colspan="4" class="align-middle text-center">UMUM</th>
                     </tr>
                     <tr>
-                        <th colspan="3" class="align-middle text-center">UMUM MINGGU 3</th>
+                        <th colspan="3" class="align-middle text-center">UMUM</th>
                         <th rowspan="2" class="align-middle">TOTAL</th>
                     </tr>
                     <tr>
@@ -34,17 +34,17 @@
                 </thead>
                 <tbody>
                     @php $no = 1; @endphp
-                    @forelse ($dataRalan as $item)
+                    @forelse ($dataCombined as $item)
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->kd_dokter }}</td>
                             <td></td>
                             <td class="text-left"></td>
                             <td class="text-left">{{ $item->nm_dokter }}</td>
-                            <td></td>
+                            <td class="text-right">{{ number_format($item->total_ranap) }}</td>
                             <td class="text-right">{{ number_format($item->total_ralan) }}</td>
-                            <td></td>
-                            <td class="text-right">{{ number_format($item->total_ralan) }}</td>
+                            <td class="text-right">{{ number_format($item->total_igd) }}</td>
+                            <td class="text-right">{{ number_format($item->grand_total) }}</td>
                         </tr>
                     @empty
                         <tr>

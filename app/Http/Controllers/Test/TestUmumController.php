@@ -109,10 +109,65 @@ class TestUmumController extends Controller
             ];
         })->values();
 
+        // 3. Query OPERASI - masuk kategori Ranap (operator1)
+        $dataOperasi = DB::table('operasi')
+            ->select(
+                'operasi.operator1 as kd_dokter',
+                'dokter.nm_dokter',
+                DB::raw("SUM(operasi.biayaoperator1) as total_ranap")
+            )
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where(function ($query) use ($kdDokter) {
+                if ($kdDokter) {
+                    $query->whereIn('operasi.operator1', $kdDokter);
+                }
+            })
+            ->where(function ($query) use ($cariNomor) {
+                if ($cariNomor) {
+                    $query->where(function ($q) use ($cariNomor) {
+                        $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                          ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                          ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                    });
+                }
+            })
+            ->groupBy('operasi.operator1', 'dokter.nm_dokter')
+            ->get();
+
+        // Gabungkan ralan + operasi ke satu collection berdasarkan kd_dokter
+        $allDokterKeys = $dataRalan->pluck('kd_dokter')
+            ->merge($dataOperasi->pluck('kd_dokter'))
+            ->unique();
+
+        $dataCombined = $allDokterKeys->map(function ($kd) use ($dataRalan, $dataOperasi) {
+            $ralan  = $dataRalan->firstWhere('kd_dokter', $kd);
+            $ranap  = $dataOperasi->firstWhere('kd_dokter', $kd);
+
+            $totalRalan = $ralan->total_ralan ?? 0;
+            $totalRanap = $ranap->total_ranap ?? 0;
+            $nmDokter   = $ralan->nm_dokter ?? $ranap->nm_dokter ?? '-';
+
+            return (object) [
+                'kd_dokter'   => $kd,
+                'nm_dokter'   => $nmDokter,
+                'total_ranap' => $totalRanap,
+                'total_ralan' => $totalRalan,
+                'total_igd'   => 0,
+                'grand_total' => $totalRanap + $totalRalan,
+            ];
+        })->sortByDesc('grand_total')->values();
+
         return view('detail-tindakan-umum.test', [
             'actionCari'=> $actionCari,
             'dokter'=> $dokter,
-            'dataRalan' => $dataRalan,
+            'dataCombined' => $dataCombined,
             'tanggl1' => $tanggl1,
             'tanggl2' => $tanggl2
         ]);

@@ -83,7 +83,13 @@ class BerkasPegawaiController extends Controller
                 continue;
             }
 
-            $fileName = $file->getClientOriginalName();
+            $master = DB::table('master_berkas_pegawai')
+                ->where('kode', $kode)
+                ->first();
+                
+            $noUrut    = $master ? $master->no_urut : '00';
+            $extension = $file->getClientOriginalExtension();
+            $fileName  = $nik . '_' . $noUrut . '.' . $extension;
 
             try {
                 Storage::disk('sftp_berkas')->put($fileName, file_get_contents($file));
