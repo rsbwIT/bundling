@@ -14,6 +14,7 @@ use App\Http\Controllers\Laporan\CobHarian;
 use App\Http\Controllers\Bpjs\BpjsController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
+use App\Http\Controllers\Test\TestUmumController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Laporan\BayarPiutang;
@@ -132,7 +133,12 @@ use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
+<<<<<<< HEAD
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
+=======
+use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
+use App\Http\Controllers\Gizi\MonitoringGiziController;
+>>>>>>> 21ed1e609a94226a5dc377f2057c423f09a819c3
 
 
 
@@ -162,6 +168,7 @@ Route::group(['middleware' => 'default'], function () {
 
     Route::group(['middleware' => 'auth-rsbw'], function () {
         Route::get('/test', [TestController::class, 'Test']);
+        Route::get('/test-umum', [TestUmumController::class, 'index']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
@@ -387,6 +394,13 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/kirim-rawat-inap', [SirsBridgingController::class, 'kirimRawatInap']);
         Route::get('/sdm', [SdmController::class, 'ambilDataSdm']);
 
+        // BERKAS PEGAWAI
+        Route::get('/berkas-pegawai', [BerkasPegawaiController::class, 'index'])->name('berkas.pegawai');
+        Route::post('/berkas-pegawai/upload', [BerkasPegawaiController::class, 'upload'])->name('berkas.pegawai.upload');
+        Route::delete('/berkas-pegawai/destroy', [BerkasPegawaiController::class, 'destroy'])->name('berkas.pegawai.destroy');
+        Route::get('/semua-berkas-pegawai', [BerkasPegawaiController::class, 'semuaBerkas'])->name('berkas.pegawai.semua');
+        Route::get('/semua-berkas-pegawai/{nik}', [BerkasPegawaiController::class, 'detailBerkas'])->name('berkas.pegawai.detail');
+
 
         //tes
         Route::get('/antrian-farmasi/panggil', [\App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController::class, 'panggil'])->name('antrian-farmasi.panggil');
@@ -583,6 +597,9 @@ Route::group(['middleware' => 'default'], function () {
 
         // LAB
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
+
+        // GIZI
+        Route::get('/monitoring-gizi', [MonitoringGiziController::class, 'index'])->name('gizi.monitoring');
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);

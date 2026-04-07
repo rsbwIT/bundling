@@ -94,7 +94,8 @@ class OperasiAndVKKSO extends Controller
                 'operasi.biayasarpras',
                 'bayar_piutang.besar_cicilan',
                 'piutang_pasien.uangmuka',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
                 'piutang_pasien.status'
             )
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -115,6 +116,8 @@ class OperasiAndVKKSO extends Controller
             ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'operasi.no_rawat')
+            ->leftJoin('nota_jalan', 'operasi.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'operasi.no_rawat', '=', 'nota_inap.no_rawat')
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $kdDokter, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);

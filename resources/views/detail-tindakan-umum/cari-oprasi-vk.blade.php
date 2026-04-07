@@ -18,6 +18,8 @@
                     <tr>
                         <th>No. </th>
                         <th>No. Rawat</th>
+                        <th>No. Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Paket</th>
@@ -81,11 +83,52 @@
                 <tbody>
                     @php
                         $no = 1;
+                        $t_op1=0; $t_op2=0; $t_op3=0;
+                        $t_as1=0; $t_as2=0; $t_as3=0;
+                        $t_inst=0; $t_danak=0; $t_pres=0;
+                        $t_danes=0; $t_asanes=0; $t_asanes2=0;
+                        $t_bdn=0; $t_bdn2=0; $t_bdn3=0;
+                        $t_pluar=0;
+                        $t_om1=0; $t_om2=0; $t_om3=0; $t_om4=0; $t_om5=0;
+                        $t_dpja=0; $t_du=0;
+                        $t_alat=0; $t_sewa=0; $t_ako=0; $t_bagian=0; $t_sarpras=0;
                     @endphp
                     @foreach ($OperasiAndVK as $item)
+                        @php
+                            $t_op1 += $item->biayaoperator1;
+                            $t_op2 += $item->biayaoperator2;
+                            $t_op3 += $item->biayaoperator3;
+                            $t_as1 += $item->biayaasisten_operator1;
+                            $t_as2 += $item->biayaasisten_operator2;
+                            $t_as3 += $item->biayaasisten_operator3;
+                            $t_inst += $item->biayainstrumen;
+                            $t_danak += $item->biayadokter_anak;
+                            $t_pres += $item->biayaperawaat_resusitas;
+                            $t_danes += $item->biayadokter_anestesi;
+                            $t_asanes += $item->biayaasisten_anestesi;
+                            $t_asanes2 += $item->biayaasisten_anestesi2;
+                            $t_bdn += $item->biayabidan;
+                            $t_bdn2 += $item->biayabidan2;
+                            $t_bdn3 += $item->biayabidan3;
+                            $t_pluar += $item->biayaperawat_luar;
+                            $t_om1 += $item->biaya_omloop;
+                            $t_om2 += $item->biaya_omloop2;
+                            $t_om3 += $item->biaya_omloop3;
+                            $t_om4 += $item->biaya_omloop4;
+                            $t_om5 += $item->biaya_omloop5;
+                            $t_dpja += $item->biaya_dokter_pjanak;
+                            $t_du += $item->biaya_dokter_umum;
+                            $t_alat += $item->biayaalat;
+                            $t_sewa += $item->biayasewaok;
+                            $t_ako += $item->akomodasi;
+                            $t_bagian += $item->bagian_rs;
+                            $t_sarpras += $item->biayasarpras;
+                        @endphp
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_nota }}</td>
+                            <td>{{ $item->tgl_byr }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->kode_paket }}</td>
@@ -147,6 +190,40 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        @for($i=0; $i<10; $i++) <th></th> @endfor
+                        <th class="text-right">GRAND TOTAL :</th>
+                        <th></th><th>{{ number_format($t_op1) }}</th>
+                        <th></th><th>{{ number_format($t_op2) }}</th>
+                        <th></th><th>{{ number_format($t_op3) }}</th>
+                        <th></th><th>{{ number_format($t_as1) }}</th>
+                        <th></th><th>{{ number_format($t_as2) }}</th>
+                        <th></th><th>{{ number_format($t_as3) }}</th>
+                        <th></th><th>{{ number_format($t_inst) }}</th>
+                        <th></th><th>{{ number_format($t_danak) }}</th>
+                        <th></th><th>{{ number_format($t_pres) }}</th>
+                        <th></th><th>{{ number_format($t_danes) }}</th>
+                        <th></th><th>{{ number_format($t_asanes) }}</th>
+                        <th></th><th>{{ number_format($t_asanes2) }}</th>
+                        <th></th><th>{{ number_format($t_bdn) }}</th>
+                        <th></th><th>{{ number_format($t_bdn2) }}</th>
+                        <th></th><th>{{ number_format($t_bdn3) }}</th>
+                        <th></th><th>{{ number_format($t_pluar) }}</th>
+                        <th></th><th>{{ number_format($t_om1) }}</th>
+                        <th></th><th>{{ number_format($t_om2) }}</th>
+                        <th></th><th>{{ number_format($t_om3) }}</th>
+                        <th></th><th>{{ number_format($t_om4) }}</th>
+                        <th></th><th>{{ number_format($t_om5) }}</th>
+                        <th></th><th>{{ number_format($t_dpja) }}</th>
+                        <th></th><th>{{ number_format($t_du) }}</th>
+                        <th>{{ number_format($t_alat) }}</th>
+                        <th>{{ number_format($t_sewa) }}</th>
+                        <th>{{ number_format($t_ako) }}</th>
+                        <th>{{ number_format($t_bagian) }}</th>
+                        <th>{{ number_format($t_sarpras) }}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

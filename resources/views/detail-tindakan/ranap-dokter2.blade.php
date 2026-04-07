@@ -17,6 +17,8 @@
                 <thead>
                     <tr>
                         <th>No. Rawat</th>
+                        <th>No Nota</th>
+                        <th>Tgl Bayar</th>
                         <th>No. Rekam Medis</th>
                         <th>Nama Pasien</th>
                         <th>Kode Jenis Perawatan</th>
@@ -67,6 +69,8 @@
                         @foreach ($group as $index => $item)
                             <tr>
                                 <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_nota }}</td>
+                                <td>{{ $item->tgl_bayar }}</td>
                                 <td>{{ $item->no_rkm_medis }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->kd_jenis_prw }}</td>
@@ -117,6 +121,8 @@
                         @foreach ($group as $index => $item)
                             <tr>
                                 <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_nota }}</td>
+                                <td>{{ $item->tgl_bayar }}</td>
                                 <td>{{ $item->no_rkm_medis }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->kd_jenis_prw }}</td>

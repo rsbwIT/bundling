@@ -18,6 +18,8 @@
                         <tr>
                             <th>No</th>
                             <th>No.Rawat</th>
+                            <th>No Nota</th>
+                            <th>Tgl Bayar</th>
                             <th>No.R.M</th>
                             <th>Nama Pasien</th>
                             <th>Sts Lanjut</th>
@@ -48,6 +50,8 @@
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_nota }}</td>
+                                <td>{{ $item->tgl_bayar }}</td>
                                 <td>{{ $item->no_rkm_medis }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
                                 <td>{{ $item->status_lanjut }}</td>

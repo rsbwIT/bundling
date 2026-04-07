@@ -61,7 +61,9 @@ class PeriksaLabPA extends Controller
                 'periksa_lab.tarif_tindakan_petugas',
                 'periksa_lab.kso',
                 'periksa_lab.menejemen',
-                'periksa_lab.biaya'
+                'periksa_lab.biaya',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota")
             )
 
             ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -74,6 +76,8 @@ class PeriksaLabPA extends Controller
 
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
             ->leftJoin('bayar_piutang', 'bayar_piutang.no_rawat', '=', 'periksa_lab.no_rawat')
+            ->leftJoin('nota_jalan', 'periksa_lab.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'periksa_lab.no_rawat', '=', 'nota_inap.no_rawat')
 
             ->where('periksa_lab.kategori', 'PA')
 

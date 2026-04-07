@@ -47,7 +47,7 @@ class RanapDokter2 extends Controller
                 'rawat_inap_dr.menejemen',
                 'rawat_inap_dr.biaya_rawat',
                 'bayar_piutang.besar_cicilan',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'operasi.operator1',
                 'operasi.dokter_anestesi'
             )
@@ -58,6 +58,7 @@ class RanapDokter2 extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('operasi', 'rawat_inap_dr.no_rawat', '=', 'operasi.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             // ->where('jns_perawatan_inap.nm_perawatan', 'like', '%'.'konsul'.'%')
             ->where(function ($query) {
                 $query->whereNull('operasi.operator1')
@@ -112,7 +113,7 @@ class RanapDokter2 extends Controller
                 'rawat_jl_dr.menejemen',
                 'rawat_jl_dr.biaya_rawat',
                 'bayar_piutang.besar_cicilan',
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
                 'operasi.operator1',
                 'operasi.dokter_anestesi'
             )
@@ -124,6 +125,7 @@ class RanapDokter2 extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('operasi', 'rawat_jl_dr.no_rawat', '=', 'operasi.no_rawat')
             ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->where('reg_periksa.status_lanjut', 'Ranap')
             ->where(function ($query) {
                 $query->whereNull('operasi.operator1')

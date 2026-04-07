@@ -130,7 +130,8 @@ class PeriksaRadiologi2 extends Controller
              WHERE kamar_inap.no_rawat = periksa_radiologi.no_rawat
              ORDER BY kamar_inap.tgl_masuk DESC LIMIT 1)
         ) AS ruangan"),
-                'bayar_piutang.tgl_bayar',
+                DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
                 DB::raw("IF(reg_periksa.status_lanjut = 'Ranap', nota_inap.tanggal, nota_jalan.tanggal) as tanggal_nota"),
                 DB::raw("(SELECT MAX(tgl_keluar) FROM kamar_inap WHERE kamar_inap.no_rawat = periksa_radiologi.no_rawat) AS tgl_keluar")
             )
