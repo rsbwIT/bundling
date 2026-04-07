@@ -132,6 +132,7 @@ use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
+use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 
 
 
@@ -230,6 +231,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
+        Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
+
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);
