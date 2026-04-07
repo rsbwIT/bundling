@@ -134,6 +134,7 @@ use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
+use App\Http\Controllers\Gizi\MonitoringGiziController;
 
 
 
@@ -391,6 +392,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/berkas-pegawai', [BerkasPegawaiController::class, 'index'])->name('berkas.pegawai');
         Route::post('/berkas-pegawai/upload', [BerkasPegawaiController::class, 'upload'])->name('berkas.pegawai.upload');
         Route::delete('/berkas-pegawai/destroy', [BerkasPegawaiController::class, 'destroy'])->name('berkas.pegawai.destroy');
+        Route::get('/semua-berkas-pegawai', [BerkasPegawaiController::class, 'semuaBerkas'])->name('berkas.pegawai.semua');
+        Route::get('/semua-berkas-pegawai/{nik}', [BerkasPegawaiController::class, 'detailBerkas'])->name('berkas.pegawai.detail');
 
 
         //tes
@@ -588,6 +591,9 @@ Route::group(['middleware' => 'default'], function () {
 
         // LAB
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
+
+        // GIZI
+        Route::get('/monitoring-gizi', [MonitoringGiziController::class, 'index'])->name('gizi.monitoring');
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);

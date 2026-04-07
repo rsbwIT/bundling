@@ -147,4 +147,74 @@ class BerkasPegawaiController extends Controller
         return redirect()->route('berkas.pegawai')
             ->with('success', 'Berkas berhasil dihapus');
     }
+
+    /**
+     * NIK yang diizinkan mengakses semua berkas pegawai
+     */
+    private $allowedNikSemuaBerkas = [
+        '06893020003',
+        '0206020143',
+        '1121020577',
+    ];
+
+    /**
+     * Menampilkan daftar pegawai beserta jumlah berkasnya (Untuk admin/semua)
+     */
+    public function semuaBerkas()
+    {
+        $currentNik = session('auth')['id_user'];
+
+        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
+        $pegawaiList = DB::table('pegawai')
+            ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+            ->leftJoin('berkas_pegawai', 'pegawai.nik', '=', 'berkas_pegawai.nik')
+            ->selectRaw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
+            ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+            ->orderBy('pegawai.nama')
+            ->get();
+
+        return view('berkas-pegawai.semua', compact('pegawaiList'));
+    }
+
+    /**
+     * Menampilkan detail berkas untuk 1 pegawai
+     */
+    public function detailBerkas($nik)
+    {
+        $currentNik = session('auth')['id_user'];
+
+        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
+        $pegawai = DB::table('pegawai')
+            ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk', 'pegawai.tmp_lahir', 'pegawai.tgl_lahir', 'pegawai.photo')
+            ->where('pegawai.nik', $nik)
+            ->first();
+
+        if (!$pegawai) {
+            abort(404, 'Pegawai tidak ditemukan');
+        }
+
+        $berkas = DB::table('berkas_pegawai')
+            ->join('master_berkas_pegawai', 'berkas_pegawai.kode_berkas', '=', 'master_berkas_pegawai.kode')
+            ->select(
+                'berkas_pegawai.nik',
+                'berkas_pegawai.tgl_uploud',
+                'berkas_pegawai.kode_berkas',
+                'berkas_pegawai.berkas',
+                'master_berkas_pegawai.nama_berkas',
+                'master_berkas_pegawai.kategori',
+                'master_berkas_pegawai.no_urut'
+            )
+            ->where('berkas_pegawai.nik', $nik)
+            ->orderBy('master_berkas_pegawai.kategori')
+            ->orderBy('master_berkas_pegawai.no_urut')
+            ->get();
+
+        return view('berkas-pegawai.detail', compact('pegawai', 'berkas'));
+    }
 }

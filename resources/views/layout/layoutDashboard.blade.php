@@ -264,11 +264,13 @@
             transform: translateX(40px);
             z-index: 9999;
             transition: all 0.5s ease;
+            pointer-events: none;
         }
 
         .welcome-toast.show {
             opacity: 1;
             transform: translateX(0);
+            pointer-events: auto;
         }
 
         .welcome-toast strong {
@@ -308,12 +310,12 @@
 
     @stack('styles')
 </head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
 <div id="welcomeNotif" class="welcome-toast">
     <strong>👋 Selamat Datang</strong>
     <p>di <b>Bundling 2026</b></p>
 </div>
-
-<body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
         @php
             $getSeting = DB::table('setting')->select('setting.nama_instansi', 'setting.logo')->first();
@@ -1528,6 +1530,24 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-utensils"></i>
+                                <p>
+                                    Gizi
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('gizi.monitoring') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Monitoring Gizi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
                         {{-- MENU KEPEGAWAIAN --}}
                         <li class="nav-header user-panel"></li>
@@ -1547,6 +1567,12 @@
                                         <p>Upload Berkas Pegawai
                                             <span class="badge badge-danger right">NEW</span>
                                         </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('berkas.pegawai.semua') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Semua Berkas Pegawai</p>
                                     </a>
                                 </li>
                             </ul>
