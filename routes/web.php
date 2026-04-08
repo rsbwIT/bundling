@@ -133,12 +133,9 @@ use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
-<<<<<<< HEAD
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
-=======
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Gizi\MonitoringGiziController;
->>>>>>> 21ed1e609a94226a5dc377f2057c423f09a819c3
 
 
 
