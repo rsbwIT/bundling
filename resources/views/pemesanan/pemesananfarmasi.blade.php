@@ -9,6 +9,9 @@
     border-radius:12px;
     border:none;
     box-shadow:0 6px 20px rgba(0,0,0,.08);
+    display:flex;
+    flex-direction:column;
+    height:100%; /* full height card */
 }
 .card-modern .card-header{
     background:linear-gradient(135deg,#0d6efd,#20c997);
@@ -27,8 +30,26 @@
     font-weight:600;
 }
 
+/* ================= TABLE CONTAINER ================= */
+.card-body{
+    display:flex;
+    flex-direction:column;
+    flex:1 1 auto;
+    padding:0;
+}
+
+.table-scroll{
+    flex:1 1 auto;
+    width:100%;
+    overflow-x:auto;
+    overflow-y:auto;
+}
+
 /* ================= TABLE ================= */
 .table-modern{
+    width:100%;
+    min-width:1200px; /* tetap scrollable jika kolom banyak */
+    border-collapse:collapse;
     font-size:12.5px;
     white-space:nowrap;
 }
@@ -38,13 +59,17 @@
     text-transform:uppercase;
     letter-spacing:.4px;
     text-align:center;
+    border-bottom:2px solid #dee2e6;
+    white-space:nowrap;
 }
 .table-modern tbody td{
     padding:8px 10px;
     vertical-align:middle;
+    white-space:nowrap;
 }
 .table-modern tbody tr:hover{
     background:#eef4ff;
+    transition: background 0.2s ease;
 }
 
 /* ================= MONEY ================= */
@@ -53,6 +78,13 @@
     font-weight:700;
     color:#198754;
     text-align:right;
+    white-space:nowrap;
+}
+
+/* highlight selisih negatif */
+.text-danger{
+    color:#dc3545 !important;
+    font-weight:600;
 }
 
 /* ================= BADGE ================= */
@@ -64,6 +96,7 @@
 }
 .badge-soft-info{background:#e7f1ff;color:#084298;}
 .badge-soft-success{background:#d1e7dd;color:#0f5132;}
+.badge-soft-warning{background:#fff3cd;color:#856404;}
 
 /* ================= BUTTON ================= */
 .btn-sm{
@@ -93,20 +126,16 @@
     align-items:center;
     justify-content:center;
 }
-
-/* tombol modal  */
 .btn-modern-cancel{
     min-width:120px;
     border-radius:10px;
     font-weight:500;
     transition:all .2s ease;
 }
-
 .btn-modern-cancel:hover{
     background:#f8f9fa;
     transform:translateY(-1px);
 }
-
 .btn-modern-save{
     min-width:150px;
     border-radius:10px;
@@ -114,15 +143,12 @@
     box-shadow:0 4px 10px rgba(25,135,84,.25);
     transition:all .2s ease;
 }
-
 .btn-modern-save:hover{
     transform:translateY(-2px);
     box-shadow:0 6px 14px rgba(25,135,84,.35);
 }
 
 /* ================= COMPACT MODE ================= */
-
-/* ===== ALIGNMENT FIX ===== */
 .filter-box,
 .filter-action{
     background:#f8f9fa;
@@ -133,8 +159,6 @@
     flex-direction:column;
     justify-content:center;
 }
-
-/* label konsisten */
 .filter-label{
     font-size:11.5px;
     font-weight:600;
@@ -143,45 +167,32 @@
     align-items:center;
     gap:6px;
 }
-
-/* s.d sejajar */
 .filter-sd{
     font-size:11px;
     color:#6c757d;
     display:flex;
     align-items:center;
 }
-
-/* input compact */
 .filter-box .form-control,
 .filter-box .form-select{
     height:36px;
     font-size:12px;
     border-radius:9px;
 }
-
-/* action khusus */
 .filter-action{
     gap:8px;
 }
-
 .btn-filter,
 .btn-reset{
     height:36px;
     border-radius:9px;
     font-size:12px;
 }
-
-/* rapatkan jarak vertikal */
 .row.g-3{
     --bs-gutter-y:0.6rem;
 }
 
-</style>
-
-<style>
-    /* ================= SUMMARY CARD ================= */
-
+/* ================= SUMMARY CARD ================= */
 .summary-card{
     border-radius:16px;
     border:none;
@@ -189,20 +200,16 @@
     transition:all .25s ease;
     background:#fff;
 }
-
 .summary-card:hover{
     transform:translateY(-3px);
     box-shadow:0 10px 28px rgba(0,0,0,.10);
 }
-
 .summary-body{
     padding:18px 20px;
     display:flex;
     align-items:center;
     gap:16px;
 }
-
-/* Icon */
 .summary-icon{
     width:52px;
     height:52px;
@@ -214,7 +221,6 @@
     color:#fff;
     flex-shrink:0;
 }
-
 .summary-icon.bg-info{
     background:linear-gradient(135deg,#0dcaf0,#0d6efd);
 }
@@ -224,8 +230,6 @@
 .summary-icon.bg-warning{
     background:linear-gradient(135deg,#ffc107,#fd7e14);
 }
-
-/* Text */
 .summary-title{
     font-size:12px;
     font-weight:600;
@@ -233,37 +237,34 @@
     margin-bottom:4px;
     letter-spacing:.3px;
 }
-
 .summary-value{
     font-size:22px;
     font-weight:700;
     color:#212529;
     line-height:1;
 }
-
-/* Mobile biar tetap enak */
 @media (max-width: 576px){
     .summary-value{
         font-size:20px;
     }
 }
 
-/* ================= TABLE SCROLL ONLY ================= */
-.table-scroll{
-    max-height:460px;           /* tinggi scroll */
-    overflow-y:auto;
-    overflow-x:auto;
-}
-
-/* header tetap */
+/* ================= TABLE STICKY + SCROLL ================= */
 .table-scroll thead th{
     position:sticky;
     top:0;
     z-index:5;
     background:#f1f3f5;
 }
+.table-scroll tfoot td{
+    position: sticky;
+    bottom:0;
+    background:#f8f9fa;
+    z-index:5;
+    font-weight:700;
+}
 
-/* scrollbar halus */
+/* Scrollbar halus */
 .table-scroll::-webkit-scrollbar{
     width:8px;
     height:8px;
@@ -275,7 +276,6 @@
 .table-scroll::-webkit-scrollbar-track{
     background:#f8f9fa;
 }
-
 </style>
 
 <div class="container-fluid">
@@ -489,8 +489,8 @@
                     <tr>
                         <th>No Faktur</th>
                         <th>No Pajak</th>
+                        <th>No Pajak 8 Digit</th>
                         <th class="text-start">Supplier</th>
-                        <th>No Order</th>
                         <th class="text-start">Bangsal</th>
                         <th>Tgl Datang</th>
                         <th>Tgl Faktur</th>
@@ -505,6 +505,40 @@
                     </tr>
                 </thead>
 
+                @php
+                    // $grand_total = 0;
+                    // $grand_ppn_total = 0;
+                    // $grand_dpp = 0;
+                    // $grand_dpp_lain = 0;
+                    // $grand_ppn_dpp = 0;
+                    // $grand_selisih = 0;
+                
+
+                // ================= TOTAL FOOTER =================
+
+                $grand_total = $data->sum('tagihan');
+
+                $grand_dpp = $data->sum(function ($row) {
+                    return $row->tagihan > 0 ? round($row->tagihan / 1.11, 0) : 0;
+                });
+
+                $grand_ppn_total = $data->sum(function ($row) {
+                    return $row->tagihan > 0 ? round(($row->tagihan / 1.11) * 0.11, 0) : 0;
+                });
+
+                $grand_dpp_lain = $data->sum(function ($row) {
+                    $dpp = $row->tagihan > 0 ? round($row->tagihan / 1.11, 0) : 0;
+                    return round($dpp * 11 / 12, 0);
+                });
+
+                $grand_ppn_dpp = $data->sum(function ($row) {
+                    $dpp = $row->tagihan > 0 ? round($row->tagihan / 1.11, 0) : 0;
+                    $dpp_lain = round($dpp * 11 / 12, 0);
+                    return round($dpp_lain * 0.12, 0);
+                });
+
+                $grand_selisih = $grand_ppn_total - $grand_ppn_dpp;
+                @endphp
                 <tbody>
                 @forelse($data as $row)
 
@@ -547,8 +581,15 @@
                         @endif
                     </td>
 
+                    <td class="text-center">
+                        <span class="badge badge-soft badge-soft-success">
+                            {{ $row->no_pajak 
+                                ? substr(preg_replace('/[^0-9]/', '', $row->no_pajak), -8) 
+                                : '-' }}
+                        </span>
+                    </td>
+
                     <td>{{ $row->nama_suplier }}</td>
-                    <td class="text-center">{{ $row->no_order ?? '-' }}</td>
                     <td>{{ $row->nm_bangsal }}</td>
                     <td class="text-center">{{ date('d-m-Y',strtotime($row->tgl_pesan)) }}</td>
                     <td class="text-center">{{ date('d-m-Y',strtotime($row->tgl_faktur)) }}</td>
@@ -607,6 +648,37 @@
                     </tr>
                 @endforelse
                 </tbody>
+                <tfoot>
+                    <tr style="background:#f8f9fa; font-weight:700;">
+                        <td colspan="8" class="text-end">TOTAL</td>
+
+                        <td class="text-money text-end">
+                            {{ number_format($grand_total,0,',','.') }}
+                        </td>
+
+                        <td class="text-money text-end">
+                            {{ number_format($grand_ppn_total,0,',','.') }}
+                        </td>
+
+                        <td></td>
+
+                        <td class="text-money text-end">
+                            {{ number_format($grand_dpp,0,',','.') }}
+                        </td>
+
+                        <td class="text-money text-end">
+                            {{ number_format($grand_dpp_lain,0,',','.') }}
+                        </td>
+
+                        <td class="text-money text-end">
+                            {{ number_format($grand_ppn_dpp,0,',','.') }}
+                        </td>
+
+                        <td class="text-money text-end {{ $grand_selisih != 0 ? 'text-danger fw-bold' : '' }}">
+                            {{ number_format($grand_selisih,0,',','.') }}
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 </div>
@@ -731,6 +803,38 @@ $('input[type=checkbox]').on('change', function(){
     $(this).closest('.filter-box')
            .find('input[type=date]')
            .prop('disabled', !this.checked);
+});
+
+// 1️⃣ Scroll otomatis ke akhir tabel
+    var tableScroll = document.getElementById('tableScroll');
+    if(tableScroll){
+        tableScroll.scrollTop = tableScroll.scrollHeight;
+    }
+
+$('#modalPajak form').on('submit', function(e){
+    e.preventDefault(); // cegah reload halaman
+    let form = $(this);
+    let url = form.attr('action');
+    let data = form.serialize();
+
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: data,
+        success: function(res){
+            $('#modalPajak').modal('hide'); // tutup modal
+
+            // Update nomor pajak di tabel
+            let tombol = $('button[data-faktur="'+res.no_faktur+'"]');
+            tombol.replaceWith('<span class="badge badge-soft badge-soft-success">'+res.no_pajak+'</span>');
+
+            // Opsional: notifikasi
+            alert('Nomor pajak berhasil disimpan: ' + res.no_pajak);
+        },
+        error: function(err){
+            alert('Gagal menyimpan nomor pajak!');
+        }
+    });
 });
 </script>
 
