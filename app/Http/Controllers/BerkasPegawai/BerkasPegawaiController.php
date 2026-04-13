@@ -86,7 +86,7 @@ class BerkasPegawaiController extends Controller
             $master = DB::table('master_berkas_pegawai')
                 ->where('kode', $kode)
                 ->first();
-                
+
             $noUrut    = $master ? $master->no_urut : '00';
             $extension = $file->getClientOriginalExtension();
             $fileName  = $nik . '_' . $noUrut . '.' . $extension;
@@ -169,10 +169,24 @@ class BerkasPegawaiController extends Controller
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
+        // $pegawaiList = DB::table('pegawai')
+        //     ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+        //     ->leftJoin('berkas_pegawai', 'pegawai.nik', '=', 'berkas_pegawai.nik')
+        //     ->selectRaw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
+        //     ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+        //     ->orderBy('pegawai.nama')
+        //     ->get();
+
         $pegawaiList = DB::table('pegawai')
-            ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+            ->join('petugas', 'pegawai.nik', '=', 'petugas.nip') // ⬅️ ganti nik -> nip
             ->leftJoin('berkas_pegawai', 'pegawai.nik', '=', 'berkas_pegawai.nik')
-            ->selectRaw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
+            ->select(
+                'pegawai.nik',
+                'pegawai.nama',
+                'pegawai.jk',
+                DB::raw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
+            )
+            ->where('petugas.status', '1')
             ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
             ->orderBy('pegawai.nama')
             ->get();
