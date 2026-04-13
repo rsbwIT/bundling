@@ -95,7 +95,7 @@
                             <td>
                             </td>
                             <td class="text-center" width="350px">
-                                Bandar Lampung, {{ $item->tgl_perawatan }}<br>
+                               {{ $item->ResepNonracik->first()->kabupaten ?? '' }}, {{ $item->tgl_perawatan }}<br>
                                 <div class="barcode mt-1">
                                     <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $item->nm_dokter . ' ID ' . $item->kd_dokter . ' ' . $item->tgl_perawatan, 'QRCODE') }}"
                                         alt="barcode" width="80px" height="75px" />

@@ -777,10 +777,12 @@ class QueryResumeDll
                     'detail_pemberian_obat.tuslah',
                     'detail_pemberian_obat.total',
                     'kodesatuan.satuan',
-                    'aturan_pakai.aturan'
+                    'aturan_pakai.aturan',
+                    'setting.kabupaten'
                 )
                 ->join('databarang', 'detail_pemberian_obat.kode_brng', '=', 'databarang.kode_brng')
                 ->join('kodesatuan', 'databarang.kode_sat', '=', 'kodesatuan.kode_sat')
+                ->crossJoin('setting')
                 ->leftJoin('aturan_pakai', function ($join) {
                     $join->on('detail_pemberian_obat.tgl_perawatan', '=', 'aturan_pakai.tgl_perawatan')
                         ->on('detail_pemberian_obat.jam', '=', 'aturan_pakai.jam')
