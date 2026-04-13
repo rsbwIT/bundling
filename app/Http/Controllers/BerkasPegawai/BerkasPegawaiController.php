@@ -155,6 +155,7 @@ class BerkasPegawaiController extends Controller
         '06893020003',
         '0206020143',
         '1121020577',
+        '01091999',
     ];
 
     /**
