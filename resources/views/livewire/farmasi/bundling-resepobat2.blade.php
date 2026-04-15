@@ -12,15 +12,15 @@
                             wire:model.defer="carinomor">
                     </div>
 
-                    <!-- 🚀 INPUT MULTI SEP -->
+                    <!-- 🚀 MULTI SEP -->
                     <div class="col-lg-3">
                         <input type="text"
                             class="form-control form-control-sm"
-                            placeholder="Ketik SEP lalu Enter"
-                            wire:keydown.enter.prevent="addSep($event.target.value)"
-                            id="inputSep">
+                            id="inputSep"
+                            placeholder="Ketik / Paste SEP lalu Enter"
+                            wire:keydown.enter.prevent="addSep($event.target.value)">
 
-                        <!-- TAG LIST -->
+                        <!-- LIST SEP -->
                         <div class="mt-1">
                             @foreach ($sepList as $sep)
                                 <span class="badge badge-primary mr-1">
@@ -43,13 +43,15 @@
 
                     <!-- TANGGAL -->
                     <div class="col-lg-2">
-                        <input type="date" class="form-control form-control-sm"
+                        <input type="date"
+                            class="form-control form-control-sm"
                             wire:model.defer="tanggal1">
                     </div>
 
                     <div class="col-lg-2">
                         <div class="input-group">
-                            <input type="date" class="form-control form-control-sm"
+                            <input type="date"
+                                class="form-control form-control-sm"
                                 wire:model.defer="tanggal2">
                             <div class="input-group-append">
                                 <button class="btn btn-primary btn-sm" type="submit">
@@ -82,7 +84,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($getPasien as $item)
+                    @forelse ($getPasien as $item)
                         <tr>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
@@ -138,14 +140,20 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                Tidak ada data ditemukan
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- 🔥 CLEAR INPUT OTOMATIS -->
+<!-- CLEAR INPUT -->
 <script>
     window.addEventListener('clear-input', () => {
         document.getElementById('inputSep').value = '';

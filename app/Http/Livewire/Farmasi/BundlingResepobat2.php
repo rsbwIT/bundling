@@ -109,4 +109,16 @@ class BundlingResepobat2 extends Component
         // refresh data
         $this->getListPasienRalan();
     }
+    public function removeSep($sep)
+    {
+        // hapus SEP dari array
+        $this->sepList = array_values(
+            array_filter($this->sepList, function ($item) use ($sep) {
+                return $item !== $sep;
+            })
+        );
+
+        // refresh data
+        $this->getListPasienRalan();
+    }
 }
