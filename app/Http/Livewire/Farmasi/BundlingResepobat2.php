@@ -31,7 +31,9 @@ class BundlingResepobat2 extends Component
     public $getPasien;
     function getListPasienRalan()
     {
-        $cariKode = $this->carinomor;
+        $input = $this->carinomor;
+        $sepList = $this->sepList; // 🔥 ambil dari tag input
+
         $this->getPasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rkm_medis',
@@ -46,21 +48,33 @@ class BundlingResepobat2 extends Component
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
-            ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
-                    ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
-                    ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
+            // ->where(function ($query) use ($cariKode) {
+            //     $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+            //         ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
+            //         ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
+            //         ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
+            // })
+
+            ->when(!empty($sepList), function ($query) use ($sepList) {
+                $query->whereIn('bridging_sep.no_sep', $sepList);
             })
+            ->when(empty($sepList) && !empty($input), function ($query) use ($input) {
+                $query->where(function ($q) use ($input) {
+                    $q->where('reg_periksa.no_rkm_medis', 'LIKE', "%$input%")
+                        ->orWhere('pasien.nm_pasien', 'LIKE', "%$input%")
+                        ->orWhere('reg_periksa.no_rawat', 'LIKE', "%$input%");
+                });
+            })
+
             ->where('reg_periksa.status_lanjut', $this->status_lanjut)
             ->get();
-            $this->getPasien->map(function ($item) {
-                $item->fileFarmasi = DB::table('file_farmasi')
-                    ->select('file_farmasi.file')
-                    ->where('file_farmasi.jenis_berkas', '=', 'HASIL-FARMASI2')
-                    ->where('file_farmasi.no_rawat',$item->no_rawat)
-                    ->first();
-            });
+        $this->getPasien->map(function ($item) {
+            $item->fileFarmasi = DB::table('file_farmasi')
+                ->select('file_farmasi.file')
+                ->where('file_farmasi.jenis_berkas', '=', 'HASIL-FARMASI2')
+                ->where('file_farmasi.no_rawat', $item->no_rawat)
+                ->first();
+        });
     }
 
     function SimpanResep($no_rawat, $no_sep)
@@ -70,5 +84,29 @@ class BundlingResepobat2 extends Component
         } catch (\Throwable $th) {
             session()->flash('errorBundling', 'Gagal!! Menyimpan File Khanza');
         }
+    }
+
+    public $sepList = [];
+
+    public function addSep($value)
+    {
+        // 🔥 pecah berdasarkan koma, spasi, atau enter
+        $items = preg_split('/[\s,]+/', $value);
+
+        foreach ($items as $item) {
+            $item = trim($item);
+
+            if ($item && !in_array($item, $this->sepList)) {
+                $this->sepList[] = $item;
+            }
+        }
+
+        $this->sepList = array_values(array_unique($this->sepList));
+
+        // kosongkan input
+        $this->dispatchBrowserEvent('clear-input');
+
+        // refresh data
+        $this->getListPasienRalan();
     }
 }
