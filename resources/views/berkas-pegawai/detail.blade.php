@@ -100,7 +100,35 @@
         body.dark-mode .kategori-group-header td {
             background: #1a2f2a !important;
         }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: #fff;
+        }
     </style>
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
 
     <div class="row">
         {{-- KOLOM KIRI: INFO PEGAWAI --}}
@@ -161,7 +189,7 @@
                                         <th>Nama Berkas</th>
                                         <th>Tgl Upload</th>
                                         <th>File</th>
-                                        <th style="width: 100px;" class="text-center">Aksi</th>
+                                        <th style="width: 160px;" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -202,9 +230,20 @@
                                             </td>
                                             <td class="text-center">
                                                 <a href="http://192.168.5.88/webapps/penggajian/{{ $b->berkas }}"
-                                                    target="_blank" class="btn btn-view btn-sm" title="Lihat Berkas">
+                                                    target="_blank" class="btn btn-view btn-sm mr-1" title="Lihat Berkas">
                                                     <i class="fas fa-eye"></i> Lihat
                                                 </a>
+                                                <form action="{{ route('berkas.pegawai.destroy-admin') }}" method="POST"
+                                                    style="display: inline-block;"
+                                                    onsubmit="return confirm('Yakin ingin menghapus berkas ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="nik" value="{{ $b->nik }}">
+                                                    <input type="hidden" name="kode_berkas" value="{{ $b->kode_berkas }}">
+                                                    <button type="submit" class="btn btn-delete btn-sm" title="Hapus Berkas">
+                                                        <i class="fas fa-trash-alt"></i> Hapus
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach

@@ -33,6 +33,7 @@ class OperasiAndVK1 extends Controller
         $OperasiAndVK1 = DB::table('operasi')
             ->select(
                 'operasi.no_rawat',
+                'bridging_sep.no_sep',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'operasi.kode_paket',
@@ -118,6 +119,7 @@ class OperasiAndVK1 extends Controller
             ->join('petugas as bidan', 'bidan.nip', '=', 'operasi.bidan')
             ->join('petugas as instrumen', 'instrumen.nip', '=', 'operasi.instrumen')
             ->join('petugas as perawaat_resusitas', 'perawaat_resusitas.nip', '=', 'operasi.perawaat_resusitas')
+            ->leftJoin('bridging_sep', 'operasi.no_rawat', '=', 'bridging_sep.no_rawat')
             ->leftJoin('nota_jalan', 'operasi.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('nota_inap', 'operasi.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')

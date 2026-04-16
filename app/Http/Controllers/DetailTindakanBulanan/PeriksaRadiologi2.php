@@ -98,6 +98,7 @@ class PeriksaRadiologi2 extends Controller
         $getPeriksaRadiologi = DB::table('periksa_radiologi')
             ->select(
                 'periksa_radiologi.no_rawat',
+                'bridging_sep.no_sep',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'periksa_radiologi.kd_jenis_prw',
@@ -142,6 +143,7 @@ class PeriksaRadiologi2 extends Controller
             ->join('petugas', 'periksa_radiologi.nip', '=', 'petugas.nip')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->leftJoin('bridging_sep', 'periksa_radiologi.no_rawat', '=', 'bridging_sep.no_rawat')
             ->leftJoin('nota_jalan', 'periksa_radiologi.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('nota_inap', 'periksa_radiologi.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('bayar_piutang', 'periksa_radiologi.no_rawat', '=', 'bayar_piutang.no_rawat')
