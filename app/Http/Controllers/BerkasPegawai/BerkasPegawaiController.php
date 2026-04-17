@@ -206,7 +206,8 @@ class BerkasPegawaiController extends Controller
         //     ->get();
 
         $pegawaiList = DB::table('pegawai')
-            ->join('petugas', 'pegawai.nik', '=', 'petugas.nip') // ⬅️ ganti nik -> nip
+            ->leftJoin('petugas', 'pegawai.nik', '=', 'petugas.nip')
+            ->leftJoin('dokter', 'pegawai.nik', '=', 'dokter.kd_dokter')
             ->leftJoin('berkas_pegawai', 'pegawai.nik', '=', 'berkas_pegawai.nik')
             ->select(
                 'pegawai.nik',
@@ -214,7 +215,10 @@ class BerkasPegawaiController extends Controller
                 'pegawai.jk',
                 DB::raw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
             )
-            ->where('petugas.status', '1')
+            ->where(function ($q) {
+                $q->where('petugas.status', '1')
+                  ->orWhere('dokter.kd_dokter', '!=', null);
+            })
             ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
             ->orderBy('pegawai.nama')
             ->get();
