@@ -116,7 +116,7 @@ class BerkasPegawaiController extends Controller
 
             $noUrut    = $master ? $master->no_urut : '00';
             $extension = $file->getClientOriginalExtension();
-            $fileName  = $nik . '_' . $noUrut . '.' . $extension;
+            $fileName  = $nik . '_' . $kode . '_' . $noUrut . '.' . $extension;
 
             try {
                 Storage::disk('sftp_berkas')->put($fileName, file_get_contents($file));
@@ -319,7 +319,7 @@ class BerkasPegawaiController extends Controller
 
             $noUrut    = $master ? $master->no_urut : '00';
             $extension = $file->getClientOriginalExtension();
-            $fileName  = $nik . '_' . $noUrut . '.' . $extension;
+            $fileName  = $nik . '_' . $kode . '_' . $noUrut . '.' . $extension;
 
             try {
                 Storage::disk('sftp_berkas')->put($fileName, file_get_contents($file));
