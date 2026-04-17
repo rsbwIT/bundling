@@ -213,6 +213,7 @@ class BerkasPegawaiController extends Controller
                 'pegawai.nik',
                 'pegawai.nama',
                 'pegawai.jk',
+                'pegawai.photo',
                 DB::raw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
             )
             ->where(function ($q) {

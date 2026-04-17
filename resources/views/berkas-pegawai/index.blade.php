@@ -211,13 +211,13 @@
                 {{-- Info Pegawai --}}
                 <div class="pegawai-card">
                     <div class="d-flex align-items-center mb-3">
-                        @if ($pegawai->photo && $pegawai->photo != '')
-                            <img src="data:image/jpeg;base64,{{ base64_encode($pegawai->photo) }}"
+                        @if ($pegawai->photo && $pegawai->photo != '' && $pegawai->photo != 'pages/pegawai/photo/')
+                            <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $pegawai->photo }}"
                                 class="pegawai-avatar mr-3" alt="Foto">
                         @else
                             <div class="pegawai-avatar mr-3 d-flex align-items-center justify-content-center"
-                                style="background: rgba(255,255,255,0.25); font-size: 2.2rem;">
-                                <i class="fas fa-user-circle"></i>
+                                style="background: rgba(255,255,255,0.25); font-size: 2.2rem; border-radius: 50%; width: 80px; height: 80px; border: 3px solid rgba(255,255,255,0.5);">
+                                <i class="fas fa-user"></i>
                             </div>
                         @endif
                         <div>
@@ -340,10 +340,10 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <a href="http://192.168.5.88/webapps/penggajian/{{ $b->berkas }}"
-                                                    target="_blank" class="btn btn-view btn-sm mr-1" title="Lihat Berkas">
+                                                <button type="button" onclick="window.open('{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $b->berkas }}', '_blank')"
+                                                    class="btn btn-view btn-sm mr-1" title="Lihat Berkas">
                                                     <i class="fas fa-eye"></i>
-                                                </a>
+                                                </button>
                                                 <form action="{{ route('berkas.pegawai.destroy') }}" method="POST"
                                                     style="display: inline-block;"
                                                     onsubmit="return confirm('Yakin ingin menghapus berkas ini?')">

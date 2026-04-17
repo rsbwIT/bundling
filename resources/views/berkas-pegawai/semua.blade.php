@@ -57,6 +57,14 @@
             color: #fff;
         }
 
+        .pegawai-avatar-mini {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -130,6 +138,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;">No</th>
+                                        <th style="width: 60px;" class="text-center">Foto</th>
                                         <th>Nama Pegawai</th>
                                         <th>Jenis Kelamin</th>
                                         <th>Berkas Diupload</th>
@@ -141,6 +150,17 @@
                                     @foreach ($pegawaiList as $p)
                                         <tr>
                                             <td>{{ $no++ }}</td>
+                                            <td class="text-center">
+                                                @if ($p->photo && $p->photo != '' && $p->photo != 'pages/pegawai/photo/')
+                                                    <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $p->photo }}"
+                                                        class="pegawai-avatar-mini" alt="Foto">
+                                                @else
+                                                    <div class="pegawai-avatar-mini mx-auto d-flex align-items-center justify-content-center"
+                                                        style="background: #e2e8f0; color: #94a3b8; font-size: 1.2rem;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div style="font-weight: 600; color: #1e293b;">{{ $p->nama }}</div>
                                                 <small style="color: #64748b;"><i class="fas fa-id-badge mr-1"></i>{{ $p->nik }}</small>
