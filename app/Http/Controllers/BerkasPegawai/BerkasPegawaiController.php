@@ -220,7 +220,8 @@ class BerkasPegawaiController extends Controller
                 $q->where('petugas.status', '1')
                   ->orWhere('dokter.kd_dokter', '!=', null);
             })
-            ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
+            ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk', 'pegawai.photo')
+            ->orderByRaw("CASE WHEN pegawai.nik IN ('0519010353', 'D0000093', 'D0000121', 'D0000044', '0517010303', '1214010248', '10104020181') THEN 0 ELSE 1 END")
             ->orderBy('pegawai.nama')
             ->get();
 
