@@ -468,6 +468,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
         ->where('petugas.nama', 'not like', '(PR)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -501,6 +503,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(NS)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -534,6 +538,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(NS)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -567,6 +573,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(NS)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -599,6 +607,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(NS)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -631,6 +641,8 @@ class TestUmumController extends Controller
         ->where('petugas.nama', 'not like', '(NS)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
         ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -658,6 +670,12 @@ class TestUmumController extends Controller
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
+        ->where('petugas.nama', 'not like', '(PR)%')
+        ->where('petugas.nama', 'not like', '(LAB)%')
+        ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
+        ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
@@ -684,6 +702,12 @@ class TestUmumController extends Controller
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
+        ->where('petugas.nama', 'not like', '(PR)%')
+        ->where('petugas.nama', 'not like', '(LAB)%')
+        ->where('petugas.nama', 'not like', '(PS)%')
+        ->where('petugas.nama', 'not like', '(BD)%')
+        ->where('petugas.nama', 'not like', '(PDF)%')
+        ->where('petugas.nama', '!=', 'Dahyar')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {

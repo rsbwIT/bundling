@@ -193,9 +193,9 @@ class BerkasPegawaiController extends Controller
     {
         $currentNik = session('auth')['id_user'];
 
-        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-        }
+        // if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+        //     abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // }
 
         // $pegawaiList = DB::table('pegawai')
         //     ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk')
@@ -243,9 +243,9 @@ class BerkasPegawaiController extends Controller
     {
         $currentNik = session('auth')['id_user'];
 
-        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-        }
+        // if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+        //     abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // }
 
         $pegawai = DB::table('pegawai')
             ->select('pegawai.nik', 'pegawai.nama', 'pegawai.jk', 'pegawai.tmp_lahir', 'pegawai.tgl_lahir', 'pegawai.photo')
@@ -282,9 +282,9 @@ class BerkasPegawaiController extends Controller
     {
         $currentNik = session('auth')['id_user'];
 
-        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        // if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+        //     abort(403, 'Anda tidak memiliki akses.');
+        // }
 
         $request->validate([
             'nik'           => 'required|string',
@@ -356,9 +356,9 @@ class BerkasPegawaiController extends Controller
     {
         $currentNik = session('auth')['id_user'];
 
-        if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        // if (!in_array($currentNik, $this->allowedNikSemuaBerkas)) {
+        //     abort(403, 'Anda tidak memiliki akses.');
+        // }
 
         $nik         = $request->nik;
         $kode_berkas = $request->kode_berkas;
