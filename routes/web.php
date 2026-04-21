@@ -136,6 +136,7 @@ use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Gizi\MonitoringGiziController;
+use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
 
 
 
@@ -390,6 +391,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/infokamarinap', [InfoKamarInap::class, 'InfoKamarInap']);
         Route::get('/kirim-rawat-inap', [SirsBridgingController::class, 'kirimRawatInap']);
         Route::get('/sdm', [SdmController::class, 'ambilDataSdm']);
+        Route::get('/pasien-lebih-dari-1', [PasienLebihDari1::class, 'index']);
+        Route::get('/pasien-lebih-dari-1/detail', [PasienLebihDari1::class, 'detail']);
 
         // BERKAS PEGAWAI
         Route::get('/berkas-pegawai', [BerkasPegawaiController::class, 'index'])->name('berkas.pegawai');
