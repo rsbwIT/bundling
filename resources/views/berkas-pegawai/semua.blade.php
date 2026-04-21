@@ -42,6 +42,29 @@
             color: #fff;
         }
 
+        .btn-upload {
+            background: #dcfce7;
+            color: #16a34a;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-upload:hover {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .pegawai-avatar-mini {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -55,8 +78,47 @@
         body.dark-mode .berkas-table tbody tr:hover {
             background: #2f2f32 !important;
         }
+
+        .btn-upload-submit {
+            background: linear-gradient(135deg, #1d7969, #2aa58a);
+            border: none;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-upload-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(29, 121, 105, 0.3);
+            color: #fff;
+        }
     </style>
 
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-exclamation-triangle mr-2"></i><strong>Gagal Upload:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
     <div class="row">
         <div class="col-lg-12">
             <div class="card" style="border-radius: 16px; border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
@@ -76,10 +138,11 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;">No</th>
+                                        <th style="width: 60px;" class="text-center">Foto</th>
                                         <th>Nama Pegawai</th>
                                         <th>Jenis Kelamin</th>
                                         <th>Berkas Diupload</th>
-                                        <th style="width: 100px;" class="text-center">Aksi</th>
+                                        <th style="width: 200px;" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -87,6 +150,17 @@
                                     @foreach ($pegawaiList as $p)
                                         <tr>
                                             <td>{{ $no++ }}</td>
+                                            <td class="text-center">
+                                                @if ($p->photo && $p->photo != '' && $p->photo != 'pages/pegawai/photo/')
+                                                    <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $p->photo }}"
+                                                        class="pegawai-avatar-mini" alt="Foto">
+                                                @else
+                                                    <div class="pegawai-avatar-mini mx-auto d-flex align-items-center justify-content-center"
+                                                        style="background: #e2e8f0; color: #94a3b8; font-size: 1.2rem;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div style="font-weight: 600; color: #1e293b;">{{ $p->nama }}</div>
                                                 <small style="color: #64748b;"><i class="fas fa-id-badge mr-1"></i>{{ $p->nik }}</small>
@@ -105,9 +179,14 @@
                                             </td>
                                             <td class="text-center">
                                                 <a href="{{ route('berkas.pegawai.detail', $p->nik) }}"
-                                                    class="btn btn-view btn-sm" title="Lihat Berkas Pegawai">
-                                                    <i class="fas fa-folder-open"></i> Lihat Detail
+                                                    class="btn btn-view btn-sm mr-1" title="Lihat Berkas Pegawai">
+                                                    <i class="fas fa-folder-open"></i> Lihat
                                                 </a>
+                                                <button type="button" class="btn btn-upload btn-sm"
+                                                    onclick="openUploadModal('{{ $p->nik }}', '{{ addslashes($p->nama) }}')"
+                                                    title="Upload Berkas">
+                                                    <i class="fas fa-cloud-upload-alt"></i> Upload
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -121,6 +200,50 @@
                         </div>
                     @endif
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL UPLOAD --}}
+    <div class="modal fade" id="modalUpload" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #1d7969, #2aa58a); border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Berkas: <span id="modalNamaPegawai"></span>
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form action="{{ route('berkas.pegawai.upload-admin') }}" method="POST" enctype="multipart/form-data" id="formUploadAdmin">
+                    @csrf
+                    <input type="hidden" name="nik" id="modalNik">
+                    <div class="modal-body">
+                        {{-- Pilih Kategori --}}
+                        <div class="form-group">
+                            <label style="font-weight: 600; font-size: 0.9rem; color: #475569;">Kategori</label>
+                            <select id="modalSelectKategori" class="form-control" style="border-radius: 10px;">
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach ($kategoriList as $kat)
+                                    <option value="{{ $kat }}">{{ $kat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Daftar berkas per kategori --}}
+                        <div id="modalBerkasContainer" style="display: none;">
+                            <label class="mb-2" style="font-weight: 600; font-size: 0.9rem; color: #475569;">
+                                <i class="fas fa-list mr-1"></i> Pilih file untuk masing-masing berkas:
+                            </label>
+                            <div id="modalBerkasItems"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 10px;">Batal</button>
+                        <button type="submit" id="modalBtnSubmit" class="btn btn-upload-submit" style="display: none;">
+                            <i class="fas fa-upload mr-2"></i>Upload Semua Berkas
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -138,6 +261,150 @@
     <script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
     <script>
+        // === DATA MASTER BERKAS ===
+        const masterBerkasGrouped = @json($masterBerkasGrouped);
+
+        function openUploadModal(nik, nama) {
+            document.getElementById('modalNik').value = nik;
+            document.getElementById('modalNamaPegawai').textContent = nama;
+            document.getElementById('modalSelectKategori').value = '';
+            document.getElementById('modalBerkasContainer').style.display = 'none';
+            document.getElementById('modalBerkasItems').innerHTML = '';
+            document.getElementById('modalBtnSubmit').style.display = 'none';
+            $('#modalUpload').modal('show');
+        }
+
+        document.getElementById('modalSelectKategori').addEventListener('change', function() {
+            const kategori = this.value;
+            const container = document.getElementById('modalBerkasContainer');
+            const items = document.getElementById('modalBerkasItems');
+            const btnSubmit = document.getElementById('modalBtnSubmit');
+            items.innerHTML = '';
+
+            if (!kategori) {
+                container.style.display = 'none';
+                btnSubmit.style.display = 'none';
+                return;
+            }
+
+            const list = masterBerkasGrouped[kategori] || [];
+
+            list.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = 'mb-3';
+                row.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">
+                            <span style="color: #1d7969; font-weight: 700;">${item.no_urut}.</span> ${item.nama_berkas}
+                        </span>
+                        <span class="modal-file-status-${idx}" style="font-size: 0.75rem; color: #94a3b8;">Belum dipilih</span>
+                    </div>
+                    <div class="drop-zone-modal" data-idx="${idx}"
+                        onclick="document.getElementById('modalFileInput_${idx}').click()"
+                        style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; text-align: center;
+                               cursor: pointer; transition: all 0.2s; background: #fff;">
+                        <span class="modal-drop-label-${idx}" style="color: #94a3b8; font-size: 0.8rem;">
+                            <i class="fas fa-cloud-upload-alt mr-1"></i> Klik atau seret file ke sini
+                        </span>
+                        <span class="modal-drop-file-${idx}" style="display: none; color: #1d7969; font-weight: 600; font-size: 0.8rem;">
+                            <i class="fas fa-check-circle mr-1"></i> <span class="modal-drop-filename-${idx}"></span>
+                        </span>
+                    </div>
+                    <input type="hidden" name="kode_berkas[]" value="${item.kode}" disabled>
+                    <input type="file" name="files[]" id="modalFileInput_${idx}"
+                        accept=".pdf,.jpg,.jpeg,.png" style="display: none;"
+                        onchange="onModalFileSelected(this, ${idx})">
+                `;
+                items.appendChild(row);
+
+                // Drag & drop
+                const dropZone = row.querySelector('.drop-zone-modal');
+                ['dragenter', 'dragover'].forEach(t => {
+                    dropZone.addEventListener(t, e => {
+                        e.preventDefault();
+                        dropZone.style.borderColor = '#1d7969';
+                        dropZone.style.background = '#f0fdf4';
+                    });
+                });
+                ['dragleave', 'drop'].forEach(t => {
+                    dropZone.addEventListener(t, e => {
+                        e.preventDefault();
+                        dropZone.style.borderColor = '#cbd5e1';
+                        dropZone.style.background = '#fff';
+                    });
+                });
+                dropZone.addEventListener('drop', e => {
+                    const fileInput = document.getElementById('modalFileInput_' + idx);
+                    fileInput.files = e.dataTransfer.files;
+                    onModalFileSelected(fileInput, idx);
+                });
+            });
+
+            container.style.display = 'block';
+            btnSubmit.style.display = 'block';
+        });
+
+        function onModalFileSelected(input, idx) {
+            const statusEl = document.querySelector('.modal-file-status-' + idx);
+            const hiddenInput = input.previousElementSibling;
+            const dropLabel = document.querySelector('.modal-drop-label-' + idx);
+            const dropFile = document.querySelector('.modal-drop-file-' + idx);
+            const dropFilename = document.querySelector('.modal-drop-filename-' + idx);
+            const dropZone = input.closest('.mb-3').querySelector('.drop-zone-modal');
+
+            if (input.files[0]) {
+                statusEl.textContent = formatBytes(input.files[0].size);
+                statusEl.style.color = '#1d7969';
+                hiddenInput.disabled = false;
+                dropLabel.style.display = 'none';
+                dropFile.style.display = 'inline';
+                dropFilename.textContent = input.files[0].name;
+                dropZone.style.borderColor = '#1d7969';
+                dropZone.style.borderStyle = 'solid';
+                dropZone.style.background = '#f0fdf4';
+            } else {
+                statusEl.textContent = 'Belum dipilih';
+                statusEl.style.color = '#94a3b8';
+                hiddenInput.disabled = true;
+                dropLabel.style.display = 'inline';
+                dropFile.style.display = 'none';
+                dropZone.style.borderColor = '#cbd5e1';
+                dropZone.style.borderStyle = 'dashed';
+                dropZone.style.background = '#fff';
+            }
+        }
+
+        // Before submit: disable empty file inputs
+        document.getElementById('formUploadAdmin')?.addEventListener('submit', function(e) {
+            const fileInputs = this.querySelectorAll('input[type="file"]');
+            let hasFile = false;
+
+            fileInputs.forEach((fi) => {
+                const hidden = fi.previousElementSibling;
+                if (!fi.files || fi.files.length === 0) {
+                    fi.disabled = true;
+                    hidden.disabled = true;
+                } else {
+                    hidden.disabled = false;
+                    hasFile = true;
+                }
+            });
+
+            if (!hasFile) {
+                e.preventDefault();
+                alert('Pilih minimal satu file untuk diupload');
+            }
+        });
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // DataTable
         $(function () {
             if ($("#tableSemuaBerkas").length) {
                 $("#tableSemuaBerkas").DataTable({

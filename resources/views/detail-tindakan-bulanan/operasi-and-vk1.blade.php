@@ -18,6 +18,7 @@
                     <tr>
                         <th>No. </th>
                         <th>No. Rawat</th>
+                        <th>No SEP</th>
                         <th>No Nota</th>
                         <th>Tgl Bayar</th>
                         <th>No. Rekam Medis</th>
@@ -98,6 +99,7 @@
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->no_sep }}</td>
                             <td>{{ $item->no_nota }}</td>
                             <td>{{ $item->tanggal_nota ?? $item->tgl_bayar }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>

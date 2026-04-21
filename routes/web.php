@@ -400,6 +400,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::delete('/berkas-pegawai/destroy', [BerkasPegawaiController::class, 'destroy'])->name('berkas.pegawai.destroy');
         Route::get('/semua-berkas-pegawai', [BerkasPegawaiController::class, 'semuaBerkas'])->name('berkas.pegawai.semua');
         Route::get('/semua-berkas-pegawai/{nik}', [BerkasPegawaiController::class, 'detailBerkas'])->name('berkas.pegawai.detail');
+        Route::post('/semua-berkas-pegawai/upload', [BerkasPegawaiController::class, 'uploadForPegawai'])->name('berkas.pegawai.upload-admin');
+        Route::delete('/semua-berkas-pegawai/destroy', [BerkasPegawaiController::class, 'destroyForPegawai'])->name('berkas.pegawai.destroy-admin');
 
 
         //tes

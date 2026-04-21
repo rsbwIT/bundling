@@ -53,6 +53,7 @@ class PeriksaLabPABulanan extends Controller
         $query = DB::table('periksa_lab')
             ->select(
                 'periksa_lab.no_rawat',
+                'bridging_sep.no_sep',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'periksa_lab.kd_jenis_prw',
@@ -84,6 +85,7 @@ class PeriksaLabPABulanan extends Controller
             ->leftJoin('dokter as dokter_perujuk', 'periksa_lab.dokter_perujuk', '=', 'dokter_perujuk.kd_dokter')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
             ->leftJoin('bayar_piutang', 'bayar_piutang.no_rawat', '=', 'periksa_lab.no_rawat')
+            ->leftJoin('bridging_sep', 'periksa_lab.no_rawat', '=', 'bridging_sep.no_rawat')
             ->leftJoin('nota_jalan', 'periksa_lab.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('nota_inap', 'periksa_lab.no_rawat', '=', 'nota_inap.no_rawat')
             ->where('periksa_lab.kategori', 'PA');

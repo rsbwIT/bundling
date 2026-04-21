@@ -180,6 +180,30 @@
         }
     </style>
 
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px;">
+            <i class="fas fa-exclamation-triangle mr-2"></i><strong>Gagal Upload:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    @endif
+
     <div class="row">
         {{-- KOLOM KIRI: INFO PEGAWAI & UPLOAD --}}
         <div class="col-lg-4">
@@ -187,13 +211,13 @@
                 {{-- Info Pegawai --}}
                 <div class="pegawai-card">
                     <div class="d-flex align-items-center mb-3">
-                        @if ($pegawai->photo && $pegawai->photo != '')
-                            <img src="data:image/jpeg;base64,{{ base64_encode($pegawai->photo) }}"
+                        @if ($pegawai->photo && $pegawai->photo != '' && $pegawai->photo != 'pages/pegawai/photo/')
+                            <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $pegawai->photo }}"
                                 class="pegawai-avatar mr-3" alt="Foto">
                         @else
                             <div class="pegawai-avatar mr-3 d-flex align-items-center justify-content-center"
-                                style="background: rgba(255,255,255,0.25); font-size: 2.2rem;">
-                                <i class="fas fa-user-circle"></i>
+                                style="background: rgba(255,255,255,0.25); font-size: 2.2rem; border-radius: 50%; width: 80px; height: 80px; border: 3px solid rgba(255,255,255,0.5);">
+                                <i class="fas fa-user"></i>
                             </div>
                         @endif
                         <div>
@@ -316,10 +340,10 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <a href="http://192.168.5.88/webapps/penggajian/{{ $b->berkas }}"
-                                                    target="_blank" class="btn btn-view btn-sm mr-1" title="Lihat Berkas">
+                                                <button type="button" onclick="window.open('{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $b->berkas }}', '_blank')"
+                                                    class="btn btn-view btn-sm mr-1" title="Lihat Berkas">
                                                     <i class="fas fa-eye"></i>
-                                                </a>
+                                                </button>
                                                 <form action="{{ route('berkas.pegawai.destroy') }}" method="POST"
                                                     style="display: inline-block;"
                                                     onsubmit="return confirm('Yakin ingin menghapus berkas ini?')">
