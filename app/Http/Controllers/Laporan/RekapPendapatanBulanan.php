@@ -188,7 +188,7 @@ class RekapPendapatanBulanan extends Controller
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
-                
+
             )
             ->where('b.status', 'Ralan Dokter')
             ->where('p.status', 'lunas')
@@ -746,7 +746,7 @@ class RekapPendapatanBulanan extends Controller
             $potonganRalan;
 
 
-        return view('laporan.rekapPendapatanBulanan', compact(
+        return view('laporan.rekappendapatanbulanan', compact(
             'tgl1',
             'tgl2',
             'registerRanap',
