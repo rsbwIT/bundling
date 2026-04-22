@@ -392,9 +392,9 @@
                             @php
                                 $auth = session('user');
 
-                                // Sesuaikan field di bawah ini dengan yang ada di session
+                                // Ambil foto berdasarkan nama pegawai
                                 $foto = DB::table('pegawai')
-                                    ->where('id', $auth->id ?? null)
+                                    ->where('nama', $auth->nama)
                                     ->value('photo');
                             @endphp
 
@@ -409,9 +409,12 @@
                                     alt="User Image"
                                     style="width:35px; height:35px; object-fit:cover;">
                             @endif
+                        @else
+                            <img src="{{ asset('img/user.jpg') }}"
+                                class="img-circle elevation-2"
+                                alt="User Image">
                         @endif
                     </div>
-
                     <div class="info">
                         <a href="#" class="d-block">
                             @if (session()->has('user'))
