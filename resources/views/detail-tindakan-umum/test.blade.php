@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Test Table UMUM')
+@section('title', 'JM Umum')
 
 @section('konten')
     <div class="card">
@@ -18,89 +18,53 @@
                         <th rowspan="3" class="align-middle">No</th>
                         <th rowspan="3" class="align-middle">Kode</th>
                         <th rowspan="3" class="align-middle">KODE ID KHANZA</th>
-                        <th rowspan="3" class="align-middle">NAMA KHANZA</th>
                         <th rowspan="3" class="align-middle">Nama</th>
-                        <th colspan="4" class="align-middle text-center">UMUM</th>
+                        <th colspan="3" class="align-middle text-center">UMUM</th>
                     </tr>
                     <tr>
-                        <th colspan="3" class="align-middle text-center">UMUM</th>
+                        <th colspan="2" class="align-middle text-center">UMUM</th>
                         <th rowspan="2" class="align-middle">TOTAL</th>
                     </tr>
                     <tr>
                         <th class="align-middle">Rawat Inap</th>
                         <th class="align-middle">Rawat Jalan</th>
-                        <th class="align-middle">IGD</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php $no = 1; @endphp
-                    @forelse ($dataCombined as $item)
+                    @forelse ($mappedTemplate as $item)
                         <tr>
                             <td>{{ $no++ }}</td>
-                            <td>{{ $item->kd_dokter }}</td>
-                            <td></td>
-                            <td class="text-left"></td>
-                            <td class="text-left">{{ $item->nm_dokter }}</td>
+                            <td>{{ $item->kode_template }}</td>
+                            <td>{{ $item->kode_id_khanza }}</td>
+                            <td class="text-left">{{ $item->nama_template }}</td>
                             <td class="text-right">{{ number_format($item->total_ranap) }}</td>
                             <td class="text-right">{{ number_format($item->total_ralan) }}</td>
-                            <td class="text-right">{{ number_format($item->total_igd) }}</td>
                             <td class="text-right">{{ number_format($item->grand_total) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9">Tidak ada data di rentang waktu ini.</td>
+                            <td colspan="7">Tidak ada data di rentang waktu ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
+                <tfoot style="background-color: #e9ecef; color: black; font-weight: bold;">
+                    <tr>
+                        <td colspan="4" class="text-right align-middle">TOTAL KESELURUHAN</td>
+                        <td class="text-right">{{ number_format($mappedTemplate->sum('total_ranap')) }}</td>
+                        <td class="text-right">{{ number_format($mappedTemplate->sum('total_ralan')) }}</td>
+                        <td class="text-right">{{ number_format($mappedTemplate->sum('grand_total')) }}</td>
+                    </tr>
+                </tfoot>
             </table>
 
-            @if (isset($dataParamedis) && $dataParamedis->count() > 0)
-                <h5 class="mt-4 mb-2"><strong>Paramedis</strong></h5>
-                <table class="table table-sm table-bordered table-striped table-responsive text-xs text-center" style="white-space: nowrap;" id="tableParamedis">
-                    <thead style="background-color: #a2d5ab; color: black;">
-                        <tr>
-                            <th rowspan="3" class="align-middle">No</th>
-                            <th rowspan="3" class="align-middle">NIP</th>
-                            <th rowspan="3" class="align-middle">KODE ID KHANZA</th>
-                            <th rowspan="3" class="align-middle">NAMA KHANZA</th>
-                            <th rowspan="3" class="align-middle">Nama</th>
-                            <th colspan="4" class="align-middle text-center">UMUM</th>
-                        </tr>
-                        <tr>
-                            <th colspan="3" class="align-middle text-center">UMUM</th>
-                            <th rowspan="2" class="align-middle">TOTAL</th>
-                        </tr>
-                        <tr>
-                            <th class="align-middle">Rawat Inap</th>
-                            <th class="align-middle">Rawat Jalan</th>
-                            <th class="align-middle">IGD</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $noPr = 1; @endphp
-                        @foreach ($dataParamedis as $item)
-                            <tr>
-                                <td>{{ $noPr++ }}</td>
-                                <td>{{ $item->kd_dokter }}</td>
-                                <td></td>
-                                <td class="text-left"></td>
-                                <td class="text-left">{{ $item->nm_dokter }}</td>
-                                <td class="text-right">{{ number_format($item->total_ranap) }}</td>
-                                <td class="text-right">{{ number_format($item->total_ralan) }}</td>
-                                <td class="text-right">{{ number_format($item->total_igd) }}</td>
-                                <td class="text-right">{{ number_format($item->grand_total) }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
+
     </div>
     
     <style>
         /* Agar border tabel terlihat jelas seperti di Excel */
-        #tableToCopy thead th,
-        #tableParamedis thead th {
+        /* Agar border tabel terlihat jelas seperti di Excel */
+        #tableToCopy thead th {
             border: 1px solid #777;
         }
     </style>
