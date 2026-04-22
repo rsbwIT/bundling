@@ -387,20 +387,34 @@
             <div class="sidebar">
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="/img/user.jpg" class="img-circle elevation-2" alt="User Image" />
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">
-                            @if (session()->has('user'))
-                                @php
-                                    $auth = session('user');
-                                @endphp
-                                {{ $auth->nama }}
-                            @endif
-                        </a>
-                    </div>
-                </div>
+    <div class="image">
+        @if (session()->has('user'))
+            @php
+                $auth = session('user');
+            @endphp
+
+            @if (isset($auth->photo) && $auth->photo != '' && $auth->photo != 'pages/pegawai/photo/')
+                <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $auth->photo }}"
+                     class="img-circle elevation-2"
+                     alt="User Image"
+                     style="width:35px; height:35px; object-fit:cover;">
+            @else
+                <img src="{{ asset('img/user.jpg') }}"
+                     class="img-circle elevation-2"
+                     alt="User Image"
+                     style="width:35px; height:35px; object-fit:cover;">
+            @endif
+        @endif
+    </div>
+
+    <div class="info">
+        <a href="#" class="d-block">
+            @if (session()->has('user'))
+                {{ $auth->nama }}
+            @endif
+        </a>
+    </div>
+</div>
                 <nav class="mt-2 sidebar-nav">
                     <ul id="sidebarnav" class="nav nav-pills nav-sidebar flex-column" data-widget="treeview"
                         role="menu" data-accordion="false">
