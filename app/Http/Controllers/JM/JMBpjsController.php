@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\CacheService;
 
-class JMUmumController extends Controller
+class JMBpjsController extends Controller
 {
     protected $cacheService;
 
@@ -151,7 +151,7 @@ class JMUmumController extends Controller
 
     public function index(Request $request)
     {
-        $actionCari = '/jm-umum';
+        $actionCari = '/jm-bpjs';
         $dokter = $this->cacheService->getDokter();
 
         $cariNomor = $request->cariNomor;
@@ -174,7 +174,7 @@ class JMUmumController extends Controller
         ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
         ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
         ->where('billing.no','=','No.Nota')
-        ->where('penjab.kd_pj','UMU')
+        ->where('penjab.kd_pj','BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ( $kdDokter) {
@@ -209,7 +209,7 @@ class JMUmumController extends Controller
         ->join('petugas','rawat_jl_drpr.nip','=','petugas.nip')
         ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
         ->where('billing.no','=','No.Nota')
-        ->where('penjab.kd_pj','UMU')
+        ->where('penjab.kd_pj','BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ( $kdDokter) {
@@ -241,7 +241,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -273,7 +273,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -321,7 +321,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
@@ -355,7 +355,7 @@ class JMUmumController extends Controller
         ->join('petugas', 'rawat_inap_drpr.nip', '=', 'petugas.nip')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
@@ -386,7 +386,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
@@ -417,7 +417,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
@@ -450,7 +450,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -485,7 +485,7 @@ class JMUmumController extends Controller
         ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -517,7 +517,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -549,7 +549,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($kdDokter) {
@@ -628,7 +628,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->where(function($q) {
             $q->where(function($q2) {
@@ -667,7 +667,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->where(function($q) {
             $q->where(function($q2) {
@@ -706,7 +706,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->where(function($q) {
             $q->where(function($q2) {
@@ -745,7 +745,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->where(function($q) {
             $q->where(function($q2) {
@@ -784,7 +784,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where(function($q) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
@@ -822,7 +822,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where(function($q) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
@@ -859,7 +859,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('petugas.nama', 'not like', '(PR)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
@@ -891,7 +891,7 @@ class JMUmumController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'UMU')
+        ->where('penjab.kd_pj', 'BPJ')
         ->where('petugas.nama', 'not like', '(PR)%')
         ->where('petugas.nama', 'not like', '(LAB)%')
         ->where('petugas.nama', 'not like', '(PS)%')
@@ -1079,7 +1079,7 @@ class JMUmumController extends Controller
             ];
         })->values();
 
-        return view('detail-tindakan-umum.jm-umum', [
+        return view('detail-tindakan-umum.jm-bpjs', [
             'actionCari'=> $actionCari,
             'dokter'=> $dokter,
             'mappedTemplate' => $mappedTemplate,

@@ -15,6 +15,7 @@ use App\Http\Controllers\Bpjs\BpjsController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
 use App\Http\Controllers\JM\JMUmumController;
+use App\Http\Controllers\JM\JMBpjsController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Laporan\BayarPiutang;
@@ -167,6 +168,7 @@ Route::group(['middleware' => 'default'], function () {
     Route::group(['middleware' => 'auth-rsbw'], function () {
         Route::get('/test', [TestController::class, 'Test']);
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
+        Route::get('/jm-bpjs', [JMBpjsController::class, 'index']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');

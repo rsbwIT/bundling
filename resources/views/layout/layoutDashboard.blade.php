@@ -826,6 +826,16 @@
                                         </a>
                                     </li>
                                 </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/jm-bpjs') }}" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>
+                                                JM Medis (BPJS)
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         @endif
                         {{-- MENU CASEMIX --}}

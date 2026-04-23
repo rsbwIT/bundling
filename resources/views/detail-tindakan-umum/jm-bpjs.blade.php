@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'JM Umum')
+@section('title', 'JM BPJS')
 
 @section('konten')
     <div class="card">
@@ -12,17 +12,18 @@
                     </button>
                 </div>
             </div>
-            <table class="table table-sm table-bordered table-striped table-responsive text-xs text-center" style="white-space: nowrap;" id="tableToCopy">
-                <thead style="background-color: #b4a7d6; color: black;">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped text-xs text-center w-100" style="white-space: nowrap; width: 100%;" id="tableToCopy">
+                    <thead style="background-color: #b4a7d6; color: black;">
                     <tr>
                         <th rowspan="3" class="align-middle">No</th>
                         <th rowspan="3" class="align-middle">Kode</th>
                         <th rowspan="3" class="align-middle">KODE ID KHANZA</th>
                         <th rowspan="3" class="align-middle">Nama</th>
-                        <th colspan="3" class="align-middle text-center">UMUM</th>
+                        <th colspan="3" class="align-middle text-center">BPJS</th>
                     </tr>
                     <tr>
-                        <th colspan="2" class="align-middle text-center">UMUM</th>
+                        <th colspan="2" class="align-middle text-center">BPJS</th>
                         <th rowspan="2" class="align-middle">TOTAL</th>
                     </tr>
                     <tr>
@@ -57,6 +58,7 @@
                     </tr>
                 </tfoot>
             </table>
+            </div>
 
 
     </div>
