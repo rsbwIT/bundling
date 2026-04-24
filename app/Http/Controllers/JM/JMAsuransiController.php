@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\CacheService;
 
-class JMBpjsController extends Controller
+class JMAsuransiController extends Controller
 {
     protected $cacheService;
 
@@ -151,20 +151,21 @@ class JMBpjsController extends Controller
 
     public function index(Request $request)
     {
-        $actionCari = '/jm-bpjs';
+        $actionCari = '/jm-asuransi';
         $dokter = $this->cacheService->getDokter();
 
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
         $tanggl2 = $request->tgl2 ?? date('Y-m-t');
         $kdDokter = ($request->input('kdDokter')  == null) ? "" : explode(',', $request->input('kdDokter'));
+        $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
 
         // 1. Query rawat_jl_dr (Dokter Saja)
         $queryDr = DB::table('pasien')
         ->select(
             'rawat_jl_dr.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(rawat_jl_dr.tarif_tindakandr) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN rawat_jl_dr.tarif_tindakandr * 0.5 ELSE rawat_jl_dr.tarif_tindakandr END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_dr','reg_periksa.no_rawat','=','rawat_jl_dr.no_rawat')
@@ -172,11 +173,19 @@ class JMBpjsController extends Controller
         ->join('jns_perawatan','rawat_jl_dr.kd_jenis_prw','=','jns_perawatan.kd_jenis_prw')
         ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
         ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
-        ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
-        ->where('billing.no','=','No.Nota')
-        ->where('penjab.kd_pj','BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ( $kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_jl_dr.kd_dokter', $kdDokter);
@@ -198,7 +207,7 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_jl_drpr.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(rawat_jl_drpr.tarif_tindakandr) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN rawat_jl_drpr.tarif_tindakandr * 0.5 ELSE rawat_jl_drpr.tarif_tindakandr END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_drpr','reg_periksa.no_rawat','=','rawat_jl_drpr.no_rawat')
@@ -207,11 +216,19 @@ class JMBpjsController extends Controller
         ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
         ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
         ->join('petugas','rawat_jl_drpr.nip','=','petugas.nip')
-        ->join('billing','billing.no_rawat','=','reg_periksa.no_rawat')
-        ->where('billing.no','=','No.Nota')
-        ->where('penjab.kd_pj','BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ( $kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
@@ -228,58 +245,32 @@ class JMBpjsController extends Controller
         })
         ->groupBy('rawat_jl_drpr.kd_dokter', 'dokter.nm_dokter');
 
-        // 2b. Query periksa_radiologi Ralan - JM Perujuk (tarif_perujuk)
-        $queryRadPerujukRalan = DB::table('periksa_radiologi')
-        ->select(
-            'periksa_radiologi.dokter_perujuk as kd_dokter',
-            'dokter.nm_dokter',
-            DB::raw("SUM(periksa_radiologi.tarif_perujuk) as total_ralan")
-        )
-        ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_radiologi.dokter_perujuk', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
-        ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) {
-                $query->whereIn('periksa_radiologi.dokter_perujuk', $kdDokter);
-            }
-        })
-        ->where(function ($query) use ($cariNomor) {
-            if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
-            }
-        })
-        ->groupBy('periksa_radiologi.dokter_perujuk', 'dokter.nm_dokter');
-
-        // 2c. Query periksa_radiologi Ralan - JM PJ Rad (tarif_tindakan_dokter)
-        $queryRadDokterRalan = DB::table('periksa_radiologi')
+        // 2b. Query periksa_radiologi Ralan (Gabungan)
+        $queryRadRalan = DB::table('periksa_radiologi')
         ->select(
             'periksa_radiologi.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(periksa_radiologi.tarif_tindakan_dokter) as total_ralan")
+            DB::raw("SUM(periksa_radiologi.tarif_perujuk + periksa_radiologi.tarif_tindakan_dokter) as total_ralan")
         )
         ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'periksa_radiologi.kd_dokter', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
-        ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) {
-                $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
             }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
@@ -292,11 +283,74 @@ class JMBpjsController extends Controller
         })
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
 
+        // 2d. Query periksa_lab Lab PA Ralan - JM Perujuk (tarif_perujuk)
+        $queryLabPerujukRalan = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.dokter_perujuk as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_perujuk) as total_ralan")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
+
+        // 2e. Query periksa_lab Lab PA Ralan - JM PJ Lab (tarif_tindakan_dokter)
+        $queryLabDokterRalan = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_tindakan_dokter) as total_ralan")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
+
         // Gabungkan semua query ralan (Union), ambil datanya, dan jumlahkan lagi di level Collection
         $results = $queryDr
             ->unionAll($queryDrPr)
-            ->unionAll($queryRadPerujukRalan)
-            ->unionAll($queryRadDokterRalan)
+            ->unionAll($queryRadRalan)
+            ->unionAll($queryLabPerujukRalan)
+            ->unionAll($queryLabDokterRalan)
             ->get();
 
         $dataRalan = $results->groupBy('kd_dokter')->map(function ($row) {
@@ -312,17 +366,25 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_inap_dr.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(rawat_inap_dr.tarif_tindakandr) as total_ranap")
+            DB::raw("SUM(CASE WHEN rawat_inap_dr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan_inap.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%(RSBW)%' THEN rawat_inap_dr.tarif_tindakandr * 0.5 ELSE rawat_inap_dr.tarif_tindakandr END) as total_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_inap_dr', 'rawat_inap_dr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan_inap', 'rawat_inap_dr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
         ->join('dokter', 'rawat_inap_dr.kd_dokter', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_inap_dr.kd_dokter', $kdDokter);
@@ -344,7 +406,7 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_inap_drpr.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(rawat_inap_drpr.tarif_tindakandr) as total_ranap")
+            DB::raw("SUM(CASE WHEN rawat_inap_drpr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan_inap.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%(RSBW)%' THEN rawat_inap_drpr.tarif_tindakandr * 0.5 ELSE rawat_inap_drpr.tarif_tindakandr END) as total_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_inap_drpr', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -353,10 +415,18 @@ class JMBpjsController extends Controller
         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('petugas', 'rawat_inap_drpr.nip', '=', 'petugas.nip')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_inap_drpr.kd_dokter', $kdDokter);
@@ -384,10 +454,18 @@ class JMBpjsController extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('operasi.operator1', $kdDokter);
@@ -415,10 +493,18 @@ class JMBpjsController extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'operasi.dokter_anestesi', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('operasi.dokter_anestesi', $kdDokter);
@@ -435,6 +521,80 @@ class JMBpjsController extends Controller
         })
         ->groupBy('operasi.dokter_anestesi', 'dokter.nm_dokter');
 
+        // 5c. Query OPERASI (dokter_anak)
+        $queryOperasiAnak = DB::table('operasi')
+        ->select(
+            'operasi.dokter_anak as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(operasi.biayadokter_anak) as total_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('operasi.dokter_anak', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('operasi.dokter_anak', 'dokter.nm_dokter');
+
+        // 5d. Query OPERASI (dokter_umum)
+        $queryOperasiUmum = DB::table('operasi')
+        ->select(
+            'operasi.dokter_umum as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(operasi.biaya_dokter_umum) as total_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'operasi.dokter_umum', '=', 'dokter.kd_dokter')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('operasi.dokter_umum', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('operasi.dokter_umum', 'dokter.nm_dokter');
+
         // 6. Query rawat_jl_dr pada pasien Ranap (tindakan ralan pada pasien ranap)
         $queryRanapJlDr = DB::table('pasien')
         ->select(
@@ -448,11 +608,19 @@ class JMBpjsController extends Controller
         ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_jl_dr.kd_dokter', $kdDokter);
@@ -483,11 +651,19 @@ class JMBpjsController extends Controller
         ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) {
                 $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
@@ -504,58 +680,32 @@ class JMBpjsController extends Controller
         })
         ->groupBy('rawat_jl_drpr.kd_dokter', 'dokter.nm_dokter');
 
-        // 8. Query periksa_radiologi - JM Perujuk (tarif_perujuk grouped by dokter_perujuk)
-        $queryRadiologiPerujuk = DB::table('periksa_radiologi')
-        ->select(
-            'periksa_radiologi.dokter_perujuk as kd_dokter',
-            'dokter.nm_dokter',
-            DB::raw("SUM(periksa_radiologi.tarif_perujuk) as total_ranap")
-        )
-        ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_radiologi.dokter_perujuk', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
-        ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) {
-                $query->whereIn('periksa_radiologi.dokter_perujuk', $kdDokter);
-            }
-        })
-        ->where(function ($query) use ($cariNomor) {
-            if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
-            }
-        })
-        ->groupBy('periksa_radiologi.dokter_perujuk', 'dokter.nm_dokter');
-
-        // 9. Query periksa_radiologi - JM PJ Rad (tarif_tindakan_dokter grouped by kd_dokter)
-        $queryRadiologiDokter = DB::table('periksa_radiologi')
+        // 8. Query periksa_radiologi Ranap (Gabungan)
+        $queryRadiologiRanap = DB::table('periksa_radiologi')
         ->select(
             'periksa_radiologi.kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(periksa_radiologi.tarif_tindakan_dokter) as total_ranap")
+            DB::raw("SUM(periksa_radiologi.tarif_perujuk + periksa_radiologi.tarif_tindakan_dokter) as total_ranap")
         )
         ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'periksa_radiologi.kd_dokter', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
-        ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) {
-                $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
             }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
@@ -569,14 +719,81 @@ class JMBpjsController extends Controller
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
 
         // Gabungkan semua query ranap (Union), ambil datanya, dan jumlahkan lagi di level Collection
-        $resultsRanap = $queryRanapDr
+        $queryRanap = $queryRanapDr
             ->unionAll($queryRanapDrPr)
             ->unionAll($queryOperasi)
             ->unionAll($queryOperasiAnestesi)
+            ->unionAll($queryOperasiAnak)
+            ->unionAll($queryOperasiUmum)
             ->unionAll($queryRanapJlDr)
             ->unionAll($queryRanapJlDrPr)
-            ->unionAll($queryRadiologiPerujuk)
-            ->unionAll($queryRadiologiDokter)
+            ->unionAll($queryRadiologiRanap);
+
+        // 10. Query periksa_lab Lab PA Ranap - JM Perujuk
+        $queryLabPerujukRanap = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.dokter_perujuk as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_perujuk) as total_ranap")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
+
+        // 11. Query periksa_lab Lab PA Ranap - JM PJ Lab
+        $queryLabDokterRanap = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_tindakan_dokter) as total_ranap")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
+
+        $resultsRanap = $queryRanap
+            ->unionAll($queryLabPerujukRanap)
+            ->unionAll($queryLabDokterRanap)
             ->get();
 
         $dataRanap = $resultsRanap->groupBy('kd_dokter')->map(function ($row) {
@@ -619,29 +836,35 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_jl_pr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_jl_pr.tarif_tindakanpr) as total_ralan")
+            DB::raw("SUM(CASE WHEN jns_perawatan.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_jl_pr.tarif_tindakanpr ELSE 0 END) as total_ralan"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_jl_pr.no_rawat, rawat_jl_pr.kd_jenis_prw, rawat_jl_pr.jam_rawat)) as jml_tindakan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_jl_pr.no_rawat, rawat_jl_pr.kd_jenis_prw, rawat_jl_pr.jam_rawat) END) as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_jl_pr', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan', 'rawat_jl_pr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
         ->join('petugas', 'rawat_jl_pr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        // ... (rest of where filters)
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -658,29 +881,34 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_jl_drpr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_jl_drpr.tarif_tindakanpr) as total_ralan")
+            DB::raw("SUM(CASE WHEN jns_perawatan.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_jl_drpr.tarif_tindakanpr ELSE 0 END) as total_ralan"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_jl_drpr.no_rawat, rawat_jl_drpr.kd_jenis_prw, rawat_jl_drpr.jam_rawat)) as jml_tindakan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_jl_drpr.no_rawat, rawat_jl_drpr.kd_jenis_prw, rawat_jl_drpr.jam_rawat) END) as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_jl_drpr', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
         ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -697,29 +925,34 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_jl_pr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_jl_pr.tarif_tindakanpr) as total_ranap")
+            DB::raw("SUM(CASE WHEN jns_perawatan.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_jl_pr.tarif_tindakanpr ELSE 0 END) as total_ranap"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_jl_pr.no_rawat, rawat_jl_pr.kd_jenis_prw, rawat_jl_pr.jam_rawat)) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_jl_pr.no_rawat, rawat_jl_pr.kd_jenis_prw, rawat_jl_pr.jam_rawat) END) as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_jl_pr', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan', 'rawat_jl_pr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
         ->join('petugas', 'rawat_jl_pr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -736,29 +969,34 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_jl_drpr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_jl_drpr.tarif_tindakanpr) as total_ranap")
+            DB::raw("SUM(CASE WHEN jns_perawatan.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_jl_drpr.tarif_tindakanpr ELSE 0 END) as total_ranap"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_jl_drpr.no_rawat, rawat_jl_drpr.kd_jenis_prw, rawat_jl_drpr.jam_rawat)) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_jl_drpr.no_rawat, rawat_jl_drpr.kd_jenis_prw, rawat_jl_drpr.jam_rawat) END) as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_jl_drpr', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
         ->join('petugas', 'rawat_jl_drpr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -775,28 +1013,34 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_inap_pr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_inap_pr.tarif_tindakanpr) as total_ranap")
+            DB::raw("SUM(CASE WHEN jns_perawatan_inap.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_inap_pr.tarif_tindakanpr ELSE 0 END) as total_ranap"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_inap_pr.no_rawat, rawat_inap_pr.kd_jenis_prw, rawat_inap_pr.jam_rawat)) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan_inap.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_inap_pr.no_rawat, rawat_inap_pr.kd_jenis_prw, rawat_inap_pr.jam_rawat) END) as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_inap_pr', 'rawat_inap_pr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan_inap', 'rawat_inap_pr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
         ->join('petugas', 'rawat_inap_pr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -813,28 +1057,34 @@ class JMBpjsController extends Controller
         ->select(
             'rawat_inap_drpr.nip as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(rawat_inap_drpr.tarif_tindakanpr) as total_ranap")
+            DB::raw("SUM(CASE WHEN jns_perawatan_inap.nm_perawatan NOT LIKE '%jasa operator hd%' THEN rawat_inap_drpr.tarif_tindakanpr ELSE 0 END) as total_ranap"),
+            DB::raw("COUNT(DISTINCT CONCAT(rawat_inap_drpr.no_rawat, rawat_inap_drpr.kd_jenis_prw, rawat_inap_drpr.jam_rawat)) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("COUNT(DISTINCT CASE WHEN jns_perawatan_inap.nm_perawatan LIKE '%jasa operator hd%' THEN CONCAT(rawat_inap_drpr.no_rawat, rawat_inap_drpr.kd_jenis_prw, rawat_inap_drpr.jam_rawat) END) as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('rawat_inap_drpr', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
         ->join('petugas', 'rawat_inap_drpr.nip', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where(function($q) {
             $q->where(function($q2) {
-                $q2->where('petugas.nama', 'not like', '(PR)%')
-                   ->where('petugas.nama', 'not like', '(NS)%')
-                   ->where('petugas.nama', 'not like', '(LAB)%')
-                   ->where('petugas.nama', 'not like', '(PS)%')
-                   ->where('petugas.nama', 'not like', '(BD)%')
-                   ->where('petugas.nama', 'not like', '(PDF)%')
-                   ->where('petugas.nama', '!=', 'Dahyar');
+                $q2->where('petugas.nama', '!=', 'Dahyar');
             })->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%');
         })
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -851,22 +1101,28 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(operasi.biayaasisten_operator1) as total_ranap")
+            DB::raw("SUM(operasi.biayaasisten_operator1) as total_ranap"),
+            DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('petugas', 'operasi.asisten_operator1', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->where('petugas.nama', 'not like', '(PR)%')
-        ->where('petugas.nama', 'not like', '(LAB)%')
-        ->where('petugas.nama', 'not like', '(PS)%')
-        ->where('petugas.nama', 'not like', '(BD)%')
-        ->where('petugas.nama', 'not like', '(PDF)%')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where('petugas.nama', '!=', 'Dahyar')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -883,22 +1139,28 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_anestesi as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(operasi.biayaasisten_anestesi) as total_ranap")
+            DB::raw("SUM(operasi.biayaasisten_anestesi) as total_ranap"),
+            DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('petugas', 'operasi.asisten_anestesi', '=', 'petugas.nip')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->where('billing.no', '=', 'No.Nota')
-        ->where('penjab.kd_pj', 'BPJ')
-        ->where('petugas.nama', 'not like', '(PR)%')
-        ->where('petugas.nama', 'not like', '(LAB)%')
-        ->where('petugas.nama', 'not like', '(PS)%')
-        ->where('petugas.nama', 'not like', '(BD)%')
-        ->where('petugas.nama', 'not like', '(PDF)%')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+                  ->where('piutang_pasien.status', 'Lunas');
+        })
         ->where('petugas.nama', '!=', 'Dahyar')
-        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
             if ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
@@ -920,6 +1182,9 @@ class JMBpjsController extends Controller
                 'kd_petugas' => $row->first()->kd_petugas,
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ralan' => $row->sum('total_ralan'),
+                'jml_tindakan' => $row->sum('jml_tindakan'),
+                'jml_tindakan_hd_ralan' => $row->sum('jml_tindakan_hd_ralan'),
+                'jml_tindakan_hd_ranap' => $row->sum('jml_tindakan_hd_ranap'),
             ];
         })->values();
 
@@ -936,6 +1201,9 @@ class JMBpjsController extends Controller
                 'kd_petugas' => $row->first()->kd_petugas,
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ranap' => $row->sum('total_ranap'),
+                'jml_tindakan' => $row->sum('jml_tindakan'),
+                'jml_tindakan_hd_ralan' => $row->sum('jml_tindakan_hd_ralan'),
+                'jml_tindakan_hd_ranap' => $row->sum('jml_tindakan_hd_ranap'),
             ];
         })->values();
 
@@ -947,17 +1215,24 @@ class JMBpjsController extends Controller
         $dataParamedis = $allPetugasKeys->map(function ($nip) use ($dataPrRalan, $dataPrRanap) {
             $ralan = $dataPrRalan->firstWhere('kd_petugas', $nip);
             $ranap = $dataPrRanap->firstWhere('kd_petugas', $nip);
-
+ 
             $totalRalan = $ralan->total_ralan ?? 0;
             $totalRanap = $ranap->total_ranap ?? 0;
+            $jmlTindakan = ($ralan->jml_tindakan ?? 0) + ($ranap->jml_tindakan ?? 0);
+            $jmlTindakanHdRalan = ($ralan->jml_tindakan_hd_ralan ?? 0) + ($ranap->jml_tindakan_hd_ralan ?? 0);
+            $jmlTindakanHdRanap = ($ralan->jml_tindakan_hd_ranap ?? 0) + ($ranap->jml_tindakan_hd_ranap ?? 0);
             $nmPetugas  = $ralan->nm_petugas ?? $ranap->nm_petugas ?? '-';
-
+ 
             return (object) [
                 'kd_dokter'   => $nip,
                 'nm_dokter'   => $nmPetugas,
                 'total_ranap' => $totalRanap,
                 'total_ralan' => $totalRalan,
                 'total_igd'   => 0,
+                'jml_tindakan' => $jmlTindakan,
+                'jml_tindakan_hd_ralan' => $jmlTindakanHdRalan,
+                'jml_tindakan_hd_ranap' => $jmlTindakanHdRanap,
+                'jml_tindakan_hd' => $jmlTindakanHdRalan + $jmlTindakanHdRanap,
                 'grand_total' => $totalRanap + $totalRalan,
             ];
         })->sortByDesc('grand_total')->values();
@@ -1005,6 +1280,10 @@ class JMBpjsController extends Controller
                 'total_ranap'    => $matched ? $matched->total_ranap : 0,
                 'total_ralan'    => $matched ? $matched->total_ralan : 0,
                 'total_igd'      => $matched ? $matched->total_igd : 0,
+                'jml_tindakan'   => $matched ? ($matched->jml_tindakan ?? 0) : 0,
+                'jml_tindakan_hd' => $matched ? ($matched->jml_tindakan_hd ?? 0) : 0,
+                'jml_tindakan_hd_ralan' => $matched ? ($matched->jml_tindakan_hd_ralan ?? 0) : 0,
+                'jml_tindakan_hd_ranap' => $matched ? ($matched->jml_tindakan_hd_ranap ?? 0) : 0,
                 'grand_total'    => $matched ? $matched->grand_total : 0,
             ];
         });
@@ -1015,29 +1294,30 @@ class JMBpjsController extends Controller
         $kodeKus = 'HD5'; // Kode HD Kus / id_khanza 09964020055
         $hdKus = $mappedTemplate->firstWhere('kode_template', $kodeKus);
         
-        if ($hdKus && ($hdKus->grand_total > 0)) {
-            $totalAsliHD = $hdKus->grand_total;
-            $multiplier = $totalAsliHD / 25250;
+        if ($hdKus && ($hdKus->jml_tindakan_hd > 0)) {
+            $multiplier = $hdKus->jml_tindakan_hd; 
             
-            // Hitung rasio ralan dan ranap dari asalnya agar pembagiannya konsisten di kolom yang tepat
-            $ratioRalan = ($hdKus->total_ralan / $totalAsliHD);
-            $ratioRanap = ($hdKus->total_ranap / $totalAsliHD);
+            // Hitung rasio ralan dan ranap dari JUMLAH TINDAKAN HD-nya
+            // (Karena nominal nominal asuransi sudah di-filter/nol-can agar tidak masuk hitungan main report)
+            $totalHdActions = $hdKus->jml_tindakan_hd_ralan + $hdKus->jml_tindakan_hd_ranap;
+            $ratioRalan = $totalHdActions > 0 ? ($hdKus->jml_tindakan_hd_ralan / $totalHdActions) : 1;
+            $ratioRanap = $totalHdActions > 0 ? ($hdKus->jml_tindakan_hd_ranap / $totalHdActions) : 0;
 
             // Aturan pembagian (dalam proporsi / per 1 tindakan nilai 50.500)
             $pembagianHD = [
-                'HD5'  => 4800, // HD Kus
-                'HD8'  => 2700,  // HD Mala
-                'HD11' => 2100,  // HD Ria
-                'HD3'  => 1900,  // HD Danu
-                'HD12' => 1900,  // HD Ronal
-                'HD14' => 1900,  // HD Sumo
-                'HD13' => 1900,  // HD Sabtina
-                'HD15' => 1600,  // HD Sutriyanti
-                'HD6'  => 1600,  // HD Lili
-                'HD16' => 1600,  // HD Vina
-                'HD18' => 1600,  // HD Sayu Putu
-                'HD9'  => 450,   // HD Ade Supriatna
-                'HD10' => 1200,  // HD Yopi
+                'HD5'  => 10000, // HD Kus
+                'HD8'  => 8000,  // HD Mala
+                'HD11' => 6000,  // HD Ria
+                'HD3'  => 4000,  // HD Danu
+                'HD12' => 4000,  // HD Ronal
+                'HD14' => 4000,  // HD Sumo
+                'HD13' => 4000,  // HD Sabtina
+                'HD15' => 2000,  // HD Sutriyanti
+                'HD6'  => 2000,  // HD Lili
+                'HD16' => 2000,  // HD Vina
+                'HD18' => 2000,  // HD Sayu Putu
+                'HD9'  => 500,   // HD Ade Supriatna
+                'HD10' => 2000,  // HD Yopi
             ];
 
             // Reset saldo Kus (akan diisi kembali sesuai properti HD5 di array distribusi)
@@ -1079,7 +1359,7 @@ class JMBpjsController extends Controller
             ];
         })->values();
 
-        return view('detail-tindakan-umum.jm-bpjs', [
+        return view('detail-tindakan-umum.jm-asuransi', [
             'actionCari'=> $actionCari,
             'dokter'=> $dokter,
             'mappedTemplate' => $mappedTemplate,
