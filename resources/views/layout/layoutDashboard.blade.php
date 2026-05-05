@@ -648,6 +648,16 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/jm-asuransi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            JM Medis (Asuransi)
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
@@ -728,6 +738,16 @@
                                         <p>
                                             Periksa LAB PA
                                             <span class="badge badge-danger right">NEW</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            JM Medis (BPJS)
                                         </p>
                                     </a>
                                 </li>
@@ -820,7 +840,7 @@
                             </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/test-umum') }}" class="nav-link">
+                                        <a href="{{ url('/jm-umum') }}" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>
                                                 JM Medis (Umum)
