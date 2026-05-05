@@ -109,12 +109,15 @@
                         <th>No</th>
                         <th>Nomor Rawat</th>
                         <th>Rekam Medis</th>
+                        <th>No KTP</th>
+                        <th>No BPJS</th>
+                        <th>No Telpon</th>
                         <th>Nama Pasien</th>
                         <th>Kamar</th>
                         <th>Penanggung Jawab</th>
                         <th>Diagnosa Akhir</th>
                         <th>Lama Inap</th>
-                        <th>Kode Dokter</th>
+                        {{-- <th>Kode Dokter</th> --}}
                         <th>Nama Dokter</th>
                         <th>Tanggal Keluar</th>
                         <th></th>
@@ -124,12 +127,15 @@
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $item->no_rawat }}</td>
                             <td>{{ $item->no_rkm_medis }}</td>
+                            <td>{{ $item->no_ktp }}</td>
+                            <td>{{ $item->no_peserta }}</td>
+                            <td>{{ $item->no_tlp}}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_bangsal }}</td>
                             <td>{{ $item->png_jawab }}</td>
                             <td>{{ $item->diagnosa_akhir }}</td>
                             <td>{{ $item->lama }} hari</td>
-                            <td>{{ $item->kd_dokter }}</td>
+                            {{-- <td>{{ $item->kd_dokter }}</td> --}}
                             <td>{{ $item->nm_dokter }}</td>
                             <td>{{ $item->tgl_keluar }}</td>
 
