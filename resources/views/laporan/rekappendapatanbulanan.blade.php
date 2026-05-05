@@ -1,6 +1,6 @@
 @extends('..layout.layoutDashboard')
 
-@section('title','Bayar Umum')
+@section('title','REKAPAN BULANAN')
 
 @section('konten')
 
@@ -151,31 +151,98 @@ text-align:right;
 <td></td>
 </tr>
 
-<tr class="jm">
+<tr class="jasasarana">
+<td></td>
+<td class="sub1">Jasa Sarana</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($TotalJasaSarana ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr class="paketbhp">
+<td></td>
+<td class="sub1">Paket BHP</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($TotalBHP ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr class="jmdokter">
 <td></td>
 <td class="sub1">JM Dokter</td>
-<td>{{ number_format($jmDokterRanap ?? 0) }}</td>
-<td>{{ number_format($jmDokterRalan ?? 0) }}</td>
-<td>{{ number_format($RanapDokterBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanDokterBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($TotalJMDokter ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
 </tr>
 
-<tr>
+<tr class="jmparamedis">
 <td></td>
 <td class="sub1">Paramedis</td>
-<td>{{ number_format($paramedisRanap ?? 0) }}</td>
-<td>{{ number_format($paramedisRalan ?? 0) }}</td>
-<td>{{ number_format($RanapParamedisBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanParamedisBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalParamedis ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
 </tr>
 
-<tr>
+<tr class="kategori">
+<td>3</td>
+<td>KSO</td>
 <td></td>
-<td class="sub1">Dr Paramedis</td>
-<td>{{ number_format($drparamedisRanap ?? 0) }}</td>
-<td>{{ number_format($drparamedisRalan ?? 0) }}</td>
-<td>{{ number_format($RanapDokterParamedisBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanDokterParamedisBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+
+<tr class="alatbw">
+<td></td>
+<td class="sub1">Alat BW</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format((float) ($ksoPR->total_kso_pr ?? 0), 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr class="alatdokter">
+<td></td>
+<td class="sub1">Alat Dokter</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format((float) ($totalKsoDR ?? 0), 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr class="ambulancebw">
+<td></td>
+<td class="sub1">Ambulance BW</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format((float) ($totalAmbulanceValue ?? 0), 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr class="ambulancesap">
+<td></td>
+<td class="sub1">Ambulance SAP</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
 </tr>
 
 <tr class="kategori">
@@ -220,12 +287,50 @@ text-align:right;
 
 <tr>
 <td></td>
+<td class="sub1">Resep Pulang</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format((float) $totalResepPulangValue, 0, ',', '.') }}</td>
+<td>{{ number_format(0) }}</td>
+</tr>
+
+<tr>
+<td></td>
 <td class="sub1">Obat PJ</td>
 <td>0</td>
 <td>{{ number_format($totalPJ ?? 0) }}</td>
 <td>0</td>
 <td>0</td>
 </tr>
+
+<tr class="jm">
+<td></td>
+<td class="sub1">JM Dokter</td>
+<td>{{ number_format($jmDokterRanap ?? 0) }}</td>
+<td>{{ number_format($jmDokterRalan ?? 0) }}</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">Paramedis</td>
+<td>{{ number_format($paramedisRanap ?? 0) }}</td>
+<td>{{ number_format($paramedisRalan ?? 0) }}</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">Dr Paramedis</td>
+<td>{{ number_format($drparamedisRanap ?? 0) }}</td>
+<td>{{ number_format($drparamedisRalan ?? 0) }}</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+
 
 <tr class="kategori">
 <td>4</td>
@@ -313,10 +418,78 @@ text-align:right;
 
 <tr>
 <td></td>
+<td class="sub1">Jasa Sarana</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($hasilAkhir ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">Paket BHP</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($RanapRadiologiBpjsBHP1 ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">JM Dokter PJ</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($RanapRadiologiJmDokterPj ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">Petugas</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($RanapRadiologiJmPetugas ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">JM Perujuk</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format(0) }}</td>
+<td>{{ number_format($RanapRadiologiPerujuk ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+</tr>
+
+<tr class="kategori">
+<td>6</td>
+<td>Rad tes</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
 <td class="sub1">Radiologi</td>
 <td>{{ number_format($radiologiRanap ?? 0) }}</td>
 <td>{{ number_format($radiologiRalan ?? 0) }}</td>
 <td>{{ number_format($RanapRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
+<td>{{ number_format($RanapRadiologiBpjs1 ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
 </tr>
 
@@ -416,7 +589,7 @@ text-align:right;
 <td class="sub1">Exses</td>
 <td>{{ number_format($totalEksesRanap ?? 0) }}</td>
 <td>{{ number_format($totalEksesRalan ?? 0) }}</td>
-<td>0</td>
+<td>{{ number_format($ExsesBPJS ?? 0, 0, ',', '.') }}</td>
 <td>0</td>
 </tr>
 
@@ -434,8 +607,17 @@ text-align:right;
 <td class="sub1">COB</td>
 <td>0</td>
 <td>0</td>
-<td>0</td>
+<td>{{ number_format($cobranapbpjs ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($totalCicilan, 0, ',', '.') }}</td>
+</tr>
+
+<tr>
+<td></td>
+<td class="sub1">Adm Transfer</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
 </tr>
 
 <tr class="grand">

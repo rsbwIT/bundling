@@ -150,6 +150,7 @@
                         $getPasien->sum(function ($item) {
                             return $item->getRalanDokter->sum('totalbiaya') +
                                 $item->getRalanDrParamedis->sum('totalbiaya') +
+                                $item->getRadiologi->sum('totalbiaya') +
                                 $item->getRalanParamedis->sum('totalbiaya') +
                                 $item->getRanapDrParamedis->sum('totalbiaya') +
                                 $item->getRanapParamedis->sum('totalbiaya') +

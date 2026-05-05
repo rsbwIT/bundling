@@ -1,9 +1,9 @@
 <form method="GET">
 
-<div class="row mb-3">
+<!-- 🔹 BARIS 1 -->
+<div class="row g-3 mb-2">
 
-    <!-- Cari Nama / RM / No Rawat -->
-    <div class="col-md-3">
+    <div class="col-md-4">
         <input type="text"
                name="cariNomor"
                class="form-control"
@@ -11,7 +11,6 @@
                value="{{ request('cariNomor') }}">
     </div>
 
-    <!-- Tanggal utama mulai -->
     <div class="col-md-2">
         <input type="date"
                name="tgl1"
@@ -19,7 +18,6 @@
                value="{{ request('tgl1', now()->startOfMonth()->format('Y-m-d')) }}">
     </div>
 
-    <!-- Tanggal utama akhir -->
     <div class="col-md-2">
         <input type="date"
                name="tgl2"
@@ -27,7 +25,6 @@
                value="{{ request('tgl2', now()->format('Y-m-d')) }}">
     </div>
 
-    <!-- Status Lanjut -->
     <div class="col-md-2">
         <select class="form-control" name="stsLanjut">
             <option value="">Semua</option>
@@ -36,30 +33,87 @@
         </select>
     </div>
 
-    <!-- Tanggal khusus BPJS -->
+</div>
+
+<!-- 🔹 BARIS 2 -->
+<div class="row g-3 align-items-end">
+
     <div class="col-md-2">
         <input type="date"
                name="tgl_bpjs1"
                class="form-control"
-               value="{{ request('tgl_bpjs1', now()->startOfMonth()->format('Y-m-d')) }}"
-               placeholder="BPJS mulai">
+               value="{{ request('tgl_bpjs1', now()->startOfMonth()->format('Y-m-d')) }}">
     </div>
 
-    <div class="col-md-2 mt-2">
+    <div class="col-md-2">
         <input type="date"
                name="tgl_bpjs2"
                class="form-control"
-               value="{{ request('tgl_bpjs2', now()->format('Y-m-d')) }}"
-               placeholder="BPJS akhir">
+               value="{{ request('tgl_bpjs2', now()->format('Y-m-d')) }}">
     </div>
 
-    <!-- Tombol Cari -->
-    <div class="col-md-2 mt-2">
-        <button type="submit" class="btn btn-primary">
+    <div class="row">
+
+    <!-- Ranap -->
+    <div class="col-md-4">
+        <input type="text"
+            id="multi_tanggal_ranap"
+            name="multi_tanggal_ranap"
+            class="form-control"
+            placeholder="Tanggal BPJS Ranap"
+            value="{{ request('multi_tanggal_ranap') }}">
+    </div>
+
+    <!-- Rajal -->
+    <div class="col-md-4">
+        <input type="text"
+            id="multi_tanggal_ralan"
+            name="multi_tanggal_ralan"
+            class="form-control"
+            placeholder="Tanggal BPJS Rajal"
+            value="{{ request('multi_tanggal_ralan') }}">
+    </div>
+
+</div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
             <i class="fa fa-search"></i> Cari
         </button>
     </div>
 
 </div>
+
+{{-- <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    flatpickr("#multi_tanggal", {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+
+        // biar tampilannya lebih manusiawi
+        altInput: true,
+        altFormat: "d M Y",
+
+        // ambil value lama
+        defaultDate: "{{ request('multi_tanggal') ? implode(',', explode(',', request('multi_tanggal'))) : '' }}"
+    });
+
+});
+</script> --}}
+
+<script>
+flatpickr("#multi_tanggal_ranap", {
+    mode: "multiple",
+    dateFormat: "Y-m-d",
+    defaultDate: "{{ request('multi_tanggal_ranap') }}"
+});
+
+flatpickr("#multi_tanggal_ralan", {
+    mode: "multiple",
+    dateFormat: "Y-m-d",
+    defaultDate: "{{ request('multi_tanggal_ralan') }}"
+});
+</script>
 
 </form>

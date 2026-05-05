@@ -17,6 +17,14 @@ class RekapPendapatanBulanan extends Controller
         $tgl2 = $request->tgl2 ?? date('Y-m-d');
         $cariNomor = $request->cariNomor;
         $stsLanjut = $request->stsLanjut;
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+        $multi_tanggal_ralan = request('multi_tanggal_ralan');
+        $multi_tanggal_ralan = $multi_tanggal_ralan
+            ? array_map('trim', explode(',', $multi_tanggal_ralan))
+            : [];
 
 
         // ====================== DATA PASIEN UMUM ======================
@@ -145,10 +153,11 @@ class RekapPendapatanBulanan extends Controller
         $tgl_bpjs1 = $request->tgl_bpjs1 ?? $tgl1;
         $tgl_bpjs2 = $request->tgl_bpjs2 ?? $tgl2;
 
+
         $registerRanapBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
@@ -157,15 +166,16 @@ class RekapPendapatanBulanan extends Controller
             )
             ->where('b.status', 'Registrasi')
             ->where('p.status', 'lunas')
-            // ->where('r.kd_pj', 'BPJ') // filter BPJS
-            ->where('r.status_lanjut', 'Ranap') // filter Ranap
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
 
         $registerRalanBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
@@ -174,8 +184,11 @@ class RekapPendapatanBulanan extends Controller
             )
             ->where('b.status', 'Registrasi')
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ralan') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ralan')
+            ->where('r.kd_pj', 'BPJ') // ← ini filter BPJS
+            ->when(!empty($multi_tanggal_ralan), function ($q) use ($multi_tanggal_ralan) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ralan);
+            })
             ->get();
 
 
@@ -211,6 +224,749 @@ class RekapPendapatanBulanan extends Controller
             ->where('r.status_lanjut', 'Ranap') // filter Ralan
             ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
             ->get();
+
+        // $TotalJasaSarana = DB::selectOne("
+        //     SELECT 
+        //         COALESCE(SUM(x.jasa_sarana),0) AS total_jasa_sarana
+        //     FROM (
+
+        //         SELECT SUM(rjpr.material) AS jasa_sarana
+        //         FROM rawat_jl_pr rjpr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = rjpr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //         UNION ALL
+
+        //         SELECT SUM(rjdrpr.material)
+        //         FROM rawat_jl_drpr rjdrpr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = rjdrpr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //         UNION ALL
+
+        //         SELECT SUM(rjdr.material)
+        //         FROM rawat_jl_dr rjdr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = rjdr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //         UNION ALL
+
+        //         SELECT SUM(ridr.material)
+        //         FROM rawat_inap_dr ridr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = ridr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //         UNION ALL
+
+        //         SELECT SUM(ridrpr.material)
+        //         FROM rawat_inap_drpr ridrpr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = ridrpr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //         UNION ALL
+
+        //         SELECT SUM(ripr.material)
+        //         FROM rawat_inap_pr ripr
+        //         WHERE EXISTS (
+        //             SELECT 1 FROM bayar_piutang bp 
+        //             WHERE bp.no_rawat = ripr.no_rawat
+        //             AND DATE(bp.tgl_bayar) BETWEEN ? AND ?
+        //         )
+
+        //     ) x
+        // ", [
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        //     $tgl_bpjs1,
+        //     $tgl_bpjs2,
+        // ]);
+
+        // $TotalJasaSarana = $TotalJasaSarana->total_jasa_sarana ?? 0;
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $TotalJasaSarana = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $TotalJasaSarana = DB::selectOne("
+        SELECT 
+            COALESCE(SUM(x.jasa_sarana),0) AS total_jasa_sarana
+        FROM (
+
+            SELECT SUM(rjpr.material) AS jasa_sarana
+            FROM rawat_jl_pr rjpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(rjdrpr.material)
+            FROM rawat_jl_drpr rjdrpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjdrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(rjdr.material)
+            FROM rawat_jl_dr rjdr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjdr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ridr.material)
+            FROM rawat_inap_dr ridr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ridr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ridrpr.material)
+            FROM rawat_inap_drpr ridrpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ridrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ripr.material)
+            FROM rawat_inap_pr ripr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ripr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+        ) x
+    ", array_merge(
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $TotalJasaSarana = $TotalJasaSarana->total_jasa_sarana ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $TotalBHP = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $TotalBHP = DB::selectOne("
+        SELECT 
+            COALESCE(SUM(x.bhp),0) AS total_bhp
+        FROM (
+
+            SELECT SUM(rjpr.bhp) AS bhp
+            FROM rawat_jl_pr rjpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(rjdrpr.bhp)
+            FROM rawat_jl_drpr rjdrpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjdrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(rjdr.bhp)
+            FROM rawat_jl_dr rjdr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjdr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ridr.bhp)
+            FROM rawat_inap_dr ridr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ridr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ridrpr.bhp)
+            FROM rawat_inap_drpr ridrpr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ridrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT SUM(ripr.bhp)
+            FROM rawat_inap_pr ripr
+            WHERE EXISTS (
+                SELECT 1 FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ripr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+        ) x
+    ", array_merge(
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $TotalBHP = $TotalBHP->total_bhp ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $TotalJMDokter = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $TotalJMDokter = DB::selectOne("
+        SELECT 
+            COALESCE(dokter.total_dokter,0) 
+            + COALESCE(paramedis.total_paramedis,0) AS total_jm_dokter
+        FROM
+
+        (
+            SELECT 
+                SUM(tarif) AS total_dokter
+            FROM (
+                SELECT rjdr.tarif_tindakandr AS tarif
+                FROM rawat_jl_dr rjdr
+                WHERE EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = rjdr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                SELECT rjdrpr.tarif_tindakandr
+                FROM rawat_jl_drpr rjdrpr
+                WHERE EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = rjdrpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                SELECT ridr.tarif_tindakandr
+                FROM rawat_inap_dr ridr
+                WHERE EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = ridr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                SELECT ridrpr.tarif_tindakandr
+                FROM rawat_inap_drpr ridrpr
+                WHERE EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = ridrpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+            ) t
+        ) dokter,
+
+        (
+            SELECT 
+                SUM(tarif) AS total_paramedis
+            FROM (
+                SELECT rjdrpr.tarif_tindakanpr AS tarif
+                FROM rawat_jl_drpr rjdrpr
+                INNER JOIN petugas pr ON pr.nip = rjdrpr.nip
+                WHERE rjdrpr.tarif_tindakanpr > 0
+                AND pr.nama IN (
+                    'Nusae Qolbi',
+                    '(Fis) Agung Rangga Dinata',
+                    '(FIS) Aini Rosmaniar Bakri',
+                    '(FIS) Ultha Apriza',
+                    '(NS) Kuspratiknyo',
+                    '(GZ) Nyiayu Farahnaz',
+                    '(GZ) Vega Aurellia Putri',
+                    '(TWS) Rahma Idhanani',
+                    '(FIS) Andri Oktavian',
+                    '(FIS) Revi Restiana'
+                )
+                AND EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = rjdrpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                SELECT rjpr.tarif_tindakanpr
+                FROM rawat_jl_pr rjpr
+                INNER JOIN petugas pr ON pr.nip = rjpr.nip
+                WHERE rjpr.tarif_tindakanpr > 0
+                AND pr.nama IN (
+                    'Nusae Qolbi',
+                    '(Fis) Agung Rangga Dinata',
+                    '(FIS) Aini Rosmaniar Bakri',
+                    '(FIS) Ultha Apriza',
+                    '(NS) Kuspratiknyo',
+                    '(GZ) Nyiayu Farahnaz',
+                    '(GZ) Vega Aurellia Putri',
+                    '(TWS) Rahma Idhanani',
+                    '(FIS) Andri Oktavian',
+                    '(FIS) Revi Restiana'
+                )
+                AND EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = rjpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                SELECT ripr.tarif_tindakanpr
+                FROM rawat_inap_pr ripr
+                INNER JOIN petugas pr ON pr.nip = ripr.nip
+                WHERE ripr.tarif_tindakanpr > 0
+                AND pr.nama IN (
+                    'Nusae Qolbi',
+                    '(Fis) Agung Rangga Dinata',
+                    '(FIS) Aini Rosmaniar Bakri',
+                    '(FIS) Ultha Apriza',
+                    '(NS) Kuspratiknyo',
+                    '(GZ) Nyiayu Farahnaz',
+                    '(GZ) Vega Aurellia Putri',
+                    '(TWS) Rahma Idhanani',
+                    '(FIS) Andri Oktavian',
+                    '(FIS) Revi Restiana'
+                )
+                AND EXISTS (
+                    SELECT 1 FROM bayar_piutang bp 
+                    WHERE bp.no_rawat = ripr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+            ) p
+        ) paramedis
+    ", array_merge(
+                // dokter (4x)
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+
+                // paramedis (3x)
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $TotalJMDokter = $TotalJMDokter->total_jm_dokter ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $totalParamedis = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $totalParamedis = DB::selectOne("
+        SELECT 
+            COALESCE(SUM(x.jm_paramedis),0) AS total_paramedis
+        FROM (
+
+            SELECT rjdrpr.tarif_tindakanpr AS jm_paramedis
+            FROM rawat_jl_drpr rjdrpr
+            INNER JOIN petugas pr ON pr.nip = rjdrpr.nip
+            WHERE rjdrpr.tarif_tindakanpr > 0
+            AND pr.nama NOT IN (
+                'Nusae Qolbi',
+                '(Fis) Agung Rangga Dinata',
+                '(FIS) Aini Rosmaniar Bakri',
+                '(FIS) Ultha Apriza',
+                '(NS) Kuspratiknyo',
+                '(GZ) Nyiayu Farahnaz',
+                '(GZ) Vega Aurellia Putri',
+                '(TWS) Rahma Idhanani',
+                '(FIS) Andri Oktavian',
+                '(FIS) Revi Restiana'
+            )
+            AND EXISTS (
+                SELECT 1 
+                FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjdrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT rjpr.tarif_tindakanpr
+            FROM rawat_jl_pr rjpr
+            INNER JOIN petugas pr ON pr.nip = rjpr.nip
+            WHERE rjpr.tarif_tindakanpr > 0
+            AND pr.nama NOT IN (
+                'Nusae Qolbi',
+                '(Fis) Agung Rangga Dinata',
+                '(FIS) Aini Rosmaniar Bakri',
+                '(FIS) Ultha Apriza',
+                '(NS) Kuspratiknyo',
+                '(GZ) Nyiayu Farahnaz',
+                '(GZ) Vega Aurellia Putri',
+                '(TWS) Rahma Idhanani',
+                '(FIS) Andri Oktavian',
+                '(FIS) Revi Restiana'
+            )
+            AND EXISTS (
+                SELECT 1 
+                FROM bayar_piutang bp 
+                WHERE bp.no_rawat = rjpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            SELECT ripr.tarif_tindakanpr
+            FROM rawat_inap_pr ripr
+            INNER JOIN petugas pr ON pr.nip = ripr.nip
+            WHERE ripr.tarif_tindakanpr > 0
+            AND pr.nama NOT IN (
+                'Nusae Qolbi',
+                '(Fis) Agung Rangga Dinata',
+                '(FIS) Aini Rosmaniar Bakri',
+                '(FIS) Ultha Apriza',
+                '(NS) Kuspratiknyo',
+                '(GZ) Nyiayu Farahnaz',
+                '(GZ) Vega Aurellia Putri',
+                '(TWS) Rahma Idhanani',
+                '(FIS) Andri Oktavian',
+                '(FIS) Revi Restiana'
+            )
+            AND EXISTS (
+                SELECT 1 
+                FROM bayar_piutang bp 
+                WHERE bp.no_rawat = ripr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+        ) x
+    ", array_merge(
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $totalParamedis = $totalParamedis->total_paramedis ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $totalKsoPR = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $ksoPR = DB::selectOne("
+        SELECT SUM(kso) as total_kso_pr
+        FROM (
+
+            -- RAWAT JALAN PR
+            SELECT rjpr.kso
+            FROM rawat_jl_pr rjpr
+            JOIN jns_perawatan jp 
+                ON jp.kd_jenis_prw = rjpr.kd_jenis_prw
+            WHERE rjpr.kso > 0
+            AND jp.nm_perawatan IN (
+                'Sewa CPAP Perhari',
+                'Sewa Syringe Pump',
+                'Sewa Alat OK Mata (Katarak Non Phaco)',
+                'Sewa Alat OK Mata (Pterigium)',
+                'Sewa Alat OK Mata (Tumor Palpebra)'
+            )
+            AND EXISTS (
+                SELECT 1 FROM bayar_piutang bp
+                WHERE bp.no_rawat = rjpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            -- RAWAT JALAN DRPR
+            SELECT rjdrpr.kso
+            FROM rawat_jl_drpr rjdrpr
+            JOIN jns_perawatan jp 
+                ON jp.kd_jenis_prw = rjdrpr.kd_jenis_prw
+            WHERE rjdrpr.kso > 0
+            AND jp.nm_perawatan IN (
+                'Sewa CPAP Perhari',
+                'Sewa Syringe Pump',
+                'Sewa Alat OK Mata (Katarak Non Phaco)',
+                'Sewa Alat OK Mata (Pterigium)',
+                'Sewa Alat OK Mata (Tumor Palpebra)'
+            )
+            AND EXISTS (
+                SELECT 1 FROM bayar_piutang bp
+                WHERE bp.no_rawat = rjdrpr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+            UNION ALL
+
+            -- RAWAT INAP PR
+            SELECT ripr.kso
+            FROM rawat_inap_pr ripr
+            JOIN jns_perawatan_inap jp 
+                ON jp.kd_jenis_prw = ripr.kd_jenis_prw
+            WHERE ripr.kso > 0
+            AND jp.nm_perawatan IN (
+                'Sewa CPAP Perhari',
+                'Sewa Syringe Pump',
+                'Sewa Alat OK Mata (Katarak Non Phaco)',
+                'Sewa Alat OK Mata (Pterigium)',
+                'Sewa Alat OK Mata (Tumor Palpebra)'
+            )
+            AND EXISTS (
+                SELECT 1 FROM bayar_piutang bp
+                WHERE bp.no_rawat = ripr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+        ) t
+    ", array_merge(
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $totalKsoPR = $ksoPR->total_kso_pr ?? 0;
+        }
+
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $totalKsoDR = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $ksoDR = DB::selectOne("
+        SELECT SUM(kso) as total_kso_dr
+        FROM (
+
+            -- RAWAT INAP DR
+            SELECT ridr.kso
+            FROM rawat_inap_dr ridr
+            JOIN jns_perawatan_inap jp 
+                ON jp.kd_jenis_prw = ridr.kd_jenis_prw
+            WHERE ridr.kso > 0
+            AND (
+                jp.nm_perawatan LIKE 'Sewa Alat%'
+                OR jp.nm_perawatan LIKE 'Alat Orthopedi%'
+                OR jp.nm_perawatan LIKE 'Alat + Sewa%'
+            )
+            AND jp.nm_perawatan NOT LIKE '%USG%'
+            AND EXISTS (
+                SELECT 1 FROM bayar_piutang bp
+                WHERE bp.no_rawat = ridr.no_rawat
+                AND DATE(bp.tgl_bayar) IN ($placeholders)
+            )
+
+        ) t
+    ", $multi_tanggal_ranap);
+
+            $totalKsoDR = $ksoDR->total_kso_dr ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $totalAmbulanceValue = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $totalAmbulance = DB::selectOne("
+        SELECT SUM(kso) as total_ambulance
+        FROM (
+
+            SELECT DISTINCT no_rawat, kso
+            FROM (
+
+                -- RAWAT INAP
+                SELECT 
+                    ripr.no_rawat,
+                    ripr.kso
+                FROM rawat_inap_pr ripr
+                JOIN jns_perawatan_inap jp_inap
+                    ON jp_inap.kd_jenis_prw = ripr.kd_jenis_prw
+                WHERE ripr.kso > 0
+                AND LOWER(jp_inap.nm_perawatan) LIKE '%ambulance%'
+                AND EXISTS (
+                    SELECT 1 
+                    FROM bayar_piutang bp
+                    WHERE bp.no_rawat = ripr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                -- RAWAT JALAN PR
+                SELECT 
+                    rjpr.no_rawat,
+                    rjpr.kso
+                FROM rawat_jl_pr rjpr
+                JOIN jns_perawatan jp_jl
+                    ON jp_jl.kd_jenis_prw = rjpr.kd_jenis_prw
+                WHERE rjpr.kso > 0
+                AND LOWER(jp_jl.nm_perawatan) LIKE '%ambulance%'
+                AND EXISTS (
+                    SELECT 1 
+                    FROM bayar_piutang bp
+                    WHERE bp.no_rawat = rjpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+                UNION ALL
+
+                -- RAWAT JALAN DRPR
+                SELECT 
+                    rjdrpr.no_rawat,
+                    rjdrpr.kso
+                FROM rawat_jl_drpr rjdrpr
+                JOIN jns_perawatan jp_drpr
+                    ON jp_drpr.kd_jenis_prw = rjdrpr.kd_jenis_prw
+                WHERE rjdrpr.kso > 0
+                AND LOWER(jp_drpr.nm_perawatan) LIKE '%ambulance%'
+                AND EXISTS (
+                    SELECT 1 
+                    FROM bayar_piutang bp
+                    WHERE bp.no_rawat = rjdrpr.no_rawat
+                    AND DATE(bp.tgl_bayar) IN ($placeholders)
+                )
+
+            ) x
+
+        ) t
+    ", array_merge(
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap,
+                $multi_tanggal_ranap
+            ));
+
+            $totalAmbulanceValue = $totalAmbulance->total_ambulance ?? 0;
+        }
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        if (empty($multi_tanggal_ranap)) {
+            $totalResepPulangValue = 0;
+        } else {
+
+            $placeholders = implode(',', array_fill(0, count($multi_tanggal_ranap), '?'));
+
+            $totalResepPulang = DB::selectOne("
+        SELECT 
+            SUM(billing.totalbiaya) AS total_resep_pulang
+        FROM billing
+        JOIN reg_periksa 
+            ON billing.no_rawat = reg_periksa.no_rawat
+        WHERE billing.status = 'resep pulang'
+        AND EXISTS (
+            SELECT 1 
+            FROM bayar_piutang bp
+            WHERE bp.no_rawat = billing.no_rawat
+            AND DATE(bp.tgl_bayar) IN ($placeholders)
+        )
+    ", $multi_tanggal_ranap);
+
+            $totalResepPulangValue = $totalResepPulang->total_resep_pulang ?? 0;
+        }
 
         $RalanParamedisBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
@@ -295,17 +1051,19 @@ class RekapPendapatanBulanan extends Controller
         $RanapObatBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
             )
-            ->whereIn('b.status', ['Obat', 'Obat']) // filter Ralan & Ranap Dokter
+            ->where('b.status', 'Obat')
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
 
         $RalanReturObatBpjs = DB::table('billing as b')
@@ -324,20 +1082,27 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
             ->get();
 
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
         $RanapReturObatBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
             )
-            ->whereIn('b.status', ['Retur Obat', 'Retur Obat']) // filter Ralan & Ranap Dokter
+            ->whereIn('b.status', ['Retur Obat', 'Retur Obat'])
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
 
         $totalHDRalanBpjs = DB::table('billing as b')
@@ -355,6 +1120,11 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween('b.tgl_byr', [$tgl_bpjs1, $tgl_bpjs2])
             ->sum(DB::raw('ROUND(b.totalbiaya * 1.11, 0)'));
 
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
         $totalHDRanapBpjs = DB::table('billing as b')
             ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->where(function ($q) {
@@ -366,24 +1136,27 @@ class RekapPendapatanBulanan extends Controller
                     ->orWhere('b.status', 'Ralan Paramedis');
             })
             ->where('r.status_lanjut', 'Ranap')
-            // ->where('r.kd_pj', 'UMU')
-            ->whereBetween('b.tgl_byr', [$tgl_bpjs1, $tgl_bpjs2])
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(b.tgl_byr)'), $multi_tanggal_ranap);
+            })
             ->sum(DB::raw('ROUND(b.totalbiaya * 1.11, 0)'));
 
         $RanapLaboratBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
             )
-            ->whereIn('b.status', ['Laborat', 'Laborat']) // filter Ralan & Ranap Dokter
+            ->where('b.status', 'Laborat')
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
 
         $RalanLaboratBpjs = DB::table('billing as b')
@@ -402,21 +1175,136 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
             ->get();
 
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
         $RanapRadiologiBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
             )
-            ->whereIn('b.status', ['Radiologi', 'Radiologi']) // filter Ralan & Ranap Dokter
+            ->where('b.status', 'Radiologi')
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
+
+        $multi_tanggal_ranap = request('multi_tanggal_ranap');
+        $multi_tanggal_ranap = $multi_tanggal_ranap
+            ? array_map('trim', explode(',', $multi_tanggal_ranap))
+            : [];
+
+        /* ===================== RADIologi ===================== */
+
+        $RanapRadiologiBpjsJS1 = DB::table('periksa_radiologi as pr')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'pr.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'pr.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('pr.bagian_rs');
+
+        $RanapRadiologiBpjsBHP1 = DB::table('periksa_radiologi as pr')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'pr.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'pr.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('pr.bhp');
+
+        $RanapRadiologiJmDokterPj = DB::table('periksa_radiologi as pr')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'pr.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'pr.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('pr.tarif_tindakan_dokter');
+
+        $RanapRadiologiJmPetugas = DB::table('periksa_radiologi as pr')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'pr.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'pr.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('pr.tarif_tindakan_petugas');
+
+        $RanapRadiologiPerujuk = DB::table('periksa_radiologi as pr')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'pr.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'pr.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('pr.tarif_perujuk');
+
+        /* ===================== BILLING ===================== */
+
+        $totalBilling = DB::table('billing as b')
+            ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
+            ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
+            ->where('b.status', 'Radiologi')
+            ->where('p.status', 'lunas')
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
+            ->sum('b.totalbiaya');
+
+        /* ===================== HITUNGAN ===================== */
+
+        $totalPengurang =
+            $RanapRadiologiBpjsJS1 +
+            $RanapRadiologiBpjsBHP1 +
+            $RanapRadiologiJmDokterPj +
+            $RanapRadiologiJmPetugas +
+            $RanapRadiologiPerujuk;
+
+        $hasilAkhir = ($totalBilling ?? 0)
+            - ($totalPengurang ?? 0)
+            + ($RanapRadiologiBpjsJS1 ?? 0);
+
+        /* ===================== EXCESS ===================== */
+
+        $ExsesBPJS = DB::table('detail_nota_inap as dni')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'dni.no_rawat')
+            ->when(!empty($multi_tanggal_ranap), function ($main) use ($multi_tanggal_ranap) {
+                $main->whereExists(function ($q) use ($multi_tanggal_ranap) {
+                    $q->select(DB::raw(1))
+                        ->from('bayar_piutang as bp')
+                        ->whereColumn('bp.no_rawat', 'dni.no_rawat')
+                        ->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                });
+            })
+            ->sum('dni.besar_bayar');
 
         $RalanRadiologiBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
@@ -437,17 +1325,19 @@ class RekapPendapatanBulanan extends Controller
         $RanapKamarBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
             ->select(
                 'b.no_rawat',
                 'bp.tgl_bayar',
                 'b.status',
                 'b.totalbiaya'
             )
-            ->whereIn('b.status', ['Kamar', 'Kamar']) // filter Ralan & Ranap Dokter
+            ->where('b.status', 'Kamar')
             ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->get();
 
         $RalanKamarBpjs = DB::table('billing as b')
@@ -499,20 +1389,50 @@ class RekapPendapatanBulanan extends Controller
             ->get();
 
         $RanapPotonganBpjs = DB::table('billing as b')
-            ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
-            ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat') // join reg_periksa
+    ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
+    ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
+    ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
+    ->select(
+        'b.no_rawat',
+        'bp.tgl_bayar',
+        'b.status',
+        'b.totalbiaya'
+    )
+    ->where('b.status', 'Potongan')
+    ->where('p.status', 'lunas')
+    ->where('r.status_lanjut', 'Ranap')
+    ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+        $q->where(function ($q2) use ($multi_tanggal_ranap) {
+            foreach ($multi_tanggal_ranap as $tgl) {
+                $q2->orWhereBetween('bp.tgl_bayar', [
+                    $tgl . ' 00:00:00',
+                    $tgl . ' 23:59:59'
+                ]);
+            }
+        });
+    })
+    ->get();
+
+        $sub = DB::table('detail_piutang_pasien as dpp')
+            ->join('reg_periksa as rp', 'dpp.no_rawat', '=', 'rp.no_rawat')
+            ->join('bayar_piutang as bp', function ($join) use ($multi_tanggal_ranap) {
+                $join->on('bp.no_rawat', '=', 'rp.no_rawat');
+
+                if (!empty($multi_tanggal_ranap)) {
+                    $join->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+                }
+            })
             ->select(
-                'b.no_rawat',
-                'bp.tgl_bayar',
-                'b.status',
-                'b.totalbiaya'
+                'rp.no_rawat',
+                DB::raw('SUM(dpp.totalpiutang) as totalpiutang')
             )
-            ->whereIn('b.status', ['Potongan', 'Potongan']) // filter Ralan & Ranap Dokter
-            ->where('p.status', 'lunas')
-            ->where('r.status_lanjut', 'Ranap') // filter Ralan
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
-            ->get();
+            ->where('dpp.kd_pj', '<>', 'BPJS')
+            ->where('dpp.nama_bayar', 'NOT LIKE', '%BPJS%')
+            ->groupBy('rp.no_rawat');
+
+        $cobranapbpjs = DB::table(DB::raw("({$sub->toSql()}) as x"))
+            ->mergeBindings($sub)
+            ->sum('x.totalpiutang');
 
         $RalanPotonganBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
@@ -543,7 +1463,9 @@ class RekapPendapatanBulanan extends Controller
                 'dpp.no_rawat',
                 'bp.catatan'
             )
-            ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
+            })
             ->where('bp.catatan', 'diverifikasi oleh 20101987.A')
             ->groupBy('dpp.no_rawat');
 
@@ -805,7 +1727,25 @@ class RekapPendapatanBulanan extends Controller
             'totalHDRanapBpjs',
             'totalHDRalanBpjs',
             'grandRanap',
-            'grandRalan'
+            'grandRalan',
+            'TotalJasaSarana',
+            'TotalBHP',
+            'TotalJMDokter',
+            'totalParamedis',
+            'ksoPR',
+            'totalKsoDR',
+            'totalAmbulanceValue',
+            'totalResepPulangValue',
+            'RanapRadiologiBpjsJS1',
+            'RanapRadiologiBpjsBHP1',
+            'RanapRadiologiJmDokterPj',
+            'RanapRadiologiJmPetugas',
+            'RanapRadiologiPerujuk',
+            'totalPengurang',
+            'hasilAkhir',
+            'ExsesBPJS',
+            'cobranapbpjs'
+            // 'hasilAkhirJS'
         ));
     }
 }
