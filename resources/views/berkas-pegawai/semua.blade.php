@@ -147,7 +147,9 @@
                                 </thead>
                                 <tbody>
                                     @php $no = 1; @endphp
+                                    {{-- @foreach ($pegawaiList as $p) --}}
                                     @foreach ($pegawaiList as $p)
+                                        @if($p->status == '1')
                                         <tr>
                                             <td>{{ $no++ }}</td>
                                             <td class="text-center">
@@ -189,6 +191,7 @@
                                                 </button>
                                             </td>
                                         </tr>
+                                         @endif
                                     @endforeach
                                 </tbody>
                             </table>

@@ -178,13 +178,13 @@ class BerkasPegawaiController extends Controller
     /**
      * NIK yang diizinkan mengakses semua berkas pegawai
      */
-    private $allowedNikSemuaBerkas = [
-        '06893020003',
-        '0206020143',
-        '1121020577',
-        '01091999',
-        '0525020755',
-    ];
+    // private $allowedNikSemuaBerkas = [
+    //     '06893020003',
+    //     '0206020143',
+    //     '1121020577',
+    //     '01091999',
+    //     '0525020755',
+    // ];
 
     /**
      * Menampilkan daftar pegawai beserta jumlah berkasnya (Untuk admin/semua)
@@ -206,22 +206,38 @@ class BerkasPegawaiController extends Controller
         //     ->get();
 
         $pegawaiList = DB::table('pegawai')
-            ->leftJoin('petugas', 'pegawai.nik', '=', 'petugas.nip')
-            ->leftJoin('dokter', 'pegawai.nik', '=', 'dokter.kd_dokter')
+            ->join('petugas', 'pegawai.nik', '=', 'petugas.nip')
             ->leftJoin('berkas_pegawai', 'pegawai.nik', '=', 'berkas_pegawai.nik')
             ->select(
                 'pegawai.nik',
                 'pegawai.nama',
                 'pegawai.jk',
                 'pegawai.photo',
+                'petugas.status',
                 DB::raw('COUNT(berkas_pegawai.kode_berkas) as jumlah_berkas')
             )
-            ->where(function ($q) {
-                $q->where('petugas.status', '1')
-                  ->orWhere('dokter.kd_dokter', '!=', null);
-            })
-            ->groupBy('pegawai.nik', 'pegawai.nama', 'pegawai.jk', 'pegawai.photo')
-            ->orderByRaw("CASE WHEN pegawai.nik IN ('0519010353', 'D0000093', 'D0000121', 'D0000044', '0517010303', '1214010248', '10104020181') THEN 0 ELSE 1 END")
+            ->where('petugas.status', '1')
+            ->groupBy(
+                'pegawai.nik',
+                'pegawai.nama',
+                'pegawai.jk',
+                'pegawai.photo',
+                'petugas.status'
+            )
+            ->orderByRaw("
+            CASE 
+                WHEN pegawai.nik IN (
+                    '0519010353',
+                    'D0000093',
+                    'D0000121',
+                    'D0000044',
+                    '0517010303',
+                    '1214010248',
+                    '10104020181'
+                ) THEN 0 
+                ELSE 1 
+            END
+        ")
             ->orderBy('pegawai.nama')
             ->get();
 
