@@ -17,14 +17,31 @@ class RekapPendapatanBulanan extends Controller
         $tgl2 = $request->tgl2 ?? date('Y-m-d');
         $cariNomor = $request->cariNomor;
         $stsLanjut = $request->stsLanjut;
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-        $multi_tanggal_ralan = request('multi_tanggal_ralan');
-        $multi_tanggal_ralan = $multi_tanggal_ralan
-            ? array_map('trim', explode(',', $multi_tanggal_ralan))
-            : [];
+$input_ranap = $request->multi_tanggal_ranap;
+        if (is_null($input_ranap)) {
+            $input_ranap = [date('Y-m-d')];
+        } elseif (is_string($input_ranap)) {
+            $input_ranap = [$input_ranap];
+        }
+        $multi_tanggal_ranap = collect($input_ranap)
+            ->flatMap(fn($v) => explode(',', $v))
+            ->map(fn($v) => trim($v))
+            ->filter()
+            ->values()
+            ->toArray();
+
+        $input_ralan = $request->multi_tanggal_ralan;
+        if (is_null($input_ralan)) {
+            $input_ralan = [date('Y-m-d')];
+        } elseif (is_string($input_ralan)) {
+            $input_ralan = [$input_ralan];
+        }
+        $multi_tanggal_ralan = collect($input_ralan)
+            ->flatMap(fn($v) => explode(',', $v))
+            ->map(fn($v) => trim($v))
+            ->filter()
+            ->values()
+            ->toArray();
 
 
         // ====================== DATA PASIEN UMUM ======================
@@ -90,6 +107,9 @@ class RekapPendapatanBulanan extends Controller
                 'Ranap Dokter Paramedis',
                 'Ralan Dokter Paramedis'
             ]);
+
+
+
 
             // ================= LAINNYA =================
 
@@ -306,11 +326,6 @@ class RekapPendapatanBulanan extends Controller
 
         // $TotalJasaSarana = $TotalJasaSarana->total_jasa_sarana ?? 0;
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         if (empty($multi_tanggal_ranap)) {
             $TotalJasaSarana = 0;
         } else {
@@ -393,11 +408,6 @@ class RekapPendapatanBulanan extends Controller
             $TotalJasaSarana = $TotalJasaSarana->total_jasa_sarana ?? 0;
         }
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         if (empty($multi_tanggal_ranap)) {
             $TotalBHP = 0;
         } else {
@@ -479,11 +489,6 @@ class RekapPendapatanBulanan extends Controller
 
             $TotalBHP = $TotalBHP->total_bhp ?? 0;
         }
-
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
 
         if (empty($multi_tanggal_ranap)) {
             $TotalJMDokter = 0;
@@ -632,11 +637,6 @@ class RekapPendapatanBulanan extends Controller
             $TotalJMDokter = $TotalJMDokter->total_jm_dokter ?? 0;
         }
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         if (empty($multi_tanggal_ranap)) {
             $totalParamedis = 0;
         } else {
@@ -731,11 +731,6 @@ class RekapPendapatanBulanan extends Controller
             $totalParamedis = $totalParamedis->total_paramedis ?? 0;
         }
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         if (empty($multi_tanggal_ranap)) {
             $totalKsoPR = 0;
         } else {
@@ -818,11 +813,6 @@ class RekapPendapatanBulanan extends Controller
         }
 
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         if (empty($multi_tanggal_ranap)) {
             $totalKsoDR = 0;
         } else {
@@ -856,11 +846,6 @@ class RekapPendapatanBulanan extends Controller
 
             $totalKsoDR = $ksoDR->total_kso_dr ?? 0;
         }
-
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
 
         if (empty($multi_tanggal_ranap)) {
             $totalAmbulanceValue = 0;
@@ -938,11 +923,6 @@ class RekapPendapatanBulanan extends Controller
 
             $totalAmbulanceValue = $totalAmbulance->total_ambulance ?? 0;
         }
-
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
 
         if (empty($multi_tanggal_ranap)) {
             $totalResepPulangValue = 0;
@@ -1082,11 +1062,6 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
             ->get();
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         $RanapReturObatBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
@@ -1119,11 +1094,6 @@ class RekapPendapatanBulanan extends Controller
             // ->where('r.kd_pj', 'UMU')
             ->whereBetween('b.tgl_byr', [$tgl_bpjs1, $tgl_bpjs2])
             ->sum(DB::raw('ROUND(b.totalbiaya * 1.11, 0)'));
-
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
 
         $totalHDRanapBpjs = DB::table('billing as b')
             ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
@@ -1175,11 +1145,6 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween(DB::raw('DATE(bp.tgl_bayar)'), [$tgl_bpjs1, $tgl_bpjs2])
             ->get();
 
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
-
         $RanapRadiologiBpjs = DB::table('billing as b')
             ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
             ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
@@ -1197,11 +1162,6 @@ class RekapPendapatanBulanan extends Controller
                 $q->whereIn(DB::raw('DATE(bp.tgl_bayar)'), $multi_tanggal_ranap);
             })
             ->get();
-
-        $multi_tanggal_ranap = request('multi_tanggal_ranap');
-        $multi_tanggal_ranap = $multi_tanggal_ranap
-            ? array_map('trim', explode(',', $multi_tanggal_ranap))
-            : [];
 
         /* ===================== RADIologi ===================== */
 
@@ -1389,29 +1349,29 @@ class RekapPendapatanBulanan extends Controller
             ->get();
 
         $RanapPotonganBpjs = DB::table('billing as b')
-    ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
-    ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
-    ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
-    ->select(
-        'b.no_rawat',
-        'bp.tgl_bayar',
-        'b.status',
-        'b.totalbiaya'
-    )
-    ->where('b.status', 'Potongan')
-    ->where('p.status', 'lunas')
-    ->where('r.status_lanjut', 'Ranap')
-    ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
-        $q->where(function ($q2) use ($multi_tanggal_ranap) {
-            foreach ($multi_tanggal_ranap as $tgl) {
-                $q2->orWhereBetween('bp.tgl_bayar', [
-                    $tgl . ' 00:00:00',
-                    $tgl . ' 23:59:59'
-                ]);
-            }
-        });
-    })
-    ->get();
+            ->join('piutang_pasien as p', 'b.no_rawat', '=', 'p.no_rawat')
+            ->join('bayar_piutang as bp', 'b.no_rawat', '=', 'bp.no_rawat')
+            ->join('reg_periksa as r', 'b.no_rawat', '=', 'r.no_rawat')
+            ->select(
+                'b.no_rawat',
+                'bp.tgl_bayar',
+                'b.status',
+                'b.totalbiaya'
+            )
+            ->where('b.status', 'Potongan')
+            ->where('p.status', 'lunas')
+            ->where('r.status_lanjut', 'Ranap')
+            ->when(!empty($multi_tanggal_ranap), function ($q) use ($multi_tanggal_ranap) {
+                $q->where(function ($q2) use ($multi_tanggal_ranap) {
+                    foreach ($multi_tanggal_ranap as $tgl) {
+                        $q2->orWhereBetween('bp.tgl_bayar', [
+                            $tgl . ' 00:00:00',
+                            $tgl . ' 23:59:59'
+                        ]);
+                    }
+                });
+            })
+            ->get();
 
         $sub = DB::table('detail_piutang_pasien as dpp')
             ->join('reg_periksa as rp', 'dpp.no_rawat', '=', 'rp.no_rawat')
@@ -1615,6 +1575,38 @@ class RekapPendapatanBulanan extends Controller
             ->whereBetween('pp.tgl_piutang', [$tgl1, $tgl2])
             ->sum('dnj.besar_bayar');
 
+        $totalMaterialDR = DB::table('rawat_jl_dr as rjdr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->whereIn('rjdr.kd_jenis_prw', [
+                '082-UMU',
+                '079-UMU',
+                'HD02-UMU',
+                'CHHD04-UMU'
+            ])
+            ->distinct('rjdr.no_rawat')
+            ->sum('rjdr.material');
+
+
+        $totalMaterialPR = DB::table('rawat_jl_pr as rjpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->whereIn('rjpr.kd_jenis_prw', [
+                'AMB017',
+                'AMB00111',
+                '203-UMU',
+                'HD03-UMU',
+                'HD01-UMU',
+                '067-UMU'
+            ])
+            ->distinct('rjpr.no_rawat')
+            ->sum('rjpr.material');
+
+
+        $totalMaterial = $totalMaterialDR + $totalMaterialPR;
+
+        // dd($totalMaterial);
+
 
         // ====================== GRAND TOTAL ======================
 
@@ -1744,7 +1736,8 @@ class RekapPendapatanBulanan extends Controller
             'totalPengurang',
             'hasilAkhir',
             'ExsesBPJS',
-            'cobranapbpjs'
+            'cobranapbpjs',
+            'totalMaterial'
             // 'hasilAkhirJS'
         ));
     }

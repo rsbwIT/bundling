@@ -155,7 +155,7 @@ text-align:right;
 <td></td>
 <td class="sub1">Jasa Sarana</td>
 <td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalMaterial ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($TotalJasaSarana ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format(0) }}</td>
 </tr>

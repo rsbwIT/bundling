@@ -242,6 +242,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
 
+    //     Route::get('/rekap-pendapatan-bulanan', function () {
+    //     dd('test routing');
+    // });
+
 
         // DETAIL TINDAKAN Asuransi
         Route::get('/ralan-dokter', [RalanDokter::class, 'RalanDokter']);
