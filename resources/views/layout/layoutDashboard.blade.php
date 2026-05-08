@@ -850,6 +850,101 @@
                                 </ul>
                             </li>
                         @endif
+                                                {{-- DETAIL TINDAKAN BPJS --}}
+                        <li class="nav-item">{{-- menu-open --}}
+                            <a href="#" class="nav-link">{{-- active --}}
+                                <i class="nav-icon fas fa-hospital-user"></i>
+                                <p class="class="btn btn-app>
+                                    Detail Tindakan <span class="text-xs">(BPJS)</span>
+                                </p>
+                                <i class="right fas fa-angle-left"></i>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-dokter-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Dokter</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-paramedis-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ralan-dokter-paramedis-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ralan Dokter Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ranap-dokter-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Dokter</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ranap-paramedis-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/ranap-dokter-paramedis-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ranap Dokter Paramedis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/periksa-radiologi-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Periksa Radiologi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/operasi-and-vk-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Operasi & VK</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/periksalabpabpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Periksa LAB PA
+                                            <span class="badge badge-danger right">NEW</span>
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            JM Medis (BPJS)
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         {{-- MENU CASEMIX --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Gabung Berkas - Tools</li>

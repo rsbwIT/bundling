@@ -135,6 +135,15 @@ use App\Http\Controllers\RM\Diagnosa;
 use App\Http\Controllers\DetailTindakan\PeriksaLabPA;
 use App\Http\Controllers\DetailTindakanBulanan\PeriksaLabPABulanan;
 use App\Http\Controllers\DetailTindakanUmum\PeriksaLabPAUmum;
+use App\Http\Controllers\DetailTindakanBPJS\RalanDokterBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\RalanParamedisBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\RalanDokterParamedisBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\RanapDokterBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\RanapParamedisBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\RanapDokterParamedisBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\OperasiAndVKBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\PeriksaRadiologiBpjs;
+use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Gizi\MonitoringGiziController;
@@ -282,6 +291,17 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/ranap-paramedis-umum', [RanapParamedisUm::class, 'RanapParamedisUm']);
         Route::get('/ranap-dokter-paramedis-umum', [RanapDokterParamedisUm::class, 'RanapDokterParamedisUm']);
         Route::get('/periksa-radiologi-umum', [PeriksaRadiologiUm::class, 'PeriksaRadiologiUm']);
+
+        // DETAIL TINDAKAN BPJS
+        Route::get('/ralan-dokter-bpjs', [RalanDokterBpjs::class, 'RalanDokterBpjs']);
+        Route::get('/ralan-paramedis-bpjs', [RalanParamedisBpjs::class, 'RalanParamedisBpjs']);
+        Route::get('/ralan-dokter-paramedis-bpjs', [RalanDokterParamedisBpjs::class, 'RalanDokterParamedisBpjs']);
+        Route::get('/operasi-and-vk-bpjs', [OperasiAndVKBpjs::class, 'OperasiAndVKBpjs']);
+        Route::get('/ranap-dokter-bpjs', [RanapDokterBpjs::class, 'RanapDokterBpjs']);
+        Route::get('/ranap-paramedis-bpjs', [RanapParamedisBpjs::class, 'RanapParamedisBpjs']);
+        Route::get('/ranap-dokter-paramedis-bpjs', [RanapDokterParamedisBpjs::class, 'RanapDokterParamedisBpjs']);
+        Route::get('/periksa-radiologi-bpjs', [PeriksaRadiologiBpjs::class, 'PeriksaRadiologiBpjs']);
+        Route::get('/periksalabpabpjs', [PeriksaLabPABpjs::class, 'index']);
 
         // ANTRIAN PENDAFTARAN
         Route::get('/antrian-pendaftaran', [AntrianPendaftaran::class, 'AntrianPendaftaran']);
