@@ -17,7 +17,7 @@ class RekapPendapatanBulanan extends Controller
         $tgl2 = $request->tgl2 ?? date('Y-m-d');
         $cariNomor = $request->cariNomor;
         $stsLanjut = $request->stsLanjut;
-$input_ranap = $request->multi_tanggal_ranap;
+        $input_ranap = $request->multi_tanggal_ranap;
         if (is_null($input_ranap)) {
             $input_ranap = [date('Y-m-d')];
         } elseif (is_string($input_ranap)) {
@@ -1545,7 +1545,7 @@ $input_ranap = $request->multi_tanggal_ranap;
 
 
         // KURANGI DARI OBAT
-        // $obatRalan = $obatRalan - $totalHDRalan;
+        $obatRalan1 = $obatRalan - $totalHDRalan;
         // $obatRanap = $obatRanap - $totalHDRanap;
 
 
@@ -1575,37 +1575,242 @@ $input_ranap = $request->multi_tanggal_ranap;
             ->whereBetween('pp.tgl_piutang', [$tgl1, $tgl2])
             ->sum('dnj.besar_bayar');
 
+        //jasa sarana
         $totalMaterialDR = DB::table('rawat_jl_dr as rjdr')
             ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
             ->whereIn('rjdr.kd_jenis_prw', [
                 '082-UMU',
                 '079-UMU',
                 'HD02-UMU',
-                'CHHD04-UMU'
+                'CHHD04-UMU',
+                '002-UMU',
+                '001-UMU',
+                '019-UMU',
+                '216-UMU',
+                '020-UMU',
+                '080-UMU',
+                '192-UMU',
+                '221-UMU',
+                '218-UMU',
+                '055-UMU',
+                '024-UMU',
+                '150-UMU',
+                '248-UMU',
+                'RJMCU07',
+                'USG-UMU-RSBW',
+                '247-UMU',
+                '205-UMU',
+                '217-THT',
+                '081-UMU',
+                '267-UMU'
             ])
-            ->distinct('rjdr.no_rawat')
             ->sum('rjdr.material');
 
 
         $totalMaterialPR = DB::table('rawat_jl_pr as rjpr')
             ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
             ->whereIn('rjpr.kd_jenis_prw', [
                 'AMB017',
                 'AMB00111',
                 '203-UMU',
                 'HD03-UMU',
                 'HD01-UMU',
-                '067-UMU'
+                '067-UMU',
+                '004-UMU',
+                '012-UMU',
+                '010-UMU',
+                '009-UMU',
+                '008-UMU',
+                '023-UMU',
+                '068-UMU',
+                '022-UMU',
+                '074-UMU',
+                'TindakanLAB3',
+                '011-UMU',
+                'IGDBP0005',
+                '017-UMU',
+                'TindakanLAB14'
             ])
-            ->distinct('rjpr.no_rawat')
             ->sum('rjpr.material');
 
+        $totalMaterialDRPR = DB::table('rawat_jl_drpr as rjdrpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->whereIn('rjdrpr.kd_jenis_prw', [
+                '077-UMU',
+                '063-UMU',
+                '034-UMU',
+                '058-UMU',
+                'THT10',
+                '057-UMU',
+                '241-UMU',
+                '035-UMU'
+            ])
+            ->sum('rjdrpr.material');
 
-        $totalMaterial = $totalMaterialDR + $totalMaterialPR;
 
-        // dd($totalMaterial);
+        $totalMaterial = $totalMaterialDR + $totalMaterialPR + $totalMaterialDRPR;
+
+        //Paket BHP UMUM
+
+        $totalBHPDR = DB::table('rawat_jl_dr as rjdr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjdr.bhp');
+
+        $totalBHPPR = DB::table('rawat_jl_pr as rjpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjpr.bhp');
+
+        $totalBHPDRPR = DB::table('rawat_jl_drpr as rjdrpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjdrpr.bhp');
+
+        $totalBHPUMUM = $totalBHPDR + $totalBHPPR + $totalBHPDRPR;
+
+        //JM dokter umum
+
+        $totalJMDokterDR = DB::table('rawat_jl_dr as rjdr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjdr.tarif_tindakandr');
+
+        $totalJMDokterPR = DB::table('rawat_jl_pr as rjpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->whereIn('rjpr.nip', [
+                '09964020055',
+                '05084010153',
+                '0518010327',
+                '0817010312',
+                '1204020129',
+                '1802054204000003',
+                '1802081010970003',
+                '1802086108980001',
+                '19960223',
+                '0106010608'
+            ])
+            ->sum('rjpr.tarif_tindakanpr');
+
+        $totalJMDokterDRPR = DB::table('rawat_jl_drpr as rjdrpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum(DB::raw("
+                CASE 
+                    WHEN rjdrpr.kd_jenis_prw IN ('077-UMU', 'THT10', '241-UMU') THEN 
+                        COALESCE(rjdrpr.tarif_tindakandr,0) 
+                        + COALESCE(rjdrpr.tarif_tindakanpr,0)
+                    ELSE 
+                        COALESCE(rjdrpr.tarif_tindakandr,0)
+                END
+            "));
+
+        $totalJMDokterUMUM =
+            $totalJMDokterDR +
+            $totalJMDokterPR +
+            $totalJMDokterDRPR;
+
+
+        // ALAT DR
+        $totalALATDokterDR = DB::table('rawat_jl_dr as rjdr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjdr.kso');
+
+        $totalALATDokterPR = DB::table('rawat_jl_pr as rjpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->whereNotIn('rjpr.kd_jenis_prw', [
+                'AMB000199',
+                'AMB00022',
+                'AMB001',
+                'AMB00110',
+                'AMB00111',
+                'AMB005',
+                'AMB009',
+                'AMB013',
+                'AMB017',
+                'AMB021',
+                'AMBASU021',
+                'AMBASU025',
+                'AMBASU029',
+                'AMBASU1024',
+                'AMBASU121',
+                'AMBU021'
+            ])
+            ->sum('rjpr.kso');
+
+        $totalALATDokterDRPR = DB::table('rawat_jl_drpr as rjdrpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->sum('rjdrpr.kso');
+
+        $totalALATDokterKSO =
+            $totalALATDokterDR +
+            $totalALATDokterPR +
+            $totalALATDokterDRPR;
+
+        // AMBULANCE BW
+
+        // $totalAMBULANCEDokterDR = DB::table('rawat_jl_dr as rjdr')
+        //     ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
+        //     ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
+        //     ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+        //     ->where('rp.kd_pj', 'UMU')
+        //     ->sum('rjdr.kso');
+
+        $totalAMBULANCEDokterPR = DB::table('rawat_jl_pr as rjpr')
+            ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjpr.kd_jenis_prw')
+            ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+            ->where('rp.kd_pj', 'UMU')
+            ->where('jp.nm_perawatan', 'Ambulance ( Dahyar )')
+            ->sum('rjpr.kso');
+
+        // $totalAMBULANCEDokterDRPR = DB::table('rawat_jl_drpr as rjdrpr')
+        //     ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
+        //     ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+        //     ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
+        //     ->where('rp.kd_pj', 'UMU')
+        //     ->sum('rjdrpr.kso');
+
+        $totalAMBULANCEDokterKSO =
+            // $totalAMBULANCEDokterDR +
+            $totalAMBULANCEDokterPR;
+            // $totalAMBULANCEDokterDRPR;
+
+
+
+
 
 
         // ====================== GRAND TOTAL ======================
@@ -1681,7 +1886,7 @@ $input_ranap = $request->multi_tanggal_ranap;
             'drparamedisRanap',
             'drparamedisRalan',
             'obatRanap',
-            'obatRalan',
+            'obatRalan1',
             'RanapPotonganBpjs',
             'RalanPotonganBpjs',
             'RanapReturObatBpjs',
@@ -1737,7 +1942,11 @@ $input_ranap = $request->multi_tanggal_ranap;
             'hasilAkhir',
             'ExsesBPJS',
             'cobranapbpjs',
-            'totalMaterial'
+            'totalMaterial',
+            'totalBHPUMUM',
+            'totalJMDokterUMUM',
+            'totalALATDokterKSO',
+            'totalAMBULANCEDokterKSO'
             // 'hasilAkhirJS'
         ));
     }

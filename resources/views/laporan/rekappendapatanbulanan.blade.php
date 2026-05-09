@@ -164,7 +164,7 @@ text-align:right;
 <td></td>
 <td class="sub1">Paket BHP</td>
 <td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalBHPUMUM ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($TotalBHP ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format(0) }}</td>
 </tr>
@@ -173,7 +173,7 @@ text-align:right;
 <td></td>
 <td class="sub1">JM Dokter</td>
 <td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalJMDokterUMUM ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($TotalJMDokter ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format(0) }}</td>
 </tr>
@@ -213,7 +213,7 @@ text-align:right;
 <td></td>
 <td class="sub1">Alat BW</td>
 <td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalALATDokterKSO ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format((float) ($ksoPR->total_kso_pr ?? 0), 0, ',', '.') }}</td>
 <td>{{ number_format(0) }}</td>
 </tr>
@@ -231,7 +231,7 @@ text-align:right;
 <td></td>
 <td class="sub1">Ambulance BW</td>
 <td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalAMBULANCEDokterKSO ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format((float) ($totalAmbulanceValue ?? 0), 0, ',', '.') }}</td>
 <td>{{ number_format(0) }}</td>
 </tr>
@@ -271,7 +271,7 @@ text-align:right;
 <td></td>
 <td class="sub1">Obat + Embalase + Tuslah</td>
 <td>{{ number_format($obatRanap ?? 0) }}</td>
-<td>{{ number_format($obatRalan ?? 0) }}</td>
+<td>{{ number_format($obatRalan1 ?? 0) }}</td>
 <td>{{ number_format($RanapObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
 </tr>
@@ -303,7 +303,7 @@ text-align:right;
 <td>0</td>
 </tr>
 
-<tr class="jm">
+{{-- <tr class="jm">
 <td></td>
 <td class="sub1">JM Dokter</td>
 <td>{{ number_format($jmDokterRanap ?? 0) }}</td>
@@ -328,7 +328,7 @@ text-align:right;
 <td>{{ number_format($drparamedisRalan ?? 0) }}</td>
 <td>0</td>
 <td>0</td>
-</tr>
+</tr> --}}
 
 
 
