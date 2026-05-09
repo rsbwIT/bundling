@@ -249,6 +249,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
+        Route::post('/simpan-cob', [CobHarian::class, 'simpanCob']);
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
 
     //     Route::get('/rekap-pendapatan-bulanan', function () {
