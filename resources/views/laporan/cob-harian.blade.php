@@ -141,6 +141,7 @@
                         <th class="text-center" colspan="4">Penjamin</th>
                         <th>Dibayar Asuransi</th>
                         <th>Selisih Piutang Dibayar</th>
+                        <th>Akun Bayar</th>
                     </tr>
                 </thead>
 
@@ -257,10 +258,14 @@
 
                         <td class="text-right">
                             @php
-                                $totalPenjab = $item->getPenjabCOB->where('png_jawab', '!=', 'BPJS')->where('png_jawab', '!=', 'ASR - JAMSOSTEK','')->sum('totalpiutang');
+                                $totalPenjab = $item->getPenjabCOB->where('png_jawab', '!=', 'BPJS')->where('png_jawab', '!=', 'ASR - JAMSOSTEK')->sum('totalpiutang');
                                 $dibayarCob = $item->getLunasCob->nominal_cob ?? 0;
                             @endphp
                             {{ number_format($totalPenjab - $dibayarCob, 0, ',', '.') }}
+                        </td>
+
+                        <td>
+                            {{ $item->getLunasCob->akun_bayar ?? '' }}
                         </td>
 
                     </tr>
