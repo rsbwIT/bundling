@@ -14,6 +14,9 @@ class CobHarian extends Controller
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1;
         $tanggl2 = $request->tgl2;
+        $tglLunas1 = $request->tgl_lunas1;
+        $tglLunas2 = $request->tgl_lunas2;
+        $filterType = $request->filter_type ?? 'tempo';
         $stsLanjut = $request->stsLanjut;
 
         $getCobHarian = DB::table('detail_piutang_pasien')
@@ -33,8 +36,15 @@ class CobHarian extends Controller
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'reg_periksa.no_rawat', '=', 'piutang_pasien.no_rawat')
-            ->whereBetween('detail_piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
+            ->leftJoin('detail_lunas_cob', 'detail_piutang_pasien.no_rawat', '=', 'detail_lunas_cob.no_rawat')
+            ->when($filterType == 'tempo' && $tanggl1 && $tanggl2, function ($query) use ($tanggl1, $tanggl2) {
+                return $query->whereBetween('detail_piutang_pasien.tgltempo', [$tanggl1, $tanggl2]);
+            })
             ->where('reg_periksa.status_lanjut', $stsLanjut)
+            ->when($filterType == 'lunas' && $tglLunas1 && $tglLunas2, function ($query) use ($tglLunas1, $tglLunas2) {
+                return $query->whereNotNull('detail_lunas_cob.tgl_lunas')
+                    ->whereBetween('detail_lunas_cob.tgl_lunas', [$tglLunas1, $tglLunas2]);
+            })
             ->where(function ($query) use ($cariNomor) {
                 $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
@@ -195,7 +205,16 @@ class CobHarian extends Controller
 
         return view('laporan.cob-harian', [
             'getCobHarian' => $getCobHarian,
-            'akunBayar' => DB::table('akun_bayar')->get(),
+            // 'akunBayar' => DB::table('akun_bayar')->get(),
+            'akunBayar' => DB::table('akun_bayar')
+                ->whereIn('kd_rek', [
+                    '112010',
+                    '112030',
+                    '112011',
+                    '112110',
+                    '112090'
+                ])
+                ->get(),
         ]);
     }
 

@@ -24,64 +24,234 @@
                 </div>
             @endif
 
-            <form action="{{ url('cob-harian') }}">
-                @csrf
-                <div class="row">
+            <form action="{{ url('cob-harian') }}" method="GET">
+    @csrf
 
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <input type="text"
-                                    name="cariNomor"
-                                    class="form-control form-control-xs"
-                                    placeholder="Cari Nama/RM/No Rawat">
-                            </div>
-                        </div>
-                    </div>
+    <style>
+        .form-control-sm,
+        .btn-sm {
+            height: 38px;
+            font-size: 13px;
+        }
 
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <select class="form-control" name="stsLanjut">
-                                    <option value="Ralan">Rawat Jalan</option>
-                                    <option value="Ranap">Rawat Inap</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+        .form-group {
+            margin-bottom: 0;
+        }
 
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <input type="date"
-                                    name="tgl1"
-                                    class="form-control form-control-xs"
-                                    value="{{ request('tgl1', now()->format('Y-m-d')) }}">
-                            </div>
-                        </div>
-                    </div>
+        .form-check-inline {
+            margin-right: 15px;
+        }
 
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <input type="date"
-                                    name="tgl2"
-                                    class="form-control form-control-xs"
-                                    value="{{ request('tgl2', now()->format('Y-m-d')) }}">
-                            </div>
-                        </div>
-                    </div>
+        .filter-radio-wrapper {
+            height: 38px;
+            display: flex;
+            align-items: center;
+        }
 
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-md btn-primary">
-                                <i class="fa fa-search"></i> Cari
-                            </button>
-                        </div>
-                    </div>
+        .form-check {
+            margin-bottom: 0;
+        }
 
+        .form-check-input {
+            margin-top: 0.1rem;
+        }
+
+        .border-top-custom {
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Rapihkan input date */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: .7;
+        }
+
+        input[type="date"]::-webkit-datetime-edit {
+            color: #495057;
+        }
+    </style>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <!-- FILTER -->
+            <div class="row">
+
+    <!-- Cari -->
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Cari Data
+            </label>
+
+            <input type="text"
+                name="cariNomor"
+                class="form-control form-control-sm"
+                placeholder="Nama / RM / No Rawat"
+                value="{{ request('cariNomor') }}">
+        </div>
+    </div>
+
+    <!-- Status -->
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Status
+            </label>
+
+            <select class="form-control form-control-sm"
+                name="stsLanjut">
+
+                <option value="Ralan"
+                    {{ request('stsLanjut') == 'Ralan' ? 'selected' : '' }}>
+                    Rawat Jalan
+                </option>
+
+                <option value="Ranap"
+                    {{ request('stsLanjut') == 'Ranap' ? 'selected' : '' }}>
+                    Rawat Inap
+                </option>
+
+            </select>
+        </div>
+    </div>
+
+    <!-- Filter Radio -->
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1 d-block">
+                Filter Tanggal
+            </label>
+
+            <div class="filter-radio-wrapper d-flex align-items-center" style="height:38px;">
+
+                <div class="form-check form-check-inline mb-0">
+                    <input class="form-check-input"
+                        type="radio"
+                        name="filter_type"
+                        id="filter_tempo"
+                        value="tempo"
+                        {{ request('filter_type', 'tempo') == 'tempo' ? 'checked' : '' }}>
+
+                    <label class="form-check-label small"
+                        for="filter_tempo">
+                        Tanggal
+                    </label>
                 </div>
-            </form>
+
+                <div class="form-check form-check-inline mb-0">
+                    <input class="form-check-input"
+                        type="radio"
+                        name="filter_type"
+                        id="filter_lunas"
+                        value="lunas"
+                        {{ request('filter_type') == 'lunas' ? 'checked' : '' }}>
+
+                    <label class="form-check-label small"
+                        for="filter_lunas">
+                        Tgl Lunas
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Button -->
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="d-block mb-1">&nbsp;</label>
+
+            <button type="submit"
+                class="btn btn-primary btn-sm btn-block"
+                style="height:38px;">
+                <i class="fa fa-search mr-1"></i>
+                Cari
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- GARIS -->
+<div class="border-top-custom my-3"></div>
+
+<!-- FLATPICKR -->
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- FILTER TANGGAL -->
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tgl 1
+            </label>
+
+            <input type="text"
+                name="tgl1"
+                class="form-control form-control-sm tanggal"
+                placeholder="Pilih Tanggal"
+                value="{{ request('tgl1') }}">
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tgl 2
+            </label>
+
+            <input type="text"
+                name="tgl2"
+                class="form-control form-control-sm tanggal"
+                placeholder="Pilih Tanggal"
+                value="{{ request('tgl2') }}">
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tgl Lunas 1
+            </label>
+
+            <input type="text"
+                name="tgl_lunas1"
+                class="form-control form-control-sm tanggal"
+                placeholder="Pilih Tanggal"
+                value="{{ request('tgl_lunas1') }}">
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tgl Lunas 2
+            </label>
+
+            <input type="text"
+                name="tgl_lunas2"
+                class="form-control form-control-sm tanggal"
+                placeholder="Pilih Tanggal"
+                value="{{ request('tgl_lunas2') }}">
+        </div>
+    </div>
+
+</div>
+
+<script>
+    flatpickr(".tanggal", {
+        dateFormat: "Y-m-d",
+        disableMobile: true
+    });
+</script>
+        </div>
+    </div>
+</form>
 
             Jumlah Data : {{ count($getCobHarian) }}
 
@@ -140,8 +310,9 @@
 
                         <th class="text-center" colspan="4">Penjamin</th>
                         <th>Dibayar Asuransi</th>
-                        <th>Selisih Piutang Dibayar</th>
+                        <th>Selisih Dibayar</th>
                         <th>Akun Bayar</th>
+                        <th>Tanggal Lunas</th>
                     </tr>
                 </thead>
 
@@ -266,6 +437,10 @@
 
                         <td>
                             {{ $item->getLunasCob->akun_bayar ?? '' }}
+                        </td>
+
+                        <td>
+                            {{ $item->getLunasCob->tgl_lunas ?? '' }}
                         </td>
 
                     </tr>
@@ -459,6 +634,31 @@
             }
         }
 
+        function updateFilterState() {
+            const filterType = document.querySelector('input[name="filter_type"]:checked').value;
+            const tgl1 = document.querySelector('input[name="tgl1"]');
+            const tgl2 = document.querySelector('input[name="tgl2"]');
+            const tglLunas1 = document.querySelector('input[name="tgl_lunas1"]');
+            const tglLunas2 = document.querySelector('input[name="tgl_lunas2"]');
+
+            if (filterType === 'tempo') {
+                tgl1.disabled = false;
+                tgl2.disabled = false;
+                tglLunas1.disabled = true;
+                tglLunas2.disabled = true;
+            } else {
+                tgl1.disabled = true;
+                tgl2.disabled = true;
+                tglLunas1.disabled = false;
+                tglLunas2.disabled = false;
+            }
+        }
+
+        document.querySelectorAll('input[name="filter_type"], input[name="tgl1"], input[name="tgl2"], input[name="tgl_lunas1"], input[name="tgl_lunas2"]').forEach(function(input) {
+            input.addEventListener('change', updateFilterState);
+        });
+
+        updateFilterState();
     </script>
 
 @endsection
