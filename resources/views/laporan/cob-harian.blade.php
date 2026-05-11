@@ -135,7 +135,7 @@
 
                     <label class="form-check-label small"
                         for="filter_tempo">
-                        Tanggal
+                        Tanggal Nota
                     </label>
                 </div>
 
@@ -189,7 +189,7 @@
     <div class="col-md-6">
         <div class="form-group">
             <label class="small font-weight-bold mb-1">
-                Tanggal
+                Tanggal Nota
             </label>
 
             <div class="d-flex align-items-center">
