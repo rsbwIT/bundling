@@ -183,39 +183,69 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- FILTER TANGGAL -->
-<div class="d-flex align-items-center flex-wrap">
+<div class="row">
 
-    <div class="form-group mb-0 mr-2" style="width:230px;">
-        <input type="text"
-            class="form-control form-control-sm tanggal"
-            placeholder="Pilih Tanggal Nota"
-            value="{{ request('tgl1') }}">
+    <!-- TANGGAL -->
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tanggal
+            </label>
+
+            <div class="d-flex align-items-center">
+
+                <input type="text"
+                    name="tgl1"
+                    id="tgl1"
+                    class="form-control form-control-sm tanggal"
+                    placeholder="Pilih Tanggal"
+                    value="{{ request('tgl1') }}">
+
+                <span class="mx-2 font-weight-bold">
+                    s.d
+                </span>
+
+                <input type="text"
+                    name="tgl2"
+                    id="tgl2"
+                    class="form-control form-control-sm tanggal"
+                    placeholder="Pilih Tanggal"
+                    value="{{ request('tgl2') }}">
+
+            </div>
+        </div>
     </div>
 
-    <span class="font-weight-bold mx-2">s.d</span>
 
-    <div class="form-group mb-0 mr-5" style="width:230px;">
-        <input type="text"
-            class="form-control form-control-sm tanggal"
-            placeholder="Pilih Tanggal Nota"
-            value="{{ request('tgl2') }}">
-    </div>
+    <!-- TANGGAL LUNAS -->
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Tanggal Lunas
+            </label>
 
-    <div class="form-group mb-0 ml-4 mr-2" style="width:230px;">
-        <input type="text"
-            class="form-control form-control-sm tanggal"
-            placeholder="Pilih Tanggal Lunas"
-            value="{{ request('tgl_lunas1') }}">
-    </div>
+            <div class="d-flex align-items-center">
 
-    <span class="font-weight-bold mx-2">s.d</span>
+                <input type="text"
+                    name="tgl_lunas1"
+                    id="tgl_lunas1"
+                    class="form-control form-control-sm tanggal"
+                    placeholder="Pilih Tanggal"
+                    value="{{ request('tgl_lunas1') }}">
 
-    <div class="form-group mb-0">
-        <input type="text"
-            name="tgl_lunas2"
-            class="form-control form-control-sm tanggal"
-            placeholder="Pilih Tanggal Lunas"
-            value="{{ request('tgl_lunas2') }}">
+                <span class="mx-2 font-weight-bold">
+                    s.d
+                </span>
+
+                <input type="text"
+                    name="tgl_lunas2"
+                    id="tgl_lunas2"
+                    class="form-control form-control-sm tanggal"
+                    placeholder="Pilih Tanggal"
+                    value="{{ request('tgl_lunas2') }}">
+
+            </div>
+        </div>
     </div>
 
 </div>
@@ -226,6 +256,9 @@
         disableMobile: true
     });
 </script>
+        </div>
+    </div>
+</form>
 
             Jumlah Data : {{ count($getCobHarian) }}
 
@@ -609,30 +642,64 @@
         }
 
         function updateFilterState() {
-            const filterType = document.querySelector('input[name="filter_type"]:checked').value;
-            const tgl1 = document.querySelector('input[name="tgl1"]');
-            const tgl2 = document.querySelector('input[name="tgl2"]');
-            const tglLunas1 = document.querySelector('input[name="tgl_lunas1"]');
-            const tglLunas2 = document.querySelector('input[name="tgl_lunas2"]');
 
-            if (filterType === 'tempo') {
-                tgl1.disabled = false;
-                tgl2.disabled = false;
-                tglLunas1.disabled = true;
-                tglLunas2.disabled = true;
-            } else {
-                tgl1.disabled = true;
-                tgl2.disabled = true;
-                tglLunas1.disabled = false;
-                tglLunas2.disabled = false;
+                const filterType = document.querySelector(
+                    'input[name="filter_type"]:checked'
+                ).value;
+
+                const tgl1 = document.getElementById('tgl1');
+                const tgl2 = document.getElementById('tgl2');
+
+                const tglLunas1 = document.getElementById('tgl_lunas1');
+                const tglLunas2 = document.getElementById('tgl_lunas2');
+
+
+                if (filterType === 'tempo') {
+
+                    // aktif
+                    tgl1.disabled = false;
+                    tgl2.disabled = false;
+
+                    // nonaktif
+                    tglLunas1.disabled = true;
+                    tglLunas2.disabled = true;
+
+                    // kosongkan
+                    tglLunas1.value = '';
+                    tglLunas2.value = '';
+
+                } else {
+
+                    // nonaktif
+                    tgl1.disabled = true;
+                    tgl2.disabled = true;
+
+                    // aktif
+                    tglLunas1.disabled = false;
+                    tglLunas2.disabled = false;
+
+                    // kosongkan
+                    tgl1.value = '';
+                    tgl2.value = '';
+                }
             }
-        }
 
-        document.querySelectorAll('input[name="filter_type"], input[name="tgl1"], input[name="tgl2"], input[name="tgl_lunas1"], input[name="tgl_lunas2"]').forEach(function(input) {
-            input.addEventListener('change', updateFilterState);
-        });
 
-        updateFilterState();
+            // trigger radio
+            document.querySelectorAll(
+                'input[name="filter_type"]'
+            ).forEach(function(el){
+
+                el.addEventListener('change', updateFilterState);
+
+            });
+
+
+            // pertama kali load
+            document.addEventListener(
+                'DOMContentLoaded',
+                updateFilterState
+            );
     </script>
 
 @endsection
