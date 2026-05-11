@@ -183,62 +183,39 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- FILTER TANGGAL -->
-<div class="row">
+<div class="d-flex align-items-center flex-wrap">
 
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tgl 1
-            </label>
-
-            <input type="text"
-                name="tgl1"
-                class="form-control form-control-sm tanggal"
-                placeholder="Pilih Tanggal"
-                value="{{ request('tgl1') }}">
-        </div>
+    <div class="form-group mb-0 mr-2" style="width:230px;">
+        <input type="text"
+            class="form-control form-control-sm tanggal"
+            placeholder="Pilih Tanggal Nota"
+            value="{{ request('tgl1') }}">
     </div>
 
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tgl 2
-            </label>
+    <span class="font-weight-bold mx-2">s.d</span>
 
-            <input type="text"
-                name="tgl2"
-                class="form-control form-control-sm tanggal"
-                placeholder="Pilih Tanggal"
-                value="{{ request('tgl2') }}">
-        </div>
+    <div class="form-group mb-0 mr-5" style="width:230px;">
+        <input type="text"
+            class="form-control form-control-sm tanggal"
+            placeholder="Pilih Tanggal Nota"
+            value="{{ request('tgl2') }}">
     </div>
 
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tgl Lunas 1
-            </label>
-
-            <input type="text"
-                name="tgl_lunas1"
-                class="form-control form-control-sm tanggal"
-                placeholder="Pilih Tanggal"
-                value="{{ request('tgl_lunas1') }}">
-        </div>
+    <div class="form-group mb-0 ml-4 mr-2" style="width:230px;">
+        <input type="text"
+            class="form-control form-control-sm tanggal"
+            placeholder="Pilih Tanggal Lunas"
+            value="{{ request('tgl_lunas1') }}">
     </div>
 
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tgl Lunas 2
-            </label>
+    <span class="font-weight-bold mx-2">s.d</span>
 
-            <input type="text"
-                name="tgl_lunas2"
-                class="form-control form-control-sm tanggal"
-                placeholder="Pilih Tanggal"
-                value="{{ request('tgl_lunas2') }}">
-        </div>
+    <div class="form-group mb-0">
+        <input type="text"
+            name="tgl_lunas2"
+            class="form-control form-control-sm tanggal"
+            placeholder="Pilih Tanggal Lunas"
+            value="{{ request('tgl_lunas2') }}">
     </div>
 
 </div>
@@ -249,9 +226,6 @@
         disableMobile: true
     });
 </script>
-        </div>
-    </div>
-</form>
 
             Jumlah Data : {{ count($getCobHarian) }}
 
@@ -341,19 +315,19 @@
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getObat->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getObat->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getReturObat->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getReturObat->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getResepPulang->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getResepPulang->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
@@ -365,32 +339,32 @@
                                     $item->getRanapDokter->sum('totalbiaya') +
                                     $item->getRanapDrParamedis->sum('totalbiaya') +
                                     $item->getRanapParamedis->sum('totalbiaya'),
-                                0, ',', '.')
+                                0, '.', ',')
                             }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getOprasi->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getOprasi->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getLaborat->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getLaborat->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getRadiologi->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getRadiologi->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getTambahan->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getTambahan->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getKamarInap->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getKamarInap->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right kolom-nominal">
-                            {{ number_format($item->getPotongan->sum('totalbiaya'), 0, ',', '.') }}
+                            {{ number_format($item->getPotongan->sum('totalbiaya'), 0, '.', ',') }}
                         </td>
 
                         <td class="text-right text-bold kolom-nominal">
@@ -412,19 +386,19 @@
                                     $item->getTambahan->sum('totalbiaya') +
                                     $item->getKamarInap->sum('totalbiaya') +
                                     $item->getPotongan->sum('totalbiaya'),
-                                0, ',', '.')
+                                0, '.', ',')
                             }}
                         </td>
 
                         @foreach ($item->getPenjabCOB as $penjab)
                             <td>{{ $penjab->png_jawab }}</td>
                             <td class="text-right">
-                                {{ number_format($penjab->totalpiutang, 0, ',', '.') }}
+                                {{ number_format($penjab->totalpiutang, 0, '.', ',') }}
                             </td>
                         @endforeach
 
                         <td class="text-right">
-                            {{ number_format($item->getLunasCob->nominal_cob ?? 0, 0, ',', '.') }}
+                            {{ number_format($item->getLunasCob->nominal_cob ?? 0, 0, '.', ',') }}
                         </td>
 
                         <td class="text-right">
@@ -432,7 +406,7 @@
                                 $totalPenjab = $item->getPenjabCOB->where('png_jawab', '!=', 'BPJS')->where('png_jawab', '!=', 'ASR - JAMSOSTEK')->sum('totalpiutang');
                                 $dibayarCob = $item->getLunasCob->nominal_cob ?? 0;
                             @endphp
-                            {{ number_format($totalPenjab - $dibayarCob, 0, ',', '.') }}
+                            {{ number_format($totalPenjab - $dibayarCob, 0, '.', ',') }}
                         </td>
 
                         <td>
