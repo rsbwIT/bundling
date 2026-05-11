@@ -180,7 +180,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -263,7 +263,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -302,7 +302,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -331,18 +331,21 @@ class JMAsuransiController extends Controller
         )
         ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
-        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->leftJoin('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
         ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -350,6 +353,15 @@ class JMAsuransiController extends Controller
         })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
         })
         ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
 
@@ -362,18 +374,21 @@ class JMAsuransiController extends Controller
         )
         ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
-        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->leftJoin('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
         ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -381,6 +396,15 @@ class JMAsuransiController extends Controller
         })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
         })
         ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
 
@@ -419,7 +443,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -461,7 +485,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -500,7 +524,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -539,7 +563,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -578,7 +602,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -615,7 +639,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -655,7 +679,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -698,7 +722,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -738,7 +762,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -777,7 +801,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -818,18 +842,21 @@ class JMAsuransiController extends Controller
         )
         ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
-        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->leftJoin('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
         ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -837,6 +864,15 @@ class JMAsuransiController extends Controller
         })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
         })
         ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
 
@@ -849,18 +885,21 @@ class JMAsuransiController extends Controller
         )
         ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-        ->join('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
-        ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->leftJoin('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'periksa_lab.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'periksa_lab.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->where('jns_perawatan_lab.kategori', 'PA')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
         ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -868,6 +907,15 @@ class JMAsuransiController extends Controller
         })
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
         })
         ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
 
@@ -933,7 +981,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -978,7 +1026,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1022,7 +1070,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1066,7 +1114,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1110,7 +1158,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1154,7 +1202,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1196,7 +1244,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
@@ -1234,7 +1282,7 @@ class JMAsuransiController extends Controller
             if ($kdPenjamin) {
                 $query->whereIn('penjab.kd_pj', $kdPenjamin);
             } else {
-                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ', 'A09'])
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
             }
             $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])

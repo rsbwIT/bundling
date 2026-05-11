@@ -292,11 +292,83 @@ class JMUmumController extends Controller
         })
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
 
+        // 2d. Query periksa_lab Lab PA Ralan - JM Perujuk (tarif_perujuk)
+        $queryLabPerujukRalan = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.dokter_perujuk as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_perujuk) as total_ralan")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->leftJoin('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
+
+        // 2e. Query periksa_lab Lab PA Ralan - JM PJ Lab (tarif_tindakan_dokter)
+        $queryLabDokterRalan = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_tindakan_dokter) as total_ralan")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->leftJoin('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->where('reg_periksa.status_lanjut', 'Ralan')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
+
         // Gabungkan semua query ralan (Union), ambil datanya, dan jumlahkan lagi di level Collection
         $results = $queryDr
             ->unionAll($queryDrPr)
             ->unionAll($queryRadPerujukRalan)
             ->unionAll($queryRadDokterRalan)
+            ->unionAll($queryLabPerujukRalan)
+            ->unionAll($queryLabDokterRalan)
             ->get();
 
         $dataRalan = $results->groupBy('kd_dokter')->map(function ($row) {
@@ -568,6 +640,76 @@ class JMUmumController extends Controller
         })
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
 
+        // 10. Query periksa_lab Lab PA Ranap - JM Perujuk
+        $queryLabPerujukRanap = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.dokter_perujuk as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_perujuk) as total_ranap")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->leftJoin('dokter', 'periksa_lab.dokter_perujuk', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
+
+        // 11. Query periksa_lab Lab PA Ranap - JM PJ Lab
+        $queryLabDokterRanap = DB::table('periksa_lab')
+        ->select(
+            'periksa_lab.kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(periksa_lab.tarif_tindakan_dokter) as total_ranap")
+        )
+        ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->leftJoin('dokter', 'periksa_lab.kd_dokter', '=', 'dokter.kd_dokter')
+        ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->where('reg_periksa.status_lanjut', 'Ranap')
+        ->where(function($q) {
+            $q->where('periksa_lab.kategori', 'PA')
+              ->orWhere('jns_perawatan_lab.kategori', 'PA');
+        })
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
+        })
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
+
         // Gabungkan semua query ranap (Union), ambil datanya, dan jumlahkan lagi di level Collection
         $resultsRanap = $queryRanapDr
             ->unionAll($queryRanapDrPr)
@@ -577,6 +719,8 @@ class JMUmumController extends Controller
             ->unionAll($queryRanapJlDrPr)
             ->unionAll($queryRadiologiPerujuk)
             ->unionAll($queryRadiologiDokter)
+            ->unionAll($queryLabPerujukRanap)
+            ->unionAll($queryLabDokterRanap)
             ->get();
 
         $dataRanap = $resultsRanap->groupBy('kd_dokter')->map(function ($row) {
