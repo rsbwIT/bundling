@@ -192,6 +192,12 @@ class JMBpjsController extends Controller
                 });
             }
         })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_jl_dr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_jl_dr.kd_dokter');
+        })
         ->groupBy(
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_dr.kd_dokter END"),
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END")
@@ -230,6 +236,12 @@ class JMBpjsController extends Controller
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                 });
             }
+        })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_jl_drpr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_jl_drpr.kd_dokter');
         })
         ->groupBy(
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_drpr.kd_dokter END"),
@@ -378,6 +390,12 @@ class JMBpjsController extends Controller
                 });
             }
         })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_inap_dr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_inap_dr.kd_dokter');
+        })
         ->groupBy(
             DB::raw("CASE WHEN rawat_inap_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_inap_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_inap_dr.kd_dokter END"),
             DB::raw("CASE WHEN rawat_inap_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_inap_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END")
@@ -416,6 +434,12 @@ class JMBpjsController extends Controller
                 });
             }
         })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_inap_drpr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_inap_drpr.kd_dokter');
+        })
         ->groupBy(
             DB::raw("CASE WHEN rawat_inap_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_inap_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_inap_drpr.kd_dokter END"),
             DB::raw("CASE WHEN rawat_inap_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_inap_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END")
@@ -426,7 +450,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.operator1 as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(operasi.biayaoperator1) as total_ranap")
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -459,7 +483,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.operator1 as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(paket_operasi.operator1) as total_ralan")
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -493,7 +517,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anestesi as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(operasi.biayadokter_anestesi) as total_ranap")
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.35) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -526,7 +550,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anestesi as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(paket_operasi.dokter_anestesi) as total_ralan")
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.35) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -735,6 +759,12 @@ class JMBpjsController extends Controller
                 });
             }
         })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_jl_dr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_jl_dr.kd_dokter');
+        })
         ->groupBy(
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_dr.kd_dokter END"),
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END")
@@ -773,6 +803,12 @@ class JMBpjsController extends Controller
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                 });
             }
+        })
+        ->whereNotExists(function($q) {
+            $q->select(DB::raw(1))
+                ->from('operasi')
+                ->whereColumn('operasi.no_rawat', 'rawat_jl_drpr.no_rawat')
+                ->whereColumn('operasi.operator1', 'rawat_jl_drpr.kd_dokter');
         })
         ->groupBy(
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_drpr.kd_dokter END"),
@@ -1170,7 +1206,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(operasi.biayaasisten_operator1) as total_ranap"),
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.15) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1202,7 +1238,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(paket_operasi.asisten_operator1) as total_ralan"),
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.15) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1235,7 +1271,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_anestesi as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(operasi.biayaasisten_anestesi) as total_ranap"),
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.1) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1267,7 +1303,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_anestesi as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(paket_operasi.asisten_anestesi) as total_ralan"),
+            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.1) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
