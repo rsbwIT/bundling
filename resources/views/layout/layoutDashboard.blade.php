@@ -517,9 +517,17 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cob-harian') }}" class="nav-link">
+                                    <a href="{{ url('/piutang-harian') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien COB <span class="text-xs">(Harian)</span></p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/cob-harian') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pasien Piutang <span class="text-xs">(Harian)</span></p>
                                     </a>
                                 </li>
                             </ul>

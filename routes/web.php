@@ -148,10 +148,8 @@ use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Gizi\MonitoringGiziController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
-
-
-
-
+use App\Http\Controllers\Laporan\PiutangHarian;
+use App\Http\Controllers\AI\User;
 
 
 
@@ -250,11 +248,26 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
         Route::post('/simpan-cob', [CobHarian::class, 'simpanCob']);
+        Route::get('/piutang-harian', [PiutangHarian::class, 'index']);
+        Route::post('/piutang-harian/simpan', [PiutangHarian::class, 'simpanCob']);
+        Route::post('simpan-cob', [PiutangHarian::class, 'simpanCob'])->name('simpan-cob');
+
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
 
-    //     Route::get('/rekap-pendapatan-bulanan', function () {
-    //     dd('test routing');
-    // });
+        //     Route::get('/rekap-pendapatan-bulanan', function () {
+        //     dd('test routing');
+        // });
+
+
+        //user
+        Route::get('/ai/user', [User::class, 'index'])
+            ->name('ai.user');
+
+        Route::get('/ai/user/akses/{id}', [User::class, 'getAkses'])
+            ->name('ai.user.akses');
+
+        Route::post('/ai/user/akses/update', [User::class, 'updateAkses'])
+            ->name('ai.user.akses.update');
 
 
         // DETAIL TINDAKAN Asuransi
