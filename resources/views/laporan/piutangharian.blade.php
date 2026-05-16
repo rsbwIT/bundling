@@ -837,7 +837,32 @@
     const table =
         document.getElementById(
             tableId
-        );
+        ).cloneNode(true);
+
+
+    table.querySelectorAll(
+        'td, th'
+    ).forEach(function(cell){
+
+        let text =
+            cell.innerText.trim();
+
+
+        if(
+            /^[\d.,]+$/.test(text)
+        ){
+
+            text =
+                text.replace(
+                    /\./g,
+                    ','
+                );
+
+            cell.innerText =
+                text;
+        }
+
+    });
 
 
     let html =
@@ -903,10 +928,6 @@
 
     }catch(err){
 
-        alert(
-            "Copy gagal."
-        );
-
         console.log(
             err
         );
@@ -915,7 +936,6 @@
 
 
     selection.removeAllRanges();
-
 
     document.body.removeChild(
         container
