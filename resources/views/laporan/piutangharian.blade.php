@@ -839,38 +839,87 @@
             tableId
         );
 
+
     let html =
-        '<table border="1">' +
+        '<html>' +
+        '<body>' +
+        '<table border="1" style="border-collapse:collapse;">' +
         table.innerHTML +
-        '</table>';
+        '</table>' +
+        '</body>' +
+        '</html>';
 
 
-    const blob =
-        new Blob(
-            [html],
-            {
-                type:'text/html'
-            }
+    const container =
+        document.createElement(
+            "div"
         );
 
+    container.style.position =
+        "fixed";
 
-    const data =
-        [
-            new ClipboardItem({
-                'text/html': blob
-            })
-        ];
+    container.style.left =
+        "-99999px";
+
+    container.contentEditable =
+        true;
+
+    container.innerHTML =
+        html;
 
 
-    navigator.clipboard.write(
-        data
-    ).then(function(){
+    document.body.appendChild(
+        container
+    );
+
+
+    const range =
+        document.createRange();
+
+    range.selectNodeContents(
+        container
+    );
+
+
+    const selection =
+        window.getSelection();
+
+    selection.removeAllRanges();
+
+    selection.addRange(
+        range
+    );
+
+
+    try{
+
+        document.execCommand(
+            "copy"
+        );
 
         alert(
-            'Tabel berhasil disalin.'
+            "Tabel berhasil disalin."
         );
 
-    });
+    }catch(err){
+
+        alert(
+            "Copy gagal."
+        );
+
+        console.log(
+            err
+        );
+
+    }
+
+
+    selection.removeAllRanges();
+
+
+    document.body.removeChild(
+        container
+    );
 
 }
 
