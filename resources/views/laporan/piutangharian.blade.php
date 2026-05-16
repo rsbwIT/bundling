@@ -717,228 +717,238 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <script>
+<script>
 
-        flatpickr(".tanggal",{
-            dateFormat:"Y-m-d",
-            allowInput:true,
-            disableMobile:true
-        });
+    flatpickr(".tanggal",{
+        dateFormat:"Y-m-d",
+        allowInput:true,
+        disableMobile:true
+    });
+
+    flatpickr("#tgl_lunas",{
+        dateFormat:"Y-m-d",
+        allowInput:true,
+        disableMobile:true
+    });
 
 
-        flatpickr("#tgl_lunas",{
-            dateFormat:"Y-m-d",
-            allowInput:true,
-            disableMobile:true
-        });
+    function hanyaAngka(e){
 
-        function hanyaAngka(e){
+        const char =
+            String.fromCharCode(e.which);
 
-            const char =
-                String.fromCharCode(e.which);
+        if(!/[0-9]/.test(char)){
 
-            if(!/[0-9]/.test(char)){
+            e.preventDefault();
 
-                e.preventDefault();
-
-                return false;
-            }
+            return false;
         }
+    }
 
-        function formatRibuan(input){
 
-            let value =
-                input.value.replace(/\D/g,'');
+    function formatRibuan(input){
 
-            input.value =
-                new Intl.NumberFormat('id-ID')
-                .format(value);
+        let value =
+            input.value.replace(/\D/g,'');
+
+        input.value =
+            new Intl.NumberFormat('id-ID')
+            .format(value);
+    }
+
+
+    function removeFormat(input){
+
+        return input.value.replace(/\D/g,'');
+    }
+
+
+    document.getElementById(
+        'formCob'
+    ).addEventListener(
+        'submit',
+        function(){
+
+            const nominalInput =
+                document.getElementById(
+                    'nominal_cob'
+                );
+
+            nominalInput.value =
+                removeFormat(
+                    nominalInput
+                );
+
         }
+    );
 
-        function removeFormat(input){
 
-            return input.value.replace(/\D/g,'');
-        }
+    function setPiutangData(no){
 
         document.getElementById(
-            'formCob'
-        ).addEventListener(
-            'submit',
-            function(){
+            'modal_no_rawat'
+        ).value = no;
 
-                const nominalInput =
-                    document.getElementById(
-                        'nominal_cob'
-                    );
+        document.getElementById(
+            'nominal_cob'
+        ).value = '';
 
-                nominalInput.value =
-                    removeFormat(
-                        nominalInput
-                    );
+        document.getElementById(
+            'tgl_lunas'
+        ).value = '';
+    }
 
+
+    function toggleNominal(){
+
+        document
+            .querySelectorAll(
+                '.kolom-nominal'
+            )
+            .forEach(function(el){
+
+                el.classList.toggle(
+                    'd-none'
+                );
+
+            });
+
+    }
+
+
+
+    // COPY TABLE RAPI
+    document.getElementById(
+        "copyButton"
+    ).addEventListener(
+        "click",
+        function(){
+
+            copyTableFormatted(
+                "tableToCopy"
+            );
+
+        }
+    );
+
+
+    function copyTableFormatted(tableId){
+
+    const table =
+        document.getElementById(
+            tableId
+        );
+
+    let html =
+        '<table border="1">' +
+        table.innerHTML +
+        '</table>';
+
+
+    const blob =
+        new Blob(
+            [html],
+            {
+                type:'text/html'
             }
         );
 
 
-        function setPiutangData(no){
-
-            document.getElementById(
-                'modal_no_rawat'
-            ).value = no;
-
-
-            document.getElementById(
-                'nominal_cob'
-            ).value = '';
+    const data =
+        [
+            new ClipboardItem({
+                'text/html': blob
+            })
+        ];
 
 
-            document.getElementById(
-                'tgl_lunas'
-            ).value = '';
+    navigator.clipboard.write(
+        data
+    ).then(function(){
 
-        }
-
-        function toggleNominal(){
-
-            document
-                .querySelectorAll(
-                    '.kolom-nominal'
-                )
-                .forEach(function(el){
-
-                    el.classList.toggle(
-                        'd-none'
-                    );
-
-                });
-
-        }
-
-        document.getElementById(
-            "copyButton"
-        ).addEventListener(
-            "click",
-            function(){
-
-                copyTableToClipboard(
-                    "tableToCopy"
-                );
-
-            }
+        alert(
+            'Tabel berhasil disalin.'
         );
 
-        function copyTableToClipboard(tableId){
+    });
 
-            const table =
-                document.getElementById(
-                    tableId
-                );
+}
 
-            const range =
-                document.createRange();
 
-            range.selectNode(
-                table
+
+    function updateFilterState(){
+
+        const filterType =
+            document.querySelector(
+                'input[name="filter_type"]:checked'
+            ).value;
+
+
+        const tgl1 =
+            document.getElementById(
+                'tgl1'
             );
 
-            window.getSelection()
-                .removeAllRanges();
-
-            window.getSelection()
-                .addRange(range);
-
-
-            try{
-
-                document.execCommand(
-                    "copy"
-                );
-
-                window.getSelection()
-                    .removeAllRanges();
-
-                alert(
-                    "Tabel berhasil disalin."
-                );
-
-            }catch(err){
-
-                console.log(err);
-
-            }
-
-        }
-
-        function updateFilterState(){
-
-            const filterType =
-                document.querySelector(
-                    'input[name="filter_type"]:checked'
-                ).value;
-
-
-            const tgl1 =
-                document.getElementById(
-                    'tgl1'
-                );
-
-            const tgl2 =
-                document.getElementById(
-                    'tgl2'
-                );
-
-
-            const tglLunas1 =
-                document.getElementById(
-                    'tgl_lunas1'
-                );
-
-            const tglLunas2 =
-                document.getElementById(
-                    'tgl_lunas2'
-                );
-
-            if(filterType=='tempo'){
-
-                tgl1.disabled=false;
-                tgl2.disabled=false;
-
-                tglLunas1.disabled=true;
-                tglLunas2.disabled=true;
-
-                tglLunas1.value='';
-                tglLunas2.value='';
-
-            }else{
-
-                tgl1.disabled=true;
-                tgl2.disabled=true;
-
-                tglLunas1.disabled=false;
-                tglLunas2.disabled=false;
-
-                tgl1.value='';
-                tgl2.value='';
-            }
-
-        }
-
-        document.querySelectorAll(
-            'input[name="filter_type"]'
-        ).forEach(function(el){
-
-            el.addEventListener(
-                'change',
-                updateFilterState
+        const tgl2 =
+            document.getElementById(
+                'tgl2'
             );
 
-        });
 
-        document.addEventListener(
-            'DOMContentLoaded',
+        const tglLunas1 =
+            document.getElementById(
+                'tgl_lunas1'
+            );
+
+        const tglLunas2 =
+            document.getElementById(
+                'tgl_lunas2'
+            );
+
+
+        if(filterType=='tempo'){
+
+            tgl1.disabled=false;
+            tgl2.disabled=false;
+
+            tglLunas1.disabled=true;
+            tglLunas2.disabled=true;
+
+            tglLunas1.value='';
+            tglLunas2.value='';
+
+        }else{
+
+            tgl1.disabled=true;
+            tgl2.disabled=true;
+
+            tglLunas1.disabled=false;
+            tglLunas2.disabled=false;
+
+            tgl1.value='';
+            tgl2.value='';
+        }
+
+    }
+
+
+    document.querySelectorAll(
+        'input[name="filter_type"]'
+    ).forEach(function(el){
+
+        el.addEventListener(
+            'change',
             updateFilterState
         );
 
-    </script>
+    });
+
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        updateFilterState
+    );
+
+</script>
 
 @endsection
