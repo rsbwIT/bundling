@@ -268,6 +268,10 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::post('/ai/user/akses/update', [User::class, 'updateAkses'])
             ->name('ai.user.akses.update');
+        Route::post(
+            '/ai/user/verifikasi-password',
+            [User::class, 'verifikasiPassword']
+        );
 
 
         // DETAIL TINDAKAN Asuransi
