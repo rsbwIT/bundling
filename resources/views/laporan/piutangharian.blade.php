@@ -611,7 +611,7 @@
                                 align-items:center;
                                 font-weight:600;">
 
-                                {{ number_format($nominal,0,',','.') }}
+                                {{ number_format($nominal,0,'.',',') }}
 
                             </div>
 
@@ -665,7 +665,7 @@
                                 align-items:center;
                                 font-weight:600;">
 
-                                {{ number_format($item->uangmuka ?? 0,0,',','.') }}
+                                {{ number_format($item->uangmuka ?? 0,0,'.',',') }}
 
                             </div>
 
@@ -1051,7 +1051,7 @@
 
 
     // COPY TABLE RAPI
-    document.getElementById(
+document.getElementById(
     "copyButton"
 ).addEventListener(
     "click",
@@ -1065,84 +1065,121 @@
 );
 
 
-async function copyTableFormatted(tableId){
+function copyTableFormatted(tableId){
 
     const table =
         document.getElementById(
             tableId
-        ).cloneNode(
-            true
         );
 
 
-    table.querySelectorAll(
-        '*'
-    ).forEach(function(el){
+    let rows = [];
 
-        el.removeAttribute(
-            'class'
+
+    table.querySelectorAll(
+        "tr"
+    ).forEach(function(tr){
+
+        let cols = [];
+
+
+        tr.querySelectorAll(
+            "th, td"
+        ).forEach(function(cell){
+
+            let text =
+                cell.innerText
+                    .trim()
+                    .replace(
+                        /\n/g,
+                        ' '
+                    );
+
+
+            // colspan 4 → Penjamin di tengah
+            if(
+                cell.colSpan == 4
+            ){
+
+                cols.push('');
+                cols.push(text);
+                cols.push('');
+                cols.push('');
+
+            }else{
+
+                cols.push(
+                    text
+                );
+
+
+                for(
+                    let i = 1;
+                    i < cell.colSpan;
+                    i++
+                ){
+
+                    cols.push('');
+
+                }
+
+            }
+
+        });
+
+
+        rows.push(
+            cols.join("\t")
         );
 
     });
 
 
-    table.querySelectorAll(
-        'td, th'
-    ).forEach(function(cell){
-
-        // JANGAN ubah angka
-        cell.innerText =
-            cell.innerText.trim();
+    const hasil =
+        rows.join("\r\n");
 
 
-        cell.style.border =
-            '1px solid black';
-
-        cell.style.padding =
-            '4px';
-
-        cell.style.whiteSpace =
-            'nowrap';
-
-    });
-
-
-    try{
-
-        await navigator.clipboard.write([
-
-            new ClipboardItem({
-
-                "text/html":
-                    new Blob(
-
-                        [table.outerHTML],
-
-                        {
-                            type:
-                                "text/html"
-                        }
-
-                    )
-
-            })
-
-        ]);
-
-
-        alert(
-            "Tabel berhasil disalin."
+    const textarea =
+        document.createElement(
+            "textarea"
         );
 
-    }catch(err){
 
-        console.log(
-            err
-        );
+    textarea.value =
+        hasil;
 
-    }
+
+    textarea.style.position =
+        "fixed";
+
+    textarea.style.left =
+        "-99999px";
+
+
+    document.body.appendChild(
+        textarea
+    );
+
+
+    textarea.select();
+
+
+    document.execCommand(
+        "copy"
+    );
+
+
+    document.body.removeChild(
+        textarea
+    );
+
+
+    alert(
+        "Tabel berhasil disalin."
+    );
 
 }
+
 
 
 
