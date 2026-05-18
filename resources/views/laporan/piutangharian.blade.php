@@ -320,7 +320,7 @@
                     </th>
 
                     <th>Ekses</th>
-                    <th>Dibayar</th>
+                    <th>Dibayar ASR</th>
                     <th>Selisih</th>
                     <th>Akun Bayar</th>
                     <th>Tanggal Lunas</th>
