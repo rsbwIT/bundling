@@ -446,12 +446,34 @@ class PiutangHarian extends Controller
 
         // LUNAS
         $lunasMassal = DB::table(
-            'detail_lunas_cob'
+            'detail_lunas_cob as dlc'
         )
 
+            ->leftJoin(
+                'akun_bayar as ab',
+                'dlc.akun_bayar',
+                '=',
+                'ab.nama_bayar'
+            )
+
+            ->leftJoin(
+                'piutang_pasien as pp',
+                'dlc.no_rawat',
+                '=',
+                'pp.no_rawat'
+            )
+
             ->whereIn(
-                'no_rawat',
+                'dlc.no_rawat',
                 $noRawats
+            )
+
+            ->select(
+                'dlc.no_rawat',
+                'dlc.tgl_lunas',
+                'dlc.nominal_cob',
+                'ab.nama_bayar',
+                'pp.uangmuka'
             )
 
             ->get()

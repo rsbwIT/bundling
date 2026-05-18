@@ -637,7 +637,7 @@
                                 display:flex;
                                 align-items:center;">
 
-                                {{ $item->getLunas->akun_bayar ?? '-' }}
+                                {{ $item->nama_bayar ?? '-' }}
 
                             </div>
 
@@ -1052,108 +1052,83 @@
 
     // COPY TABLE RAPI
     document.getElementById(
-        "copyButton"
-    ).addEventListener(
-        "click",
-        function(){
+    "copyButton"
+).addEventListener(
+    "click",
+    function(){
 
-            copyTableFormatted(
-                "tableToCopy"
-            );
+        copyTableFormatted(
+            "tableToCopy"
+        );
 
-        }
-    );
+    }
+);
 
 
-    function copyTableFormatted(tableId){
+async function copyTableFormatted(tableId){
 
     const table =
         document.getElementById(
             tableId
-        ).cloneNode(true);
+        ).cloneNode(
+            true
+        );
+
+
+    table.querySelectorAll(
+        '*'
+    ).forEach(function(el){
+
+        el.removeAttribute(
+            'class'
+        );
+
+    });
 
 
     table.querySelectorAll(
         'td, th'
     ).forEach(function(cell){
 
-        let text =
+        // JANGAN ubah angka
+        cell.innerText =
             cell.innerText.trim();
 
 
-        if(
-            /^[\d.,]+$/.test(text)
-        ){
+        cell.style.border =
+            '1px solid black';
 
-            text =
-                text.replace(
-                    /\./g,
-                    ','
-                );
+        cell.style.padding =
+            '4px';
 
-            cell.innerText =
-                text;
-        }
+        cell.style.whiteSpace =
+            'nowrap';
 
     });
 
 
-    let html =
-        '<html>' +
-        '<body>' +
-        '<table border="1" style="border-collapse:collapse;">' +
-        table.innerHTML +
-        '</table>' +
-        '</body>' +
-        '</html>';
-
-
-    const container =
-        document.createElement(
-            "div"
-        );
-
-    container.style.position =
-        "fixed";
-
-    container.style.left =
-        "-99999px";
-
-    container.contentEditable =
-        true;
-
-    container.innerHTML =
-        html;
-
-
-    document.body.appendChild(
-        container
-    );
-
-
-    const range =
-        document.createRange();
-
-    range.selectNodeContents(
-        container
-    );
-
-
-    const selection =
-        window.getSelection();
-
-    selection.removeAllRanges();
-
-    selection.addRange(
-        range
-    );
-
-
     try{
 
-        document.execCommand(
-            "copy"
-        );
+        await navigator.clipboard.write([
+
+            new ClipboardItem({
+
+                "text/html":
+                    new Blob(
+
+                        [table.outerHTML],
+
+                        {
+                            type:
+                                "text/html"
+                        }
+
+                    )
+
+            })
+
+        ]);
+
 
         alert(
             "Tabel berhasil disalin."
@@ -1166,13 +1141,6 @@
         );
 
     }
-
-
-    selection.removeAllRanges();
-
-    document.body.removeChild(
-        container
-    );
 
 }
 
