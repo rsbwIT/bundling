@@ -686,7 +686,7 @@
                     </td>
 
                     <td>
-                        {{ $item->getLunas->akun_bayar ?? '' }}
+                        {{ $item->getLunas->nama_bayar?? '' }}
                     </td>
 
                     <td>
