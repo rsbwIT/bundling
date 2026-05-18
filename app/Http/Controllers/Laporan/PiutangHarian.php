@@ -128,12 +128,28 @@ class PiutangHarian extends Controller
                 'pp.no_rawat'
             )
 
+            ->leftJoin(
+                'detail_nota_jalan as dnj',
+                'rp.no_rawat',
+                '=',
+                'dnj.no_rawat'
+            )
+
+            ->leftJoin(
+                'akun_bayar as ab',
+                'dnj.nama_bayar',
+                '=',
+                'ab.nama_bayar'
+            )
+
             ->select(
                 'dpp.no_rawat',
                 'p.nm_pasien',
                 'pol.nm_poli',
                 'rp.kd_dokter',
                 'dok.nm_dokter',
+                'ab.nama_bayar',
+                'ab.kd_rek',
                 'pp.uangmuka',
                 'pp.sisapiutang',
                 'pp.status',

@@ -315,7 +315,7 @@
                     <th class="kolom-nominal">Potongan</th>
                     <th class="kolom-nominal">Total</th>
 
-                    <th colspan="2" class="text-center">
+                    <th colspan="4" class="text-center">
                         Penjamin
                     </th>
 
@@ -325,6 +325,28 @@
                     <th>Tanggal Lunas</th>
                 </tr>
             </thead>
+
+             @php
+
+            $totalRegistrasi = 0;
+            $totalObat = 0;
+            $totalRetur = 0;
+            $totalResep = 0;
+            $totalPaket = 0;
+            $totalOperasi = 0;
+            $totalLaborat = 0;
+            $totalRadiologi = 0;
+            $totalTambahan = 0;
+            $totalKamar = 0;
+            $totalPotongan = 0;
+            $totalGrand = 0;
+            $totalPenjamin = 0;
+            $totalUangMuka = 0;
+
+            $totalCob = 0;
+            $totalSelisih = 0;
+
+            @endphp
 
             @forelse($getPiutangHarian as $item)
 
@@ -354,6 +376,69 @@
 
                     $selisih =
                         $nominalDetail - $nominalCob;
+                    
+                    $registrasi =
+                        $item->getRegistrasi->sum('totalbiaya');
+
+                    $obat =
+                        $item->getObat->sum('totalbiaya');
+
+                    $retur =
+                        $item->getReturObat->sum('totalbiaya');
+
+                    $resep =
+                        $item->getResepPulang->sum('totalbiaya');
+
+                    $operasi =
+                        $item->getOprasi->sum('totalbiaya');
+
+                    $laborat =
+                        $item->getLaborat->sum('totalbiaya');
+
+                    $radiologi =
+                        $item->getRadiologi->sum('totalbiaya');
+
+                    $tambahan =
+                        $item->getTambahan->sum('totalbiaya');
+
+                    $kamar =
+                        $item->getKamarInap->sum('totalbiaya');
+
+                    $potongan =
+                        $item->getPotongan->sum('totalbiaya');
+
+
+                    $grand =
+                        $registrasi +
+                        $obat +
+                        $retur +
+                        $resep +
+                        $paket +
+                        $operasi +
+                        $laborat +
+                        $radiologi +
+                        $tambahan +
+                        $kamar +
+                        $potongan;
+
+
+                    $totalRegistrasi += $registrasi;
+                    $totalObat += $obat;
+                    $totalRetur += $retur;
+                    $totalResep += $resep;
+                    $totalPaket += $paket;
+                    $totalOperasi += $operasi;
+                    $totalLaborat += $laborat;
+                    $totalRadiologi += $radiologi;
+                    $totalTambahan += $tambahan;
+                    $totalKamar += $kamar;
+                    $totalPotongan += $potongan;
+                    $totalGrand += $grand;
+
+                    $totalCob += $nominalCob;
+                    $totalSelisih += $selisih;
+
+                    $totalUangMuka += ($item->uangmuka ?? 0);
 
                 @endphp
 
@@ -449,7 +534,6 @@
 
                     </td>
 
-
                     {{-- penjamin nama --}}
                     <td style="min-width:220px; padding:0; vertical-align:top;">
 
@@ -512,6 +596,9 @@
                                 $nominal =
                                     $hasil[2] ?? 0;
 
+                                // TOTAL FOOTER
+                                $totalPenjamin += $nominal;
+
                             @endphp
 
                             <div style="
@@ -536,6 +623,59 @@
 
                     </td>
 
+
+                    {{-- akun bayar --}}
+                    <td style="min-width:220px; padding:0; vertical-align:top;">
+
+                        @forelse($rows as $row)
+
+                            <div style="
+                                padding:8px 12px;
+                                border-left:1px solid #dee2e6;
+                                border-bottom:1px solid #dee2e6;
+                                min-height:38px;
+                                display:flex;
+                                align-items:center;">
+
+                                {{ $item->getLunas->akun_bayar ?? '-' }}
+
+                            </div>
+
+                        @empty
+
+                            <div class="text-center p-2">-</div>
+
+                        @endforelse
+
+                    </td>
+
+
+                    {{-- uang muka --}}
+                    <td style="width:120px; padding:0; vertical-align:top;">
+
+                        @forelse($rows as $row)
+
+                            <div style="
+                                padding:8px 12px;
+                                border-left:1px solid #dee2e6;
+                                border-bottom:1px solid #dee2e6;
+                                min-height:38px;
+                                display:flex;
+                                justify-content:flex-end;
+                                align-items:center;
+                                font-weight:600;">
+
+                                {{ number_format($item->uangmuka ?? 0,0,',','.') }}
+
+                            </div>
+
+                        @empty
+
+                            <div class="text-center p-2">-</div>
+
+                        @endforelse
+
+                    </td>
 
                     <td class="text-right">
                         {{ number_format($nominalCob,0,'.',',') }}
@@ -566,6 +706,99 @@
                 </tr>
 
             @endforelse
+
+
+            <tfoot>
+
+                <tr style="
+                    background:#fff3cd;
+                    font-weight:bold;
+                    position:sticky;
+                    bottom:0;
+                    z-index:10;">
+
+                    <td colspan="7" class="text-center">
+                        TOTAL
+                    </td>
+
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalRegistrasi,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalObat,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalRetur,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalResep,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalPaket,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalOperasi,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalLaborat,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalRadiologi,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalTambahan,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalKamar,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalPotongan,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right kolom-nominal">
+                        {{ number_format($totalGrand,0,'.',',') }}
+                    </td>
+
+
+                    {{-- Penjamin --}}
+                    <td></td>
+
+                    <td class="text-right">
+                        {{ number_format($totalPenjamin,0,'.',',') }}
+                    </td>
+
+                    <td></td>
+
+                    <td class="text-right">
+                        {{ number_format($totalUangMuka,0,'.',',') }}
+                    </td>
+
+
+                    <td class="text-right">
+                        {{ number_format($totalCob,0,'.',',') }}
+                    </td>
+
+                    <td class="text-right">
+                        {{ number_format($totalSelisih,0,'.',',') }}
+                    </td>
+
+
+                    <td colspan="2"></td>
+
+                </tr>
+
+            </tfoot>
 
         </table>
     </div>
