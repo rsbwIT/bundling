@@ -315,7 +315,7 @@
                     <th class="kolom-nominal">Potongan</th>
                     <th class="kolom-nominal">Total</th>
 
-                    <th colspan="4" class="text-center">
+                    <th colspan="3" class="text-center">
                         Penjamin
                     </th>
 
@@ -624,7 +624,7 @@
                     </td>
 
 
-                    {{-- akun bayar --}}
+                    {{-- akun bayar
                     <td style="min-width:220px; padding:0; vertical-align:top;">
 
                         @forelse($rows as $row)
@@ -647,7 +647,7 @@
 
                         @endforelse
 
-                    </td>
+                    </td> --}}
 
 
                     {{-- uang muka --}}
@@ -1051,134 +1051,134 @@
 
 
     // COPY TABLE RAPI
-document.getElementById(
-    "copyButton"
-).addEventListener(
-    "click",
-    function(){
-
-        copyTableFormatted(
-            "tableToCopy"
-        );
-
-    }
-);
-
-
-function copyTableFormatted(tableId){
-
-    const table =
         document.getElementById(
-            tableId
+            "copyButton"
+        ).addEventListener(
+            "click",
+            function(){
+
+                copyTableFormatted(
+                    "tableToCopy"
+                );
+
+            }
         );
 
 
-    let rows = [];
+        function copyTableFormatted(tableId){
 
-
-    table.querySelectorAll(
-        "tr"
-    ).forEach(function(tr){
-
-        let cols = [];
-
-
-        tr.querySelectorAll(
-            "th, td"
-        ).forEach(function(cell){
-
-            let text =
-                cell.innerText
-                    .trim()
-                    .replace(
-                        /\n/g,
-                        ' '
-                    );
-
-
-            // colspan 4 → Penjamin di tengah
-            if(
-                cell.colSpan == 4
-            ){
-
-                cols.push('');
-                cols.push(text);
-                cols.push('');
-                cols.push('');
-
-            }else{
-
-                cols.push(
-                    text
+            const table =
+                document.getElementById(
+                    tableId
                 );
 
 
-                for(
-                    let i = 1;
-                    i < cell.colSpan;
-                    i++
-                ){
-
-                    cols.push('');
-
-                }
-
-            }
-
-        });
+            let rows = [];
 
 
-        rows.push(
-            cols.join("\t")
-        );
+            table.querySelectorAll(
+                "tr"
+            ).forEach(function(tr){
 
-    });
-
-
-    const hasil =
-        rows.join("\r\n");
+                let cols = [];
 
 
-    const textarea =
-        document.createElement(
-            "textarea"
-        );
+                tr.querySelectorAll(
+                    "th, td"
+                ).forEach(function(cell){
+
+                    let text =
+                        cell.innerText
+                            .trim()
+                            .replace(
+                                /\n/g,
+                                ' '
+                            );
 
 
-    textarea.value =
-        hasil;
+                    // colspan 4 → Penjamin di tengah
+                    if(
+                        cell.colSpan == 4
+                    ){
+
+                        cols.push('');
+                        cols.push(text);
+                        cols.push('');
+                        cols.push('');
+
+                    }else{
+
+                        cols.push(
+                            text
+                        );
 
 
-    textarea.style.position =
-        "fixed";
+                        for(
+                            let i = 1;
+                            i < cell.colSpan;
+                            i++
+                        ){
 
-    textarea.style.left =
-        "-99999px";
+                            cols.push('');
 
+                        }
 
-    document.body.appendChild(
-        textarea
-    );
+                    }
 
-
-    textarea.select();
-
-
-    document.execCommand(
-        "copy"
-    );
+                });
 
 
-    document.body.removeChild(
-        textarea
-    );
+                rows.push(
+                    cols.join("\t")
+                );
+
+            });
 
 
-    alert(
-        "Tabel berhasil disalin."
-    );
+            const hasil =
+                rows.join("\r\n");
 
-}
+
+            const textarea =
+                document.createElement(
+                    "textarea"
+                );
+
+
+            textarea.value =
+                hasil;
+
+
+            textarea.style.position =
+                "fixed";
+
+            textarea.style.left =
+                "-99999px";
+
+
+            document.body.appendChild(
+                textarea
+            );
+
+
+            textarea.select();
+
+
+            document.execCommand(
+                "copy"
+            );
+
+
+            document.body.removeChild(
+                textarea
+            );
+
+
+            alert(
+                "Tabel berhasil disalin."
+            );
+
+        }
 
 
 
