@@ -315,10 +315,11 @@
                     <th class="kolom-nominal">Potongan</th>
                     <th class="kolom-nominal">Total</th>
 
-                    <th colspan="3" class="text-center">
+                    <th colspan=2" class="text-center">
                         Penjamin
                     </th>
 
+                    <th>Ekses</th>
                     <th>Dibayar</th>
                     <th>Selisih</th>
                     <th>Akun Bayar</th>
