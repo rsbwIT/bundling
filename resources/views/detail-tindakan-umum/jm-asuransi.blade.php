@@ -112,12 +112,35 @@
 
             const plainText = lines.join('\n');
 
-            // Copy as plain text only
-            navigator.clipboard.writeText(plainText).then(() => {
+            // Copy as plain text - with fallback for HTTP (non-HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(plainText).then(() => {
+                    alert("Tabel telah berhasil disalin ke clipboard.");
+                }).catch(err => {
+                    console.error("Clipboard API gagal, menggunakan fallback:", err);
+                    fallbackCopyText(plainText);
+                });
+            } else {
+                fallbackCopyText(plainText);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
                 alert("Tabel telah berhasil disalin ke clipboard.");
-            }).catch(err => {
+            } catch (err) {
                 console.error("Tidak dapat menyalin tabel:", err);
-            });
+            }
+            document.body.removeChild(textarea);
         }
     </script>
 @endsection
