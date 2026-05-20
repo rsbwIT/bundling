@@ -82,111 +82,42 @@
             // Simplified header for copy: single row
             const copyHeaders = ['No', 'Kode', 'KODE ID KHANZA', 'Nama', 'Rawat Inap (Asuransi)', 'Rawat Jalan (Asuransi)', 'Total'];
 
-            // --- Build plain text (tab-separated) with simplified header ---
-            function getPlainText(table) {
-                const lines = [];
-                // Add simplified header row
-                lines.push(copyHeaders.join('\t'));
+            const lines = [];
+            // Add simplified header row
+            lines.push(copyHeaders.join('\t'));
 
-                // Add tbody rows
-                table.querySelectorAll('tbody tr').forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    const rowData = [];
-                    cells.forEach(cell => {
-                        rowData.push(cell.innerText.trim());
-                    });
-                    lines.push(rowData.join('\t'));
+            // Add tbody rows
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                cells.forEach(cell => {
+                    rowData.push(cell.innerText.trim());
                 });
+                lines.push(rowData.join('\t'));
+            });
 
-                // Add tfoot rows
-                table.querySelectorAll('tfoot tr').forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    const rowData = [];
-                    cells.forEach(cell => {
-                        const colspan = parseInt(cell.getAttribute('colspan')) || 1;
-                        rowData.push(cell.innerText.trim());
-                        for (let i = 1; i < colspan; i++) {
-                            rowData.push('');
-                        }
-                    });
-                    lines.push(rowData.join('\t'));
+            // Add tfoot rows
+            table.querySelectorAll('tfoot tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                cells.forEach(cell => {
+                    const colspan = parseInt(cell.getAttribute('colspan')) || 1;
+                    rowData.push(cell.innerText.trim());
+                    for (let i = 1; i < colspan; i++) {
+                        rowData.push('');
+                    }
                 });
+                lines.push(rowData.join('\t'));
+            });
 
-                return lines.join('\n');
-            }
+            const plainText = lines.join('\n');
 
-            // --- Build HTML with inline styles and simplified header ---
-            function getStyledHtml(table) {
-                const clone = table.cloneNode(true);
-
-                // Replace thead with single-row simplified header
-                const thead = clone.querySelector('thead');
-                thead.innerHTML = '';
-                const headerRow = document.createElement('tr');
-                copyHeaders.forEach(text => {
-                    const th = document.createElement('th');
-                    th.textContent = text;
-                    th.style.border = '1px solid #777';
-                    th.style.padding = '4px 8px';
-                    th.style.whiteSpace = 'nowrap';
-                    th.style.backgroundColor = '#b4a7d6';
-                    th.style.color = 'black';
-                    th.style.textAlign = 'center';
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-
-                // Style body and footer cells
-                clone.querySelectorAll('tbody td, tfoot td').forEach(cell => {
-                    cell.style.border = '1px solid #777';
-                    cell.style.padding = '4px 8px';
-                    cell.style.whiteSpace = 'nowrap';
-                });
-                clone.querySelectorAll('tfoot td').forEach(td => {
-                    td.style.backgroundColor = '#e9ecef';
-                    td.style.color = 'black';
-                    td.style.fontWeight = 'bold';
-                });
-                clone.style.borderCollapse = 'collapse';
-                clone.style.fontSize = '12px';
-                clone.style.fontFamily = 'Arial, sans-serif';
-                return clone.outerHTML;
-            }
-
-            const plainText = getPlainText(table);
-            const htmlContent = getStyledHtml(table);
-
-            // Use Clipboard API to write both formats
-            if (navigator.clipboard && navigator.clipboard.write) {
-                const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-                const textBlob = new Blob([plainText], { type: 'text/plain' });
-                const clipboardItem = new ClipboardItem({
-                    'text/html': htmlBlob,
-                    'text/plain': textBlob
-                });
-                navigator.clipboard.write([clipboardItem]).then(() => {
-                    alert("Tabel telah berhasil disalin ke clipboard.");
-                }).catch(err => {
-                    console.error("Tidak dapat menyalin tabel:", err);
-                    fallbackCopy(table);
-                });
-            } else {
-                fallbackCopy(table);
-            }
-        }
-
-        function fallbackCopy(table) {
-            const range = document.createRange();
-            range.selectNode(table);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            try {
-                document.execCommand("copy");
-                window.getSelection().removeAllRanges();
+            // Copy as plain text only
+            navigator.clipboard.writeText(plainText).then(() => {
                 alert("Tabel telah berhasil disalin ke clipboard.");
-            } catch (err) {
+            }).catch(err => {
                 console.error("Tidak dapat menyalin tabel:", err);
-            }
+            });
         }
     </script>
 @endsection
