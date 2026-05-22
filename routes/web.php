@@ -150,6 +150,7 @@ use App\Http\Controllers\Gizi\MonitoringGiziController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
 use App\Http\Controllers\Laporan\PiutangHarian;
 use App\Http\Controllers\AI\User;
+use App\Http\Controllers\Belanja\belanja;
 
 
 
@@ -272,6 +273,12 @@ Route::group(['middleware' => 'default'], function () {
             '/ai/user/verifikasi-password',
             [User::class, 'verifikasiPassword']
         );
+
+        // belanja
+
+
+
+        Route::get('/belanja',[belanja::class, 'index'] )->name('belanja.index');
 
 
         // DETAIL TINDAKAN Asuransi
