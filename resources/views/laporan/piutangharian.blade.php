@@ -375,7 +375,7 @@
                     $nominalCob =
                         $item->getLunasCob->nominal_cob ?? 0;
 
-                    $selisih = 
+                    $selisih =
                         $nominalCob - $nominalDetail;
                     
                     $registrasi =
