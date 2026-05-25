@@ -793,63 +793,76 @@
 
     }
 
-
     // =====================================
-    // COPY TABLE
+    // COPY TABLE SESUAI TAMPILAN
     // =====================================
     document.getElementById('copyButton')
         .addEventListener('click', function () {
 
             let table =
-                document.getElementById('tableToCopy');
+                document.getElementById(
+                    'tableToCopy'
+                );
 
-            let rows =
-                table.querySelectorAll('tr');
+            // clone table
+            let cloneTable =
+                table.cloneNode(true);
 
-            let text = '';
+            // hapus kolom hidden
+            cloneTable
+                .querySelectorAll('.d-none')
+                .forEach(function(el){
 
-            rows.forEach(function (row) {
-
-                // skip kolom hidden
-                let cols =
-                    row.querySelectorAll(
-                        'th:not(.d-none), td:not(.d-none)'
-                    );
-
-                let rowText = [];
-
-                cols.forEach(function (col) {
-
-                    rowText.push(
-                        col.innerText
-                            .replace(/\n/g, ' ')
-                            .trim()
-                    );
+                    el.remove();
 
                 });
 
-                text +=
-                    rowText.join('\t') + '\n';
+            // buat container
+            let container =
+                document.createElement('div');
 
-            });
+            container.appendChild(
+                cloneTable
+            );
 
-            navigator.clipboard.writeText(text)
-                .then(function () {
+            // copy html table
+            let textarea =
+                document.createElement(
+                    'textarea'
+                );
 
-                    alert(
-                        'Table berhasil dicopy'
-                    );
+            textarea.value =
+                container.innerHTML;
 
-                })
-                .catch(function (err) {
+            document.body.appendChild(
+                textarea
+            );
 
-                    console.log(err);
+            textarea.select();
 
-                    alert(
-                        'Gagal copy table'
-                    );
+            try {
 
-                });
+                document.execCommand(
+                    'copy'
+                );
+
+                alert(
+                    'Table berhasil dicopy'
+                );
+
+            } catch (err) {
+
+                console.log(err);
+
+                alert(
+                    'Gagal copy table'
+                );
+
+            }
+
+            document.body.removeChild(
+                textarea
+            );
 
         });
 
