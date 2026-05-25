@@ -222,35 +222,52 @@ class CobHarian extends Controller
     public function simpanCob(Request $request)
     {
         $request->validate([
-            'no_rawat' => 'required',
-            'tgl_lunas' => 'required|date_format:d/m/Y',
+            'no_rawat'    => 'required',
+            'tgl_lunas'   => 'required|date_format:d/m/Y',
             'nominal_cob' => 'required',
-            'akun_bayar' => 'required'
+            'akun_bayar'  => 'required'
         ]);
 
-        $tglLunas = \Carbon\Carbon::createFromFormat('d/m/Y', $request->tgl_lunas)->format('Y-m-d');
-
         try {
+
+            // FORMAT TANGGAL
+            $tglLunas = \Carbon\Carbon::createFromFormat(
+                'd/m/Y',
+                $request->tgl_lunas
+            )->format('Y-m-d');
+
+            // FORMAT NOMINAL
+            $nominal = str_replace(
+                '.',
+                '',
+                $request->nominal_cob
+            );
+
             DB::table('detail_lunas_cob')->insert([
-                'no_rawat' => $request->no_rawat,
-                'tgl_lunas' => $tglLunas,
-                'nominal_cob' => $request->nominal_cob,
-                'akun_bayar' => $request->akun_bayar
+                'no_rawat'    => $request->no_rawat,
+                'tgl_lunas'   => $tglLunas,
+                'nominal_cob' => $nominal,
+                'akun_bayar'  => $request->akun_bayar
             ]);
 
-            return redirect()->back()->with(
+            return back()->with(
                 'success',
                 'Data COB berhasil disimpan'
             );
         } catch (QueryException $ex) {
-            if ($ex->getCode() === '23000') {
-                return redirect()->back()->with(
+
+            if ($ex->getCode() == '23000') {
+
+                return back()->with(
                     'error',
-                    'Data gagal disimpan: nomor sudah ada.'
+                    'Data gagal disimpan: nomor rawat sudah ada'
                 );
             }
 
-            throw $ex;
+            return back()->with(
+                'error',
+                $ex->getMessage()
+            );
         }
     }
 }

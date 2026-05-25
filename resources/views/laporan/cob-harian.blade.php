@@ -2,298 +2,354 @@
 @section('title', 'Pasien COB (Harian)')
 
 @section('konten')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <div class="card">
-        <div class="card-body">
 
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            @endif
-
-            <form action="{{ url('cob-harian') }}" method="GET">
-    @csrf
-
-    <style>
-        .form-control-sm,
-        .btn-sm {
-            height: 38px;
-            font-size: 13px;
-        }
-
-        .form-group {
-            margin-bottom: 0;
-        }
-
-        .form-check-inline {
-            margin-right: 15px;
-        }
-
-        .filter-radio-wrapper {
-            height: 38px;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-check {
-            margin-bottom: 0;
-        }
-
-        .form-check-input {
-            margin-top: 0.1rem;
-        }
-
-        .border-top-custom {
-            border-top: 1px solid #e9ecef;
-        }
-
-        /* Rapihkan input date */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-            opacity: .7;
-        }
-
-        input[type="date"]::-webkit-datetime-edit {
-            color: #495057;
-        }
-    </style>
-
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-
-            <!-- FILTER -->
-            <div class="row">
-
-    <!-- Cari -->
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Cari Data
-            </label>
-
-            <input type="text"
-                name="cariNomor"
-                class="form-control form-control-sm"
-                placeholder="Nama / RM / No Rawat"
-                value="{{ request('cariNomor') }}">
-        </div>
-    </div>
-
-    <!-- Status -->
-    <div class="col-md-2">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Status
-            </label>
-
-            <select class="form-control form-control-sm"
-                name="stsLanjut">
-
-                <option value="Ralan"
-                    {{ request('stsLanjut') == 'Ralan' ? 'selected' : '' }}>
-                    Rawat Jalan
-                </option>
-
-                <option value="Ranap"
-                    {{ request('stsLanjut') == 'Ranap' ? 'selected' : '' }}>
-                    Rawat Inap
-                </option>
-
-            </select>
-        </div>
-    </div>
-
-    <!-- Filter Radio -->
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1 d-block">
-                Filter Tanggal
-            </label>
-
-            <div class="filter-radio-wrapper d-flex align-items-center" style="height:38px;">
-
-                <div class="form-check form-check-inline mb-0">
-                    <input class="form-check-input"
-                        type="radio"
-                        name="filter_type"
-                        id="filter_tempo"
-                        value="tempo"
-                        {{ request('filter_type', 'tempo') == 'tempo' ? 'checked' : '' }}>
-
-                    <label class="form-check-label small"
-                        for="filter_tempo">
-                        Tanggal Nota
-                    </label>
-                </div>
-
-                <div class="form-check form-check-inline mb-0">
-                    <input class="form-check-input"
-                        type="radio"
-                        name="filter_type"
-                        id="filter_lunas"
-                        value="lunas"
-                        {{ request('filter_type') == 'lunas' ? 'checked' : '' }}>
-
-                    <label class="form-check-label small"
-                        for="filter_lunas">
-                        Tgl Lunas
-                    </label>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Button -->
-    <div class="col-md-3">
-        <div class="form-group">
-            <label class="d-block mb-1">&nbsp;</label>
-
-            <button type="submit"
-                class="btn btn-primary btn-sm btn-block"
-                style="height:38px;">
-                <i class="fa fa-search mr-1"></i>
-                Cari
-            </button>
-        </div>
-    </div>
-
-</div>
-
-<!-- GARIS -->
-<div class="border-top-custom my-3"></div>
-
-<!-- FLATPICKR -->
 <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
 
-<!-- FILTER TANGGAL -->
-<div class="row">
+    .form-control-sm,
+    .btn-sm{
+        height:38px;
+        font-size:13px;
+    }
 
-    <!-- TANGGAL -->
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tanggal Nota
-            </label>
+    .form-group{
+        margin-bottom:0;
+    }
 
-            <div class="d-flex align-items-center">
+    .form-check-inline{
+        margin-right:15px;
+    }
 
-                <input type="text"
-                    name="tgl1"
-                    id="tgl1"
-                    class="form-control form-control-sm tanggal"
-                    placeholder="Pilih Tanggal"
-                    value="{{ request('tgl1') }}">
+    .filter-radio-wrapper{
+        height:38px;
+        display:flex;
+        align-items:center;
+    }
 
-                <span class="mx-2 font-weight-bold">
-                    s.d
-                </span>
+    .form-check{
+        margin-bottom:0;
+    }
 
-                <input type="text"
-                    name="tgl2"
-                    id="tgl2"
-                    class="form-control form-control-sm tanggal"
-                    placeholder="Pilih Tanggal"
-                    value="{{ request('tgl2') }}">
+    .form-check-input{
+        margin-top:0.1rem;
+    }
+
+    .border-top-custom{
+        border-top:1px solid #e9ecef;
+    }
+
+    .table-responsive{
+        overflow:auto;
+    }
+
+    table td,
+    table th{
+        white-space:nowrap;
+        vertical-align:middle !important;
+    }
+
+</style>
+
+<div class="card">
+
+    <div class="card-body">
+
+        @if(session('success'))
+
+            <div class="alert alert-success alert-dismissible fade show">
+
+                {{ session('success') }}
+
+                <button type="button"
+                    class="close"
+                    data-dismiss="alert">
+
+                    <span>&times;</span>
+
+                </button>
 
             </div>
-        </div>
-    </div>
 
+        @endif
 
-    <!-- TANGGAL LUNAS -->
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="small font-weight-bold mb-1">
-                Tanggal Lunas
-            </label>
+        @if(session('error'))
 
-            <div class="d-flex align-items-center">
+            <div class="alert alert-danger alert-dismissible fade show">
 
-                <input type="text"
-                    name="tgl_lunas1"
-                    id="tgl_lunas1"
-                    class="form-control form-control-sm tanggal"
-                    placeholder="Pilih Tanggal"
-                    value="{{ request('tgl_lunas1') }}">
+                {{ session('error') }}
 
-                <span class="mx-2 font-weight-bold">
-                    s.d
-                </span>
+                <button type="button"
+                    class="close"
+                    data-dismiss="alert">
 
-                <input type="text"
-                    name="tgl_lunas2"
-                    id="tgl_lunas2"
-                    class="form-control form-control-sm tanggal"
-                    placeholder="Pilih Tanggal"
-                    value="{{ request('tgl_lunas2') }}">
+                    <span>&times;</span>
+
+                </button>
 
             </div>
-        </div>
-    </div>
 
-</div>
+        @endif
 
-<script>
-    flatpickr(".tanggal", {
-        dateFormat: "Y-m-d",
-        disableMobile: true
-    });
-</script>
-        </div>
-    </div>
-</form>
+        <form action="{{ url('cob-harian') }}"
+            method="GET">
 
-            Jumlah Data : {{ count($getCobHarian) }}
+            @csrf
 
-            <div class="row no-print mb-2">
+            <div class="card border-0 shadow-sm">
 
-                <div class="col-12">
+                <div class="card-body">
 
-                    <button type="button"
-                        class="btn btn-info btn-sm"
-                        onclick="toggleNominal()">
+                    <div class="row">
 
-                        <i class="fas fa-eye"></i>
-                        Hide / Show Nominal
+                        {{-- CARI --}}
+                        <div class="col-md-4">
 
-                    </button>
+                            <div class="form-group">
 
-                    <button type="button"
-                        class="btn btn-default float-right"
-                        id="copyButton">
+                                <label class="small font-weight-bold mb-1">
+                                    Cari Data
+                                </label>
 
-                        <i class="fas fa-copy"></i>
-                        Copy table
+                                <input type="text"
+                                    name="cariNomor"
+                                    class="form-control form-control-sm"
+                                    placeholder="Nama / RM / No Rawat"
+                                    value="{{ request('cariNomor') }}">
 
-                    </button>
+                            </div>
+
+                        </div>
+
+                        {{-- STATUS --}}
+                        <div class="col-md-2">
+
+                            <div class="form-group">
+
+                                <label class="small font-weight-bold mb-1">
+                                    Status
+                                </label>
+
+                                <select class="form-control form-control-sm"
+                                    name="stsLanjut">
+
+                                    <option value="Ralan"
+                                        {{ request('stsLanjut') == 'Ralan' ? 'selected' : '' }}>
+                                        Rawat Jalan
+                                    </option>
+
+                                    <option value="Ranap"
+                                        {{ request('stsLanjut') == 'Ranap' ? 'selected' : '' }}>
+                                        Rawat Inap
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        {{-- FILTER --}}
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label class="small font-weight-bold mb-1 d-block">
+                                    Filter Tanggal
+                                </label>
+
+                                <div class="filter-radio-wrapper">
+
+                                    <div class="form-check form-check-inline">
+
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            name="filter_type"
+                                            id="filter_tempo"
+                                            value="tempo"
+                                            {{ request('filter_type','tempo') == 'tempo' ? 'checked' : '' }}>
+
+                                        <label class="form-check-label small"
+                                            for="filter_tempo">
+
+                                            Tanggal Nota
+
+                                        </label>
+
+                                    </div>
+
+                                    <div class="form-check form-check-inline">
+
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            name="filter_type"
+                                            id="filter_lunas"
+                                            value="lunas"
+                                            {{ request('filter_type') == 'lunas' ? 'checked' : '' }}>
+
+                                        <label class="form-check-label small"
+                                            for="filter_lunas">
+
+                                            Tgl Lunas
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {{-- BUTTON --}}
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label class="d-block mb-1">&nbsp;</label>
+
+                                <button type="submit"
+                                    class="btn btn-primary btn-sm btn-block">
+
+                                    <i class="fa fa-search mr-1"></i>
+                                    Cari
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="border-top-custom my-3"></div>
+
+                    {{-- FILTER TANGGAL --}}
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label class="small font-weight-bold mb-1">
+                                    Tanggal Nota
+                                </label>
+
+                                <div class="d-flex align-items-center">
+
+                                    <input type="text"
+                                        name="tgl1"
+                                        id="tgl1"
+                                        class="form-control form-control-sm tanggal"
+                                        placeholder="Pilih Tanggal"
+                                        value="{{ request('tgl1') }}">
+
+                                    <span class="mx-2 font-weight-bold">
+                                        s.d
+                                    </span>
+
+                                    <input type="text"
+                                        name="tgl2"
+                                        id="tgl2"
+                                        class="form-control form-control-sm tanggal"
+                                        placeholder="Pilih Tanggal"
+                                        value="{{ request('tgl2') }}">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label class="small font-weight-bold mb-1">
+                                    Tanggal Lunas
+                                </label>
+
+                                <div class="d-flex align-items-center">
+
+                                    <input type="text"
+                                        name="tgl_lunas1"
+                                        id="tgl_lunas1"
+                                        class="form-control form-control-sm tanggal"
+                                        placeholder="Pilih Tanggal"
+                                        value="{{ request('tgl_lunas1') }}">
+
+                                    <span class="mx-2 font-weight-bold">
+                                        s.d
+                                    </span>
+
+                                    <input type="text"
+                                        name="tgl_lunas2"
+                                        id="tgl_lunas2"
+                                        class="form-control form-control-sm tanggal"
+                                        placeholder="Pilih Tanggal"
+                                        value="{{ request('tgl_lunas2') }}">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
 
-            <table class="table table-sm table-bordered table-responsive text-xs mb-3"
-                style="white-space: nowrap;"
+        </form>
+
+        <div class="mt-3 mb-2">
+
+            <strong>
+                Jumlah Data :
+            </strong>
+
+            {{ count($getCobHarian) }}
+
+        </div>
+
+        <div class="row no-print mb-2">
+
+            <div class="col-12">
+
+                <button type="button"
+                    class="btn btn-info btn-sm"
+                    onclick="toggleNominal()">
+
+                    <i class="fas fa-eye"></i>
+                    Hide / Show Nominal
+
+                </button>
+
+                <button type="button"
+                    class="btn btn-default btn-sm float-right"
+                    id="copyButton">
+
+                    <i class="fas fa-copy"></i>
+                    Copy table
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-sm table-bordered text-xs mb-3"
                 id="tableToCopy">
 
                 <thead>
+
                     <tr>
+
                         <th>No Rawat</th>
                         <th>Nama Pasien</th>
                         <th>Nama Poli</th>
@@ -304,7 +360,7 @@
 
                         <th class="kolom-nominal">Registrasi</th>
                         <th class="kolom-nominal">Obat+Emb+Tsl</th>
-                        <th class="kolom-nominal">Retur Oabt</th>
+                        <th class="kolom-nominal">Retur Obat</th>
                         <th class="kolom-nominal">Resep Pulang</th>
                         <th class="kolom-nominal">Paket Tindakan</th>
                         <th class="kolom-nominal">Operasi</th>
@@ -315,391 +371,615 @@
                         <th class="kolom-nominal">Potongan</th>
                         <th class="kolom-nominal">Total</th>
 
-                        <th class="text-center" colspan="4">Penjamin</th>
+                        <th>Penjamin</th>
+                        <th>Piutang</th>
+
                         <th>Dibayar Asuransi</th>
                         <th>Selisih Dibayar</th>
                         <th>Akun Bayar</th>
                         <th>Tanggal Lunas</th>
+
                     </tr>
+
                 </thead>
 
-                @forelse ($getCobHarian as $item)
-                    <tr>
-                        <td>{{ $item->no_rawat }}</td>
-                        <td>{{ $item->nm_pasien }}</td>
-                        <td>{{ $item->nm_poli }}</td>
-                        <td>{{ $item->kd_dokter }}</td>
-                        <td>{{ $item->nm_dokter }}</td>
+                <tbody>
 
-                        <td class="text-center">
-                            <button type="button"
-                                class="btn btn-success btn-xs"
-                                data-toggle="modal"
-                                data-target="#modalCob"
-                                onclick="setCobData('{{ $item->no_rawat }}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
+                    @forelse ($getCobHarian as $item)
 
-                        <td>
-                            @foreach ($item->getNomorNota as $detail)
-                                {{ str_replace(':', '', $detail->nm_perawatan) }}
-                            @endforeach
-                        </td>
+                        <tr>
 
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getRegistrasi->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
+                            <td>{{ $item->no_rawat }}</td>
+                            <td>{{ $item->nm_pasien }}</td>
+                            <td>{{ $item->nm_poli }}</td>
+                            <td>{{ $item->kd_dokter }}</td>
+                            <td>{{ $item->nm_dokter }}</td>
 
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getObat->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
+                            <td class="text-center">
 
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getReturObat->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
+                                <button type="button"
+                                    class="btn btn-success btn-xs"
+                                    data-toggle="modal"
+                                    data-target="#modalCob"
+                                    onclick="setCobData('{{ $item->no_rawat }}')">
 
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getResepPulang->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
+                                    <i class="fas fa-edit"></i>
 
-                        <td class="text-right kolom-nominal">
-                            {{
-                                number_format(
-                                    $item->getRalanDokter->sum('totalbiaya') +
-                                    $item->getRalanParamedis->sum('totalbiaya') +
-                                    $item->getRalanDrParamedis->sum('totalbiaya') +
-                                    $item->getRanapDokter->sum('totalbiaya') +
-                                    $item->getRanapDrParamedis->sum('totalbiaya') +
-                                    $item->getRanapParamedis->sum('totalbiaya'),
-                                0, '.', ',')
-                            }}
-                        </td>
+                                </button>
 
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getOprasi->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getLaborat->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getRadiologi->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getTambahan->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getKamarInap->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right kolom-nominal">
-                            {{ number_format($item->getPotongan->sum('totalbiaya'), 0, '.', ',') }}
-                        </td>
-
-                        <td class="text-right text-bold kolom-nominal">
-                            {{
-                                number_format(
-                                    $item->getRegistrasi->sum('totalbiaya') +
-                                    $item->getObat->sum('totalbiaya') +
-                                    $item->getReturObat->sum('totalbiaya') +
-                                    $item->getResepPulang->sum('totalbiaya') +
-                                    $item->getRalanDokter->sum('totalbiaya') +
-                                    $item->getRalanParamedis->sum('totalbiaya') +
-                                    $item->getRalanDrParamedis->sum('totalbiaya') +
-                                    $item->getRanapDokter->sum('totalbiaya') +
-                                    $item->getRanapDrParamedis->sum('totalbiaya') +
-                                    $item->getRanapParamedis->sum('totalbiaya') +
-                                    $item->getOprasi->sum('totalbiaya') +
-                                    $item->getLaborat->sum('totalbiaya') +
-                                    $item->getRadiologi->sum('totalbiaya') +
-                                    $item->getTambahan->sum('totalbiaya') +
-                                    $item->getKamarInap->sum('totalbiaya') +
-                                    $item->getPotongan->sum('totalbiaya'),
-                                0, '.', ',')
-                            }}
-                        </td>
-
-                        @foreach ($item->getPenjabCOB as $penjab)
-                            <td>{{ $penjab->png_jawab }}</td>
-                            <td class="text-right">
-                                {{ number_format($penjab->totalpiutang, 0, '.', ',') }}
                             </td>
-                        @endforeach
 
-                        <td class="text-right">
-                            {{ number_format($item->getLunasCob->nominal_cob ?? 0, 0, '.', ',') }}
-                        </td>
+                            <td>
 
-                        <td class="text-right">
+                                @foreach ($item->getNomorNota as $detail)
+
+                                    {{ str_replace(':', '', $detail->nm_perawatan) }}
+
+                                @endforeach
+
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getRegistrasi->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getObat->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getReturObat->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getResepPulang->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+
+                                {{
+                                    number_format(
+
+                                        $item->getRalanDokter->sum('totalbiaya') +
+                                        $item->getRalanParamedis->sum('totalbiaya') +
+                                        $item->getRalanDrParamedis->sum('totalbiaya') +
+                                        $item->getRanapDokter->sum('totalbiaya') +
+                                        $item->getRanapDrParamedis->sum('totalbiaya') +
+                                        $item->getRanapParamedis->sum('totalbiaya')
+
+                                    ,0,'.',',')
+                                }}
+
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getOprasi->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getLaborat->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getRadiologi->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getTambahan->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getKamarInap->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right kolom-nominal">
+                                {{ number_format($item->getPotongan->sum('totalbiaya'),0,'.',',') }}
+                            </td>
+
+                            <td class="text-right text-bold kolom-nominal">
+
+                                {{
+                                    number_format(
+
+                                        $item->getRegistrasi->sum('totalbiaya') +
+                                        $item->getObat->sum('totalbiaya') +
+                                        $item->getReturObat->sum('totalbiaya') +
+                                        $item->getResepPulang->sum('totalbiaya') +
+                                        $item->getRalanDokter->sum('totalbiaya') +
+                                        $item->getRalanParamedis->sum('totalbiaya') +
+                                        $item->getRalanDrParamedis->sum('totalbiaya') +
+                                        $item->getRanapDokter->sum('totalbiaya') +
+                                        $item->getRanapDrParamedis->sum('totalbiaya') +
+                                        $item->getRanapParamedis->sum('totalbiaya') +
+                                        $item->getOprasi->sum('totalbiaya') +
+                                        $item->getLaborat->sum('totalbiaya') +
+                                        $item->getRadiologi->sum('totalbiaya') +
+                                        $item->getTambahan->sum('totalbiaya') +
+                                        $item->getKamarInap->sum('totalbiaya') +
+                                        $item->getPotongan->sum('totalbiaya')
+
+                                    ,0,'.',',')
+                                }}
+
+                            </td>
+
                             @php
-                                $totalPenjab = $item->getPenjabCOB->where('png_jawab', '!=', 'BPJS')->where('png_jawab', '!=', 'ASR - JAMSOSTEK')->sum('totalpiutang');
-                                $dibayarCob = $item->getLunasCob->nominal_cob ?? 0;
+
+                                $penjabNama =
+                                    $item->getPenjabCOB
+                                    ->pluck('png_jawab')
+                                    ->implode(', ');
+
+                                $penjabTotal =
+                                    $item->getPenjabCOB
+                                    ->sum('totalpiutang');
+
+                                $totalPenjab =
+                                    $item->getPenjabCOB
+                                    ->where('png_jawab','!=','BPJS')
+                                    ->where('png_jawab','!=','ASR - JAMSOSTEK')
+                                    ->sum('totalpiutang');
+
+                                $dibayarCob =
+                                    $item->getLunasCob->nominal_cob ?? 0;
+
                             @endphp
-                            {{ number_format($totalPenjab - $dibayarCob, 0, '.', ',') }}
-                        </td>
 
-                        <td>
-                            {{ $item->getLunasCob->akun_bayar ?? '' }}
-                        </td>
+                            <td>
+                                {{ $penjabNama }}
+                            </td>
 
-                        <td>
-                            {{ $item->getLunasCob->tgl_lunas ?? '' }}
-                        </td>
+                            <td class="text-right">
+                                {{ number_format($penjabTotal,0,'.',',') }}
+                            </td>
 
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="20" class="text-center">
-                            Silahkan Cari Data
-                        </td>
-                    </tr>
-                @endforelse
+                            <td class="text-right">
+                                {{ number_format($dibayarCob,0,'.',',') }}
+                            </td>
+
+                            <td class="text-right">
+                                {{ number_format($totalPenjab - $dibayarCob,0,'.',',') }}
+                            </td>
+
+                            <td>
+                                {{ $item->getLunasCob->akun_bayar ?? '' }}
+                            </td>
+
+                            <td>
+                                {{ $item->getLunasCob->tgl_lunas ?? '' }}
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="25"
+                                class="text-center">
+
+                                Silahkan Cari Data
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
 
             </table>
 
         </div>
+
     </div>
 
-    {{-- MODAL --}}
-    <div class="modal fade" id="modalCob">
-        <div class="modal-dialog">
-            <div class="modal-content">
+</div>
 
-                <form action="{{ url('simpan-cob') }}" method="POST" id="formCob">
-                    @csrf
+{{-- MODAL --}}
+<div class="modal fade" id="modalCob">
 
-                    <div class="modal-header bg-primary">
-                        <h5 class="modal-title">Input COB</h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
-                    </div>
+    <div class="modal-dialog">
 
-                    <div class="modal-body">
+        <div class="modal-content">
 
-                        <div class="form-group">
-                            <label>No Rawat</label>
-                            <input type="text"
-                                name="no_rawat"
-                                id="modal_no_rawat"
-                                class="form-control"
-                                readonly>
+            <form action="{{ url('simpan-cob') }}"
+                method="POST"
+                id="formCob">
+
+                @csrf
+
+                <div class="modal-header bg-primary text-white">
+
+                    <h5 class="modal-title">
+                        Input COB
+                    </h5>
+
+                    <button type="button"
+                        class="close text-white"
+                        data-dismiss="modal">
+
+                        <span>&times;</span>
+
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    @if ($errors->any())
+
+                        <div class="alert alert-danger">
+
+                            <ul class="mb-0">
+
+                                @foreach ($errors->all() as $error)
+
+                                    <li>{{ $error }}</li>
+
+                                @endforeach
+
+                            </ul>
+
                         </div>
 
-                        <div class="form-group">
-                            <label>Tanggal Bayar Perusahaan</label>
+                    @endif
 
-                            <div class="input-group">
-                                <input type="text"
-                                    name="tgl_lunas"
-                                    id="tgl_lunas"
-                                    class="form-control"
-                                    inputmode="numeric"
-                                    required>
+                    <div class="form-group mb-3">
 
-                                <div class="input-group-append">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </span>
-                                </div>
+                        <label>No Rawat</label>
+
+                        <input type="text"
+                            name="no_rawat"
+                            id="modal_no_rawat"
+                            class="form-control"
+                            readonly>
+
+                    </div>
+
+                    <div class="form-group mb-3">
+
+                        <label>
+                            Tanggal Bayar Perusahaan
+                        </label>
+
+                        <div class="input-group">
+
+                            <input type="text"
+                                name="tgl_lunas"
+                                id="tgl_lunas"
+                                class="form-control"
+                                autocomplete="off"
+                                required>
+
+                            <div class="input-group-append">
+
+                                <span class="input-group-text">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </span>
+
                             </div>
 
                         </div>
 
-                        <div class="form-group">
-                            <label>Nominal Dibayar Asuransi</label>
-                            <input type="text"
-                                name="nominal_cob"
-                                id="nominal_cob"
-                                class="form-control text-right"
-                                inputmode="numeric"
-                                onkeyup="formatRibuan(this)"
-                                onkeypress="return hanyaAngka(event)"
-                                required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="akun_bayar">Akun Bayar</label>
-
-                            <select name="akun_bayar"
-                                id="akun_bayar"
-                                class="form-control"
-                                required>
-
-                                <option value="" selected disabled hidden>
-                                    Pilih Akun Bayar
-                                </option>
-
-                                @if(isset($akunBayar))
-                                    @foreach($akunBayar as $akun)
-                                        <option value="{{ $akun->nama_bayar }}">
-                                            {{ $akun->nama_bayar }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Tutup
-                        </button>
-
-                        <button type="submit" class="btn btn-primary">
-                            Simpan
-                        </button>
                     </div>
 
-                </form>
+                    <div class="form-group mb-3">
 
-            </div>
+                        <label>
+                            Nominal Dibayar Asuransi
+                        </label>
+
+                        <input type="text"
+                            name="nominal_cob"
+                            id="nominal_cob"
+                            class="form-control text-right"
+                            inputmode="numeric"
+                            onkeyup="formatRibuan(this)"
+                            onkeypress="return hanyaAngka(event)"
+                            required>
+
+                    </div>
+
+                    <div class="form-group mb-3">
+
+                        <label>
+                            Akun Bayar
+                        </label>
+
+                        <select name="akun_bayar"
+                            id="akun_bayar"
+                            class="form-control"
+                            required>
+
+                            <option value="">
+                                Pilih Akun Bayar
+                            </option>
+
+                            @foreach($akunBayar as $akun)
+
+                                <option value="{{ $akun->nama_bayar }}">
+                                    {{ $akun->nama_bayar }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+
+                        Tutup
+
+                    </button>
+
+                    <button type="submit"
+                        class="btn btn-primary">
+
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
+</div>
 
-        // Fungsi untuk hanya menerima angka
-        function hanyaAngka(e) {
-            const char = String.fromCharCode(e.which);
-            if (!/[0-9]/.test(char)) {
-                e.preventDefault();
-                return false;
-            }
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+
+    // FILTER TANGGAL
+    flatpickr(".tanggal",{
+        dateFormat:"Y-m-d",
+        allowInput:true,
+        disableMobile:true
+    });
+
+    // TANGGAL LUNAS
+    flatpickr("#tgl_lunas",{
+        dateFormat:"Y-m-d",
+        allowInput:true,
+        disableMobile:true
+    });
+
+    // HANYA ANGKA
+    function hanyaAngka(e){
+
+        const char =
+            String.fromCharCode(e.which);
+
+        if(!/[0-9]/.test(char)){
+
+            e.preventDefault();
+
+            return false;
         }
+    }
 
-        // Fungsi format angka dengan pemisah ribuan
-        function formatRibuan(input) {
-            let value = input.value.replace(/\D/g, '');
-            input.value = new Intl.NumberFormat('id-ID').format(value);
+    // FORMAT RIBUAN
+    function formatRibuan(input){
+
+        let value =
+            input.value.replace(/\D/g,'');
+
+        input.value =
+            new Intl.NumberFormat('id-ID')
+            .format(value);
+    }
+
+    // HAPUS FORMAT
+    function removeFormat(input){
+
+        return input.value.replace(/\D/g,'');
+    }
+
+    // SUBMIT FORM
+    document.getElementById(
+        'formCob'
+    ).addEventListener(
+        'submit',
+        function(){
+
+            const nominalInput =
+                document.getElementById(
+                    'nominal_cob'
+                );
+
+            nominalInput.value =
+                removeFormat(
+                    nominalInput
+                );
+
         }
+    );
 
-        // Fungsi hapus format sebelum submit
-        function removeFormat(input) {
-            return input.value.replace(/\D/g, '');
-        }
+    // SET DATA MODAL
+    function setCobData(no){
 
-        // Initialize Flatpickr untuk date picker
-        flatpickr("#tgl_lunas", {
-            dateFormat: "d/m/Y",
-            altFormat: "d/m/Y",
-            altInput: false,
-            locale: "id"
-        });
+        document.getElementById(
+            'modal_no_rawat'
+        ).value = no;
 
-        // Validasi format tanggal dd/mm/yyyy
-        document.getElementById('tgl_lunas').addEventListener('blur', function(){
-            const value = this.value.trim();
-            const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/(19|20)\d{2}$/;
-            
-            if(value && !regex.test(value)){
-                alert('Format tanggal tidak valid. Gunakan format dd/mm/yyyy');
-                this.focus();
-                this.value = '';
-            }
-        });
+        document.getElementById(
+            'nominal_cob'
+        ).value = '';
 
-        // Hapus format nominal sebelum submit
-        document.getElementById('formCob').addEventListener('submit', function(e) {
-            const nominalInput = document.getElementById('nominal_cob');
-            nominalInput.value = removeFormat(nominalInput);
-        });
+        document.getElementById(
+            'tgl_lunas'
+        ).value = '';
 
-        function setCobData(no_rawat){
-            document.getElementById('modal_no_rawat').value = no_rawat;
-            document.getElementById('nominal_cob').value = '';
-            document.getElementById('tgl_lunas').value = '';
-        }
+        document.getElementById(
+            'akun_bayar'
+        ).selectedIndex = 0;
+    }
 
-        function toggleNominal(){
-            document.querySelectorAll('.kolom-nominal').forEach(function(el){
-                el.classList.toggle('d-none');
+    // HIDE SHOW NOMINAL
+    function toggleNominal(){
+
+        document
+            .querySelectorAll(
+                '.kolom-nominal'
+            )
+            .forEach(function(el){
+
+                el.classList.toggle(
+                    'd-none'
+                );
+
             });
+
+    }
+
+    // COPY TABLE
+    document.getElementById(
+        "copyButton"
+    ).addEventListener(
+        "click",
+        function(){
+
+            copyTableToClipboard(
+                "tableToCopy"
+            );
+
         }
+    );
 
-        document.getElementById("copyButton").addEventListener("click", function(){
-            copyTableToClipboard("tableToCopy");
-        });
+    function copyTableToClipboard(tableId){
 
-        function copyTableToClipboard(tableId){
-            const table = document.getElementById(tableId);
-            const range = document.createRange();
-            range.selectNode(table);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
+        const table =
+            document.getElementById(
+                tableId
+            );
 
-            try{
-                document.execCommand("copy");
-                window.getSelection().removeAllRanges();
-                alert("Tabel telah berhasil disalin ke clipboard.");
-            }catch(err){
-                console.error("Tidak dapat menyalin tabel:", err);
-            }
-        }
+        let text = "";
 
-        function updateFilterState() {
+        for(let row of table.rows){
 
-                const filterType = document.querySelector(
-                    'input[name="filter_type"]:checked'
-                ).value;
+            let rowData = [];
 
-                const tgl1 = document.getElementById('tgl1');
-                const tgl2 = document.getElementById('tgl2');
+            for(let cell of row.cells){
 
-                const tglLunas1 = document.getElementById('tgl_lunas1');
-                const tglLunas2 = document.getElementById('tgl_lunas2');
+                if(
+                    !cell.classList.contains(
+                        'd-none'
+                    )
+                ){
 
+                    rowData.push(
+                        cell.innerText
+                            .replace(/\n/g,' ')
+                            .trim()
+                    );
 
-                if (filterType === 'tempo') {
-
-                    // aktif
-                    tgl1.disabled = false;
-                    tgl2.disabled = false;
-
-                    // nonaktif
-                    tglLunas1.disabled = true;
-                    tglLunas2.disabled = true;
-
-                    // kosongkan
-                    tglLunas1.value = '';
-                    tglLunas2.value = '';
-
-                } else {
-
-                    // nonaktif
-                    tgl1.disabled = true;
-                    tgl2.disabled = true;
-
-                    // aktif
-                    tglLunas1.disabled = false;
-                    tglLunas2.disabled = false;
-
-                    // kosongkan
-                    tgl1.value = '';
-                    tgl2.value = '';
                 }
             }
 
+            text +=
+                rowData.join('\t') + '\n';
+        }
 
-            // trigger radio
-            document.querySelectorAll(
-                'input[name="filter_type"]'
-            ).forEach(function(el){
+        navigator.clipboard.writeText(text)
+            .then(function(){
 
-                el.addEventListener('change', updateFilterState);
+                alert(
+                    'Tabel berhasil di copy'
+                );
+
+            })
+            .catch(function(err){
+
+                console.error(err);
+
+                alert(
+                    'Gagal copy table'
+                );
 
             });
+    }
 
+    // FILTER TANGGAL
+    function updateFilterState(){
 
-            // pertama kali load
-            document.addEventListener(
-                'DOMContentLoaded',
-                updateFilterState
+        const filterType =
+            document.querySelector(
+                'input[name="filter_type"]:checked'
+            ).value;
+
+        const tgl1 =
+            document.getElementById(
+                'tgl1'
             );
-    </script>
+
+        const tgl2 =
+            document.getElementById(
+                'tgl2'
+            );
+
+        const tglLunas1 =
+            document.getElementById(
+                'tgl_lunas1'
+            );
+
+        const tglLunas2 =
+            document.getElementById(
+                'tgl_lunas2'
+            );
+
+        if(filterType === 'tempo'){
+
+            tgl1.disabled = false;
+            tgl2.disabled = false;
+
+            tglLunas1.disabled = true;
+            tglLunas2.disabled = true;
+
+            tglLunas1.value = '';
+            tglLunas2.value = '';
+
+        }else{
+
+            tgl1.disabled = true;
+            tgl2.disabled = true;
+
+            tglLunas1.disabled = false;
+            tglLunas2.disabled = false;
+
+            tgl1.value = '';
+            tgl2.value = '';
+        }
+    }
+
+    // TRIGGER RADIO
+    document.querySelectorAll(
+        'input[name="filter_type"]'
+    ).forEach(function(el){
+
+        el.addEventListener(
+            'change',
+            updateFilterState
+        );
+
+    });
+
+    // LOAD AWAL
+    document.addEventListener(
+        'DOMContentLoaded',
+        updateFilterState
+    );
+
+</script>
 
 @endsection
