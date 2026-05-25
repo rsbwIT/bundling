@@ -375,8 +375,8 @@
                     $nominalCob =
                         $item->getLunasCob->nominal_cob ?? 0;
 
-                    $selisih =
-                        $nominalDetail - $nominalCob;
+                    $selisih = 
+                        $nominalCob - $nominalDetail;
                     
                     $registrasi =
                         $item->getRegistrasi->sum('totalbiaya');
@@ -682,8 +682,11 @@
                         {{ number_format($nominalCob,0,'.',',') }}
                     </td>
 
-                    <td class="text-right">
+                    <td class="text-right
+                        {{ $selisih < 0 ? 'text-danger font-weight-bold' : 'text-success font-weight-bold' }}">
+
                         {{ number_format($selisih,0,'.',',') }}
+
                     </td>
 
                     <td>
@@ -778,8 +781,6 @@
                     <td class="text-right">
                         {{ number_format($totalPenjamin,0,'.',',') }}
                     </td>
-
-                    <td></td>
 
                     <td class="text-right">
                         {{ number_format($totalUangMuka,0,'.',',') }}

@@ -419,7 +419,7 @@ text-align:right;
 <tr>
 <td></td>
 <td class="sub1">Jasa Sarana</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalBagianRSumuRI) }}</td>
 <td>{{ number_format($totalBagianRSumu) }}</td>
 <td>{{ number_format($hasilAkhir ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
@@ -428,7 +428,7 @@ text-align:right;
 <tr>
 <td></td>
 <td class="sub1">Paket BHP</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalBhpumuradiologiRI) }}</td>
 <td>{{ number_format($totalBhpumuradiologi) }}</td>
 <td>{{ number_format($RanapRadiologiBpjsBHP1 ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
@@ -437,7 +437,7 @@ text-align:right;
 <tr>
 <td></td>
 <td class="sub1">JM Dokter PJ</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalDokterperujukRadiologiUmuRI) }}</td>
 <td>{{ number_format($totalDokterperujukRadiologiUmu) }}</td>
 <td>{{ number_format($RanapRadiologiJmDokterPj ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
@@ -446,7 +446,7 @@ text-align:right;
 <tr>
 <td></td>
 <td class="sub1">Petugas</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalPetugasRadiologiUmuRI) }}</td>
 <td>{{ number_format($totalPetugasRadiologiUmu) }}</td>
 <td>{{ number_format($RanapRadiologiJmPetugas ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
@@ -455,13 +455,13 @@ text-align:right;
 <tr>
 <td></td>
 <td class="sub1">JM Perujuk</td>
-<td>{{ number_format(0) }}</td>
+<td>{{ number_format($totalPerujukRadiologiUmuRI) }}</td>
 <td>{{ number_format($totalPerujukRadiologiUmu) }}</td>
 <td>{{ number_format($RanapRadiologiPerujuk ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
 </tr>
 
-<tr class="kategori">
+{{-- <tr class="kategori">
 <td>6</td>
 <td>Rad tes</td>
 <td></td>
@@ -491,7 +491,7 @@ text-align:right;
 <td>{{ number_format($RanapRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RanapRadiologiBpjs1 ?? 0, 0, ',', '.') }}</td>
 <td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
+</tr> --}}
 
 <tr class="kategori">
 <td>6</td>

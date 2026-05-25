@@ -1540,38 +1540,39 @@ class RekapPendapatanBulanan extends Controller
             ->where('rp.status_lanjut', 'Ralan')
             ->whereBetween('pp.tgl_piutang', [$tgl1, $tgl2])
             ->sum('dnj.besar_bayar');
+
         //jasa sarana
         $totalMaterialDR = DB::table('rawat_jl_dr as rjdr')
             ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdr.no_rawat')
             ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->whereIn('rjdr.kd_jenis_prw', [
-                '082-UMU',
-                '079-UMU',
-                'HD02-UMU',
-                'CHHD04-UMU',
-                '002-UMU',
-                '001-UMU',
-                '019-UMU',
-                '216-UMU',
-                '020-UMU',
-                '080-UMU',
-                '192-UMU',
-                '221-UMU',
-                '218-UMU',
-                '055-UMU',
-                '024-UMU',
-                '150-UMU',
-                '248-UMU',
-                'RJMCU07',
-                'USG-UMU-RSBW',
-                '247-UMU',
-                '205-UMU',
-                '217-THT',
-                '081-UMU',
-                '267-UMU'
-            ])
+            // ->whereIn('rjdr.kd_jenis_prw', [
+            //     '082-UMU',
+            //     '079-UMU',
+            //     'HD02-UMU',
+            //     'CHHD04-UMU',
+            //     '002-UMU',
+            //     '001-UMU',
+            //     '019-UMU',
+            //     '216-UMU',
+            //     '020-UMU',
+            //     '080-UMU',
+            //     '192-UMU',
+            //     '221-UMU',
+            //     '218-UMU',
+            //     '055-UMU',
+            //     '024-UMU',
+            //     '150-UMU',
+            //     '248-UMU',
+            //     'RJMCU07',
+            //     'USG-UMU-RSBW',
+            //     '247-UMU',
+            //     '205-UMU',
+            //     '217-THT',
+            //     '081-UMU',
+            //     '267-UMU'
+            // ])
             ->sum('rjdr.material');
 
         $totalMaterialPR = DB::table('rawat_jl_pr as rjpr')
@@ -1579,28 +1580,28 @@ class RekapPendapatanBulanan extends Controller
             ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->whereIn('rjpr.kd_jenis_prw', [
-                'AMB017',
-                'AMB00111',
-                '203-UMU',
-                'HD03-UMU',
-                'HD01-UMU',
-                '067-UMU',
-                '004-UMU',
-                '012-UMU',
-                '010-UMU',
-                '009-UMU',
-                '008-UMU',
-                '023-UMU',
-                '068-UMU',
-                '022-UMU',
-                '074-UMU',
-                'TindakanLAB3',
-                '011-UMU',
-                'IGDBP0005',
-                '017-UMU',
-                'TindakanLAB14'
-            ])
+            // ->whereIn('rjpr.kd_jenis_prw', [
+            //     'AMB017',
+            //     'AMB00111',
+            //     '203-UMU',
+            //     'HD03-UMU',
+            //     'HD01-UMU',
+            //     '067-UMU',
+            //     '004-UMU',
+            //     '012-UMU',
+            //     '010-UMU',
+            //     '009-UMU',
+            //     '008-UMU',
+            //     '023-UMU',
+            //     '068-UMU',
+            //     '022-UMU',
+            //     '074-UMU',
+            //     'TindakanLAB3',
+            //     '011-UMU',
+            //     'IGDBP0005',
+            //     '017-UMU',
+            //     'TindakanLAB14'
+            // ])
             ->sum('rjpr.material');
 
         $totalMaterialDRPR = DB::table('rawat_jl_drpr as rjdrpr')
@@ -1608,16 +1609,16 @@ class RekapPendapatanBulanan extends Controller
             ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->whereIn('rjdrpr.kd_jenis_prw', [
-                '077-UMU',
-                '063-UMU',
-                '034-UMU',
-                '058-UMU',
-                'THT10',
-                '057-UMU',
-                '241-UMU',
-                '035-UMU'
-            ])
+            // ->whereIn('rjdrpr.kd_jenis_prw', [
+            //     '077-UMU',
+            //     '063-UMU',
+            //     '034-UMU',
+            //     '058-UMU',
+            //     'THT10',
+            //     '057-UMU',
+            //     '241-UMU',
+            //     '035-UMU'
+            // ])
             ->sum('rjdrpr.material');
 
         $totalMaterial = $totalMaterialDR + $totalMaterialPR + $totalMaterialDRPR;
@@ -1736,26 +1737,10 @@ class RekapPendapatanBulanan extends Controller
         $totalALATDokterPR = DB::table('rawat_jl_pr as rjpr')
             ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjpr.no_rawat')
             ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+            ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjpr.kd_jenis_prw')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->whereNotIn('rjpr.kd_jenis_prw', [
-                'AMB000199',
-                'AMB00022',
-                'AMB001',
-                'AMB00110',
-                'AMB00111',
-                'AMB005',
-                'AMB009',
-                'AMB013',
-                'AMB017',
-                'AMB021',
-                'AMBASU021',
-                'AMBASU025',
-                'AMBASU029',
-                'AMBASU1024',
-                'AMBASU121',
-                'AMBU021'
-            ])
+            ->where('jp.nm_perawatan', 'not like', '%Ambul%')
             ->sum('rjpr.kso');
 
         $totalALATDokterDRPR = DB::table('rawat_jl_drpr as rjdrpr')
@@ -1785,7 +1770,7 @@ class RekapPendapatanBulanan extends Controller
             ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjdr.kd_jenis_prw')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->where('jp.nm_perawatan', 'like', '%Ambul%')
+            ->where('jp.nm_perawatan', 'like', '%Ambulan%')
             ->sum('rjdr.kso');
 
         $totalAMBULANCEDokterPR = DB::table('rawat_jl_pr as rjpr')
@@ -1794,8 +1779,14 @@ class RekapPendapatanBulanan extends Controller
             ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjpr.kd_jenis_prw')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->where('jp.nm_perawatan', 'like', '%Ambul%')
-            ->sum('rjpr.kso');
+            ->where('jp.nm_perawatan', 'like', '%Ambulan%')
+            ->sum(DB::raw("
+                CASE 
+                    WHEN rjpr.kd_jenis_prw = 'AMB-HIACE-01' 
+                    THEN rjpr.tarif_tindakanpr
+                    ELSE rjpr.kso
+                END
+            "));
 
         $totalAMBULANCEDokterDRPR = DB::table('rawat_jl_drpr as rjdrpr')
             ->join('nota_jalan as nj', 'nj.no_rawat', '=', 'rjdrpr.no_rawat')
@@ -1803,7 +1794,7 @@ class RekapPendapatanBulanan extends Controller
             ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjdrpr.kd_jenis_prw')
             ->whereBetween('nj.tanggal', [$tgl1, $tgl2])
             ->where('rp.kd_pj', 'UMU')
-            ->where('jp.nm_perawatan', 'like', '%Ambul%')
+            ->where('jp.nm_perawatan', 'like', '%Ambulan%')
             ->sum('rjdrpr.kso');
 
         $totalAMBULANCEDokterKSO =
@@ -2305,6 +2296,7 @@ class RekapPendapatanBulanan extends Controller
             DB::table('rawat_jl_dr as rjdr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'rjdr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdr.no_rawat')
+                ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjdr.kd_jenis_prw')
                 ->leftJoin('dokter as d', 'd.kd_dokter', '=', 'rjdr.kd_dokter')
                 ->select(
                     DB::raw("'RAWAT JALAN DR' as sumber"),
@@ -2317,12 +2309,14 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambul%')
                 ->get(),
 
             // ====================== RAWAT JALAN PR ======================
             DB::table('rawat_jl_pr as rjpr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'rjpr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjpr.no_rawat')
+                ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjpr.kd_jenis_prw')
                 ->leftJoin('petugas as p', 'p.nip', '=', 'rjpr.nip')
                 ->select(
                     DB::raw("'RAWAT JALAN PR' as sumber"),
@@ -2335,12 +2329,14 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambul%')
                 ->get(),
 
             // ====================== RAWAT INAP DR ======================
             DB::table('rawat_inap_dr as ridr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'ridr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'ridr.no_rawat')
+                ->join('jns_perawatan_inap as jp', 'jp.kd_jenis_prw', '=', 'ridr.kd_jenis_prw')
                 ->leftJoin('dokter as d', 'd.kd_dokter', '=', 'ridr.kd_dokter')
                 ->select(
                     DB::raw("'RAWAT INAP DR' as sumber"),
@@ -2353,12 +2349,14 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambul%')
                 ->get(),
 
             // ====================== RAWAT INAP PR ======================
             DB::table('rawat_inap_pr as ripr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'ripr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'ripr.no_rawat')
+                ->join('jns_perawatan_inap as jp', 'jp.kd_jenis_prw', '=', 'ripr.kd_jenis_prw')
                 ->leftJoin('petugas as p', 'p.nip', '=', 'ripr.nip')
                 ->select(
                     DB::raw("'RAWAT INAP PR' as sumber"),
@@ -2371,6 +2369,7 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambul%')
                 ->whereNotIn('ripr.nip', [
                     '09964020055',
                     '05084010153',
@@ -2391,6 +2390,7 @@ class RekapPendapatanBulanan extends Controller
             DB::table('rawat_jl_drpr as rjdrpr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'rjdrpr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'rjdrpr.no_rawat')
+                ->join('jns_perawatan as jp', 'jp.kd_jenis_prw', '=', 'rjdrpr.kd_jenis_prw')
                 ->leftJoin('dokter as d', 'd.kd_dokter', '=', 'rjdrpr.kd_dokter')
                 ->select(
                     DB::raw("'RAWAT JALAN DRPR' as sumber"),
@@ -2403,12 +2403,14 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambl%')
                 ->get(),
 
             // ====================== RAWAT INAP DRPR ======================
             DB::table('rawat_inap_drpr as ridrpr')
                 ->join('nota_inap as ni', 'ni.no_rawat', '=', 'ridrpr.no_rawat')
                 ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'ridrpr.no_rawat')
+                ->join('jns_perawatan_inap as jp', 'jp.kd_jenis_prw', '=', 'ridrpr.kd_jenis_prw')
                 ->leftJoin('dokter as d', 'd.kd_dokter', '=', 'ridrpr.kd_dokter')
                 ->select(
                     DB::raw("'RAWAT INAP DRPR' as sumber"),
@@ -2421,6 +2423,7 @@ class RekapPendapatanBulanan extends Controller
                 )
                 ->whereBetween('ni.tanggal', [$tgl1, $tgl2])
                 ->where('rp.kd_pj', 'UMU')
+                ->where('jp.nm_perawatan', 'not like', '%Ambl%')
                 ->get()
 
         ])->flatten(1)
@@ -2644,7 +2647,7 @@ class RekapPendapatanBulanan extends Controller
                         END
                     ) as total
                 ")
-                        ->value('total');
+            ->value('total');
         // ====================== GRAND TOTAL ======================
 
         $grandRanap =
@@ -2775,7 +2778,12 @@ class RekapPendapatanBulanan extends Controller
             'totalJMDokterUMURI',
             'totaljmparamedisumumri',
             'totalAlatDokterRIUMUM',
-            'totalAmbulanceBWRIUMU'
+            'totalAmbulanceBWRIUMU',
+            'totalBhpumuradiologiRI',
+            'totalDokterperujukRadiologiUmuRI',
+            'totalPetugasRadiologiUmuRI',
+            'totalPerujukRadiologiUmuRI',
+            'totalBagianRSumuRI'
         ));
     }
 }
