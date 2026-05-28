@@ -483,7 +483,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.operator1 as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2) as total_ralan")
+            DB::raw("SUM(paket_operasi.operator1) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -550,7 +550,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anestesi as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.35) as total_ralan")
+            DB::raw("SUM(paket_operasi.dokter_anestesi) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -1238,7 +1238,7 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM((COALESCE(bayar_piutang.besar_cicilan, 0) + COALESCE(piutang_pasien.uangmuka, 0)) * 0.2 * 0.15) as total_ralan"),
+            DB::raw("SUM(paket_operasi.asisten_operator1) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
