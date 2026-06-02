@@ -192,6 +192,15 @@
                                             </a>
                                         @endif
                                     </div>
+
+                                    {{-- KIRIM INACBG --}}
+                                    <div class="btn-group ml-1">
+                                        <a href="{{ route('bpjs.inacbg', ['norawat' => $item->no_rawat]) }}"
+                                            target="_blank"
+                                            class="btn btn-block btn-outline-danger btn-xs btn-flat">
+                                            <i class="fas fa-paper-plane"></i> Kirim
+                                        </a>
+                                    </div>
                                 </div>
                             </td>
                             <td>{{ $item->no_rkm_medis }}</td>

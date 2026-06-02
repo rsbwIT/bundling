@@ -151,6 +151,7 @@ use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
 use App\Http\Controllers\Laporan\PiutangHarian;
 use App\Http\Controllers\AI\User;
 use App\Http\Controllers\Belanja\belanja;
+use App\Http\Controllers\Bpjs\bridginginacbg2;
 
 
 
@@ -210,6 +211,31 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/croscheck-coding', [HomeCasemix::class, 'crosCheckCoding']);
         Route::get('/bpjs/croscek-pasien-pulang', [CroscekPasienPulang::class, 'index'])
             ->name('bpjs.croscekpasienpulang');
+        // Route::get('/bpjs/inacbg/{norawat}', [bridginginacbg2::class, 'index'])
+        //     ->name('bpjs.inacbg');
+        // Route::post('/bpjs/inacbg/{norawat}', [bridginginacbg2::class, 'simpan'])
+        //     ->name('bpjs.inacbg.simpan');
+
+        Route::get(
+            '/bpjs/inacbg/{norawat}',
+            [bridginginacbg2::class, 'index']
+        )
+            ->where('norawat', '.*')
+            ->name('bpjs.inacbg');
+
+        
+        
+            // Route::post(
+        //     '/bpjs/inacbg/{norawat}/simpan',
+        //     [bridginginacbg2::class, 'simpan']
+        // )
+        //     ->where('norawat', '.*')
+        //     ->name('bpjs.inacbg.simpan');
+
+        Route::any('/bpjs/inacbg/simpan', [bridginginacbg2::class, 'simpan'])
+            ->name('bpjs.inacbg.simpan');
+
+        
 
 
         // FARMASI
@@ -278,7 +304,7 @@ Route::group(['middleware' => 'default'], function () {
 
 
 
-        Route::get('/belanja',[belanja::class, 'index'] )->name('belanja.index');
+        Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
 
 
         // DETAIL TINDAKAN Asuransi
