@@ -212,6 +212,14 @@ textarea:focus{
     .btn-eklaim{
         width:100%;
     }
+
+    .btn-eklaim i{
+        transition: .2s;
+    }
+
+    .btn-eklaim:hover i{
+        transform: scale(1.15);
+    }
 }
 </style>
 
@@ -274,40 +282,24 @@ textarea:focus{
 
                 <input type="hidden" name="no_rawat" value="{{ $pasien->no_rawat }}">
                 <input type="hidden" name="nokartu" value="{{ $pasien->no_peserta }}">
-                @php
-$listCoder = DB::table('inacbg_coder_nik')
-    ->join('petugas', 'inacbg_coder_nik.nik', '=', 'petugas.nip')
-    ->select(
-        'inacbg_coder_nik.nik',
-        'inacbg_coder_nik.no_ik',
-        'petugas.nama'
-    )
-    ->orderBy('petugas.nama')
-    ->get();
-@endphp
-
-                
                 <table class="eklaim-table">
                     <tr>
                         <td class="label">Coder INACBG</td>
                         <td>
-                            <select name="coder_nik" required>
-                                <option value="">Pilih Coder</option>
+                            <input type="text"
+                                class="readonly"
+                                value="{{ $coder->no_ik }} - {{ $coder->nama }}"
+                                readonly>
 
-                                @foreach($listCoder as $c)
-                                    <option value="{{ $c->no_ik }}"
-                                        {{ ($coder->no_ik ?? '') == $c->no_ik ? 'selected' : '' }}>
-                                        {{ $c->no_ik }} - {{ $c->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="hidden"
+                                name="coder_nik"
+                                value="{{ $coder->no_ik }}">
                         </td>
                     </tr>
                 </table>
-                <input type="hidden" name="tgl_masuk" value="{{ $pasien->tgl_registrasi ?? date('Y-m-d') }}">
-                <input type="hidden" name="tgl_keluar" value="{{ $pasien->tgl_keluar ?? date('Y-m-d') }}">
+                <input type="hidden" name="tgl_masuk" value="{{ $pasien->tgl_masuk ?? date('Y-m-d') }}">
+                <input type="hidden" name="tgl_keluar" value="{{ $pasien->tgl_keluar ?? $pasien->tgl_registrasi }}">
                 <input type="hidden" name="nama_dokter" value="{{ $pasien->nm_dokter }}">
-
                 <!-- ================= TABLE PERTAMA ================= -->
                 <table class="eklaim-table">
                     <tr>
@@ -343,8 +335,8 @@ $listCoder = DB::table('inacbg_coder_nik')
                     <tr>
                         <td class="label">Tanggal Rawat</td>
                         <td>
-                            Masuk : {{ $pasien->tgl_registrasi ?? '-' }} <br>
-                            Pulang : {{ $pasien->tgl_registrasi ?? '-' }}
+                            Masuk : {{ $pasien->tgl_masuk ?? $pasien->tgl_registrasi }}<br>
+                            Pulang : {{ $pasien->tgl_keluar ?? $pasien->tgl_registrasi }}
                         </td>
 
                         <td class="label">Cara Masuk</td>
@@ -360,10 +352,14 @@ $listCoder = DB::table('inacbg_coder_nik')
 
                         <td class="label">LOS</td>
                         <td>
-                            {{
-                                \Carbon\Carbon::parse($pasien->tgl_masuk ?? now())
-                                ->diffInDays(\Carbon\Carbon::parse($pasien->tgl_keluar ?? now())) + 1
-                            }} Hari
+                            @if($pasien->status_lanjut == 'Ranap')
+                                {{
+                                    \Carbon\Carbon::parse($pasien->tgl_masuk)
+                                    ->diffInDays(\Carbon\Carbon::parse($pasien->tgl_keluar ?? now())) + 1
+                                }} Hari
+                            @else
+                                1 Hari
+                            @endif
                         </td>
 
                         <td class="label">Jenis Tarif</td>
@@ -402,19 +398,29 @@ $listCoder = DB::table('inacbg_coder_nik')
                     <tr>
                         <td class="label">Status Pulang</td>
                         <td>
-                            <select name="discharge_status">
-                                <option value="1">Atas persetujuan dokter</option>
+                            <select name="discharge_status" required>
+                                <option value="1" selected>Atas Persetujuan Dokter</option>
                                 <option value="2">Dirujuk</option>
                                 <option value="3">APS</option>
                                 <option value="4">Meninggal</option>
+                                <option value="5">Lain-lain</option>
                             </select>
                         </td>
                     </tr>
 
-                    <tr><td class="label">Diagnosa IDRG</td><td><input type="text" name="diagnosa_idrg" value="{{ $diagnosa }}"></td></tr>
-                    <tr><td class="label">Prosedur IDRG</td><td><input type="text" name="procedure_idrg" value="{{ $procedure }}"></td></tr>
-                    <tr><td class="label">Diagnosa INACBG</td><td><input type="text" name="diagnosa" value="{{ $diagnosa }}"></td></tr>
-                    <tr><td class="label">Prosedur INACBG</td><td><input type="text" name="procedure" value="{{ $procedure }}"></td></tr>
+                    <tr>
+                        <td class="label">Diagnosa</td>
+                        <td>
+                            <textarea name="diagnosa" rows="3">{{ $diagnosa }}</textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Prosedur</td>
+                        <td>
+                            <textarea name="procedure" rows="3">{{ $procedure }}</textarea>
+                        </td>
+                    </tr>
                 </table>
 
                 <!-- ================= TARIF ================= -->
@@ -442,22 +448,21 @@ $listCoder = DB::table('inacbg_coder_nik')
                 </table>
 
                 <div class="btn-area">
-                    {{-- <button type="submit"
-                        class="btn-eklaim btn-primary"
-                        {{ empty($coder->nik) ? 'disabled' : '' }}>
-                        Simpan Bridging
-                    </button> --}}
-
-                    {{-- <button type="submit" class="btn-eklaim btn-primary">
-                        Simpan Bridging
-                    </button> --}}
 
                     <button type="submit" class="btn-eklaim btn-success">
                         Simpan & Final Klaim
                     </button>
 
-                    <button type="button" class="btn-eklaim btn-dark">Grouper</button>
-                    <button type="button" class="btn-eklaim btn-success">Final Klaim</button>
+                   @if($status_kirim)
+                        <a href="{{ url('/inacbg/print/'.$nosep) }}"
+                        target="_blank"
+                        class="btn btn-danger btn-eklaim">
+                            <i class="fas fa-file-pdf"></i>
+                            <span style="margin:0 6px;">|</span>
+                            <i class="fas fa-print"></i>
+                            Print Klaim
+                        </a>
+                    @endif
                 </div>
 
             </form>

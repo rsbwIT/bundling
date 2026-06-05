@@ -26,11 +26,7 @@ class bridginginacbg2 extends Controller
         return env('INACBG_KELAS_RS', 'CS');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ENCRYPT
-    |--------------------------------------------------------------------------
-    */
+    //  ENCRYPT
 
     private function mc_encrypt($data, $strkey)
     {
@@ -49,84 +45,9 @@ class bridginginacbg2 extends Controller
             OPENSSL_RAW_DATA,
             $iv
         );
-
         $signature = substr(hash_hmac('sha256', $encrypted, $key, true), 0, 10);
-
         return base64_encode($signature . $iv . $encrypted);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | DECRYPT
-    |--------------------------------------------------------------------------
-    */
-
-    // private function mc_decrypt($str, $strkey)
-    // {
-    //     $key = hex2bin($strkey);
-
-    //     $data = base64_decode($str);
-
-    //     $ivLength = openssl_cipher_iv_length('AES-256-CBC');
-
-    //     $iv = substr($data, 0, $ivLength);
-
-    //     $encrypted = substr($data, $ivLength);
-
-    //     return openssl_decrypt(
-    //         $encrypted,
-    //         'AES-256-CBC',
-    //         $key,
-    //         OPENSSL_RAW_DATA,
-    //         $iv
-    //     );
-
-    //      dd([
-    //     'key_valid_hex' => ctype_xdigit($strkey),
-    //     'key_length' => strlen($key),
-    //     'iv_length' => strlen($iv),
-    //     'encrypted_length' => strlen($encrypted),
-    //     'decrypt_result' => $result
-    // ]);
-
-    // return $result;
-    // }
-
-    //     private function mc_decrypt($str, $strkey)
-    // {
-    //     $key = hex2bin($strkey);
-
-    //     $data = base64_decode($str);
-
-    //     if ($data === false) {
-    //         dd('BASE64 decode gagal', $str);
-    //     }
-
-    //     $ivLength = openssl_cipher_iv_length('AES-256-CBC');
-
-    //     // $iv = substr($data, 0, $ivLength);
-    //     // $encrypted = substr($data, $ivLength);
-
-    //     $iv = substr($data, 0, 16);
-    // $encrypted = substr($data, 16);
-
-    //     // $result = openssl_decrypt(
-    //     //     $encrypted,
-    //     //     'AES-256-CBC',
-    //     //     $key,
-    //     //     OPENSSL_RAW_DATA,
-    //     //     $iv
-    //     // );
-
-    //     return openssl_decrypt(
-    //     base64_decode($str),
-    //     'AES-256-CBC',
-    //     $key,
-    //     OPENSSL_RAW_DATA,
-    //     $key // dummy IV (test)
-    // );
-
-
 
     private function mc_decrypt($str, $strkey)
     {
@@ -146,12 +67,9 @@ class bridginginacbg2 extends Controller
 
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
 
-        // 🔥 Coba deteksi format otomatis
-
         // FORMAT 1: IV + CIPHERTEXT
         $iv1 = substr($decoded, 0, $ivLength);
         $ct1 = substr($decoded, $ivLength);
-
         $try1 = openssl_decrypt(
             $ct1,
             'aes-256-cbc',
@@ -175,18 +93,13 @@ class bridginginacbg2 extends Controller
             OPENSSL_RAW_DATA,
             $iv2
         );
-
         if ($try2 !== false) {
             return $try2;
         }
-
         throw new \Exception("Decrypt gagal (format INACBG tidak cocok semua)");
     }
-    /*
-    |--------------------------------------------------------------------------
-    | DECRYPT RESPONSE INACBG
-    |--------------------------------------------------------------------------
-    */
+
+    //  DECRYPT RESPONSE INACBG
 
     private function decryptResponse($response)
     {
@@ -249,26 +162,6 @@ class bridginginacbg2 extends Controller
         return $result;
     }
 
-    // private function requestInacbg($payload)
-    // {
-    //     // 1. Encode JSON
-    //     $json = json_encode($payload);
-
-    //     // 2. Encrypt
-    //     $encrypted = $this->mc_encrypt($json, $this->getKey());
-
-    //     // 3. Kirim ke INACBG (WAJIB pakai raw body + content-type benar)
-    //     $response = Http::withHeaders([
-    //         'Content-Type' => 'text/plain'
-    //     ])
-    //         ->withBody($encrypted, 'text/plain')
-    //         ->timeout(60)
-    //         ->post($this->getUrlWS());
-
-    //     // 4. Decode response (decrypt + json parse)
-    //     return $this->decryptResponse($response);
-    // }
-
     private function requestInacbg($payload)
     {
         $json = json_encode($payload);
@@ -316,26 +209,40 @@ class bridginginacbg2 extends Controller
             abort(404, 'Pasien tidak ditemukan');
         }
 
-        // $coder = null;
+        $namaUser = session('user')->nama ?? null;
 
-        // if (auth()->check()) {
-        //     $coder = DB::table('inacbg_coder_nik')
-        //         ->join('petugas', 'inacbg_coder_nik.nik', '=', 'petugas.nip')
-        //         ->where('inacbg_coder_nik.userid', auth()->id())
-        //         ->select(
-        //             'inacbg_coder_nik.nik',
-        //             'inacbg_coder_nik.no_ik',
-        //             'petugas.nama'
-        //         )
-        //         ->first();
-        // }
+        if (!$namaUser) {
+            return redirect('/')
+                ->with('error', 'Session user tidak ditemukan.');
+        }
 
-        // $coderNik = $coder->nik ?? null;
-        // dd($coderNik);
+        $coder = DB::table('petugas')
+            ->join('inacbg_coder_nik', 'petugas.nip', '=', 'inacbg_coder_nik.nik')
+            ->where('petugas.nama', $namaUser)
+            ->select(
+                'petugas.nip',
+                'petugas.nama',
+                'inacbg_coder_nik.no_ik',
+                'inacbg_coder_nik.nik'
+            )
+            ->first();
 
-        $coder = DB::table('inacbg_coder_nik')->first();
+        if (!$coder) {
+            return redirect()->back()
+                ->with('error', 'Anda belum terdaftar sebagai Coder INACBG.');
+        }
 
-        $coderNik = $coder->nik;
+        $status_kirim = DB::table('bridging_inacbg_terkirim')
+            ->where('no_rawat', $norawat)
+            ->exists();
+
+        $penyakit = DB::table('penyakit')
+            ->select('kd_penyakit', 'nm_penyakit', 'ciri_ciri', 'status')
+            ->where('status', '1')
+            ->orderBy('nm_penyakit')
+            ->limit(200)
+            ->get();
+
 
         $nosep = DB::table('bridging_sep')
             ->where('no_rawat', $norawat)
@@ -489,7 +396,7 @@ class bridginginacbg2 extends Controller
             'bmhp',
             'sewa_alat',
             'coder',
-            'coderNik'
+            'status_kirim'
         ));
     }
 
@@ -525,11 +432,8 @@ class bridginginacbg2 extends Controller
 
             $url = $this->getUrlWS();
 
-            /*
-        |------------------------------------------------
-        | 1. NEW CLAIM
-        |------------------------------------------------
-        */
+            //  1. NEW CLAIM
+
             $newClaim = [
                 "metadata" => ["method" => "new_claim"],
                 "data" => [
@@ -548,11 +452,8 @@ class bridginginacbg2 extends Controller
                 throw new Exception('NEW CLAIM GAGAL: ' . json_encode($res1));
             }
 
-            /*
-        |------------------------------------------------
-        | 2. SET CLAIM DATA
-        |------------------------------------------------
-        */
+            // 2. SET CLAIM DATA
+
             $setClaim = [
                 "metadata" => [
                     "method" => "set_claim_data",
@@ -574,29 +475,29 @@ class bridginginacbg2 extends Controller
 
                     "sistole"  => (string) $request->sistole,
                     "diastole" => (string) $request->diastole,
-                    // "discharge_status" => "1",
                     "discharge_status" => $request->discharge_status,
 
                     "tarif_rs" => [
                         "prosedur_non_bedah" => $request->prosedur_non_bedah ?? 0,
                         "prosedur_bedah"     => $request->prosedur_bedah ?? 0,
                         "konsultasi"         => $request->konsultasi ?? 0,
+                        "tenaga_ahli"        => $request->tenaga_ahli ?? 0,
                         "keperawatan"        => $request->keperawatan ?? 0,
+                        "penunjang"          => $request->penunjang ?? 0,
                         "radiologi"          => $request->radiologi ?? 0,
                         "laboratorium"       => $request->laboratorium ?? 0,
-                        "obat"               => $request->obat ?? 0,
+                        "pelayanan_darah"    => $request->pelayanan_darah ?? 0,
+                        "rehabilitasi"       => $request->rehabilitasi ?? 0,
                         "kamar"              => $request->kamar ?? 0,
+                        "rawat_intensif"     => $request->rawat_intensif ?? 0,
+                        "obat"               => $request->obat ?? 0,
+                        "obat_kronis"        => $request->obat_kronis ?? 0,
+                        "obat_kemoterapi"    => $request->obat_kemoterapi ?? 0,
+                        "alkes"              => $request->alkes ?? 0,
+                        "bmhp"               => $request->bmhp ?? 0,
+                        "sewa_alat"          => $request->sewa_alat ?? 0
                     ],
 
-                    // "diagnosa" => array_map(function ($item) {
-                    //     return ["kode" => trim($item)];
-                    // }, array_filter(explode('#', $request->diagnosa))),
-
-                    // "procedure" => !empty($request->procedure)
-                    //     ? array_map(function ($item) {
-                    //         return ["kode" => trim($item)];
-                    //     }, array_filter(explode('#', $request->procedure)))
-                    //     : [],
                     "coder_nik" => $request->coder_nik,
                     "kode_tarif" => $this->getKelasRS(),
                     "payor_id" => "3",
@@ -610,21 +511,15 @@ class bridginginacbg2 extends Controller
                 throw new Exception('SET CLAIM GAGAL: ' . json_encode($res2));
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | 3. SET DIAGNOSA IDRG
-            |--------------------------------------------------------------------------
-            */
+            //  3. SET DIAGNOSA IDRG
+
             $this->setDiagnosa(
                 $request->nosep,
                 $request->diagnosa
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | 4. SET PROCEDURE IDRG
-            |--------------------------------------------------------------------------
-            */
+            //  4. SET PROCEDURE IDRG
+
             if (!empty($request->procedure)) {
                 $this->setProcedure(
                     $request->nosep,
@@ -632,11 +527,8 @@ class bridginginacbg2 extends Controller
                 );
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | 5. GROUPING IDRG
-            |--------------------------------------------------------------------------
-            */
+            //  5. GROUPING IDRG
+
             $idrg = $this->groupingIdrg($request->nosep);
 
             if (($idrg['metadata']['message'] ?? '') !== 'Ok') {
@@ -646,13 +538,11 @@ class bridginginacbg2 extends Controller
                 );
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | 6. FINAL IDRG
-            |--------------------------------------------------------------------------
-            */
+            //  6. FINAL IDRG
+
             $idrgFinal = $this->idrgFinal(
-                $request->nosep
+                $request->nosep,
+                $request->coder_nik
             );
 
 
@@ -663,11 +553,10 @@ class bridginginacbg2 extends Controller
                 );
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | 7. IMPORT IDRG -> INACBG
-            |--------------------------------------------------------------------------
-            */
+
+
+            // 7. IMPORT IDRG -> INACBG
+
             $import = $this->importIdrgToInacbg(
                 $request->nosep
             );
@@ -680,99 +569,12 @@ class bridginginacbg2 extends Controller
                 );
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | 8. GROUPER INACBG
-            |--------------------------------------------------------------------------
-            */
-            // $grouper = [
-            //     "metadata" => [
-            //         "method" => "grouper",
-            //         "stage" => "1",
-            //         "grouper" => "inacbg"
-            //     ],
-            //     "data" => [
-            //         "nomor_sep" => $request->nosep
-            //     ]
-            // ];
+            // 8. GROUPING INACBG STAGE 1
 
-            // $res3 = $this->requestInacbg($grouper);
-
-            // if (($res3['metadata']['message'] ?? '') !== 'Ok') {
-            //     throw new Exception(
-            //         'GROUPER INACBG GAGAL : ' .
-            //             json_encode($res3)
-            //     );
-            // }
-
-            /*
-            |--------------------------------------------------------------------------
-            | 9. FINAL CLAIM
-            |--------------------------------------------------------------------------
-            */
-            // $final = [
-            //     "metadata" => [
-            //         "method" => "claim_final"
-            //     ],
-            //     "data" => [
-            //         "nomor_sep" => $request->nosep,
-            //         "coder_nik" => $request->coder_nik
-            //     ]
-            // ];
-
-            // $res4 = $this->requestInacbg($final);
-
-            // if (($res4['metadata']['message'] ?? '') !== 'Ok') {
-            //     throw new Exception(
-            //         'FINAL CLAIM GAGAL : ' .
-            //             json_encode($res4)
-            //     );
-            // }
-
-            /*
-        |------------------------------------------------
-        | 3. GROUPER
-        |------------------------------------------------
-        */
-            // $grouper = [
-            //     "metadata" => [
-            //         "method" => "grouper",
-            //         "stage" => "1",
-            //         "grouper" => "inacbg"
-            //     ],
-            //     "data" => ["nomor_sep" => $request->nosep]
-            // ];
-
-            // $res3 = $this->requestInacbg($grouper);
-
-            // if (($res3['metadata']['message'] ?? '') !== 'Ok') {
-            //     throw new Exception('GROUPER GAGAL: ' . json_encode($res3));
-            // }
-
-
-            // $grouperInacbg = [
-            //     "metadata" => [
-            //         "method" => "grouper",
-            //         "stage"  => "1",
-            //         "grouper" => "inacbg"
-            //     ],
-            //     "data" => [
-            //         "nomor_sep" => $request->nosep
-            //     ]
-            // ];
-
-            // $resInacbg = $this->requestInacbg($grouperInacbg);
-
-            // if (($resInacbg['metadata']['message'] ?? '') !== 'Ok') {
-            //     throw new Exception(
-            //         'GROUPING INACBG GAGAL: ' . json_encode($resInacbg)
-            //     );
-            // }
-
-            $grouperInacbg = [
+            $grouperInacbg1 = [
                 "metadata" => [
-                    "method" => "grouper",
-                    "stage"  => "1",
+                    "method"  => "grouper",
+                    "stage"   => "1",
                     "grouper" => "inacbg"
                 ],
                 "data" => [
@@ -780,42 +582,98 @@ class bridginginacbg2 extends Controller
                 ]
             ];
 
-            $resInacbg = $this->requestInacbg($grouperInacbg);
+            $resInacbg1 = $this->requestInacbg($grouperInacbg1);
 
-            if (($resInacbg['metadata']['message'] ?? '') !== 'Ok') {
+            if (($resInacbg1['metadata']['message'] ?? '') !== 'Ok') {
                 throw new Exception(
-                    'GROUPING INACBG GAGAL: ' . json_encode($resInacbg)
+                    'GROUPING INACBG STAGE 1 GAGAL : ' .
+                        json_encode($resInacbg1)
                 );
             }
 
-            
+            //  9. GROUPING INACBG STAGE 2
 
-            /*
-        |------------------------------------------------
-        | 4. FINAL CLAIM
-        |------------------------------------------------
-        */
-            $final = [
-                "metadata" => ["method" => "claim_final"],
+            $grouperInacbg2 = [
+                "metadata" => [
+                    "method"  => "grouper",
+                    "stage"   => "2",
+                    "grouper" => "inacbg"
+                ],
                 "data" => [
-                    "nomor_sep" => $request->nosep,
-                    "coder_nik" => $request->coder_nik
+                    "nomor_sep" => $request->nosep
                 ]
             ];
 
-            $res4 = $this->requestInacbg($final);
+            $resInacbg2 = $this->requestInacbg($grouperInacbg2);
 
+            $resFinalInacbg = $this->inacbgFinal(
+                $request->nosep
+            );
+
+            if (($resFinalInacbg['metadata']['message'] ?? '') !== 'Ok') {
+                throw new Exception(
+                    'INACBG GROUPER FINAL GAGAL : ' .
+                        json_encode($resFinalInacbg)
+                );
+            }
+
+            // 10. FINAL CLAIM
+
+            $res4 = $this->final_cbg(
+                $request->nosep,
+                $request->coder_nik
+            );
 
             if (($res4['metadata']['message'] ?? '') !== 'Ok') {
-                throw new Exception('FINAL CLAIM GAGAL: ' . json_encode($res4));
+                throw new Exception(
+                    'FINAL CLAIM GAGAL : ' . json_encode($res4)
+                );
             }
+
+            //  11. SEND CLAIM INDIVIDUAL
+
+            $sendClaim = $this->sendClaimIndividual(
+                $request->nosep
+            );
+
+            if (($sendClaim['metadata']['message'] ?? '') !== 'Ok') {
+                throw new Exception(
+                    'SEND CLAIM GAGAL : ' .
+                        json_encode($sendClaim)
+                );
+            }
+
+
+
+
+            //  SIMPAN LOG KIRIM INACBG
+
+            DB::table('bridging_inacbg_terkirim')->updateOrInsert(
+                [
+                    'no_rawat' => $norawat
+                ],
+                [
+                    'no_sep'      => $request->nosep,
+                    'nik_coder'   => $request->coder_nik,
+                    'nama_coder'  => DB::table('inacbg_coder_nik')
+                        ->join('petugas', 'petugas.nip', '=', 'inacbg_coder_nik.nik')
+                        ->where('inacbg_coder_nik.no_ik', $request->coder_nik)
+                        ->value('petugas.nama'),
+                    'tgl_kirim'   => now()
+                ]
+            );
 
             DB::commit();
 
-            return back()->with(
-                'success',
-                'Berhasil kirim dan final klaim INACBG'
-            );
+            return redirect()->back()
+                ->with(
+                    'success',
+                    'Berhasil kirim, grouping dan final claim INACBG'
+                )
+                ->with(
+                    'print_url',
+                    url('/inacbg/print/' . $request->nosep)
+                );
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -828,6 +686,18 @@ class bridginginacbg2 extends Controller
         }
     }
 
+    private function final_cbg($nomor_sep, $coder_nik)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "claim_final"
+            ],
+            "data" => [
+                "nomor_sep" => $nomor_sep,
+                "coder_nik" => $coder_nik
+            ]
+        ]);
+    }
 
     private function setDiagnosa($sep, $diagnosa)
     {
@@ -843,6 +713,7 @@ class bridginginacbg2 extends Controller
         ]);
 
         // set ulang
+
         return $this->requestInacbg([
             "metadata" => [
                 "method" => "idrg_diagnosa_set",
@@ -891,14 +762,15 @@ class bridginginacbg2 extends Controller
         ]);
     }
 
-    private function idrgFinal($sep)
+    private function idrgFinal($sep, $coderNik)
     {
         return $this->requestInacbg([
             "metadata" => [
                 "method" => "idrg_grouper_final"
             ],
             "data" => [
-                "nomor_sep" => $sep
+                "nomor_sep" => $sep,
+                "coder_nik" => $coderNik
             ]
         ]);
     }
@@ -913,5 +785,136 @@ class bridginginacbg2 extends Controller
                 "nomor_sep" => $sep
             ]
         ]);
+    }
+
+    private function inacbgFinal($sep)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "inacbg_grouper_final"
+            ],
+            "data" => [
+                "nomor_sep" => $sep
+            ]
+        ]);
+    }
+
+    private function sendClaimIndividual($sep)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "send_claim_individual"
+            ],
+            "data" => [
+                "nomor_sep" => $sep
+            ]
+        ]);
+    }
+
+    private function claimPrint($sep)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "claim_print"
+            ],
+            "data" => [
+                "nomor_sep" => $sep
+            ]
+        ]);
+    }
+
+    public function printClaim($nosep)
+    {
+        try {
+
+            $result = $this->claimPrint($nosep);
+
+            if (($result['metadata']['message'] ?? '') !== 'Ok') {
+                throw new Exception(
+                    $result['metadata']['message'] ?? 'Gagal print klaim'
+                );
+            }
+
+            if (empty($result['data'])) {
+                throw new Exception('PDF kosong');
+            }
+
+            $pdf = base64_decode($result['data']);
+
+            if ($pdf === false) {
+                throw new Exception('Base64 PDF tidak valid');
+            }
+
+            return response($pdf)
+                ->header('Content-Type', 'application/pdf')
+                ->header(
+                    'Content-Disposition',
+                    'inline; filename="klaim_' . $nosep . '.pdf"'
+                );
+        } catch (Exception $e) {
+
+            Log::error('PRINT CLAIM ERROR', [
+                'nosep' => $nosep,
+                'msg'   => $e->getMessage()
+            ]);
+
+            abort(500, $e->getMessage());
+        }
+    }
+
+    public function updateDiagnosa(Request $request)
+    {
+        if (DB::table('bridging_inacbg_terkirim')
+            ->where('no_rawat', $request->no_rawat)
+            ->exists()
+        ) {
+            return back()->with('error', 'Tidak bisa edit, klaim sudah dikirim');
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            // hapus lama
+            DB::table('diagnosa_pasien')
+                ->where('no_rawat', $request->no_rawat)
+                ->delete();
+
+            $items = explode('#', $request->diagnosa);
+
+            $prioritas = 1;
+
+            foreach ($items as $diag) {
+                $diag = trim($diag);
+
+                if ($diag === '') continue;
+
+                // optional: validasi ICD ada di tabel penyakit
+                $exists = DB::table('penyakit')
+                    ->where('kd_penyakit', $diag)
+                    ->exists();
+
+                if (!$exists) continue;
+
+                DB::table('diagnosa_pasien')->insert([
+                    'no_rawat'     => $request->no_rawat,
+                    'kd_penyakit'   => $diag,
+                    'status'        => 'R',
+                    'prioritas'     => $prioritas++
+                ]);
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Diagnosa berhasil diupdate');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('UPDATE DIAGNOSA ERROR', [
+                'msg' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Gagal update diagnosa');
+        }
     }
 }

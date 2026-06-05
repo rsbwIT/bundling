@@ -223,19 +223,36 @@ Route::group(['middleware' => 'default'], function () {
             ->where('norawat', '.*')
             ->name('bpjs.inacbg');
 
-        
-        
-            // Route::post(
-        //     '/bpjs/inacbg/{norawat}/simpan',
-        //     [bridginginacbg2::class, 'simpan']
-        // )
-        //     ->where('norawat', '.*')
-        //     ->name('bpjs.inacbg.simpan');
 
+        // Route Utama (Tombol Simpan & Final Otomatis)
         Route::any('/bpjs/inacbg/simpan', [bridginginacbg2::class, 'simpan'])
             ->name('bpjs.inacbg.simpan');
 
-        
+        // Tambahkan Route Baru untuk Tombol Grouper Saja
+        Route::post('/bpjs/inacbg/grouper', [bridginginacbg2::class, 'grouper'])
+            ->name('bpjs.inacbg.grouper');
+
+        // Tambahkan Route Baru untuk Tombol Final Klaim Saja
+        Route::post('/bpjs/inacbg/final', [bridginginacbg2::class, 'finalKlaim'])
+            ->name('bpjs.inacbg.final');
+
+        Route::post('/bpjs/inacbg/final', [bridginginacbg2::class, 'finalKlaimInacbg'])
+            ->name('bpjs.inacbg.final');
+
+        // Route::get(
+        //     '/bpjs/inacbg/print/{sep}',
+        //     [bridginginacbg2::class, 'printPdf']
+        // )->name('bpjs.inacbg.print');
+
+        Route::get(
+            '/inacbg/print/{nosep}',
+            [bridginginacbg2::class, 'printClaim']
+        );
+
+        Route::post('/inacbg/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa']);
+
+
+
 
 
         // FARMASI
