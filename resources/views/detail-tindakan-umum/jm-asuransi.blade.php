@@ -38,7 +38,15 @@
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->kode_template }}</td>
                             <td>{{ $item->kode_id_khanza }}</td>
-                            <td class="text-left">{{ $item->nama_template }}</td>
+                            <td class="text-left">
+                                @if($item->kode_id_khanza)
+                                    <a href="{{ url('/jm-asuransi/detail') }}?kd_dokter={{ $item->kode_id_khanza }}&tgl1={{ $tanggl1 }}&tgl2={{ $tanggl2 }}&kdPenjamin={{ request('kdPenjamin') }}" target="_blank" title="Lihat detail tindakan">
+                                        {{ $item->nama_template }} <i class="fas fa-external-link-alt text-xs text-muted"></i>
+                                    </a>
+                                @else
+                                    {{ $item->nama_template }}
+                                @endif
+                            </td>
                             <td class="text-right">{{ number_format($item->total_ranap) }}</td>
                             <td class="text-right">{{ number_format($item->total_ralan) }}</td>
                             <td class="text-right">{{ number_format($item->grand_total) }}</td>

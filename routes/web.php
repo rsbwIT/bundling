@@ -126,6 +126,7 @@ use App\Http\Controllers\Fisioterapi\Fisioterapi;
 use App\Http\Controllers\Urologi\Urologi;
 use App\Http\Controllers\SkriningTBC\SkriningTBC;
 use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
+use App\Http\Controllers\SkriningISPA\SkriningISPA;
 use App\Http\Controllers\LaporanLAB\LaporanLab;
 use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
@@ -180,6 +181,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
         Route::get('/jm-bpjs', [JMBpjsController::class, 'index']);
         Route::get('/jm-asuransi', [JMAsuransiController::class, 'index']);
+        Route::get('/jm-asuransi/detail', [JMAsuransiController::class, 'detail']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
@@ -672,6 +674,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/skriningtbc', [SkriningTBC::class, 'index'])
             ->name('skriningtbc.index');
         Route::get('/skrining-tbc', [SkriningDataTBC::class, 'index']);
+
+        // skrining ispa
+        Route::get('/skrining-ispa', [SkriningISPA::class, 'index'])
+            ->name('ispa.skrining');
 
         //LAPORAN LAB
         Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);
