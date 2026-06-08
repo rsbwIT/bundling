@@ -3,62 +3,58 @@
 
 @section('konten')
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <div class="card">
     <div class="card-body">
 
+        {{-- FILTER --}}
         <form method="GET" action="{{ route('ai.user') }}">
-            @csrf
             <div class="row mb-3 align-items-center">
+
                 <div class="col-md-4">
                     <input type="text"
                            name="cari"
                            class="form-control"
-                           placeholder="Cari nama / username / password..."
+                           placeholder="Cari nama / username..."
                            value="{{ request('cari') }}">
                 </div>
 
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary">Cari</button>
+                    <button class="btn btn-primary">Cari</button>
                     <a href="{{ route('ai.user') }}" class="btn btn-secondary">Reset</a>
                 </div>
 
                 <div class="col-md-5 text-end">
                     <b>Total Data : {{ count($data) }}</b>
                 </div>
+
             </div>
         </form>
 
+        {{-- TABLE --}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-sm">
+
                 <thead class="text-center">
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Petugas</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Petugas</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
                 </thead>
 
                 <tbody>
-                    @forelse($data as $item)
+                @foreach($data as $item)
                     <tr>
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td>{{ $item->nama_petugas ?? '-' }}</td>
+                        <td>{{ $item->username_asli }}</td>
 
                         <td class="text-center">
-                            {{ $loop->iteration }}
-                        </td>
-
-                        <td>
-                            {{ $item->nama_petugas ?? '-' }}
-                        </td>
-
-                        <td>
-                            {{ $item->username_asli }}
-                        </td>
-
-                        <td class="text-center">
-
                             <span id="pwd_{{ $loop->iteration }}"
                                   data-password="{{ $item->password_asli }}">
                                 ••••••••
@@ -67,75 +63,55 @@
                             <button type="button"
                                     class="btn btn-sm btn-info btnLihatPassword"
                                     data-target="pwd_{{ $loop->iteration }}">
-                                <i class="fa fa-eye"></i>
+                                👁
                             </button>
-
                         </td>
 
-                        <td class="text-center">
-                            {{ $item->status ?? '-' }}
-                        </td>
+                        <td class="text-center">{{ $item->status ?? '-' }}</td>
 
                         <td class="text-center">
                             <button type="button"
                                     class="btn btn-sm btn-warning lihatAkses"
                                     data-id="{{ $item->username_asli }}">
-                                <i class="fa fa-edit"></i>
+                                ⚙
                             </button>
                         </td>
-
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center">
-                            Data tidak ditemukan
-                        </td>
-                    </tr>
-                    @endforelse
+                @endforeach
                 </tbody>
 
             </table>
         </div>
+
     </div>
 </div>
 
-
-
+{{-- MODAL --}}
 <div class="modal fade" id="modalAkses" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
 
             <div class="modal-header">
                 <h5 class="modal-title">Edit Akses User</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                <form id="formAkses">
-                    @csrf
 
-                    <input type="hidden"
-                           id="id_user"
-                           name="id_user">
+                <input type="hidden" id="id_user">
 
-                    <div class="mb-3">
-                        <input type="text"
-                               id="cariAkses"
-                               class="form-control"
-                               placeholder="Cari akses...">
-                    </div>
+                <div class="d-flex gap-2 mb-3">
+                    <input type="text" id="cariAkses" class="form-control" placeholder="Cari akses...">
+                    <button type="button" id="checkAll" class="btn btn-success btn-sm">✔ All</button>
+                    <button type="button" id="uncheckAll" class="btn btn-danger btn-sm">✖ All</button>
+                </div>
 
-                    <div id="isiAkses"></div>
-                </form>
+                <div id="isiAkses">Loading...</div>
+
             </div>
 
             <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-primary"
-                        id="btnSimpanAkses">
+                <button type="button" class="btn btn-primary" id="btnSimpanAkses">
                     Simpan
                 </button>
             </div>
@@ -144,288 +120,125 @@
     </div>
 </div>
 
-
-
-<div class="modal fade" id="modalPassword" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    Verifikasi Password Admin
-                </h5>
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                </button>
-            </div>
-
-            <div class="modal-body">
-
-                <input type="password"
-                       id="verifikasiPassword"
-                       class="form-control"
-                       placeholder="Masukkan password">
-
-                <input type="hidden"
-                       id="targetPassword">
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-primary"
-                        id="btnVerifikasiPassword">
-                    Lihat Password
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-
-
+{{-- SCRIPT --}}
 <script>
-
-let modalAkses, modalPassword;
+let modalAkses;
 
 $(function(){
 
-    modalAkses = new bootstrap.Modal(
-        document.getElementById('modalAkses')
-    );
-
-    modalPassword = new bootstrap.Modal(
-        document.getElementById('modalPassword')
-    );
+    modalAkses = new bootstrap.Modal(document.getElementById('modalAkses'));
 
 });
 
 
-
+// LIHAT PASSWORD
 $(document).on('click','.btnLihatPassword',function(){
 
-    $('#targetPassword').val(
-        $(this).data('target')
-    );
+    let target = $(this).data('target');
+    let el = $('#' + target);
 
-    $('#verifikasiPassword').val('');
-
-    modalPassword.show();
-
+    if(el.text() === '••••••••'){
+        el.text(el.data('password'));
+    } else {
+        el.text('••••••••');
+    }
 });
 
 
-
-$('#btnVerifikasiPassword').click(function(){
-
-    $.ajax({
-
-        url:'/ai/user/verifikasi-password',
-
-        type:'POST',
-
-        data:{
-
-            _token:$('input[name=_token]').first().val(),
-
-            password:$('#verifikasiPassword').val()
-
-        },
-
-
-        success:function(response){
-
-            if(!response.status){
-
-                alert(
-                    response.message
-                );
-
-                return;
-
-            }
-
-
-            let target =
-                $('#targetPassword').val();
-
-
-            let ele =
-                $('#' + target);
-
-
-            clearTimeout(
-                ele.data('timer')
-            );
-
-
-            ele.text(
-                ele.data('password')
-            );
-
-
-            modalPassword.hide();
-
-
-            let timer =
-                setTimeout(function(){
-
-                    ele.text(
-                        '••••••••'
-                    );
-
-                },10000);
-
-
-            ele.data(
-                'timer',
-                timer
-            );
-
-        }
-
-    });
-
-});
-
-
-
+// OPEN MODAL
 $(document).on('click','.lihatAkses',function(){
 
-    let id =
-        $(this).data('id');
+    let id = $(this).data('id');
 
+    $('#id_user').val(id);
+    $('#isiAkses').html('Loading...');
 
-    $('#isiAkses').html(
-        'Loading...'
-    );
+    $.get('/ai/user/akses/' + id, function(res){
 
-
-    $('#cariAkses').val('');
-
-
-    $.get('/ai/user/akses/' + id,function(response){
-
-        if(!response.status){
+        if(!res.status){
+            alert(res.message);
             return;
         }
 
+        let html = '<div class="row">';
 
-        $('#id_user').val(id);
+        Object.keys(res.akses).forEach(function(key){
 
+            let checked = res.akses[key] === 'true' ? 'checked' : '';
 
-        let html =
-            '<div class="row">';
+            html += `
+                <div class="col-md-3 mb-2 item-akses">
+                    <div class="form-check">
 
+                        <input type="checkbox"
+                               class="form-check-input akses-item"
+                               data-key="${key}"
+                               ${checked}>
 
-        Object.keys(response.data).forEach(function(key){
+                        <label class="form-check-label">${key}</label>
 
-            if(
-                key != 'id_user' &&
-                key != 'password'
-            ){
-
-                let checked =
-                    response.data[key] == 'true'
-                    ? 'checked'
-                    : '';
-
-
-                html += `
-                    <div class="col-md-3 mb-2 item-akses">
-                        <div class="form-check">
-
-                            <input
-                                type="checkbox"
-                                class="form-check-input"
-                                name="${key}"
-                                ${checked}
-                            >
-
-                            <label class="form-check-label">
-                                ${key}
-                            </label>
-
-                        </div>
                     </div>
-                `;
-
-            }
-
+                </div>
+            `;
         });
-
 
         html += '</div>';
 
-
         $('#isiAkses').html(html);
-
-
         modalAkses.show();
-
     });
-
 });
 
 
-
+// SEARCH AKSES
 $(document).on('keyup','#cariAkses',function(){
-
-    let keyword =
-        $(this)
-        .val()
-        .toLowerCase();
-
+    let k = $(this).val().toLowerCase();
 
     $('.item-akses').each(function(){
-
-        $(this).toggle(
-
-            $(this)
-            .text()
-            .toLowerCase()
-            .indexOf(keyword) > -1
-
-        );
-
+        $(this).toggle($(this).text().toLowerCase().includes(k));
     });
-
 });
 
 
+// CHECK ALL
+$('#checkAll').click(function(){
+    $('.akses-item').prop('checked', true);
+});
 
+$('#uncheckAll').click(function(){
+    $('.akses-item').prop('checked', false);
+});
+
+
+// 🔥 SIMPAN (FIX FINAL TANPA JSON)
 $('#btnSimpanAkses').click(function(){
 
+    let formData = {
+        _token: $('meta[name="csrf-token"]').attr('content'),
+        id_user: $('#id_user').val()
+    };
+
+    $('.akses-item').each(function(){
+        let key = $(this).data('key');
+
+        formData[`akses[${key}]`] = $(this).is(':checked') ? 'true' : 'false';
+    });
+
     $.ajax({
-
         url:'/ai/user/akses/update',
-
         type:'POST',
-
-        data:$('#formAkses').serialize(),
-
-
-        success:function(response){
-
-            if(response.status){
-
-                alert(
-                    'Akses berhasil diupdate'
-                );
-
-                modalAkses.hide();
-
-            }
-
+        data: formData,
+        success:function(res){
+            alert(res.message);
+            if(res.status) modalAkses.hide();
+        },
+        error:function(xhr){
+            console.log(xhr.responseText);
+            alert("ERROR:\n" + xhr.responseText);
         }
-
     });
 
 });
-
 </script>
 
 @endsection

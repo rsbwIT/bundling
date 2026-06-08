@@ -53,34 +53,45 @@
                 $total_diskon = $bayarPiutang->sum('diskon_piutang');
                 $total_tidak_terbayar = $bayarPiutang->sum('tidak_terbayar');
                 $total_uangmuka = $bayarPiutang->sum('uangmuka');
-
-                // --- TOTAL COB GLOBAL ---
-                $total_piutang_cob_global = $bayarPiutang->sum(fn($i) => $i->getPenjabCOB->sum('totalpiutang'));
-                $total_nominal_cob = $bayarPiutang->sum(fn($i) => $i->getLunasCob->nominal_cob ?? 0);
-                $total_sisa_cob = $total_piutang_cob_global - $total_nominal_cob;
             @endphp
 
             <div class="rekap-container">
+
                 <div class="rekap-item">
                     <div class="rekap-label">Total Biaya Seluruh</div>
-                    <div class="rekap-value text-primary">Rp {{ number_format($grand_total) }}</div>
+                    <div class="rekap-value text-primary">
+                        Rp {{ number_format($grand_total) }}
+                    </div>
                 </div>
+
                 <div class="rekap-item">
                     <div class="rekap-label">Total Uang Muka</div>
-                    <div class="rekap-value text-success">Rp {{ number_format($total_uangmuka) }}</div>
+                    <div class="rekap-value text-success">
+                        Rp {{ number_format($total_uangmuka) }}
+                    </div>
                 </div>
+
                 <div class="rekap-item">
                     <div class="rekap-label">Total Cicilan</div>
-                    <div class="rekap-value text-info">Rp {{ number_format($total_cicilan) }}</div>
+                    <div class="rekap-value text-info">
+                        Rp {{ number_format($total_cicilan) }}
+                    </div>
                 </div>
+
                 <div class="rekap-item">
                     <div class="rekap-label">Total Diskon</div>
-                    <div class="rekap-value text-warning">Rp {{ number_format($total_diskon) }}</div>
+                    <div class="rekap-value text-warning">
+                        Rp {{ number_format($total_diskon) }}
+                    </div>
                 </div>
+
                 <div class="rekap-item">
                     <div class="rekap-label">Total Tidak Terbayar</div>
-                    <div class="rekap-value text-danger fw-bold">Rp {{ number_format($total_tidak_terbayar) }}</div>
+                    <div class="rekap-value text-danger fw-bold">
+                        Rp {{ number_format($total_tidak_terbayar) }}
+                    </div>
                 </div>
+
             </div>
 
         </div>
@@ -110,12 +121,6 @@
                         <th>Potongan</th>
                         <th>Total</th>
                         <th>Ekses / Uang Muka</th>
-
-                        {{-- 🟢 STYLING HEADER COB SESUAI image_6b76a1.png --}}
-                        <th style="min-width: 280px;">Penjamin</th>
-                        <th>Dibayar Asuransi</th>
-                        <th>Selisih Dibayar</th>
-
                         <th>Cicilan</th>
                         <th>Diskon Bayar</th>
                         <th>Tidak Terbayar</th>
@@ -182,40 +187,6 @@
                             </strong></td>
 
                             <td>{{ number_format($item->uangmuka) }}</td>
-
-                            {{-- 🟢 FORMAT BARIS DATA COB MENGIKUTI image_6b76a1.png (INLINE MERGE) --}}
-                            <td class="p-0 align-middle">
-                                <table class="table-borderless w-100 m-0 text-sm table-nested-cob">
-                                    <tr>
-                                        @if($item->getPenjabCOB->count() > 0)
-                                            @foreach ($item->getPenjabCOB as $index => $penjab)
-                                                <td class="text-start px-2 py-1 border-0" style="color: #333;">{{ $penjab->png_jawab }}</td>
-                                                <td class="text-end px-2 py-1 border-0 fw-semibold text-secondary" style="min-width:70px;">
-                                                    {{ number_format($penjab->totalpiutang, 0, '.', ',') }}
-                                                </td>
-                                            @endforeach
-                                        @else
-                                            <td class="text-center text-muted border-0 py-1">-</td>
-                                        @endif
-                                    </tr>
-                                </table>
-                            </td>
-                            
-                            {{-- KOLOM DIBAYAR ASURANSI --}}
-                            <td class="text-end fw-semibold text-dark">
-                                {{ $item->getLunasCob && $item->getLunasCob->nominal_cob ? number_format($item->getLunasCob->nominal_cob, 0, '.', ',') : number_format(0) }}
-                            </td>
-                            
-                            {{-- KOLOM SELISIH DIBAYAR --}}
-                            <td class="text-end text-danger fw-semibold">
-                                @php
-                                    $totalPenjabRow = $item->getPenjabCOB->sum('totalpiutang');
-                                    $dibayarCobRow = $item->getLunasCob->nominal_cob ?? 0;
-                                    $selisihRow = $totalPenjabRow - $dibayarCobRow;
-                                @endphp
-                                {{ $selisihRow > 0 ? number_format($selisihRow, 0, '.', ',') : '' }}
-                            </td>
-
                             <td>{{ number_format($item->besar_cicilan) }}</td>
                             <td>{{ number_format($item->diskon_piutang) }}</td>
                             <td>{{ number_format($item->tidak_terbayar) }}</td>
@@ -251,12 +222,6 @@
                         <td>{{ number_format($total_potongan) }}</td>
                         <td>{{ number_format($grand_total) }}</td>
                         <td>{{ number_format($total_uangmuka) }}</td>
-                        
-                        {{-- 🟢 FOOTER TOTAL COB --}}
-                        <td class="text-end pe-3">{{ number_format($total_piutang_cob_global) }}</td>
-                        <td class="text-end">{{ number_format($total_nominal_cob) }}</td>
-                        <td class="text-end text-danger">{{ number_format($total_sisa_cob) }}</td>
-
                         <td>{{ number_format($total_cicilan) }}</td>
                         <td>{{ number_format($total_diskon) }}</td>
                         <td>{{ number_format($total_tidak_terbayar) }}</td>
@@ -322,9 +287,6 @@ document.getElementById("copyButton").addEventListener("click", function () {
 .table td.text-end {
     text-align: right !important;
 }
-.table-nested-cob td {
-    background: transparent !important;
-}
 
 .rekap-container {
     display: flex;
@@ -354,5 +316,9 @@ document.getElementById("copyButton").addEventListener("click", function () {
     font-weight: 700;
     margin-top: 6px;
 }
+
 </style>
+
+
+
 @endsection

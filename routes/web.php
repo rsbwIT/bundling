@@ -153,6 +153,7 @@ use App\Http\Controllers\Laporan\PiutangHarian;
 use App\Http\Controllers\AI\User;
 use App\Http\Controllers\Belanja\belanja;
 use App\Http\Controllers\Bpjs\bridginginacbg2;
+use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
 
 
 
@@ -254,6 +255,17 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/inacbg/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa']);
 
 
+        // Route::get('/laporan-klaim-individual', [LaporanKlaimIndividual::class, 'index']);
+
+
+        Route::get('/laporan-klaim-individual', [LaporanKlaimIndividual::class, 'index']);
+        Route::post('/laporan-klaim-individual/data', [LaporanKlaimIndividual::class, 'data']);
+
+
+        Route::get('/laporan/klaim', [LaporanKlaimIndividual::class, 'index'])->name('klaim.index');
+        Route::get('/laporan/klaim/data', [LaporanKlaimIndividual::class, 'data'])->name('klaim.data');
+
+
 
 
 
@@ -319,11 +331,18 @@ Route::group(['middleware' => 'default'], function () {
             [User::class, 'verifikasiPassword']
         );
 
+        Route::get('/ai/user/akses/{id}', [User::class, 'getAkses']);
+        Route::post('/ai/user/akses/update', [User::class, 'updateAkses']);
+
+        Route::get('/ai/user/akses/{id}', [User::class, 'getAkses']);
+        Route::post('/ai/user/akses/update', [User::class, 'updateAkses']);
         // belanja
 
 
 
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
+        Route::post('/belanja/toggle-bangsal', [Belanja::class, 'toggleBangsal'])
+            ->name('belanja.toggleBangsal');
 
 
         // DETAIL TINDAKAN Asuransi

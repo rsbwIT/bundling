@@ -1,80 +1,61 @@
+```blade
 @extends('layout.layoutDashboard')
 
 @section('title', 'Rencana Belanja Farmasi')
 
 @section('konten')
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <style>
+.table-responsive{
+    max-height:700px;
+    overflow:auto;
+}
 
-    .table-responsive{
-        max-height:700px;
-        overflow:auto;
-    }
+table th,
+table td{
+    white-space:nowrap;
+    font-size:13px;
+    vertical-align:middle;
+}
 
-    table th,
-    table td{
-        white-space:nowrap;
-        font-size:13px;
-        vertical-align:middle;
-    }
-
-    .gudang-wrapper{
-        max-height:180px;
-        overflow:auto;
-        border:1px solid #dee2e6;
-        border-radius:6px;
-        padding:12px;
-        background:#fafafa;
-    }
-
-    .badge-status{
-        font-size:11px;
-        padding:4px 8px;
-    }
-
+.gudang-wrapper{
+    max-height:180px;
+    overflow:auto;
+    border:1px solid #dee2e6;
+    border-radius:6px;
+    padding:12px;
+    background:#fafafa;
+}
 </style>
 
 <div class="card">
 
     <div class="card-header">
-
-        <h5 class="mb-0">
-            Rencana Belanja Farmasi
-        </h5>
-
+        <h5 class="mb-0">Rencana Belanja Farmasi</h5>
     </div>
 
     <div class="card-body">
 
-        <form method="GET"
-              action="{{ route('belanja.index') }}">
+        <form method="GET" action="{{ route('belanja.index') }}">
 
             <div class="row mb-3">
 
                 <div class="col-md-3">
-
-                    <label>
-                        Tanggal Awal
-                    </label>
-
+                    <label>Tanggal Awal</label>
                     <input type="date"
                            name="tanggal_awal"
                            class="form-control"
                            value="{{ $tanggal_awal }}">
-
                 </div>
 
                 <div class="col-md-3">
-
-                    <label>
-                        Tanggal Akhir
-                    </label>
-
+                    <label>Tanggal Akhir</label>
                     <input type="date"
                            name="tanggal_akhir"
                            class="form-control"
                            value="{{ $tanggal_akhir }}">
-
                 </div>
 
             </div>
@@ -84,95 +65,59 @@
                 <div class="col-md-12">
 
                     <label class="mb-2">
-                        Setting Gudang Aktif / Nonaktif
+                        Setting Gudang
                     </label>
 
                     <div class="gudang-wrapper">
 
                         <table class="table table-bordered table-sm mb-0">
 
-                            <thead class="thead-light">
-
+                            <thead>
                                 <tr>
-
-                                    <th width="60">
-                                        No
-                                    </th>
-
-                                    <th>
-                                        Kode Gudang
-                                    </th>
-
-                                    <th width="150">
-                                        Status
-                                    </th>
-
+                                    <th>No</th>
+                                    <th>Kode</th>
+                                    <th>Nama Gudang</th>
+                                    <th>Status</th>
                                 </tr>
-
                             </thead>
 
                             <tbody>
 
-                                @foreach($bangsal as $b)
+                            @foreach($bangsal as $b)
 
-                                    <tr>
+                                @php
+                                    $isActive = !in_array(
+                                        $b->kd_bangsal,
+                                        $nonaktif_bangsal ?? []
+                                    );
+                                @endphp
 
-                                        <td>
-                                            {{ $loop->iteration }}
-                                        </td>
+                                <tr>
 
-                                        <td>
-                                            {{ $b }}
-                                        </td>
+                                    <td>{{ $loop->iteration }}</td>
 
-                                        <td>
+                                    <td>{{ $b->kd_bangsal }}</td>
 
-                                            <div class="custom-control custom-switch">
+                                    <td>{{ $b->nm_bangsal }}</td>
 
-                                                <input type="checkbox"
-                                                       class="custom-control-input"
-                                                       name="bangsal[]"
-                                                       value="{{ $b }}"
-                                                       id="switch{{ $loop->index }}"
+                                    <td>
 
-                                                       @if(
-                                                            empty(request('bangsal'))
-                                                            ||
-                                                            in_array($b, request('bangsal'))
-                                                       )
-                                                           checked
-                                                       @endif>
+                                        <input type="checkbox"
+                                               class="toggle-bangsal"
+                                               data-kd="{{ $b->kd_bangsal }}"
+                                               {{ $isActive ? 'checked' : '' }}>
 
-                                                <label class="custom-control-label"
-                                                       for="switch{{ $loop->index }}">
+                                        <span
+                                            id="label-{{ $b->kd_bangsal }}"
+                                            class="badge {{ $isActive ? 'badge-success' : 'badge-danger' }}">
+                                            {{ $isActive ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
 
-                                                    @if(
-                                                        empty(request('bangsal'))
-                                                        ||
-                                                        in_array($b, request('bangsal'))
-                                                    )
+                                    </td>
 
-                                                        <span class="badge badge-success badge-status">
-                                                            Aktif
-                                                        </span>
+                                </tr>
 
-                                                    @else
-
-                                                        <span class="badge badge-danger badge-status">
-                                                            Nonaktif
-                                                        </span>
-
-                                                    @endif
-
-                                                </label>
-
-                                            </div>
-
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
+                            @endforeach
 
                             </tbody>
 
@@ -184,174 +129,122 @@
 
             </div>
 
-            <div class="row mb-3">
-
-                <div class="col-md-2">
-
-                    <button type="submit"
-                            class="btn btn-primary btn-block">
-
-                        Tampilkan
-
-                    </button>
-
-                </div>
-
-                <div class="col-md-2">
-
-                    <button type="button"
-                            class="btn btn-success btn-block"
-                            onclick="copyTableFormatted('tableBelanja')">
-
-                        Copy Tabel
-
-                    </button>
-
-                </div>
-
-            </div>
+            <button type="submit" class="btn btn-primary">
+                Tampilkan
+            </button>
 
         </form>
 
         @php
-
-            $selectedBangsal =
-                request('bangsal', $bangsal->toArray());
-
+            $selectedBangsal = $bangsal->whereNotIn(
+                'kd_bangsal',
+                $nonaktif_bangsal ?? []
+            );
         @endphp
 
-        <div class="table-responsive">
+        <div class="table-responsive mt-3">
 
-            <table class="table table-bordered table-striped"
-                   id="tableBelanja">
+            <table class="table table-bordered table-striped" id="tableBelanja">
 
-                <thead class="thead-dark">
+                <thead>
 
-                    <tr>
+                <tr>
 
-                        <th>No</th>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Harga Satuan</th>
-                        <th>Kode Satuan</th>
+                    <th>No</th>
+                    <th>Kode</th>
+                    <th>Nama Barang</th>
+                    <th>Harga Beli</th>
+                    <th>Satuan</th>
 
-                        @foreach($selectedBangsal as $b)
+                    <th>Total Stok</th>
+                    <th>Pengeluaran</th>
+                    <th>Kebutuhan</th>
 
-                            <th>
-                                {{ $b }}
-                            </th>
+                    @foreach($selectedBangsal as $b)
+                        <th>{{ $b->kd_bangsal }}</th>
+                    @endforeach
 
-                        @endforeach
-
-                        <th>Total Stok</th>
-                        <th>Total Pengeluaran</th>
-                        <th>Rencana Kebutuhan</th>
-                        <th>Rencana Belanja</th>
-
-                    </tr>
+                </tr>
 
                 </thead>
 
                 <tbody>
 
+                @php $no = 1; @endphp
+
+                @foreach($barang as $kode => $item)
+
                     @php
-                        $no = 1;
+
+                        $stokBarang = $stok_lokasi[$kode] ?? collect();
+
+                        $stokPerBangsal = [];
+
+                        $total_stok = 0;
+
+                        foreach($selectedBangsal as $b){
+
+                            $stok = optional(
+                                $stokBarang->firstWhere(
+                                    'kd_bangsal',
+                                    $b->kd_bangsal
+                                )
+                            )->stok ?? 0;
+
+                            $stokPerBangsal[$b->kd_bangsal] = $stok;
+
+                            $total_stok += $stok;
+                        }
+
+                        $total_pengeluaran_barang =
+                            $total_pengeluaran[$kode] ?? 0;
+
+                        $rencana_kebutuhan =
+                            $total_pengeluaran_barang - $total_stok;
+
+                        if($rencana_kebutuhan < 0){
+                            $rencana_kebutuhan = 0;
+                        }
+
                     @endphp
 
-                    @foreach($barang as $kode_brng => $item)
+                    <tr>
 
-                        @php
+                        <td>{{ $no++ }}</td>
 
-                            $stokBarang =
-                                $stok_lokasi[$kode_brng] ??
-                                collect();
+                        <td>{{ $kode }}</td>
 
-                            $total_stok = 0;
+                        <td>{{ $item->nama_brng }}</td>
 
-                        @endphp
+                        <td class="text-right">
+                            {{ number_format($item->h_beli,2,',','.') }}
+                        </td>
 
-                        <tr>
+                        <td>{{ $item->kode_sat }}</td>
 
-                            <td>
-                                {{ $no++ }}
-                            </td>
+                        <td class="text-right font-weight-bold">
+                            {{ number_format($total_stok,0,',','.') }}
+                        </td>
 
-                            <td>
-                                {{ $kode_brng }}
-                            </td>
+                        <td class="text-right">
+                            {{ number_format($total_pengeluaran_barang,0,',','.') }}
+                        </td>
 
-                            <td>
-                                {{ $item->nama_brng }}
-                            </td>
+                        <td class="text-right font-weight-bold text-danger">
+                            {{ number_format($rencana_kebutuhan,0,',','.') }}
+                        </td>
 
-                            <td class="text-right">
-
-                                {{ number_format($item->h_beli, 2, ',', '.') }}
-
-                            </td>
-
-                            <td>
-                                {{ $item->kode_sat }}
-                            </td>
-
-                            @foreach($selectedBangsal as $b)
-
-                                @php
-
-                                    $stok =
-                                        optional(
-                                            $stokBarang->firstWhere(
-                                                'kd_bangsal',
-                                                $b
-                                            )
-                                        )->stok ?? 0;
-
-                                    $total_stok += $stok;
-
-                                @endphp
-
-                                <td class="text-right">
-
-                                    {{ number_format($stok, 0, ',', '.') }}
-
-                                </td>
-
-                            @endforeach
-
-                            @php
-
-                                $total_pengeluaran_barang =
-                                    $total_pengeluaran[$kode_brng] ?? 0;
-
-                                $rencana_kebutuhan =
-                                    $total_pengeluaran_barang -
-                                    $total_stok;
-
-                            @endphp
+                        @foreach($selectedBangsal as $b)
 
                             <td class="text-right">
-
-                                {{ number_format($total_stok, 0, ',', '.') }}
-
+                                {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
                             </td>
 
-                            <td class="text-right">
+                        @endforeach
 
-                                {{ number_format($total_pengeluaran_barang, 0, ',', '.') }}
+                    </tr>
 
-                            </td>
-
-                            <td class="text-right">
-
-                                {{ number_format($rencana_kebutuhan, 0, ',', '.') }}
-
-                            </td>
-
-                            <td></td>
-
-                        </tr>
-
-                    @endforeach
+                @endforeach
 
                 </tbody>
 
@@ -365,51 +258,58 @@
 
 <script>
 
-function copyTableFormatted(tableId){
+const token =
+document.querySelector('meta[name="csrf-token"]').content;
 
-    const table =
-        document.getElementById(tableId);
+document.querySelectorAll('.toggle-bangsal').forEach(el => {
 
-    let html =
-        '<table border="1">' +
-        table.innerHTML +
-        '</table>';
+    el.addEventListener('change', function(){
 
-    const blob =
-        new Blob(
-            [html],
-            {
-                type:'text/html'
-            }
-        );
+        fetch("{{ route('belanja.toggleBangsal') }}", {
 
-    const data =
-        [
-            new ClipboardItem({
-                'text/html': blob
+            method: "POST",
+
+            headers: {
+                "Content-Type":"application/json",
+                "X-CSRF-TOKEN":token
+            },
+
+            body: JSON.stringify({
+                kd_bangsal: this.dataset.kd,
+                status: this.checked ? 1 : 0
             })
-        ];
-
-    navigator.clipboard.write(data)
-        .then(() => {
-
-            alert(
-                'Tabel berhasil disalin'
-            );
 
         })
-        .catch(err => {
+        .then(r => r.json())
+        .then(res => {
 
-            console.log(err);
+            if(res.success){
 
-            alert(
-                'Gagal copy tabel'
-            );
+                let label =
+                document.getElementById(
+                    'label-' + this.dataset.kd
+                );
+
+                label.className =
+                    this.checked
+                    ? 'badge badge-success'
+                    : 'badge badge-danger';
+
+                label.innerText =
+                    this.checked
+                    ? 'Aktif'
+                    : 'Nonaktif';
+
+                location.reload();
+            }
 
         });
 
-}
+    });
+
+});
 
 </script>
 
 @endsection
+```
