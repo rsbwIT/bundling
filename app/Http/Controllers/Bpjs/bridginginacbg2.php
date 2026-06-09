@@ -476,6 +476,7 @@ class bridginginacbg2 extends Controller
                     "sistole"  => (string) $request->sistole,
                     "diastole" => (string) $request->diastole,
                     "discharge_status" => $request->discharge_status,
+                    "dializer_single_use" => $request->dializer_single_use ?? "0",
 
                     "tarif_rs" => [
                         "prosedur_non_bedah" => $request->prosedur_non_bedah ?? 0,
@@ -526,6 +527,12 @@ class bridginginacbg2 extends Controller
                     $request->procedure
                 );
             }
+
+            // CEK HEMODIALISA
+            $isHd = preg_match(
+                '/(^|#)39\.95(\+\d+)?($|#)/',
+                $request->procedure ?? ''
+            );
 
             //  5. GROUPING IDRG
 
@@ -618,6 +625,19 @@ class bridginginacbg2 extends Controller
             }
 
             // 10. FINAL CLAIM
+
+            // PASIEN HEMODIALISA
+            if ($isHd) {
+
+                Log::info('HEMODIALISA TERDETEKSI', [
+                    'sep' => $request->nosep
+                ]);
+
+                /*
+                * TEMPAT LOGIKA DIALIZER SINGLE USE
+                * JIKA SUDAH TAHU API / FIELD E-KLAIM
+                */
+            }
 
             $res4 = $this->final_cbg(
                 $request->nosep,

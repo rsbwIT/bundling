@@ -408,6 +408,33 @@ textarea:focus{
                         </td>
                     </tr>
 
+                    @if(
+                        str_contains(strtolower($pasien->nm_poli), 'hemodialisa')
+                        || str_contains(strtolower($pasien->nm_poli), 'hd')
+                    )
+                    <tr>
+                        <td class="label">Penggunaan Dializer</td>
+                        <td>
+                            <label style="margin-right:20px;">
+                                <input type="radio"
+                                    name="dializer_single_use"
+                                    value="0"
+                                    checked
+                                    style="width:auto;">
+                                Multiple Use (reuse)
+                            </label>
+
+                            <label>
+                                <input type="radio"
+                                    name="dializer_single_use"
+                                    value="1"
+                                    style="width:auto;">
+                                Single Use
+                            </label>
+                        </td>
+                    </tr>
+                    @endif
+
                     <tr>
                         <td class="label">Diagnosa</td>
                         <td>
