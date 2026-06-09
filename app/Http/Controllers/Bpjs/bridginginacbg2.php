@@ -286,11 +286,13 @@ class bridginginacbg2 extends Controller
             $diastole = trim($pecah[1] ?? 90);
         }
 
-        $prosedur_non_bedah = DB::table('billing')
-            ->where('no_rawat', $norawat)
-            ->whereIn('status', ['Ralan Dokter Paramedis', 'Ranap Dokter Paramedis'])
-            ->where('nm_perawatan', 'not like', '%terapi%')
-            ->sum('totalbiaya');
+        // $prosedur_non_bedah = DB::table('billing')
+        //     ->where('no_rawat', $norawat)
+        //     ->whereIn('status', ['Ralan Dokter Paramedis', 'Ranap Dokter Paramedis'])
+        //     ->where('nm_perawatan', 'not like', '%terapi%')
+        //     ->sum('totalbiaya');
+
+        $prosedur_non_bedah = 0;
 
         $prosedur_bedah = DB::table('billing')
             ->where('no_rawat', $norawat)
