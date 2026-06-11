@@ -19,6 +19,8 @@
 }
 
 .eklaim-card{
+    width:100%;
+    max-width:none;
     background:#fff;
     border-radius:8px;
     box-shadow:0 1px 3px rgba(0,0,0,.08);
@@ -193,16 +195,81 @@ textarea:focus{
     border-color:#fecaca;
 }
 
-@media(max-width:768px){
-    .eklaim-table td,
-    .tarif-grid td{
-        display:block;
+/* DESKTOP */
+@media(min-width:992px){
+
+    .eklaim-wrap{
+        width:100%;
+        max-width:100%;
+    }
+
+    .form-area{
         width:100%;
     }
 
-    .label,
-    .tarif-name{
-        width:100%;
+    .eklaim-table{
+        table-layout:fixed;
+    }
+
+    .eklaim-table td{
+        word-wrap:break-word;
+    }
+}
+
+/* TABLET */
+@media(max-width:991px){
+
+    .eklaim-table{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+    }
+
+    .tarif-grid{
+        display:block;
+        overflow-x:auto;
+    }
+
+    .info-box{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .content-wrapper{
+        padding:10px;
+    }
+
+    .eklaim-wrap{
+        padding:0;
+    }
+
+    .form-area{
+        padding:10px;
+    }
+
+    .info-box{
+        grid-template-columns:1fr;
+    }
+
+    /* JANGAN UBAH TD MENJADI BLOCK */
+    .eklaim-table,
+    .tarif-grid{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+    }
+
+    .eklaim-table td,
+    .tarif-grid td{
+        display:table-cell;
+        min-width:150px;
+    }
+
+    .label{
+        min-width:180px;
     }
 
     .btn-area{
@@ -211,22 +278,15 @@ textarea:focus{
 
     .btn-eklaim{
         width:100%;
-    }
-
-    .btn-eklaim i{
-        transition: .2s;
-    }
-
-    .btn-eklaim:hover i{
-        transform: scale(1.15);
+        text-align:center;
     }
 }
 </style>
 
-<div class="content-wrapper">
+{{-- <div class="content-wrapper"> --}}
 
     <div class="eklaim-wrap">
-
+    <div class="eklaim-card">
         <div class="form-area">
 
     {{-- ALERT SUCCESS --}}
@@ -446,6 +506,20 @@ textarea:focus{
                         <td class="label">Prosedur</td>
                         <td>
                             <textarea name="procedure" rows="3">{{ $procedure }}</textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Diagnosa INACBG</td>
+                        <td>
+                            <textarea name="diagnosainacbg" rows="3">{{ $diagnosainacbg }}</textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Prosedur INACBG</td>
+                        <td>
+                            <textarea name="procedureinacbg" rows="3">{{ $procedureinacbg }}</textarea>
                         </td>
                     </tr>
                 </table>

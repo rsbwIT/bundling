@@ -265,6 +265,27 @@ class bridginginacbg2 extends Controller
             })
             ->implode('#');
 
+        $diagnosainacbg = DB::table('diagnosa_pasien')
+            ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+            ->where('diagnosa_pasien.no_rawat', $norawat)
+            ->where('penyakit.im', '0')
+            ->orderBy('diagnosa_pasien.prioritas')
+            ->pluck('diagnosa_pasien.kd_penyakit')
+            ->implode('#');
+
+        $procedureinacbg = DB::table('prosedur_pasien')
+            ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
+            ->where('prosedur_pasien.no_rawat', $norawat)
+            ->where('icd9.im', '0')
+            ->orderBy('prosedur_pasien.prioritas')
+            ->get()
+            ->map(function ($item) {
+                return $item->jumlah > 1
+                    ? $item->kode . '+' . $item->jumlah
+                    : $item->kode;
+            })
+            ->implode('#');
+
         $sistole = "120";
         $diastole = "90";
 
@@ -398,7 +419,9 @@ class bridginginacbg2 extends Controller
             'bmhp',
             'sewa_alat',
             'coder',
-            'status_kirim'
+            'status_kirim',
+            'diagnosainacbg',
+            'procedureinacbg'
         ));
     }
 
@@ -562,14 +585,11 @@ class bridginginacbg2 extends Controller
                 );
             }
 
-
-
             // 7. IMPORT IDRG -> INACBG
 
             $import = $this->importIdrgToInacbg(
                 $request->nosep
             );
-
 
             if (($import['metadata']['message'] ?? '') !== 'Ok') {
                 throw new Exception(
@@ -577,6 +597,89 @@ class bridginginacbg2 extends Controller
                         json_encode($import)
                 );
             }
+
+            $resDiag = $this->setDiagnosaInacbg(
+                $request->nosep,
+                trim($request->diagnosainacbg)
+            );
+
+            // dd($resDiag);
+
+            $updateClaim = [
+                "metadata" => [
+                    "method" => "set_claim_data",
+                    "nomor_sep" => $request->nosep
+                ],
+                "data" => [
+                    "nomor_sep" => $request->nosep,
+
+                    // override diagnosa INACBG
+                    "diagnosa" => $request->diagnosainacbg,
+
+                    // override prosedur INACBG
+                    "procedure" => $request->procedureinacbg ?? ""
+                ]
+            ];
+
+            $resUpdate = $this->requestInacbg($updateClaim);
+
+
+            // CEK HASIL IMPORT
+            $cek = $this->requestInacbg([
+                "metadata" => [
+                    "method" => "get_claim_data"
+                ],
+                "data" => [
+                    "nomor_sep" => $request->nosep
+                ]
+            ]);
+
+
+            // 8. GROUPING INACBG STAGE 1
+            $grouperInacbg1 = [
+                "metadata" => [
+                    "method"  => "grouper",
+                    "stage"   => "1",
+                    "grouper" => "inacbg"
+                ],
+                "data" => [
+                    "nomor_sep" => $request->nosep
+                ]
+            ];
+
+            $import = $this->importIdrgToInacbg(
+                $request->nosep
+            );
+
+            if (($import['metadata']['message'] ?? '') !== 'Ok') {
+                throw new Exception(
+                    'IMPORT IDRG GAGAL : ' .
+                        json_encode($import)
+                );
+            }
+
+
+            $resDiag = $this->setDiagnosaInacbg(
+                $request->nosep,
+                $request->diagnosainacbg // Z09.8#F20.0
+            );
+
+            $cek = $this->requestInacbg([
+                "metadata" => [
+                    "method" => "get_claim_data"
+                ],
+                "data" => [
+                    "nomor_sep" => $request->nosep
+                ]
+            ]);
+
+            // OVERRIDE PROCEDURE INACBG
+            $this->setProcedureInacbg(
+                $request->nosep,
+                $request->procedureinacbg
+            );
+
+
 
             // 8. GROUPING INACBG STAGE 1
 
@@ -805,6 +908,32 @@ class bridginginacbg2 extends Controller
             ],
             "data" => [
                 "nomor_sep" => $sep
+            ]
+        ]);
+    }
+
+    private function setDiagnosaInacbg($sep, $diagnosa)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "inacbg_diagnosa_set",
+                "nomor_sep" => $sep
+            ],
+            "data" => [
+                "diagnosa" => $diagnosa
+            ]
+        ]);
+    }
+
+    private function setProcedureInacbg($sep, $procedure)
+    {
+        return $this->requestInacbg([
+            "metadata" => [
+                "method" => "inacbg_procedure_set",
+                "nomor_sep" => $sep
+            ],
+            "data" => [
+                "procedure" => $procedure
             ]
         ]);
     }
