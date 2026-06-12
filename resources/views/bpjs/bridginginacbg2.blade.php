@@ -548,28 +548,134 @@ textarea:focus{
                     <tr><td class="tarif-name">Biaya Sewa Alat</td><td><input type="number" name="sewa_alat" value="{{ $sewa_alat }}"></td></tr>
                 </table>
 
-                <div class="btn-area">
+                <div class="btn-area d-flex flex-wrap" style="gap: 10px;">
 
-                    <button type="submit" class="btn-eklaim btn-success">
-                        Simpan & Final Klaim
+                    <!-- Tombol Edit Diagnosa -->
+                    <button type="button" class="btn-eklaim btn-dark" data-toggle="modal" data-target="#modalEditDiagnosa">
+                        <i class="fas fa-edit"></i> Edit Diagnosa
                     </button>
 
-                   @if($status_kirim)
-                        <a href="{{ url('/inacbg/print/'.$nosep) }}"
-                        target="_blank"
-                        class="btn btn-danger btn-eklaim">
+                    <!-- Tombol Simpan -->
+                    <button type="submit" class="btn-eklaim btn-success">
+                        <i class="fas fa-save"></i> Simpan & Final Klaim
+                    </button>
+
+                    <!-- Tombol Print Klaim -->
+                    @if($status_kirim)
+                        <a href="{{ url('/inacbg/print/'.$nosep) }}" target="_blank" class="btn-eklaim btn-danger d-flex align-items-center">
                             <i class="fas fa-file-pdf"></i>
                             <span style="margin:0 6px;">|</span>
                             <i class="fas fa-print"></i>
                             Print Klaim
                         </a>
                     @endif
+
                 </div>
+
 
             </form>
 
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalEditDiagnosa" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form action="{{ route('bpjs.updateDiagnosa') }}" method="POST">
+                @csrf
+                <input type="hidden" name="no_rawat" value="{{ $pasien->no_rawat }}">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Diagnosa & Prosedur</h5>
+                </div>
+                
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tabDiagnosa">ICD-10 (Diagnosa)</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabProsedur">ICD-9 (Prosedur)</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="tabDiagnosa">
+                            <label>Kode Diagnosa:</label>
+                            <textarea id="diag_input" name="diagnosa" class="form-control mb-2" rows="2">{{ implode('#', DB::table('diagnosa_pasien')->where('no_rawat', $pasien->no_rawat)->pluck('kd_penyakit')->toArray()) }}</textarea>
+                            <input type="text" id="cariPenyakit" class="form-control mb-2" placeholder=" Cari nama penyakit ">
+                            <div style="height: 250px; overflow-y: scroll; border: 1px solid #ddd;">
+                                <table class="table table-sm table-bordered">
+                                    <thead style="background:#f4f6f9; position:sticky; top:0;"><tr><th style="width:50px;">Pilih</th><th style="width:80px;">Kode</th><th>Nama Penyakit</th></tr></thead>
+                                    <tbody id="bodyPenyakit"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabProsedur">
+                            <label>Kode Prosedur:</label>
+                            <textarea id="proc_input" name="prosedur" class="form-control mb-2" rows="2">{{ implode('#', DB::table('prosedur_pasien')->where('no_rawat', $pasien->no_rawat)->pluck('kode')->toArray()) }}</textarea>
+                            <input type="text" id="cariProsedur" class="form-control mb-2" placeholder=" Cari nama prosedur ">
+                            <div style="height: 250px; overflow-y: scroll; border: 1px solid #ddd;">
+                                <table class="table table-sm table-bordered">
+                                    <thead style="background:#f4f6f9; position:sticky; top:0;"><tr><th style="width:50px;">Pilih</th><th style="width:80px;">Kode</th><th>Nama Prosedur</th></tr></thead>
+                                    <tbody id="bodyProsedur"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Data Source (Langsung dari PHP ke JS)
+    const dataPenyakit = [ @foreach(DB::table('penyakit')->get() as $p) { kd: "{{ $p->kd_penyakit }}", nm: "{{ addslashes($p->nm_penyakit) }}" }, @endforeach ];
+    const dataProsedur = [ @foreach(DB::table('icd9')->get() as $pr) { kd: "{{ $pr->kode }}", nm: "{{ addslashes($pr->deskripsi_panjang) }}" }, @endforeach ];
+
+    // 2. Fungsi Render Ringan (Limit 30 item saat tidak dicari)
+    function render(data, bodyId, inputId, filter = "") {
+        let selected = document.getElementById(inputId).value.split('#');
+        let html = "";
+        let count = 0;
+        for (let item of data) {
+            if (item.kd.toLowerCase().includes(filter) || item.nm.toLowerCase().includes(filter)) {
+                html += `<tr>
+                    <td class="text-center"><input type="checkbox" class="pilih" value="${item.kd}" ${selected.includes(item.kd) ? 'checked' : ''}></td>
+                    <td>${item.kd}</td>
+                    <td>${item.nm}</td>
+                </tr>`;
+                if (++count >= 30 && filter === "") break;
+            }
+        }
+        document.getElementById(bodyId).innerHTML = html;
+    }
+
+    // 3. Inisialisasi
+    render(dataPenyakit, 'bodyPenyakit', 'diag_input');
+    render(dataProsedur, 'bodyProsedur', 'proc_input');
+
+    // 4. Event Pencarian
+    document.getElementById('cariPenyakit').addEventListener('keyup', e => render(dataPenyakit, 'bodyPenyakit', 'diag_input', e.target.value.toLowerCase()));
+    document.getElementById('cariProsedur').addEventListener('keyup', e => render(dataProsedur, 'bodyProsedur', 'proc_input', e.target.value.toLowerCase()));
+
+    // 5. Update Otomatis saat Checkbox diklik
+    document.addEventListener('change', function(e) {
+        if(e.target.classList.contains('pilih')) {
+            let container = e.target.closest('.tab-pane');
+            let input = container.querySelector('textarea');
+            let checked = container.querySelectorAll('.pilih:checked');
+            input.value = Array.from(checked).map(c => c.value).filter(Boolean).join('#');
+        }
+    });
+</script>
 
 @endsection

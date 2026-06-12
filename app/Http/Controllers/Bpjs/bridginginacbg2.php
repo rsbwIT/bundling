@@ -1013,59 +1013,118 @@ class bridginginacbg2 extends Controller
         }
     }
 
+    // public function updateDiagnosa(Request $request)
+    // {
+    //     if (DB::table('bridging_inacbg_terkirim')
+    //         ->where('no_rawat', $request->no_rawat)
+    //         ->exists()
+    //     ) {
+    //         return back()->with('error', 'Tidak bisa edit, klaim sudah dikirim');
+    //     }
+
+    //     DB::beginTransaction();
+
+    //     try {
+
+    //         // hapus lama
+    //         DB::table('diagnosa_pasien')
+    //             ->where('no_rawat', $request->no_rawat)
+    //             ->delete();
+
+    //         $items = explode('#', $request->diagnosa);
+
+    //         $prioritas = 1;
+
+    //         foreach ($items as $diag) {
+    //             $diag = trim($diag);
+
+    //             if ($diag === '') continue;
+
+    //             // optional: validasi ICD ada di tabel penyakit
+    //             $exists = DB::table('penyakit')
+    //                 ->where('kd_penyakit', $diag)
+    //                 ->exists();
+
+    //             if (!$exists) continue;
+
+    //             DB::table('diagnosa_pasien')->insert([
+    //                 'no_rawat'     => $request->no_rawat,
+    //                 'kd_penyakit'   => $diag,
+    //                 'status'        => 'R',
+    //                 'prioritas'     => $prioritas++
+    //             ]);
+    //         }
+
+    //         DB::commit();
+
+    //         return back()->with('success', 'Diagnosa berhasil diupdate');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         Log::error('UPDATE DIAGNOSA ERROR', [
+    //             'msg' => $e->getMessage()
+    //         ]);
+
+    //         return back()->with('error', 'Gagal update diagnosa');
+    //     }
+    // }
+
     public function updateDiagnosa(Request $request)
-    {
-        if (DB::table('bridging_inacbg_terkirim')
-            ->where('no_rawat', $request->no_rawat)
-            ->exists()
-        ) {
-            return back()->with('error', 'Tidak bisa edit, klaim sudah dikirim');
-        }
+{
+    $request->validate([
+        'no_rawat' => 'required',
+        'diagnosa' => 'nullable',
+        'prosedur' => 'nullable'
+    ]);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
+    try {
+        // --- PROSES DIAGNOSA ---
+        // Selalu hapus dulu semua diagnosa lama
+        DB::table('diagnosa_pasien')->where('no_rawat', $request->no_rawat)->delete();
 
-            // hapus lama
-            DB::table('diagnosa_pasien')
-                ->where('no_rawat', $request->no_rawat)
-                ->delete();
-
+        if ($request->filled('diagnosa')) {
             $items = explode('#', $request->diagnosa);
-
             $prioritas = 1;
 
             foreach ($items as $diag) {
                 $diag = trim($diag);
-
-                if ($diag === '') continue;
-
-                // optional: validasi ICD ada di tabel penyakit
-                $exists = DB::table('penyakit')
-                    ->where('kd_penyakit', $diag)
-                    ->exists();
-
-                if (!$exists) continue;
+                if ($diag === '' || !DB::table('penyakit')->where('kd_penyakit', $diag)->exists()) continue;
 
                 DB::table('diagnosa_pasien')->insert([
-                    'no_rawat'     => $request->no_rawat,
-                    'kd_penyakit'   => $diag,
-                    'status'        => 'R',
-                    'prioritas'     => $prioritas++
+                    'no_rawat'    => $request->no_rawat,
+                    'kd_penyakit' => $diag,
+                    'status'      => 'R',
+                    'prioritas'   => $prioritas++
                 ]);
             }
-
-            DB::commit();
-
-            return back()->with('success', 'Diagnosa berhasil diupdate');
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            Log::error('UPDATE DIAGNOSA ERROR', [
-                'msg' => $e->getMessage()
-            ]);
-
-            return back()->with('error', 'Gagal update diagnosa');
         }
+
+        // --- PROSES PROSEDUR ---
+        DB::table('prosedur_pasien')->where('no_rawat', $request->no_rawat)->delete();
+
+        if ($request->filled('prosedur')) {
+            $procs = explode('#', $request->prosedur);
+
+            foreach ($procs as $proc) {
+                $proc = trim($proc);
+                if ($proc === '' || !DB::table('icd9')->where('kode', $proc)->exists()) continue;
+
+                DB::table('prosedur_pasien')->insert([
+                    'no_rawat' => $request->no_rawat,
+                    'kode'     => $proc
+                ]);
+            }
+        }
+
+        DB::commit();
+        return back()->with('success', 'Data diagnosa dan prosedur berhasil diperbarui.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('UPDATE DIAGNOSA/PROSEDUR ERROR: ' . $e->getMessage());
+        return back()->with('error', 'Gagal update: ' . $e->getMessage());
     }
+}
+
 }

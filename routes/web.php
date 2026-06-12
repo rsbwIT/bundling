@@ -154,6 +154,7 @@ use App\Http\Controllers\AI\User;
 use App\Http\Controllers\Belanja\belanja;
 use App\Http\Controllers\Bpjs\bridginginacbg2;
 use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
+use App\Http\Controllers\Bpjs\BpjsFingerprintController;
 
 
 
@@ -242,10 +243,6 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/bpjs/inacbg/final', [bridginginacbg2::class, 'finalKlaimInacbg'])
             ->name('bpjs.inacbg.final');
 
-        // Route::get(
-        //     '/bpjs/inacbg/print/{sep}',
-        //     [bridginginacbg2::class, 'printPdf']
-        // )->name('bpjs.inacbg.print');
 
         Route::get(
             '/inacbg/print/{nosep}',
@@ -264,6 +261,31 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/laporan/klaim', [LaporanKlaimIndividual::class, 'index'])->name('klaim.index');
         Route::get('/laporan/klaim/data', [LaporanKlaimIndividual::class, 'data'])->name('klaim.data');
+        Route::post('/bpjs/inacbg/update-diagnosa', [App\Http\Controllers\bpjs\bridginginacbg2::class, 'updateDiagnosa'])
+            ->name('inacbg.updateDiagnosa');
+
+        Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
+            ->name('bpjs.updateDiagnosa');
+
+        // Route::get(
+        //     '/bpjs/fingerprint',
+        //     [BpjsFingerprintController::class, 'index']
+        // );
+
+        // Route::post(
+        //     '/bpjs/fingerprint/verifikasi',
+        //     [BpjsFingerprintController::class, 'verifikasi']
+        // );
+
+
+        // Route::get('/bpjs/fingerprint', [BpjsFingerprintController::class, 'index']);
+        // Route::post('/bpjs/fingerprint/verifikasi', [BpjsFingerprintController::class, 'verifikasi']);
+
+
+
+        Route::get('/bpjs/fingerprint', [BpjsFingerprintController::class, 'index']);
+        Route::get('/bpjs/fingerprint/check-device', [BpjsFingerprintController::class, 'checkDevice']);
+        Route::post('/bpjs/fingerprint/verifikasi', [BpjsFingerprintController::class, 'verifikasi']);
 
 
 
@@ -695,8 +717,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/skrining-tbc', [SkriningDataTBC::class, 'index']);
 
         // skrining ispa
-        Route::get('/skrining-ispa', [SkriningISPA::class, 'index'])
-            ->name('ispa.skrining');
+        // Route::get('/skrining-ispa', [SkriningISPA::class, 'index'])
+        //     ->name('ispa.skrining');
 
         //LAPORAN LAB
         Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);
