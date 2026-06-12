@@ -182,6 +182,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/test', [TestController::class, 'Test']);
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
         Route::get('/jm-bpjs', [JMBpjsController::class, 'index']);
+         Route::get('/jm-bpjs/detail', [JMBpjsController::class, 'detail']);
         Route::get('/jm-asuransi', [JMAsuransiController::class, 'index']);
         Route::get('/jm-asuransi/detail', [JMAsuransiController::class, 'detail']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
