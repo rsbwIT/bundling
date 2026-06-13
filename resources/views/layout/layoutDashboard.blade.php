@@ -316,10 +316,10 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-<div id="welcomeNotif" class="welcome-toast">
+{{-- <div id="welcomeNotif" class="welcome-toast">
     <strong>👋 Selamat Datang</strong>
     <p>di <b>Bundling 2026</b></p>
-</div>
+</div> --}}
     <div class="wrapper">
         @php
             $getSeting = DB::table('setting')->select('setting.nama_instansi', 'setting.logo')->first();
