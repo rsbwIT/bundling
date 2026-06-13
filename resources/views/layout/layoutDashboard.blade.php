@@ -1452,6 +1452,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('skrining-ispa') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Skrining ISPA</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         {{-- Pasien --}}
                         <li class="nav-item">
