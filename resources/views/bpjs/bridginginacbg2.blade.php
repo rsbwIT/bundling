@@ -663,6 +663,7 @@ textarea:focus{
     render(dataPenyakit, 'bodyPenyakit', 'diag_input');
     render(dataProsedur, 'bodyProsedur', 'proc_input');
 
+
     // 4. Event Pencarian
     document.getElementById('cariPenyakit').addEventListener('keyup', e => render(dataPenyakit, 'bodyPenyakit', 'diag_input', e.target.value.toLowerCase()));
     document.getElementById('cariProsedur').addEventListener('keyup', e => render(dataProsedur, 'bodyProsedur', 'proc_input', e.target.value.toLowerCase()));
