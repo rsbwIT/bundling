@@ -156,6 +156,7 @@ use App\Http\Controllers\Belanja\belanja;
 use App\Http\Controllers\Bpjs\bridginginacbg2;
 use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
 use App\Http\Controllers\Bpjs\BpjsFingerprintController;
+use App\Http\Controllers\Bpjs\MJKNController;
 
 
 
@@ -183,7 +184,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/test', [TestController::class, 'Test']);
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
         Route::get('/jm-bpjs', [JMBpjsController::class, 'index']);
-         Route::get('/jm-bpjs/detail', [JMBpjsController::class, 'detail']);
+        Route::get('/jm-bpjs/detail', [JMBpjsController::class, 'detail']);
         Route::get('/jm-asuransi', [JMAsuransiController::class, 'index']);
         Route::get('/jm-asuransi/detail', [JMAsuransiController::class, 'detail']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
@@ -289,6 +290,51 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/bpjs/fingerprint/check-device', [BpjsFingerprintController::class, 'checkDevice']);
         Route::post('/bpjs/fingerprint/verifikasi', [BpjsFingerprintController::class, 'verifikasi']);
 
+
+        //MJKN API
+
+
+
+
+        Route::get('/mjkn', [MJKNController::class, 'index']);
+        Route::post('/mjkn/token', [MJKNController::class, 'token']);
+        Route::get('/mjkn/pasien', [MJKNController::class, 'pasien']);
+        Route::get('/mjkn/cari-peserta', [MJKNController::class, 'cariPeserta']);
+
+        Route::post('/mjkn/statusantrean', [MJKNController::class, 'statusAntrean']);
+        Route::post('/mjkn/ambilantrean', [MJKNController::class, 'ambilAntrean']);
+        Route::post('/mjkn/checkinantrean', [MJKNController::class, 'checkin']);
+        Route::post('/mjkn/batalantrean', [MJKNController::class, 'batal']);
+        Route::post('/mjkn/sisaantrean', [MJKNController::class, 'sisa']);
+
+        Route::post('/cariantrean',
+    [MJKNController::class,'cariAntrean']);
+
+
+    Route::get('/mjkn', [MJKNController::class,'index']);
+
+Route::prefix('mjkn')->group(function () {
+
+    Route::get('/token',
+        [MJKNController::class,'token']);
+
+    Route::post('/ambilantrean',
+        [MJKNController::class,'ambilAntrean']);
+});
+
+Route::get('/mjkn', [MJKNController::class,'index']);
+Route::get('/mjkn/token', [MJKNController::class,'token']);
+Route::post('/mjkn/caripasien', [MJKNController::class,'cariPasien']);
+Route::post('/mjkn/ambilantrean', [MJKNController::class,'ambilAntrean']);
+
+
+// fiix
+Route::get('/mjkn',[MJKNController::class,'index']);
+Route::post('/mjkn/caripasien',[MJKNController::class,'cariPasien']);
+Route::post('/mjkn/ambilantrean',[MJKNController::class,'ambilAntrean']);
+Route::post('/mjkn/checkin', [MJKNController::class,'checkinAntrean']);
+Route::post('/mjkn/batal', [MJKNController::class,'batalAntrean']);
+Route::post('/mjkn/sisa', [MJKNController::class,'sisaAntrean']);
 
 
 
