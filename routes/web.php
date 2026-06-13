@@ -85,6 +85,7 @@ use App\Http\Controllers\RM\PasienPerEpisode;
 use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\RM\TabulasiIGD;
+use App\Http\Controllers\RM\SkriningIspa;
 // use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
 use App\Http\Controllers\AntrianFarmasi\DisplayController;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
@@ -126,7 +127,7 @@ use App\Http\Controllers\Fisioterapi\Fisioterapi;
 use App\Http\Controllers\Urologi\Urologi;
 use App\Http\Controllers\SkriningTBC\SkriningTBC;
 use App\Http\Controllers\SkriningTBC\SkriningDataTBC;
-use App\Http\Controllers\SkriningISPA\SkriningISPA;
+// use App\Http\Controllers\SkriningISPA\SkriningISPA;
 use App\Http\Controllers\LaporanLAB\LaporanLab;
 use App\Http\Controllers\Bpjs\CroscekPasienPulang;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasi2026;
@@ -718,8 +719,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/skrining-tbc', [SkriningDataTBC::class, 'index']);
 
         // skrining ispa
-        // Route::get('/skrining-ispa', [SkriningISPA::class, 'index'])
-        //     ->name('ispa.skrining');
+        Route::get('/skrining-ispa', [SkriningIspa::class, 'index'])
+            ->name('skrining.ispa');
 
         //LAPORAN LAB
         Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);
