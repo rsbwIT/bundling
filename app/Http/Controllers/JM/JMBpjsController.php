@@ -16,7 +16,7 @@ class JMBpjsController extends Controller
         ['kode' => 'SP1', 'nama' => 'Achmad Gozali, dr, Sp.P', 'id_khanza' => 'D0000070'],
         ['kode' => 'FG1', 'nama' => 'Agung Rangga Dinata', 'id_khanza' => '0518010327'],
         ['kode' => 'U1', 'nama' => 'Mohamad Farhan, dr', 'id_khanza' => 'D0000113'],
-        ['kode' => 'SP2', 'nama' => 'Aldilla Cinarasti, dr, Sp.A', 'id_khanza' => 'D0000077'],
+        ['kode' => 'SP2', 'nama' => 'Nindya Sari Diajeng Larasati, dr, SpJP', 'id_khanza' => 'D0000136'],
         ['kode' => 'SP3', 'nama' => 'Ali Imran Yusuf, dr, Sp.PD, KGEH', 'id_khanza' => 'D0000012'],
         ['kode' => 'OK1', 'nama' => 'M. Amirudin', 'id_khanza' => '1212010202'],
         ['kode' => 'U2', 'nama' => 'Andi Nurlela Wulandari, dr', 'id_khanza' => 'D0000033'],
