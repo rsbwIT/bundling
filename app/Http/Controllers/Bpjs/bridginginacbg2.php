@@ -324,6 +324,16 @@ class bridginginacbg2 extends Controller
         $keperawatan = DB::table('billing')
             ->where('no_rawat', $norawat)
             ->whereIn('status', ['Ranap Paramedis', 'Ralan Paramedis'])
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('reg_periksa')
+                    ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+                    ->whereColumn('reg_periksa.no_rawat', 'billing.no_rawat')
+                    ->where(function ($w) {
+                        $w->where('poliklinik.nm_poli', 'like', '%fisio%')
+                            ->orWhere('poliklinik.nm_poli', 'like', '%rehab%');
+                    });
+            })
             ->sum('totalbiaya');
 
         $penunjang = 0;
