@@ -1,46 +1,221 @@
-```blade
 @extends('layout.layoutDashboard')
 
-@section('title', 'Rencana Belanja Farmasi')
+@section('title','Rencana Belanja Farmasi')
 
 @section('konten')
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css">
+
 <style>
-.table-responsive{
-    max-height:700px;
-    overflow:auto;
+
+:root{
+    --primary:#cfdeff;
+    --secondary:#cfdeff;
+    --success:#10b981;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --dark:#0f172a;
+    --light:#f8fafc;
 }
 
-table th,
-table td{
-    white-space:nowrap;
-    font-size:13px;
-    vertical-align:middle;
+body{
+    background:#f1f5f9;
+}
+
+.main-card{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.card-header-custom{
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;
+    padding:20px 30px;
+}
+
+.card-header-custom h4{
+    margin:0;
+    font-weight:700;
+}
+
+.filter-card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.05);
+    margin-bottom:20px;
+}
+
+.summary-box{
+    border-radius:18px;
+    padding:20px;
+    color:white;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.summary-box h6{
+    margin-bottom:10px;
+    opacity:.9;
+}
+
+.summary-box h2{
+    font-weight:700;
+    margin:0;
+}
+
+.bg-stok{
+    background:linear-gradient(135deg,#0ea5e9,#2563eb);
+}
+
+.bg-keluar{
+    background:linear-gradient(135deg,#f59e0b,#ea580c);
+}
+
+.bg-kebutuhan{
+    background:linear-gradient(135deg,#ef4444,#dc2626);
 }
 
 .gudang-wrapper{
-    max-height:180px;
+    max-height:250px;
     overflow:auto;
-    border:1px solid #dee2e6;
-    border-radius:6px;
-    padding:12px;
-    background:#fafafa;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    background:#fff;
 }
+
+.table th{
+    white-space:nowrap;
+}
+
+.table td{
+    white-space:nowrap;
+    vertical-align:middle;
+}
+
+.table-responsive{
+    max-height:750px;
+    overflow:auto;
+}
+
+.table thead th{
+    position:sticky;
+    top:0;
+    z-index:99;
+    background:var(--dark);
+    color:white;
+    font-size:12px;
+}
+
+.table tbody tr:hover{
+    background:#eef6ff;
+}
+
+.stock{
+    color:#2563eb;
+    font-weight:700;
+}
+
+.keluar{
+    color:#f59e0b;
+    font-weight:700;
+}
+
+.kebutuhan{
+    color:#ef4444;
+    font-weight:700;
+}
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:52px;
+    height:28px;
+}
+
+.switch input{
+    display:none;
+}
+
+.slider{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    cursor:pointer;
+    background:#d1d5db;
+    transition:.3s;
+    border-radius:50px;
+}
+
+.slider:before{
+    content:'';
+    position:absolute;
+    width:22px;
+    height:22px;
+    left:3px;
+    bottom:3px;
+    background:white;
+    transition:.3s;
+    border-radius:50%;
+}
+
+.switch input:checked + .slider{
+    background:#10b981;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(24px);
+}
+
+.badge-active{
+    background:#10b981;
+    color:white;
+    padding:6px 10px;
+    border-radius:20px;
+}
+
+.badge-inactive{
+    background:#ef4444;
+    color:white;
+    padding:6px 10px;
+    border-radius:20px;
+}
+
+.btn-primary{
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    padding:10px 25px;
+    font-weight:600;
+}
+
+.dataTables_filter input{
+    border-radius:10px !important;
+}
+
 </style>
 
-<div class="card">
+<div class="card main-card">
 
-    <div class="card-header">
-        <h5 class="mb-0">Rencana Belanja Farmasi</h5>
-    </div>
+<div class="card-header-custom">
+    {{-- <h4>Rencana Belanja Farmasi</h4>
+    <small>Perencanaan kebutuhan obat berdasarkan pengeluaran dan stok gudang</small> --}}
+</div>
 
-    <div class="card-body">
+<div class="card-body">
 
-        <form method="GET" action="{{ route('belanja.index') }}">
+    <form method="GET" action="{{ route('belanja.index') }}">
 
-            <div class="row mb-3">
+        <div class="filter-card">
+
+            <div class="row">
 
                 <div class="col-md-3">
                     <label>Tanggal Awal</label>
@@ -58,249 +233,308 @@ table td{
                            value="{{ $tanggal_akhir }}">
                 </div>
 
-            </div>
-
-            <div class="row mb-3">
-
-                <div class="col-md-12">
-
-                    <label class="mb-2">
-                        Setting Gudang
-                    </label>
-
-                    <div class="gudang-wrapper">
-
-                        <table class="table table-bordered table-sm mb-0">
-
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Kode</th>
-                                    <th>Nama Gudang</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                            @foreach($bangsal as $b)
-
-                                @php
-                                    $isActive = !in_array(
-                                        $b->kd_bangsal,
-                                        $nonaktif_bangsal ?? []
-                                    );
-                                @endphp
-
-                                <tr>
-
-                                    <td>{{ $loop->iteration }}</td>
-
-                                    <td>{{ $b->kd_bangsal }}</td>
-
-                                    <td>{{ $b->nm_bangsal }}</td>
-
-                                    <td>
-
-                                        <input type="checkbox"
-                                               class="toggle-bangsal"
-                                               data-kd="{{ $b->kd_bangsal }}"
-                                               {{ $isActive ? 'checked' : '' }}>
-
-                                        <span
-                                            id="label-{{ $b->kd_bangsal }}"
-                                            class="badge {{ $isActive ? 'badge-success' : 'badge-danger' }}">
-                                            {{ $isActive ? 'Aktif' : 'Nonaktif' }}
-                                        </span>
-
-                                    </td>
-
-                                </tr>
-
-                            @endforeach
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary btn-block">
+                        Tampilkan Data
+                    </button>
                 </div>
 
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Tampilkan
-            </button>
+            <hr>
 
-        </form>
+            <h6 class="mb-3">
+                Setting Gudang yang Dihitung
+            </h6>
 
-        @php
-            $selectedBangsal = $bangsal->whereNotIn(
-                'kd_bangsal',
-                $nonaktif_bangsal ?? []
+            <div class="gudang-wrapper">
+
+                <table class="table table-bordered table-sm mb-0">
+
+                    <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kode</th>
+                        <th>Nama Gudang</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    @foreach($bangsal as $b)
+
+                        @php
+                            $isActive=!in_array(
+                                $b->kd_bangsal,
+                                $nonaktif_bangsal ?? []
+                            );
+                        @endphp
+
+                        <tr>
+
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $b->kd_bangsal }}</td>
+                            <td>{{ $b->nm_bangsal }}</td>
+
+                            <td>
+
+                                <label class="switch">
+
+                                    <input type="checkbox"
+                                           class="toggle-bangsal"
+                                           data-kd="{{ $b->kd_bangsal }}"
+                                           {{ $isActive ? 'checked' : '' }}>
+
+                                    <span class="slider"></span>
+
+                                </label>
+
+                                <span id="label-{{ $b->kd_bangsal }}"
+                                      class="{{ $isActive ? 'badge-active' : 'badge-inactive' }}">
+                                      {{ $isActive ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    @php
+
+        $selectedBangsal =
+        $bangsal->whereNotIn(
+            'kd_bangsal',
+            $nonaktif_bangsal ?? []
+        );
+
+        $grandStok=0;
+        $grandKeluar=0;
+        $grandKebutuhan=0;
+
+        foreach($barang as $kode => $item){
+
+            $stokBarang = $stok_lokasi[$kode] ?? collect();
+
+            $stok = $stokBarang
+                ->whereIn(
+                    'kd_bangsal',
+                    $selectedBangsal->pluck('kd_bangsal')
+                )
+                ->sum('stok');
+
+            $keluar = $total_pengeluaran[$kode] ?? 0;
+
+            $kebutuhan=max(
+                $keluar-$stok,
+                0
             );
-        @endphp
 
-        <div class="table-responsive mt-3">
+            $grandStok += $stok;
+            $grandKeluar += $keluar;
+            $grandKebutuhan += $kebutuhan;
+        }
 
-            <table class="table table-bordered table-striped" id="tableBelanja">
+    @endphp
 
-                <thead>
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="summary-box bg-stok">
+                <h6>Total Stok</h6>
+                <h2>{{ number_format($grandStok,0,',','.') }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="summary-box bg-keluar">
+                <h6>Total Pengeluaran</h6>
+                <h2>{{ number_format($grandKeluar,0,',','.') }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="summary-box bg-kebutuhan">
+                <h6>Rencana Pembelian</h6>
+                <h2>{{ number_format($grandKebutuhan,0,',','.') }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-striped" id="tableBelanja">
+
+            <thead>
+
+            <tr>
+                <th>No</th>
+                <th>Kode</th>
+                <th>Nama Barang</th>
+                <th>Harga Beli</th>
+                <th>Satuan</th>
+                <th>Total Stok</th>
+                <th>Pengeluaran</th>
+                <th>Kebutuhan</th>
+
+                @foreach($selectedBangsal as $b)
+                    <th>{{ $b->kd_bangsal }}</th>
+                @endforeach
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            @php $no=1; @endphp
+
+            @foreach($barang as $kode => $item)
+
+                @php
+
+                    $stokBarang =
+                    $stok_lokasi[$kode] ?? collect();
+
+                    $stokPerBangsal=[];
+
+                    $total_stok=0;
+
+                    foreach($selectedBangsal as $b){
+
+                        $stok = optional(
+                            $stokBarang->firstWhere(
+                                'kd_bangsal',
+                                $b->kd_bangsal
+                            )
+                        )->stok ?? 0;
+
+                        $stokPerBangsal[$b->kd_bangsal]=$stok;
+
+                        $total_stok += $stok;
+                    }
+
+                    $pengeluaran =
+                    $total_pengeluaran[$kode] ?? 0;
+
+                    $kebutuhan =
+                    max(
+                        $pengeluaran-$total_stok,
+                        0
+                    );
+
+                @endphp
 
                 <tr>
 
-                    <th>No</th>
-                    <th>Kode</th>
-                    <th>Nama Barang</th>
-                    <th>Harga Beli</th>
-                    <th>Satuan</th>
+                    <td>{{ $no++ }}</td>
 
-                    <th>Total Stok</th>
-                    <th>Pengeluaran</th>
-                    <th>Kebutuhan</th>
+                    <td>{{ $kode }}</td>
+
+                    <td>{{ $item->nama_brng }}</td>
+
+                    <td align="right">
+                        {{ number_format($item->h_beli,2,',','.') }}
+                    </td>
+
+                    <td>{{ $item->kode_sat }}</td>
+
+                    <td align="right" class="stock">
+                        {{ number_format($total_stok,0,',','.') }}
+                    </td>
+
+                    <td align="right" class="keluar">
+                        {{ number_format($pengeluaran,0,',','.') }}
+                    </td>
+
+                    <td align="right" class="kebutuhan">
+                        {{ number_format($kebutuhan,0,',','.') }}
+                    </td>
 
                     @foreach($selectedBangsal as $b)
-                        <th>{{ $b->kd_bangsal }}</th>
+
+                        <td align="right">
+                            {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
+                        </td>
+
                     @endforeach
 
                 </tr>
 
-                </thead>
+            @endforeach
 
-                <tbody>
+            </tbody>
 
-                @php $no = 1; @endphp
-
-                @foreach($barang as $kode => $item)
-
-                    @php
-
-                        $stokBarang = $stok_lokasi[$kode] ?? collect();
-
-                        $stokPerBangsal = [];
-
-                        $total_stok = 0;
-
-                        foreach($selectedBangsal as $b){
-
-                            $stok = optional(
-                                $stokBarang->firstWhere(
-                                    'kd_bangsal',
-                                    $b->kd_bangsal
-                                )
-                            )->stok ?? 0;
-
-                            $stokPerBangsal[$b->kd_bangsal] = $stok;
-
-                            $total_stok += $stok;
-                        }
-
-                        $total_pengeluaran_barang =
-                            $total_pengeluaran[$kode] ?? 0;
-
-                        $rencana_kebutuhan =
-                            $total_pengeluaran_barang - $total_stok;
-
-                        if($rencana_kebutuhan < 0){
-                            $rencana_kebutuhan = 0;
-                        }
-
-                    @endphp
-
-                    <tr>
-
-                        <td>{{ $no++ }}</td>
-
-                        <td>{{ $kode }}</td>
-
-                        <td>{{ $item->nama_brng }}</td>
-
-                        <td class="text-right">
-                            {{ number_format($item->h_beli,2,',','.') }}
-                        </td>
-
-                        <td>{{ $item->kode_sat }}</td>
-
-                        <td class="text-right font-weight-bold">
-                            {{ number_format($total_stok,0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            {{ number_format($total_pengeluaran_barang,0,',','.') }}
-                        </td>
-
-                        <td class="text-right font-weight-bold text-danger">
-                            {{ number_format($rencana_kebutuhan,0,',','.') }}
-                        </td>
-
-                        @foreach($selectedBangsal as $b)
-
-                            <td class="text-right">
-                                {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
-                            </td>
-
-                        @endforeach
-
-                    </tr>
-
-                @endforeach
-
-                </tbody>
-
-            </table>
-
-        </div>
+        </table>
 
     </div>
 
 </div>
 
+
+</div>
+
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+
 <script>
 
-const token =
+$('#tableBelanja').DataTable({
+    pageLength:25,
+    scrollX:true,
+    ordering:true,
+    responsive:true,
+    language:{
+        search:'Cari Barang : ',
+        lengthMenu:'Tampilkan _MENU_ data',
+        info:'Menampilkan _START_ sampai _END_ dari _TOTAL_ data'
+    }
+});
+
+const token=
 document.querySelector('meta[name="csrf-token"]').content;
 
-document.querySelectorAll('.toggle-bangsal').forEach(el => {
+document.querySelectorAll('.toggle-bangsal').forEach(el=>{
 
-    el.addEventListener('change', function(){
+    el.addEventListener('change',function(){
 
-        fetch("{{ route('belanja.toggleBangsal') }}", {
+        fetch("{{ route('belanja.toggleBangsal') }}",{
 
-            method: "POST",
+            method:'POST',
 
-            headers: {
-                "Content-Type":"application/json",
-                "X-CSRF-TOKEN":token
+            headers:{
+                'Content-Type':'application/json',
+                'X-CSRF-TOKEN':token
             },
 
-            body: JSON.stringify({
-                kd_bangsal: this.dataset.kd,
-                status: this.checked ? 1 : 0
+            body:JSON.stringify({
+
+                kd_bangsal:this.dataset.kd,
+                status:this.checked ? 1 : 0
+
             })
 
         })
-        .then(r => r.json())
-        .then(res => {
+        .then(r=>r.json())
+        .then(res=>{
 
             if(res.success){
 
-                let label =
-                document.getElementById(
-                    'label-' + this.dataset.kd
-                );
-
-                label.className =
-                    this.checked
-                    ? 'badge badge-success'
-                    : 'badge badge-danger';
-
-                label.innerText =
-                    this.checked
-                    ? 'Aktif'
-                    : 'Nonaktif';
-
                 location.reload();
+
             }
 
         });
@@ -312,4 +546,3 @@ document.querySelectorAll('.toggle-bangsal').forEach(el => {
 </script>
 
 @endsection
-```

@@ -7,218 +7,311 @@
 
 <div class="container-fluid">
 
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Ambil Antrean Mobile JKN</h5>
-        </div>
-
-        <div class="card-body">
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Nomor Kartu BPJS</label>
-
-                    <div class="input-group">
-                        <input type="text"
-                               id="nomorkartu"
-                               class="form-control"
-                               placeholder="Masukkan Nomor Kartu BPJS">
-
-                        <button type="button"
-                                class="btn btn-info"
-                                onclick="cariPasien()">
-                            Cari
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-
-                <div class="col-md-6">
-
-                    <label>Nama Pasien</label>
-                    <input type="text"
-                           id="nama"
-                           class="form-control mb-2"
-                           readonly>
-
-                    <label>NIK</label>
-                    <input type="text"
-                           id="nik"
-                           class="form-control mb-2"
-                           readonly>
-
-                    <label>No RM</label>
-                    <input type="text"
-                           id="norm"
-                           class="form-control mb-2"
-                           readonly>
-
-                    <label>No HP</label>
-                    <input type="text"
-                           id="nohp"
-                           class="form-control mb-2">
-
-                </div>
-
-                <div class="col-md-6">
-
-                    <label>Nomor Surat Kontrol</label>
-                    <input type="text"
-                           id="nomorreferensi"
-                           class="form-control mb-2">
-
-                    <label>Kode Poli BPJS</label>
-                    <input type="text"
-                           id="kodepoli"
-                           class="form-control mb-2"
-                           readonly>
-
-                    <label>Kode Dokter BPJS</label>
-                    <input type="text"
-                           id="kodedokter"
-                           class="form-control mb-2"
-                           readonly>
-                    <label>Kode Booking</label>
-                    <input type="text"
-                        id="kodebooking"
-                        class="form-control mb-2">
-                        
-
-                </div>
-
-            </div>
-
-            <div class="row">
-
-                <div class="col-md-4">
-                    <label>Tanggal Periksa</label>
-                    <input type="date"
-                           id="tanggalperiksa"
-                           class="form-control">
-                </div>
-
-                <div class="col-md-4">
-                    <label>Jam Praktek</label>
-                    <input type="text"
-                           id="jampraktek"
-                           class="form-control"
-                           placeholder="08:00-12:00">
-                </div>
-
-                <div class="col-md-4">
-                    <label>Jenis Kunjungan</label>
-                    <select id="jeniskunjungan"
-                            class="form-control">
-                        <option value="1">1 - Rujukan FKTP</option>
-                        <option value="2">2 - Rujukan Internal</option>
-                        <option value="3" selected>3 - Kontrol</option>
-                        <option value="4">4 - Rujukan Antar RS</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mt-3">
-
-                <button type="button"
-                        class="btn btn-success"
-                        onclick="ambilAntrean()">
-                    Ambil Antrean
-                </button>
-
-                <button type="button"
-                        class="btn btn-primary"
-                        onclick="checkinAntrean()">
-                    Checkin
-                </button>
-
-                <button type="button"
-                        class="btn btn-warning"
-                        onclick="sisaAntrean()">
-                    Sisa Antrean
-                </button>
-
-                <button type="button"
-                        class="btn btn-danger"
-                        onclick="batalAntrean()">
-                    Batal Antrean
-                </button>
-
-            </div>
-
-            <hr>
-
-            <textarea id="hasil"
-                      rows="15"
-                      class="form-control"></textarea>
-
-        </div>
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Ambil Antrean Mobile JKN</h5>
     </div>
+
+    <div class="card-body">
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+
+                <label>Nomor Kartu BPJS</label>
+
+                <div class="input-group">
+
+                    <input
+                        type="text"
+                        id="nomorkartu"
+                        class="form-control"
+                        placeholder="Masukkan Nomor Kartu BPJS">
+
+                    <button
+                        type="button"
+                        class="btn btn-info"
+                        onclick="cariPasien()">
+
+                        Cari
+
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <label>Nama Pasien</label>
+                <input
+                    type="text"
+                    id="nama"
+                    class="form-control mb-2"
+                    readonly>
+
+                <label>NIK</label>
+                <input
+                    type="text"
+                    id="nik"
+                    class="form-control mb-2"
+                    readonly>
+
+                <label>No RM</label>
+                <input
+                    type="text"
+                    id="norm"
+                    class="form-control mb-2"
+                    readonly>
+
+                <label>No HP</label>
+                <input
+                    type="text"
+                    id="nohp"
+                    class="form-control mb-2">
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label>Nomor Surat Kontrol / Referensi</label>
+                <input
+                    type="text"
+                    id="nomorreferensi"
+                    class="form-control mb-2">
+
+                <label>Kode Poli BPJS</label>
+                <input
+                    type="text"
+                    id="kodepoli"
+                    class="form-control mb-2"
+                    readonly>
+
+                <label>Kode Dokter BPJS</label>
+                <input
+                    type="text"
+                    id="kodedokter"
+                    class="form-control mb-2"
+                    readonly>
+
+                <label>Kode Booking</label>
+                <input
+                    type="text"
+                    id="kodebooking"
+                    class="form-control mb-2"
+                    >
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <label>Tanggal Periksa</label>
+
+                <input
+                    type="date"
+                    id="tanggalperiksa"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label>Jam Praktek</label>
+
+                <input
+                    type="text"
+                    id="jampraktek"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label>Jenis Kunjungan</label>
+
+                <select
+                    id="jeniskunjungan"
+                    class="form-control">
+
+                    <option value="1">
+                        1 - Rujukan FKTP
+                    </option>
+
+                    <option value="2">
+                        2 - Rujukan Internal
+                    </option>
+
+                    <option value="3" selected>
+                        3 - Kontrol
+                    </option>
+
+                    <option value="4">
+                        4 - Rujukan Antar RS
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="ambilAntrean()">
+
+                Ambil Antrean
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="checkinAntrean()">
+
+                Checkin
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-warning"
+                onclick="sisaAntrean()">
+
+                Sisa Antrean
+
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                onclick="batalAntrean()">
+
+                Batal Antrean
+
+            </button>
+
+        </div>
+
+        <hr>
+
+        <textarea
+            id="hasil"
+            rows="15"
+            class="form-control"></textarea>
+
+    </div>
+</div>
 
 </div>
 
 <script>
 
-const csrf = document.querySelector('meta[name="csrf-token"]').content;
+const csrf =
+    document.querySelector(
+        'meta[name="csrf-token"]'
+    ).content;
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    let today = new Date();
+
+    let yyyy = today.getFullYear();
+
+    let mm =
+        String(today.getMonth()+1)
+        .padStart(2,'0');
+
+    let dd =
+        String(today.getDate())
+        .padStart(2,'0');
+
+    document.getElementById(
+        'tanggalperiksa'
+    ).value =
+    `${yyyy}-${mm}-${dd}`;
+
+});
 
 async function cariPasien()
 {
-    let nomorkartu = document.getElementById('nomorkartu').value;
+    let nomorkartu =
+        document.getElementById(
+            'nomorkartu'
+        ).value;
 
     if(!nomorkartu){
+
         alert('Nomor kartu kosong');
+
         return;
     }
 
     try {
 
-        const response = await fetch('/mjkn/caripasien', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept':'application/json',
-                'X-CSRF-TOKEN': csrf
-            },
-            body: JSON.stringify({
-                nomorkartu: nomorkartu
-            })
-        });
+        const response =
+            await fetch('/mjkn/caripasien',{
 
-        const text = await response.text();
+                method:'POST',
 
-        console.log(text);
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':csrf
+                },
 
-        document.getElementById('hasil').value = text;
+                body:JSON.stringify({
+                    nomorkartu
+                })
+            });
 
-        const data = JSON.parse(text);
+        const data =
+            await response.json();
+
+        document.getElementById('hasil').value =
+            JSON.stringify(data,null,2);
 
         if(!data.status){
+
             alert(data.message);
+
             return;
         }
 
-        document.getElementById('nama').value = data.nama || '';
-        document.getElementById('nik').value = data.nik || '';
-        document.getElementById('norm').value = data.norm || '';
-        document.getElementById('nohp').value = data.nohp || '';
-        document.getElementById('nomorreferensi').value = data.nomorsurat || '';
-        document.getElementById('kodepoli').value = data.kodepoli || '';
-        document.getElementById('kodedokter').value = data.kodedokter || '';
-        document.getElementById('tanggalperiksa').value = data.tanggal || '';
-        document.getElementById('jampraktek').value =
-             data.jampraktek || '';
+        nama.value = data.nama || '';
+        nik.value = data.nik || '';
+        norm.value = data.norm || '';
+        nohp.value = data.nohp || '';
 
-    } catch(err) {
+        nomorreferensi.value =
+            data.nomorsurat || '';
 
-        console.error(err);
+        kodepoli.value =
+            data.kodepoli || '';
 
-        document.getElementById('hasil').value =
-            'ERROR : ' + err.message;
+        kodedokter.value =
+            data.kodedokter || '';
+
+        tanggalperiksa.value =
+            data.tanggal || '';
+
+        jampraktek.value =
+            data.jampraktek || '';
+
+    }
+    catch(err){
+
+        hasil.value = err.message;
 
         alert(err.message);
-
     }
 }
 
@@ -226,220 +319,281 @@ async function ambilAntrean()
 {
     try {
 
-        const response = await fetch('/mjkn/ambilantrean', {
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':'application/json',
-                'Accept':'application/json',
-                'X-CSRF-TOKEN':csrf
-            },
-
-            body:JSON.stringify({
-
-                nomorkartu: document.getElementById('nomorkartu').value,
-                nik: document.getElementById('nik').value,
-                nohp: document.getElementById('nohp').value,
-                norm: document.getElementById('norm').value,
-                kodepoli: document.getElementById('kodepoli').value,
-                tanggalperiksa: document.getElementById('tanggalperiksa').value,
-                kodedokter: document.getElementById('kodedokter').value,
-                jampraktek: document.getElementById('jampraktek').value,
-                jeniskunjungan: document.getElementById('jeniskunjungan').value,
-                nomorreferensi: document.getElementById('nomorreferensi').value
-
-            })
-
-        });
-
-        const data = await response.json();
-
-        document.getElementById('hasil').value =
-            JSON.stringify(data,null,2);
-
-        console.log(data);
-
-        let kodebooking =
-            data?.response?.kodebooking ||
-            data?.response?.bookingcode ||
-            data?.response?.kode_booking ||
-            data?.response?.booking_code ||
-            '';
-
-        if(kodebooking){
-
-            document.getElementById('kodebooking').value =
-                kodebooking;
-
+        if(
+            !nomorkartu.value ||
+            !nik.value ||
+            !norm.value ||
+            !kodepoli.value ||
+            !kodedokter.value ||
+            !nomorreferensi.value
+        ){
             alert(
-                'Berhasil Ambil Antrean\n' +
-                'Kode Booking : ' +
-                kodebooking
+                'Lengkapi data terlebih dahulu'
             );
-        }else{
+            return;
+        }
+
+        const response =
+            await fetch('/mjkn/ambilantrean',{
+
+                method:'POST',
+
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':csrf
+                },
+
+                body:JSON.stringify({
+
+                    nomorkartu:
+                        nomorkartu.value,
+
+                    nik:
+                        nik.value,
+
+                    nohp:
+                        nohp.value,
+
+                    norm:
+                        norm.value,
+
+                    kodepoli:
+                        kodepoli.value,
+
+                    tanggalperiksa:
+                        tanggalperiksa.value,
+
+                    kodedokter:
+                        kodedokter.value,
+
+                    jampraktek:
+                        jampraktek.value,
+
+                    nomorreferensi:
+                        nomorreferensi.value,
+
+                    jeniskunjungan:
+                        jeniskunjungan.value
+                })
+            });
+
+        const data =
+            await response.json();
+
+        hasil.value =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+
+        if(
+            data.metadata &&
+            data.metadata.code == 200
+        ){
+
+            let kode =
+                data.response.kodebooking || '';
+
+            document.getElementById('kodebooking').value = kode;
 
             alert(
-                'Kode booking tidak ditemukan pada response.\n' +
-                'Lihat textarea HASIL.'
+                'Berhasil Ambil Antrean\nKode Booking : ' +
+                kode
+            );
+        }
+        else{
+
+            alert(
+                data.metadata?.message ||
+                'Gagal Ambil Antrean'
             );
         }
 
-    } catch(err){
+    }
+    catch(err){
 
-        console.error(err);
-
-        document.getElementById('hasil').value =
-            'ERROR : ' + err.message;
+        hasil.value = err.message;
 
         alert(err.message);
-
-    }
-
-} // <-- TAMBAHKAN INI
-
-    async function checkinAntrean()
-{
-    const response = await fetch('/mjkn/checkin',{
-
-        method:'POST',
-
-        headers:{
-            'Content-Type':'application/json',
-            'Accept':'application/json',
-            'X-CSRF-TOKEN':csrf
-        },
-
-        body:JSON.stringify({
-
-            kodebooking:
-                document.getElementById('kodebooking').value,
-
-            waktu: Date.now()
-
-        })
-    });
-
-    const data = await response.json();
-
-    document.getElementById('hasil').value =
-        JSON.stringify(data,null,2);
-}
-
-async function sisaAntrean()
-{
-    const response = await fetch('/mjkn/sisa',{
-
-        method:'POST',
-
-        headers:{
-            'Content-Type':'application/json',
-            'Accept':'application/json',
-            'X-CSRF-TOKEN':csrf
-        },
-
-        body:JSON.stringify({
-
-            kodebooking:
-                document.getElementById('kodebooking').value
-
-        })
-    });
-
-    const data = await response.json();
-
-    document.getElementById('hasil').value =
-        JSON.stringify(data,null,2);
-
-    if(data.metadata?.code == 200){
-
-        alert(
-            'Sisa Antrean : ' +
-            data.response.sisaantrean +
-            '\nDipanggil : ' +
-            data.response.antreanpanggil
-        );
     }
 }
 
-// async function batalAntrean()
-//     {
-//         let alasan = prompt('Alasan pembatalan');
-
-//         if(!alasan){
-//             return;
-//         }
-
-//         const response = await fetch('/mjkn/batal',{
-
-//             method:'POST',
-
-//             headers:{
-//                 'Content-Type':'application/json',
-//                 'Accept':'application/json',
-//                 'X-CSRF-TOKEN':csrf
-//             },
-
-//             body:JSON.stringify({
-
-//                 kodebooking:
-//                     document.getElementById('kodebooking').value,
-
-//                 keterangan: alasan
-
-//             })
-//         });
-
-//         const data = await response.json();
-
-//         document.getElementById('hasil').value =
-//             JSON.stringify(data,null,2);
-//     }
-
-async function batalAntrean()
+async function checkinAntrean()
 {
-    let kodebooking =
-        document.getElementById('kodebooking').value;
+    if(!kodebooking.value){
 
-    if(!kodebooking){
-        alert('Kode Booking kosong');
-        return;
-    }
+        alert('Kode booking kosong');
 
-    let alasan = prompt('Alasan pembatalan');
-
-    if(!alasan){
         return;
     }
 
     try {
 
-        const response = await fetch('/mjkn/batal',{
+        const response =
+            await fetch('/mjkn/checkin',{
 
-            method:'POST',
+                method:'POST',
 
-            headers:{
-                'Content-Type':'application/json',
-                'Accept':'application/json',
-                'X-CSRF-TOKEN':csrf
-            },
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':csrf
+                },
 
-            body:JSON.stringify({
+                body:JSON.stringify({
 
-                kodebooking: kodebooking,
-                keterangan: alasan
+                    kodebooking:
+                        kodebooking.value
 
-            })
-        });
+                })
+            });
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        document.getElementById('hasil').value =
-            JSON.stringify(data,null,2);
+        hasil.value =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
 
-        alert(data.metadata?.message || 'Selesai');
+        alert(
+            data.metadata?.message ||
+            'Checkin berhasil'
+        );
 
-    } catch(err){
+    }
+    catch(err){
+
+        alert(err.message);
+
+    }
+}
+
+async function sisaAntrean()
+{
+    if(!kodebooking.value){
+
+        alert('Kode booking kosong');
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch('/mjkn/sisa',{
+
+                method:'POST',
+
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':csrf
+                },
+
+                body:JSON.stringify({
+
+                    kodebooking:
+                        kodebooking.value
+
+                })
+            });
+
+        const data =
+            await response.json();
+
+        hasil.value =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+
+        if(
+            data.metadata &&
+            data.metadata.code == 200
+        ){
+
+            alert(
+                'Sisa Antrean : ' +
+                data.response.sisaantrean +
+                '\nAntrean Dipanggil : ' +
+                data.response.antreanpanggil
+            );
+        }
+
+    }
+    catch(err){
+
+        alert(err.message);
+
+    }
+}
+
+async function batalAntrean()
+{
+    if(!kodebooking.value){
+
+        alert('Kode booking kosong');
+
+        return;
+    }
+
+    let alasan =
+        prompt(
+            'Masukkan alasan pembatalan'
+        );
+
+    if(!alasan){
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch('/mjkn/batal',{
+
+                method:'POST',
+
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':csrf
+                },
+
+                body:JSON.stringify({
+
+                    kodebooking:
+                        kodebooking.value,
+
+                    keterangan:
+                        alasan
+
+                })
+            });
+
+        const data =
+            await response.json();
+
+        hasil.value =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+
+        alert(
+            data.metadata?.message ||
+            'Selesai'
+        );
+
+    }
+    catch(err){
 
         alert(err.message);
 
@@ -447,5 +601,33 @@ async function batalAntrean()
 }
 
 </script>
+
+@if(isset($hasil))
+
+<div class="alert alert-success">
+
+    <h5>Antrean Berhasil Diambil</h5>
+
+    Nomor Antrean :
+    {{ $hasil['nomorantrean'] }}
+
+    <br>
+
+    Kode Booking :
+    {{ $hasil['kodebooking'] }}
+
+    <br>
+
+    Poli :
+    {{ $hasil['namapoli'] }}
+
+    <br>
+
+    Dokter :
+    {{ $hasil['namadokter'] }}
+
+</div>
+
+@endif
 
 @endsection

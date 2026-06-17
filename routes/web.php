@@ -157,6 +157,7 @@ use App\Http\Controllers\Bpjs\bridginginacbg2;
 use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
 use App\Http\Controllers\Bpjs\BpjsFingerprintController;
 use App\Http\Controllers\Bpjs\MJKNController;
+use App\Http\Controllers\bpjs\MJKNController1;
 
 
 
@@ -329,13 +330,39 @@ Route::post('/mjkn/ambilantrean', [MJKNController::class,'ambilAntrean']);
 
 
 // fiix
-Route::get('/mjkn',[MJKNController::class,'index']);
-Route::post('/mjkn/caripasien',[MJKNController::class,'cariPasien']);
-Route::post('/mjkn/ambilantrean',[MJKNController::class,'ambilAntrean']);
-Route::post('/mjkn/checkin', [MJKNController::class,'checkinAntrean']);
-Route::post('/mjkn/batal', [MJKNController::class,'batalAntrean']);
-Route::post('/mjkn/sisa', [MJKNController::class,'sisaAntrean']);
+// Route::get('/mjkn',[MJKNController::class,'index']);
+// Route::post('/mjkn/caripasien',[MJKNController::class,'cariPasien']);
+// Route::post('/mjkn/ambilantrean',[MJKNController::class,'ambilAntrean']);
+// Route::post('/mjkn/checkin', [MJKNController::class,'checkinAntrean']);
+// Route::post('/mjkn/batal', [MJKNController::class,'batalAntrean']);
+// Route::post('/mjkn/sisa', [MJKNController::class,'sisaAntrean']);
+// Route::post('/mjkn/updatetask', [MJKNController::class, 'updateTask']);
 
+Route::prefix('mjkn')->group(function () {
+
+    Route::get('/', [MJKNController::class,'index']);
+
+    Route::post('/caripasien', [MJKNController::class,'cariPasien']);
+
+    Route::post('/ambilantrean', [MJKNController::class,'ambilAntrean']);
+
+    Route::post('/checkin', [MJKNController::class,'checkinAntrean']);
+
+    Route::post('/sisa', [MJKNController::class,'sisaAntrean']);
+
+    Route::post('/batal', [MJKNController::class,'batalAntrean']);
+
+    Route::post('/updatetask', [MJKNController::class,'updateTask']);
+});
+
+
+// versi baru
+Route::get('/mjkn/ambil-antrian', [MJKNController1::class, 'index']);
+
+Route::post('/mjkn/ambil-antrian', [MJKNController1::class, 'ambilAntrian'])
+    ->name('mjkn.ambil-antrian');
+
+Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
 
 
@@ -406,10 +433,8 @@ Route::post('/mjkn/sisa', [MJKNController::class,'sisaAntrean']);
 
         Route::get('/ai/user/akses/{id}', [User::class, 'getAkses']);
         Route::post('/ai/user/akses/update', [User::class, 'updateAkses']);
+
         // belanja
-
-
-
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
         Route::post('/belanja/toggle-bangsal', [Belanja::class, 'toggleBangsal'])
             ->name('belanja.toggleBangsal');
