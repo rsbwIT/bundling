@@ -546,9 +546,13 @@ body{
 </div>
 
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
 
@@ -561,24 +565,39 @@ $('#tableBelanja').DataTable({
     dom: 'Bfrtip',
 
     buttons: [
-        {
-            extend: 'copyHtml5',
-            text: '📋 Copy Data Obat',
-            title: 'Rencana Belanja Farmasi',
-            exportOptions: {
-                columns: ':visible',
-                modifier: {
-                    page: 'all'
-                }
-            }
-        }
-    ],
+{
+    extend: 'copyHtml5',
+    text: '<i class="fas fa-copy"></i> Copy Data Obat',
+    className: 'btn btn-success btn-sm',
+    title: 'Rencana Belanja Farmasi',
+    exportOptions: {
+        columns: ':visible'
+    },
 
-    language: {
-        search: 'Cari Barang : ',
-        lengthMenu: 'Tampilkan _MENU_ data',
-        info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data'
+    action: function (e, dt, button, config) {
+
+        $.fn.dataTable.ext.buttons.copyHtml5.action.call(
+            this,
+            e,
+            dt,
+            button,
+            config
+        );
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '📋 Data berhasil dicopy',
+            text: 'Silakan paste ke Excel, WhatsApp, atau Telegram',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+        });
+
     }
+}
+]
 });
 
 const token=
