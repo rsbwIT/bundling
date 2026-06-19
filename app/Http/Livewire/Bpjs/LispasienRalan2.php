@@ -68,6 +68,8 @@ class LispasienRalan2 extends Component
                         ->orwhere('bridging_sep.no_sep', '=', "$cariKode");
                 }
             })
+            ->where('reg_periksa.kd_pj', 'BPJ')
+            ->whereNotIn('reg_periksa.stts', ['Batal'])
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->distinct() // Menghindari data ganda
             ->groupBy('reg_periksa.no_rkm_medis', 'reg_periksa.no_rawat')

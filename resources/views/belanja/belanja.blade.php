@@ -233,12 +233,24 @@ body{
                            value="{{ $tanggal_akhir }}">
                 </div>
 
+                <div class="col-md-2">
+                    <label>Urutkan Harga</label>
+                    <select name="filter_harga" class="form-control">
+                        <option value="">Default</option>
+                        <option value="termahal" {{ request('filter_harga')=='termahal' ? 'selected' : '' }}>
+                            Harga Termahal
+                        </option>
+                        <option value="termurah" {{ request('filter_harga')=='termurah' ? 'selected' : '' }}>
+                            Harga Termurah
+                        </option>
+                    </select>
+                </div>
+
                 <div class="col-md-2 d-flex align-items-end">
                     <button class="btn btn-primary btn-block">
                         Tampilkan Data
                     </button>
                 </div>
-
             </div>
 
             <hr>
@@ -323,6 +335,8 @@ body{
         $grandKeluar=0;
         $grandKebutuhan=0;
 
+        $obatTermahal = collect();
+
         foreach($barang as $kode => $item){
 
             $stokBarang = $stok_lokasi[$kode] ?? collect();
@@ -336,15 +350,58 @@ body{
 
             $keluar = $total_pengeluaran[$kode] ?? 0;
 
-            $kebutuhan=max(
-                $keluar-$stok,
+            $kebutuhan = max(
+                $keluar - $stok,
                 0
             );
+
+            // Total nilai pembelian
+            $nilaiBelanja = $kebutuhan * $item->h_beli;
+
+            // Simpan untuk diurutkan
+            $obatTermahal->push([
+                'kode_brng'      => $kode,
+                'nama_brng'      => $item->nama_brng,
+                'kode_sat'       => $item->kode_sat,
+                'harga_beli'     => $item->h_beli,
+                'stok'           => $stok,
+                'pengeluaran'    => $keluar,
+                'kebutuhan'      => $kebutuhan,
+                'nilai_belanja'  => $nilaiBelanja
+            ]);
 
             $grandStok += $stok;
             $grandKeluar += $keluar;
             $grandKebutuhan += $kebutuhan;
         }
+
+        // Urutkan dari nilai belanja terbesar
+        $obatTermahal = $obatTermahal
+            ->sortByDesc('nilai_belanja')
+            ->values();
+
+        $filterHarga = request('filter_harga');
+
+            if($filterHarga == 'termahal'){
+
+                $obatTermahal = $obatTermahal
+                    ->sortByDesc('harga_beli')
+                    ->values();
+
+            }elseif($filterHarga == 'termurah'){
+
+                $obatTermahal = $obatTermahal
+                    ->sortBy('harga_beli')
+                    ->values();
+
+            }else{
+
+                // Default berdasarkan nilai belanja
+                $obatTermahal = $obatTermahal
+                    ->sortByDesc('nilai_belanja')
+                    ->values();
+
+            }
 
     @endphp
 
@@ -401,79 +458,81 @@ body{
 
             @php $no=1; @endphp
 
-            @foreach($barang as $kode => $item)
+            @foreach($obatTermahal as $row)
 
-                @php
+    @php
 
-                    $stokBarang =
-                    $stok_lokasi[$kode] ?? collect();
+        $kode = $row['kode_brng'];
 
-                    $stokPerBangsal=[];
+        $item = (object)[
+            'nama_brng' => $row['nama_brng'],
+            'kode_sat'  => $row['kode_sat'],
+            'h_beli'    => $row['harga_beli']
+        ];
 
-                    $total_stok=0;
+        $stokBarang = $stok_lokasi[$kode] ?? collect();
 
-                    foreach($selectedBangsal as $b){
+        $stokPerBangsal = [];
 
-                        $stok = optional(
-                            $stokBarang->firstWhere(
-                                'kd_bangsal',
-                                $b->kd_bangsal
-                            )
-                        )->stok ?? 0;
+        $total_stok = 0;
 
-                        $stokPerBangsal[$b->kd_bangsal]=$stok;
+        foreach($selectedBangsal as $b){
 
-                        $total_stok += $stok;
-                    }
+            $stok = optional(
+                $stokBarang->firstWhere(
+                    'kd_bangsal',
+                    $b->kd_bangsal
+                )
+            )->stok ?? 0;
 
-                    $pengeluaran =
-                    $total_pengeluaran[$kode] ?? 0;
+            $stokPerBangsal[$b->kd_bangsal] = $stok;
 
-                    $kebutuhan =
-                    max(
-                        $pengeluaran-$total_stok,
-                        0
-                    );
+            $total_stok += $stok;
+        }
 
-                @endphp
+        $pengeluaran = $row['pengeluaran'];
 
-                <tr>
+        $kebutuhan = $row['kebutuhan'];
 
-                    <td>{{ $no++ }}</td>
+    @endphp
 
-                    <td>{{ $kode }}</td>
+    <tr>
 
-                    <td>{{ $item->nama_brng }}</td>
+        <td>{{ $no++ }}</td>
 
-                    <td align="right">
-                        {{ number_format($item->h_beli,2,',','.') }}
-                    </td>
+        <td>{{ $kode }}</td>
 
-                    <td>{{ $item->kode_sat }}</td>
+        <td>{{ $item->nama_brng }}</td>
 
-                    <td align="right" class="stock">
-                        {{ number_format($total_stok,0,',','.') }}
-                    </td>
+        <td align="right">
+            {{ number_format($item->h_beli,2,',','.') }}
+        </td>
 
-                    <td align="right" class="keluar">
-                        {{ number_format($pengeluaran,0,',','.') }}
-                    </td>
+        <td>{{ $item->kode_sat }}</td>
 
-                    <td align="right" class="kebutuhan">
-                        {{ number_format($kebutuhan,0,',','.') }}
-                    </td>
+        <td align="right" class="stock">
+            {{ number_format($total_stok,0,',','.') }}
+        </td>
 
-                    @foreach($selectedBangsal as $b)
+        <td align="right" class="keluar">
+            {{ number_format($pengeluaran,0,',','.') }}
+        </td>
 
-                        <td align="right">
-                            {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
-                        </td>
+        <td align="right" class="kebutuhan">
+            {{ number_format($kebutuhan,0,',','.') }}
+        </td>
 
-                    @endforeach
+        @foreach($selectedBangsal as $b)
 
-                </tr>
+            <td align="right">
+                {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
+            </td>
 
-            @endforeach
+        @endforeach
+
+    </tr>
+
+@endforeach
 
             </tbody>
 
@@ -489,18 +548,36 @@ body{
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
 <script>
 
 $('#tableBelanja').DataTable({
-    pageLength:25,
-    scrollX:true,
-    ordering:true,
-    responsive:true,
-    language:{
-        search:'Cari Barang : ',
-        lengthMenu:'Tampilkan _MENU_ data',
-        info:'Menampilkan _START_ sampai _END_ dari _TOTAL_ data'
+    pageLength: 25,
+    scrollX: true,
+    responsive: true,
+    ordering: false,
+
+    dom: 'Bfrtip',
+
+    buttons: [
+        {
+            extend: 'copyHtml5',
+            text: '📋 Copy Data Obat',
+            title: 'Rencana Belanja Farmasi',
+            exportOptions: {
+                columns: ':visible',
+                modifier: {
+                    page: 'all'
+                }
+            }
+        }
+    ],
+
+    language: {
+        search: 'Cari Barang : ',
+        lengthMenu: 'Tampilkan _MENU_ data',
+        info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data'
     }
 });
 

@@ -11,35 +11,34 @@
                 </div>
             @endif
             <section class="content ">
-                <div class="row">
+                <<div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
                             <div class="input-group input-group-xs">
-                                <input type="search" wire:model.lazy="cariNomor" class="form-control form-control-xs"
+                                <input
+                                    type="search"
+                                    wire:model.defer="cariNomor"
+                                    class="form-control form-control-xs"
                                     placeholder="Cari Nama / No.Rm / No.Rawat">
-                                <div class="input-group-append">
-                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="input-group input-group-xs">
-                                <div class="input-group-append">
-                                    <button wire:click="getListCasemix()" class="btn btn-md btn-primary">
-                                        <span>
-                                            <span wire:loading.remove wire:target="getListCasemix">
-                                                <i class="fa fa-search"></i>
-                                            </span>
-                                            <span wire:loading wire:target="getListCasemix">
-                                                <span class="spinner-grow spinner-grow-sm" role="status"
-                                                    aria-hidden="true"></span> Mencari...
-                                            </span>
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <button
+                            wire:click="loadCasemix"
+                            wire:loading.attr="disabled"
+                            class="btn btn-primary btn-sm">
+
+                            <span wire:loading.remove wire:target="loadCasemix">
+                                <i class="fa fa-search"></i> Cari
+                            </span>
+
+                            <span wire:loading wire:target="loadCasemix">
+                                <span class="spinner-border spinner-border-sm"></span>
+                                Mencari...
+                            </span>
+
+                        </button>
                     </div>
                 </div>
             </section>

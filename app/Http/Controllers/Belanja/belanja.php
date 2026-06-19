@@ -55,6 +55,19 @@ class Belanja extends Controller
             ->get()
             ->groupBy('kode_brng');
 
+
+        $obatTermahal = DB::table('databarang')
+            ->select(
+                'kode_brng',
+                'nama_brng',
+                'h_beli',
+                'kode_sat'
+            )
+            ->where('status', '1') // jika ada field status aktif
+            ->orderByDesc('h_beli')
+            ->limit(20)
+            ->get();
+
         /*
         |-----------------------
         | PENGELUARAN
@@ -63,9 +76,9 @@ class Belanja extends Controller
         $total_pengeluaran = DB::table(function ($query) use ($tanggal_awal, $tanggal_akhir) {
 
             $query->select(
-                    'detail_pengeluaran_obat_bhp.kode_brng',
-                    DB::raw('SUM(detail_pengeluaran_obat_bhp.jumlah) as jumlah')
-                )
+                'detail_pengeluaran_obat_bhp.kode_brng',
+                DB::raw('SUM(detail_pengeluaran_obat_bhp.jumlah) as jumlah')
+            )
                 ->from('pengeluaran_obat_bhp')
                 ->join('detail_pengeluaran_obat_bhp', 'detail_pengeluaran_obat_bhp.no_keluar', '=', 'pengeluaran_obat_bhp.no_keluar')
                 ->whereBetween('pengeluaran_obat_bhp.tanggal', [$tanggal_awal, $tanggal_akhir])
@@ -92,11 +105,10 @@ class Belanja extends Controller
                         ->whereBetween('penjualan.tgl_jual', [$tanggal_awal, $tanggal_akhir])
                         ->groupBy('detailjual.kode_brng')
                 );
-
         }, 'x')
-        ->select('kode_brng', DB::raw('SUM(jumlah) as total_pengeluaran'))
-        ->groupBy('kode_brng')
-        ->pluck('total_pengeluaran', 'kode_brng');
+            ->select('kode_brng', DB::raw('SUM(jumlah) as total_pengeluaran'))
+            ->groupBy('kode_brng')
+            ->pluck('total_pengeluaran', 'kode_brng');
 
         return view('belanja.belanja', compact(
             'tanggal_awal',
@@ -105,7 +117,8 @@ class Belanja extends Controller
             'bangsal',
             'stok_lokasi',
             'total_pengeluaran',
-            'nonaktif_bangsal'
+            'nonaktif_bangsal',
+            'obatTermahal'
         ));
     }
 
