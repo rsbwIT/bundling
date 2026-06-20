@@ -323,6 +323,60 @@
     <div class="wrapper">
         @php
             $getSeting = DB::table('setting')->select('setting.nama_instansi', 'setting.logo')->first();
+
+            // Unified avatar resolution: compute once and reuse for navbar, modal, sidebar
+            $avatarUrl = asset('img/user.jpg');
+            $auth = session('user') ?? null;
+
+            // Prefer explicit session foto if it's a reachable URL or local copy exists
+            $sessionFoto = session('user')->foto ?? null;
+            if(!empty($sessionFoto)){
+                if(strpos($sessionFoto, 'http') === 0){
+                    $bn = basename($sessionFoto);
+                    if(!empty($bn) && file_exists(public_path('uploads/pegawai/'.$bn))){
+                        $avatarUrl = asset('uploads/pegawai/'.$bn);
+                    }else{
+                        // verify remote
+                        try{
+                            $h = @get_headers($sessionFoto);
+                            if(is_array($h) && strpos($h[0], '200') !== false){
+                                $avatarUrl = $sessionFoto;
+                            }
+                        }catch(\Throwable $e){}
+                    }
+                }else{
+                    // session foto might be a local path
+                    if(strpos($sessionFoto, 'uploads/') === 0 || file_exists(public_path($sessionFoto))){
+                        $avatarUrl = asset($sessionFoto);
+                    }
+                }
+            }
+
+            // If still default, try pegawai.photo from DB
+            if($avatarUrl == asset('img/user.jpg') && $auth){
+                $fotoDb = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                if(!empty($fotoDb) && $fotoDb != 'pages/pegawai/photo/'){
+                    if(strpos($fotoDb, 'http') === 0){
+                        $avatarUrl = $fotoDb;
+                    }elseif(strpos($fotoDb, 'uploads/') === 0 || file_exists(public_path($fotoDb)) || file_exists(public_path('uploads/pegawai/'.$fotoDb))){
+                        if(strpos($fotoDb, 'uploads/') === 0){
+                            $avatarUrl = asset($fotoDb);
+                        }elseif(file_exists(public_path($fotoDb))){
+                            $avatarUrl = asset($fotoDb);
+                        }else{
+                            $avatarUrl = asset('uploads/pegawai/'.$fotoDb);
+                        }
+                    }else{
+                        $candidate = rtrim(env('URL_KHANZA', ''), '/')."/webapps/penggajian/".$fotoDb;
+                        try{
+                            $h = @get_headers($candidate);
+                            if(is_array($h) && strpos($h[0], '200') !== false){
+                                $avatarUrl = $candidate;
+                            }
+                        }catch(\Throwable $e){}
+                    }
+                }
+            }
         @endphp
         <!-- Preloader -->
         {{-- <div class="preloader flex-column justify-content-center align-items-center">
@@ -355,30 +409,81 @@
                 @php
                     $auth = session('user') ?? null;
                     $fotoNav = null;
-                    if($auth){
-                        $fotoNav = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                    $fotoUrl = asset('img/user.jpg');
+
+                    // prefer explicit session foto (may be full URL) but verify availability
+                    $sessionFoto = session('user')->foto ?? null;
+                    if(!empty($sessionFoto) && strpos($sessionFoto, 'http') === 0){
+                        $candidateSession = $sessionFoto;
+                        $used = false;
+                        // if we have a local copy (uploads/pegawai/{basename}), prefer that so UI updates instantly
+                        $bn = basename($candidateSession);
+                        if(!empty($bn) && file_exists(public_path('uploads/pegawai/'.$bn))){
+                            $fotoUrl = asset('uploads/pegawai/'.$bn);
+                            $used = true;
+                        }else{
+                            // try HEAD request to remote URL to ensure it's available
+                            try{
+                                $h = @get_headers($candidateSession);
+                                if(is_array($h) && strpos($h[0], '200') !== false){
+                                    $fotoUrl = $candidateSession;
+                                    $used = true;
+                                }
+                            }catch(\Throwable $e){
+                                $used = false;
+                            }
                         }
+
+                        if($used){
+                            // ok
+                        }else{
+                            // fall through to check DB/local values below
+                        }
+                    }else{
+                        if($auth){
+                            $fotoNav = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                        }
+
                         if(!empty($fotoNav) && $fotoNav != 'pages/pegawai/photo/'){
-                            // If stored as full URL
                             if(strpos($fotoNav, 'http') === 0){
                                 $fotoUrl = $fotoNav;
                             }
-                            // If stored as local upload path (uploads/...)
-                            elseif(file_exists(public_path($fotoNav)) || strpos($fotoNav, 'uploads/') === 0){
-                                $fotoUrl = asset($fotoNav);
+                            elseif(strpos($fotoNav, 'uploads/') === 0 || file_exists(public_path($fotoNav)) || file_exists(public_path('uploads/pegawai/'.$fotoNav))){
+                                if(strpos($fotoNav, 'uploads/') === 0){
+                                    $fotoUrl = asset($fotoNav);
+                                }elseif(file_exists(public_path($fotoNav))){
+                                    $fotoUrl = asset($fotoNav);
+                                }else{
+                                    $fotoUrl = asset('uploads/pegawai/'.$fotoNav);
+                                }
                             }
-                            // Otherwise assume it's a filename from external system
                             else{
-                                $fotoUrl = env('URL_KHANZA')."/webapps/penggajian/".$fotoNav;
+                                $candidate = rtrim(env('URL_KHANZA', ''), '/')."/webapps/penggajian/".$fotoNav;
+                                $ok = false;
+                                try{
+                                    $h = @get_headers($candidate);
+                                    if(is_array($h) && strpos($h[0], '200') !== false){
+                                        $ok = true;
+                                    }
+                                }catch(\Throwable $e){
+                                    $ok = false;
+                                }
+
+                                if($ok){
+                                    $fotoUrl = $candidate;
+                                }else{
+                                    $fotoUrl = session('user')->foto ?? asset('img/user.jpg');
+                                }
                             }
                         }else{
                             $fotoUrl = session('user')->foto ?? asset('img/user.jpg');
                         }
+                    }
                 @endphp
 
                 <li class="nav-item dropdown">
                     <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#">
-                        <img src="{{ $fotoUrl }}" class="img-circle" style="width:32px;height:32px;object-fit:cover">
+                        <img src="{{ $avatarUrl }}" class="img-circle" style="width:32px;height:32px;object-fit:cover">
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right">
@@ -412,7 +517,7 @@
                         @csrf
                         <div class="modal-body text-center">
                             <div class="mb-3">
-                                <img id="profilePreview" src="{{ $fotoUrl ?? asset('img/user.jpg') }}" alt="Preview" style="width:120px;height:120px;object-fit:cover;border-radius:50%;" />
+                                <img id="profilePreview" src="{{ $avatarUrl }}" alt="Preview" style="width:120px;height:120px;object-fit:cover;border-radius:50%;" />
                             </div>
                             <div class="form-group">
                                 <input type="file" accept="image/*" name="photo" id="photoInput" class="form-control-file" required>
@@ -475,24 +580,58 @@
                         @php
                             $auth = session('user') ?? null;
                             $fotoSide = null;
-                            if($auth){
-                                $fotoSide = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
-                            }
+                            $fotoUrlSide = asset('img/user.jpg');
 
-                            if(!empty($fotoSide) && $fotoSide != 'pages/pegawai/photo/'){
-                                if(strpos($fotoSide, 'http') === 0){
-                                    $fotoUrlSide = $fotoSide;
-                                }elseif(file_exists(public_path($fotoSide)) || strpos($fotoSide, 'uploads/') === 0){
-                                    $fotoUrlSide = asset($fotoSide);
-                                }else{
-                                    $fotoUrlSide = env('URL_KHANZA')."/webapps/penggajian/".$fotoSide;
-                                }
+                            // prefer explicit session foto (may be full URL)
+                            if(!empty(session('user')->foto) && strpos(session('user')->foto, 'http') === 0){
+                                $fotoUrlSide = session('user')->foto;
                             }else{
-                                $fotoUrlSide = session('user')->foto ?? asset('img/user.jpg');
+                                if($auth){
+                                    $fotoSide = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                                }
+
+                                if(!empty($fotoSide) && $fotoSide != 'pages/pegawai/photo/'){
+                                    // if stored as full url
+                                    if(strpos($fotoSide, 'http') === 0){
+                                        $fotoUrlSide = $fotoSide;
+                                    }
+                                    // if stored as uploads/... or local file exists
+                                    elseif(strpos($fotoSide, 'uploads/') === 0 || file_exists(public_path($fotoSide)) || file_exists(public_path('uploads/pegawai/'.$fotoSide))){
+                                        if(strpos($fotoSide, 'uploads/') === 0){
+                                            $fotoUrlSide = asset($fotoSide);
+                                        }elseif(file_exists(public_path($fotoSide))){
+                                            $fotoUrlSide = asset($fotoSide);
+                                        }else{
+                                            $fotoUrlSide = asset('uploads/pegawai/'.$fotoSide);
+                                        }
+                                    }
+                                    else{
+                                        // attempt remote Khanza URL and verify it exists (avoid 404)
+                                        $candidate = rtrim(env('URL_KHANZA', ''), '/')."/webapps/penggajian/".$fotoSide;
+                                        $ok = false;
+                                        try{
+                                            $h = @get_headers($candidate);
+                                            if(is_array($h) && strpos($h[0], '200') !== false){
+                                                $ok = true;
+                                            }
+                                        }catch(\Throwable $e){
+                                            $ok = false;
+                                        }
+
+                                        if($ok){
+                                            $fotoUrlSide = $candidate;
+                                        }else{
+                                            // fallback to session foto (if set) or generic avatar
+                                            $fotoUrlSide = session('user')->foto ?? asset('img/user.jpg');
+                                        }
+                                    }
+                                }else{
+                                    $fotoUrlSide = session('user')->foto ?? asset('img/user.jpg');
+                                }
                             }
                         @endphp
 
-                        <img src="{{ $fotoUrlSide }}" class="img-circle elevation-2" alt="User Image" style="width:35px; height:35px; object-fit:cover;">
+                        <img src="{{ $avatarUrl }}" class="img-circle elevation-2" alt="User Image" style="width:35px; height:35px; object-fit:cover;">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">
