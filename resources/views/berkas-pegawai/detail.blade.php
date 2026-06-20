@@ -146,14 +146,43 @@
         <div class="col-lg-4">
             <div class="pegawai-card">
                 <div class="d-flex align-items-center mb-3">
-                    @if ($pegawai->photo && $pegawai->photo != '' && $pegawai->photo != 'pages/pegawai/photo/')
-                        <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $pegawai->photo }}"
-                            class="pegawai-avatar mr-3" alt="Foto">
+                    @php
+                        // Resolve photo: if DB stores filename (no uploads/), treat as remote on Khanza
+                        $photoSrc = null;
+                        if (!empty($pegawai->photo) && $pegawai->photo != 'pages/pegawai/photo/') {
+                            $p = $pegawai->photo;
+                            if (Str::startsWith($p, ['http://','https://'])) {
+                                $photoSrc = $p;
+                            } elseif (Str::startsWith($p, 'uploads/')) {
+                                $photoSrc = asset($p);
+                            } elseif (file_exists(public_path($p))) {
+                                $photoSrc = asset($p);
+                            } else {
+                                // assume stored as filename on remote Khanza
+                                $photoSrc = rtrim(env('URL_KHANZA',''), '/') . '/webapps/penggajian/' . $p;
+                            }
+                        }
+                    @endphp
+
+                    @if (!empty($photoSrc))
+                        <img src="{{ $photoSrc }}" class="pegawai-avatar mr-3" alt="Foto">
                     @else
                         <div class="pegawai-avatar mr-3 d-flex align-items-center justify-content-center"
                             style="background: rgba(255,255,255,0.25); font-size: 2.2rem; border-radius: 50%; width: 80px; height: 80px; border: 3px solid rgba(255,255,255,0.5);">
                             <i class="fas fa-user"></i>
                         </div>
+
+                        {{-- Upload form for admin to send photo to Khanza (192.168.5.88) --}}
+                        <form action="{{ route('pegawai.upload.photo', ['nik' => $pegawai->nik]) }}" method="POST" enctype="multipart/form-data" style="margin-top:8px;">
+                            @csrf
+                            <div class="input-group">
+                                <input type="file" name="photo" accept="image/*" class="form-control" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">Unggah Foto</button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Foto akan dikirim ke {{ env('URL_KHANZA') }} dan disimpan di server pusat.</small>
+                        </form>
                     @endif
                     <div>
                         <div class="pegawai-name">{{ $pegawai->nama }}</div>

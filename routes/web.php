@@ -195,6 +195,8 @@ Route::group(['middleware' => 'default'], function () {
 
         // Profile photo upload
         Route::post('/profile/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhoto'])->name('profile.upload');
+        // Admin: upload photo for a specific pegawai (by NIK)
+        Route::post('/pegawai/{nik}/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhotoForNik'])->name('pegawai.upload.photo');
 
         // LIST PASIEN
         Route::get('/', [Listpasien::class, 'Listpasien']);
