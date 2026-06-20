@@ -768,72 +768,222 @@ body{
 
 </div>
 
-<!-- Lazy-load DataTables (no export buttons) for faster initial load -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <script>
-function loadCSS(href){
-    return new Promise((resolve,reject)=>{
-        if(document.querySelector('link[href="'+href+'"]')) return resolve();
-        const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=resolve; l.onerror=reject; document.head.appendChild(l);
-    });
-}
-function loadScript(src){
-    return new Promise((resolve,reject)=>{
-        if(document.querySelector('script[src="'+src+'"]')) return resolve();
-        const s=document.createElement('script'); s.src=src; s.async=true; s.onload=resolve; s.onerror=reject; document.body.appendChild(s);
-    });
-}
 
-let dataTablesInitialized = false;
-async function initDataTablesIfNeeded(){
-    if(dataTablesInitialized) return;
-    try{
-        await loadCSS('https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css');
-        await loadScript('https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js');
-        await loadScript('https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js');
+window.tableBelanja = $('#tableBelanja').DataTable({
+    pageLength: 25,
+    scrollX: true,
+    responsive: true,
+    ordering: false,
 
-        window.tableBelanja = $('#tableBelanja').DataTable({
-            pageLength: 25,
-            scrollX: true,
-            responsive: true,
-            ordering: false
+    dom: 'Bfrtip',
+
+    buttons: [
+{
+    extend: 'copyHtml5',
+    text: '<i class="fas fa-copy"></i> Copy Data Obat',
+    className: 'btn btn-success btn-sm',
+    title: 'Rencana Belanja Farmasi',
+    exportOptions: {
+        columns: ':visible'
+    },
+
+    action: function (e, dt, button, config) {
+
+        $.fn.dataTable.ext.buttons.copyHtml5.action.call(
+            this,
+            e,
+            dt,
+            button,
+            config
+        );
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '📋 Data berhasil dicopy',
+            text: 'Silakan paste ke Excel, WhatsApp, atau Telegram',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
         });
 
-        dataTablesInitialized = true;
-        document.querySelectorAll('.skeleton-overlay').forEach(el=>el.remove());
-    }catch(err){
-        console.warn('DataTables load failed',err);
     }
 }
-
-// show skeleton until DataTables loads
-const tableEl = document.getElementById('tableBelanja');
-if(tableEl){
-    const wrap = tableEl.closest('.table-responsive');
-    if(wrap){
-        wrap.classList.add('table-skeleton');
-        const overlay = document.createElement('div'); overlay.className='skeleton-overlay'; overlay.innerHTML='<div class="skeleton-spinner"></div>'; wrap.appendChild(overlay);
-    }
-    try{
-        const obs = new IntersectionObserver((entries, observer)=>{
-            if(entries[0].isIntersecting){ initDataTablesIfNeeded(); observer.disconnect(); }
-        }, {threshold:0.05});
-        obs.observe(tableEl);
-    }catch(e){ /* ignore */ }
-
-    document.querySelectorAll('.btn-cta').forEach(btn=> btn.addEventListener('click', ()=> setTimeout(initDataTablesIfNeeded,50)));
-}
-
-// Gudang toggle (unchanged)
-const token = document.querySelector('meta[name="csrf-token"]').content;
-document.querySelectorAll('.toggle-bangsal').forEach(el=>{
-    el.addEventListener('change',function(){
-        fetch("{{ route('belanja.toggleBangsal') }}",{
-            method:'POST',
-            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':token},
-            body:JSON.stringify({kd_bangsal:this.dataset.kd,status:this.checked ? 1 : 0})
-        }).then(r=>r.json()).then(res=>{ if(res.success) location.reload(); });
-    });
+]
 });
+
+// Setelah DataTable inisialisasi: tambahkan search kecil di sebelah tombol (Copy)
+try{
+    const attachSearchToButtons = () => {
+        const wrapper = document.getElementById('tableBelanja_wrapper');
+        if(!wrapper) return;
+        const btnContainer = wrapper.querySelector('.dt-buttons');
+        if(!btnContainer) return;
+
+        // hide original panel search to avoid duplication
+        const panelSearch = document.querySelector('.input-icon input[name="q"]');
+        if(panelSearch){
+            panelSearch.closest('.control-pill')?.classList.add('d-none');
+        }
+
+        // create compact search input next to buttons if not exists
+        if(!btnContainer.querySelector('.dt-inline-search-wrapper')){
+            // ensure button container aligns items
+            btnContainer.style.display = 'flex';
+            btnContainer.style.alignItems = 'center';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'dt-inline-search-wrapper';
+            wrapper.style.display = 'inline-flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.marginLeft = '8px';
+            wrapper.style.background = 'white';
+            wrapper.style.border = '1px solid #d1d5db';
+            wrapper.style.borderRadius = '6px';
+            wrapper.style.padding = '4px 8px';
+
+            const icon = document.createElement('span');
+            icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#6B7280" stroke-width="1.4"/></svg>';
+            icon.style.display = 'inline-flex';
+            icon.style.marginRight = '6px';
+
+            const inline = document.createElement('input');
+            inline.type = 'search';
+            inline.placeholder = 'Cari...';
+            inline.className = 'form-control dt-inline-search';
+            inline.style.width = '180px';
+            inline.style.border = 'none';
+            inline.style.boxShadow = 'none';
+            inline.style.padding = '4px 6px';
+            inline.style.height = '30px';
+            inline.style.fontSize = '0.9rem';
+            inline.style.background = 'transparent';
+
+            // set initial value from original panel (if any)
+            if(panelSearch) inline.value = panelSearch.value || '';
+
+            // debounce binding to table search
+            let t = null;
+            inline.addEventListener('input', function(){
+                const v = this.value || '';
+                clearTimeout(t);
+                t = setTimeout(()=>{
+                    if(window.tableBelanja){
+                        window.tableBelanja.search(v).draw();
+                    }
+                }, 300);
+            });
+
+            wrapper.appendChild(icon);
+            wrapper.appendChild(inline);
+            btnContainer.appendChild(wrapper);
+        }
+    };
+
+    // Try attach now, or after short delay if DataTables renders later
+    setTimeout(attachSearchToButtons, 250);
+    // also try when window.tableBelanja becomes available
+    if(!window.tableBelanja){
+        document.addEventListener('DOMContentLoaded', attachSearchToButtons);
+    }
+}catch(err){
+    console.warn('attachSearchToButtons error', err);
+}
+
+// Tombol aksi header
+document.getElementById('refreshBtn')?.addEventListener('click', function(){
+    location.reload();
+});
+
+document.getElementById('exportBtn')?.addEventListener('click', function(){
+    if(window.tableBelanja){
+        window.tableBelanja.button(0).trigger();
+    }
+});
+
+const token=
+document.querySelector('meta[name="csrf-token"]').content;
+
+document.querySelectorAll('.toggle-bangsal').forEach(el=>{
+
+    el.addEventListener('change',function(){
+
+        fetch("{{ route('belanja.toggleBangsal') }}",{
+
+            method:'POST',
+
+            headers:{
+                'Content-Type':'application/json',
+                'X-CSRF-TOKEN':token
+            },
+
+            body:JSON.stringify({
+
+                kd_bangsal:this.dataset.kd,
+                status:this.checked ? 1 : 0
+
+            })
+
+        })
+        .then(r=>r.json())
+        .then(res=>{
+
+            if(res.success){
+
+                location.reload();
+
+            }
+
+        });
+
+    });
+
+});
+
+// Hide DataTables generated search (table-specific) and bind our panel search to DataTables
+try{
+    // hide the specific generated filter area for this table
+    const dtFilter = document.getElementById('tableBelanja_filter');
+    if(dtFilter) dtFilter.style.display = 'none';
+
+    // bind our panel input (name=q) to datatables search with debounce
+    const searchInput = document.querySelector('input[name="q"]');
+    if(searchInput && window.tableBelanja){
+        let debounceTimer = null;
+        const doSearch = (val) => {
+            window.tableBelanja.search(val).draw();
+        };
+
+        searchInput.addEventListener('input', function(e){
+            const v = this.value || '';
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(()=> doSearch(v), 300);
+        });
+
+        // if the form submits, prevent full reload and apply search instead
+        const form = searchInput.closest('form');
+        if(form){
+            form.addEventListener('submit', function(ev){
+                ev.preventDefault();
+                doSearch(searchInput.value||'');
+            });
+        }
+    }
+}catch(err){
+    console.warn('Search bind error', err);
+}
+
 </script>
 
 @endsection
