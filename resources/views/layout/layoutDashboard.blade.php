@@ -483,7 +483,7 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#">
-                        <img src="{{ $avatarUrl }}" class="img-circle" style="width:32px;height:32px;object-fit:cover">
+                        @include('partials.avatar', ['nik' => $auth->nik ?? null, 'class' => 'img-circle', 'style' => 'width:32px;height:32px;object-fit:cover'])
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right">
@@ -517,7 +517,7 @@
                         @csrf
                         <div class="modal-body text-center">
                             <div class="mb-3">
-                                <img id="profilePreview" src="{{ $avatarUrl }}" alt="Preview" style="width:120px;height:120px;object-fit:cover;border-radius:50%;" />
+                                @include('partials.avatar', ['nik' => $auth->nik ?? null, 'id' => 'profilePreview', 'style' => 'width:120px;height:120px;object-fit:cover;border-radius:50%;'])
                             </div>
                             <div class="form-group">
                                 <input type="file" accept="image/*" name="photo" id="photoInput" class="form-control-file" required>
@@ -631,7 +631,7 @@
                             }
                         @endphp
 
-                        <img src="{{ $avatarUrl }}" class="img-circle elevation-2" alt="User Image" style="width:35px; height:35px; object-fit:cover;">
+                        @include('partials.avatar', ['nik' => $auth->nik ?? null, 'class' => 'img-circle elevation-2', 'style' => 'width:35px; height:35px; object-fit:cover;'])
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">
