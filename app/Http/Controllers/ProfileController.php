@@ -41,14 +41,28 @@ class ProfileController extends Controller
         session(['user' => $user]);
 
         // Attempt to upload to remote Khanza SFTP (non-blocking for UX)
+        $sftpSuccess = false;
         try {
             $remoteDir = 'webapps/penggajian/';
             $remotePath = $remoteDir . $name;
             // use configured SFTP disk; adjust disk name if needed
             Storage::disk('sftp_berkas')->put($remotePath, file_get_contents($dir . '/' . $name));
-            // optional: you could update DB to remote path or save both paths
+            $sftpSuccess = true;
         } catch (\Exception $e) {
             Log::error('Profile photo SFTP upload failed for ' . $name . ': ' . $e->getMessage());
+            $sftpSuccess = false;
+        }
+
+        // If remote put succeeded, update DB to store remote filename and session foto to remote URL
+        if ($sftpSuccess) {
+            try {
+                DB::table('pegawai')->where('nama', $user->nama)->update(['photo' => $name]);
+                $remoteUrl = rtrim(env('URL_KHANZA', ''), '/') . '/webapps/penggajian/' . $name;
+                $user->foto = $remoteUrl;
+                session(['user' => $user]);
+            } catch (\Exception $e) {
+                Log::error('Failed to update DB/session after SFTP upload for ' . $name . ': ' . $e->getMessage());
+            }
         }
 
         return redirect()->back()->with('success', 'Foto profil berhasil diunggah.');
