@@ -193,6 +193,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
         Route::get('/laporan-pasien', [PasienController::class, 'Pasien']);
 
+        // Profile photo upload
+        Route::post('/profile/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhoto'])->name('profile.upload');
+
         // LIST PASIEN
         Route::get('/', [Listpasien::class, 'Listpasien']);
 

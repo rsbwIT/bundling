@@ -6,7 +6,7 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css">
+<!-- DataTables CSS will be lazy-loaded to keep initial payload small -->
 
 <style>
 
@@ -153,6 +153,12 @@ body{
     max-height:750px;
     overflow:auto;
 }
+
+/* lightweight loading skeleton for table area */
+.table-skeleton{position:relative;min-height:120px}
+.table-skeleton .skeleton-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));z-index:5}
+.skeleton-spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.06);border-top-color:rgba(0,0,0,0.18);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .table thead th{
     position:sticky;
@@ -762,111 +768,72 @@ body{
 
 </div>
 
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
-
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
+<!-- Lazy-load DataTables (no export buttons) for faster initial load -->
 <script>
+function loadCSS(href){
+    return new Promise((resolve,reject)=>{
+        if(document.querySelector('link[href="'+href+'"]')) return resolve();
+        const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=resolve; l.onerror=reject; document.head.appendChild(l);
+    });
+}
+function loadScript(src){
+    return new Promise((resolve,reject)=>{
+        if(document.querySelector('script[src="'+src+'"]')) return resolve();
+        const s=document.createElement('script'); s.src=src; s.async=true; s.onload=resolve; s.onerror=reject; document.body.appendChild(s);
+    });
+}
 
-window.tableBelanja = $('#tableBelanja').DataTable({
-    pageLength: 25,
-    scrollX: true,
-    responsive: true,
-    ordering: false,
+let dataTablesInitialized = false;
+async function initDataTablesIfNeeded(){
+    if(dataTablesInitialized) return;
+    try{
+        await loadCSS('https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css');
+        await loadScript('https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js');
+        await loadScript('https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js');
 
-    dom: 'Bfrtip',
-
-    buttons: [
-{
-    extend: 'copyHtml5',
-    text: '<i class="fas fa-copy"></i> Copy Data Obat',
-    className: 'btn btn-success btn-sm',
-    title: 'Rencana Belanja Farmasi',
-    exportOptions: {
-        columns: ':visible'
-    },
-
-    action: function (e, dt, button, config) {
-
-        $.fn.dataTable.ext.buttons.copyHtml5.action.call(
-            this,
-            e,
-            dt,
-            button,
-            config
-        );
-
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: '📋 Data berhasil dicopy',
-            text: 'Silakan paste ke Excel, WhatsApp, atau Telegram',
-            showConfirmButton: false,
-            timer: 2500,
-            timerProgressBar: true
+        window.tableBelanja = $('#tableBelanja').DataTable({
+            pageLength: 25,
+            scrollX: true,
+            responsive: true,
+            ordering: false
         });
 
+        dataTablesInitialized = true;
+        document.querySelectorAll('.skeleton-overlay').forEach(el=>el.remove());
+    }catch(err){
+        console.warn('DataTables load failed',err);
     }
 }
-]
-});
 
-// Tombol aksi header
-document.getElementById('refreshBtn')?.addEventListener('click', function(){
-    location.reload();
-});
-
-document.getElementById('exportBtn')?.addEventListener('click', function(){
-    if(window.tableBelanja){
-        window.tableBelanja.button(0).trigger();
+// show skeleton until DataTables loads
+const tableEl = document.getElementById('tableBelanja');
+if(tableEl){
+    const wrap = tableEl.closest('.table-responsive');
+    if(wrap){
+        wrap.classList.add('table-skeleton');
+        const overlay = document.createElement('div'); overlay.className='skeleton-overlay'; overlay.innerHTML='<div class="skeleton-spinner"></div>'; wrap.appendChild(overlay);
     }
-});
+    try{
+        const obs = new IntersectionObserver((entries, observer)=>{
+            if(entries[0].isIntersecting){ initDataTablesIfNeeded(); observer.disconnect(); }
+        }, {threshold:0.05});
+        obs.observe(tableEl);
+    }catch(e){ /* ignore */ }
 
-const token=
-document.querySelector('meta[name="csrf-token"]').content;
+    document.querySelectorAll('.btn-cta').forEach(btn=> btn.addEventListener('click', ()=> setTimeout(initDataTablesIfNeeded,50)));
+}
 
+// Gudang toggle (unchanged)
+const token = document.querySelector('meta[name="csrf-token"]').content;
 document.querySelectorAll('.toggle-bangsal').forEach(el=>{
-
     el.addEventListener('change',function(){
-
         fetch("{{ route('belanja.toggleBangsal') }}",{
-
             method:'POST',
-
-            headers:{
-                'Content-Type':'application/json',
-                'X-CSRF-TOKEN':token
-            },
-
-            body:JSON.stringify({
-
-                kd_bangsal:this.dataset.kd,
-                status:this.checked ? 1 : 0
-
-            })
-
-        })
-        .then(r=>r.json())
-        .then(res=>{
-
-            if(res.success){
-
-                location.reload();
-
-            }
-
-        });
-
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':token},
+            body:JSON.stringify({kd_bangsal:this.dataset.kd,status:this.checked ? 1 : 0})
+        }).then(r=>r.json()).then(res=>{ if(res.success) location.reload(); });
     });
-
 });
-
 </script>
 
 @endsection

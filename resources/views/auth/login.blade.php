@@ -87,13 +87,23 @@
 
 <div class="login-box">
     <div class="card card-outline card-primary">
+        @php
+            if(!isset($getSetting) || !$getSetting){
+                $getSetting = DB::table('setting')->select('logo')->first();
+            }
+        @endphp
+
         <div class="card-header text-center">
             <a href="#" class="h1">
-                <img class="logo-login"
-                     src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
-                     alt="Logo"
-                     width="100"
-                     height="100">
+                @if(!empty($getSetting->logo))
+                    <img class="logo-login"
+                         src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}"
+                         alt="Logo"
+                         width="100"
+                         height="100">
+                @else
+                    <img class="logo-login" src="{{ asset('img/logo-placeholder.png') }}" alt="Logo" width="100" height="100">
+                @endif
             </a>
         </div>
 

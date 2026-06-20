@@ -352,11 +352,33 @@
                     </a>
                 </li>
                 {{-- USER --}}
+                @php
+                    $auth = session('user') ?? null;
+                    $fotoNav = null;
+                    if($auth){
+                        $fotoNav = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                        }
+                        if(!empty($fotoNav) && $fotoNav != 'pages/pegawai/photo/'){
+                            // If stored as full URL
+                            if(strpos($fotoNav, 'http') === 0){
+                                $fotoUrl = $fotoNav;
+                            }
+                            // If stored as local upload path (uploads/...)
+                            elseif(file_exists(public_path($fotoNav)) || strpos($fotoNav, 'uploads/') === 0){
+                                $fotoUrl = asset($fotoNav);
+                            }
+                            // Otherwise assume it's a filename from external system
+                            else{
+                                $fotoUrl = env('URL_KHANZA')."/webapps/penggajian/".$fotoNav;
+                            }
+                        }else{
+                            $fotoUrl = session('user')->foto ?? asset('img/user.jpg');
+                        }
+                @endphp
+
                 <li class="nav-item dropdown">
                     <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#">
-                        <img src="{{ session('user')->foto ?? asset('img/user.jpg') }}"
-                            class="img-circle"
-                            style="width:32px;height:32px;object-fit:cover">
+                        <img src="{{ $fotoUrl }}" class="img-circle" style="width:32px;height:32px;object-fit:cover">
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right">
@@ -376,15 +398,73 @@
         
         <!-- /.navbar -->
 
+        <!-- Profile modal (upload photo) -->
+        <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="profileModalLabel">Update Foto Profil</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="/profile/upload-photo" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body text-center">
+                            <div class="mb-3">
+                                <img id="profilePreview" src="{{ $fotoUrl ?? asset('img/user.jpg') }}" alt="Preview" style="width:120px;height:120px;object-fit:cover;border-radius:50%;" />
+                            </div>
+                            <div class="form-group">
+                                <input type="file" accept="image/*" name="photo" id="photoInput" class="form-control-file" required>
+                            </div>
+                            <small class="text-muted">Format: JPG/PNG. Maks 2MB.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Unggah</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                const input = document.getElementById('photoInput');
+                const preview = document.getElementById('profilePreview');
+                if(input){
+                    input.addEventListener('change', function(e){
+                        const f = e.target.files[0];
+                        if(!f) return;
+                        if(f.size > 2 * 1024 * 1024){ alert('File terlalu besar (maks 2MB)'); input.value=''; return; }
+                        const reader = new FileReader();
+                        reader.onload = function(ev){ preview.src = ev.target.result; }
+                        reader.readAsDataURL(f);
+                    });
+                }
+            });
+        </script>
+
 
 
         <!-- INI MENUUU SAMPING -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
+            @php
+                if(!isset($getSeting) || !$getSeting){
+                    $getSeting = DB::table('setting')->select('logo','nama_instansi')->first();
+                }
+            @endphp
+
             <a href="{{ url('/') }}" class="brand-link">
-                <img src="data:image/png;base64,{{ base64_encode($getSeting->logo) }}" alt="Logo"
-                    class="brand-image img-circle elevation-3" style="opacity: 0.8" />
-                <span class="brand-text font-weight-light">{{ $getSeting->nama_instansi }}</span>
+                @if(!empty($getSeting->logo))
+                    <img src="data:image/png;base64,{{ base64_encode($getSeting->logo) }}" alt="Logo"
+                        class="brand-image img-circle elevation-3" style="opacity: 0.8" />
+                @else
+                    <img src="{{ asset('img/logo-placeholder.png') }}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: 0.8" />
+                @endif
+
+                <span class="brand-text font-weight-light">{{ $getSeting->nama_instansi ?? config('app.name') }}</span>
             </a>
 
             <!-- INI MENUUU SAMPING -->
@@ -392,32 +472,27 @@
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        @if (session()->has('user'))
-                            @php
-                                $auth = session('user');
+                        @php
+                            $auth = session('user') ?? null;
+                            $fotoSide = null;
+                            if($auth){
+                                $fotoSide = DB::table('pegawai')->where('nama', $auth->nama)->value('photo');
+                            }
 
-                                // Ambil foto berdasarkan nama pegawai
-                                $foto = DB::table('pegawai')
-                                    ->where('nama', $auth->nama)
-                                    ->value('photo');
-                            @endphp
+                            if(!empty($fotoSide) && $fotoSide != 'pages/pegawai/photo/'){
+                                if(strpos($fotoSide, 'http') === 0){
+                                    $fotoUrlSide = $fotoSide;
+                                }elseif(file_exists(public_path($fotoSide)) || strpos($fotoSide, 'uploads/') === 0){
+                                    $fotoUrlSide = asset($fotoSide);
+                                }else{
+                                    $fotoUrlSide = env('URL_KHANZA')."/webapps/penggajian/".$fotoSide;
+                                }
+                            }else{
+                                $fotoUrlSide = session('user')->foto ?? asset('img/user.jpg');
+                            }
+                        @endphp
 
-                            @if ($foto && $foto != '' && $foto != 'pages/pegawai/photo/')
-                                <img src="{{ env('URL_KHANZA') }}/webapps/penggajian/{{ $foto }}"
-                                    class="img-circle elevation-2"
-                                    alt="User Image"
-                                    style="width:35px; height:35px; object-fit:cover;">
-                            @else
-                                <img src="{{ asset('img/user.jpg') }}"
-                                    class="img-circle elevation-2"
-                                    alt="User Image"
-                                    style="width:35px; height:35px; object-fit:cover;">
-                            @endif
-                        @else
-                            <img src="{{ asset('img/user.jpg') }}"
-                                class="img-circle elevation-2"
-                                alt="User Image">
-                        @endif
+                        <img src="{{ $fotoUrlSide }}" class="img-circle elevation-2" alt="User Image" style="width:35px; height:35px; object-fit:cover;">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">
