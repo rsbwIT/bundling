@@ -11,13 +11,15 @@
 <style>
 
 :root{
-    --primary:#cfdeff;
-    --secondary:#cfdeff;
-    --success:#10b981;
-    --danger:#ef4444;
-    --warning:#f59e0b;
-    --dark:#0f172a;
-    --light:#f8fafc;
+    --primary:#f3f6f9;
+    --secondary:#eef2f6;
+    --success:#16a34a;
+    --danger:#b91c1c;
+    --warning:#d97706;
+    --dark:#1f2937;
+    --light:#ffffff;
+    --text:#374151; /* neutral dark (not pure black) */
+    --muted:#6b7280;
 }
 
 body{
@@ -34,29 +36,69 @@ body{
 .card-header-custom{
     background:linear-gradient(135deg,var(--primary),var(--secondary));
     color:white;
-    padding:20px 30px;
+    padding:18px 26px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
 .card-header-custom h4{
-    margin:0;
+    margin:0 0 4px 0;
     font-weight:700;
+    font-size:1.15rem;
+}
+
+.card-header-custom .header-subtitle{
+    display:block;
+    opacity:.92;
+    font-size:0.92rem;
+}
+
+.header-actions .btn{    
+    margin-left:8px;
 }
 
 .filter-card{
-    background:white;
-    border-radius:15px;
-    padding:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,.05);
+    background:linear-gradient(180deg, #ffffff, #fbfdff);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 6px 18px rgba(16,24,40,0.04);
     margin-bottom:20px;
 }
 
+.filter-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.input-icon{position:relative}
+.input-icon svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.56}
+.input-icon .form-control{padding-left:44px;height:38px;border-radius:8px}
+.control-pill{display:flex;gap:8px;align-items:center;background:transparent;padding:8px 10px;border-radius:10px;border:1px solid #f1f5f9;min-height:62px}
+.min-w-170{min-width:170px}
+.min-w-160{min-width:160px}
+.min-w-260{min-width:260px}
+.min-w-100{min-width:100px}
+ .min-w-110{min-width:110px}
+.flex-1{flex:1}
+.pill-inner label{display:block;margin-bottom:6px;font-weight:600;color:var(--dark);font-size:0.9rem}
+.filter-actions{display:flex;gap:10px;align-items:center}
+.filter-actions.column{flex-direction:column;align-items:stretch;gap:6px}
+.btn-cta.small{padding:6px 10px;font-size:0.86rem;height:38px;border-radius:8px}
+.btn-clear.small{padding:6px 10px;font-size:0.86rem;height:38px;border-radius:8px}
+.filter-active-pill{background:linear-gradient(90deg,#eef2ff,#eef9ff);padding:6px 10px;border-radius:999px;border:1px solid #e6eef6;color:var(--text);font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.filter-active-pill svg{opacity:.85}
+.btn-cta{background:linear-gradient(90deg,#0ea5a4,#34d399);color:white;border:none;padding:7px 16px;border-radius:8px;box-shadow:0 6px 12px rgba(14,165,164,0.08);font-weight:700;font-size:0.95rem}
+.btn-clear{background:transparent;border:1px solid #eef6fb;color:var(--text);padding:6px 12px;border-radius:8px;font-size:0.95rem}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(14,165,164,0.12)}
+.btn-clear:hover{background:#fbfdff}
+.filter-help{font-size:0.85rem;color:var(--muted);margin-top:8px}
+
 .summary-box{
-    border-radius:18px;
-    padding:20px;
-    color:white;
+    border-radius:12px;
+    padding:18px;
+    color:var(--dark);
     position:relative;
     overflow:hidden;
-    margin-bottom:20px;
+    margin-bottom:16px;
+    background:var(--light);
+    border:1px solid #eef2f6;
 }
 
 .summary-box h6{
@@ -69,16 +111,24 @@ body{
     margin:0;
 }
 
+.mini-summary{
+    padding:12px 14px;
+}
+
+.mini-summary h6{font-size:0.85rem;margin-bottom:6px;color:var(--muted)}
+.mini-summary h5{font-size:1rem;margin:0 0 4px 0;font-weight:700;color:var(--text)}
+.mini-summary .value{font-size:0.95rem;color:var(--text);font-weight:600}
+
 .bg-stok{
-    background:linear-gradient(135deg,#0ea5e9,#2563eb);
+    border-left:6px solid #60a5fa;
 }
 
 .bg-keluar{
-    background:linear-gradient(135deg,#f59e0b,#ea580c);
+    border-left:6px solid #f6ad55;
 }
 
 .bg-kebutuhan{
-    background:linear-gradient(135deg,#ef4444,#dc2626);
+    border-left:6px solid #fca5a5;
 }
 
 .gudang-wrapper{
@@ -96,6 +146,7 @@ body{
 .table td{
     white-space:nowrap;
     vertical-align:middle;
+    color:var(--text);
 }
 
 .table-responsive{
@@ -107,9 +158,10 @@ body{
     position:sticky;
     top:0;
     z-index:99;
-    background:var(--dark);
-    color:white;
+    background:var(--secondary);
+    color:var(--text);
     font-size:12px;
+    border-bottom:1px solid #e6eef6;
 }
 
 .table tbody tr:hover{
@@ -134,8 +186,9 @@ body{
 .switch{
     position:relative;
     display:inline-block;
-    width:52px;
-    height:28px;
+    width:44px;
+    height:26px;
+    vertical-align:middle;
 }
 
 .switch input{
@@ -149,50 +202,78 @@ body{
     right:0;
     bottom:0;
     cursor:pointer;
-    background:#d1d5db;
-    transition:.3s;
-    border-radius:50px;
+    background:#e6e9ee;
+    transition:.22s ease;
+    border-radius:999px;
+    box-shadow:inset 0 1px 2px rgba(16,24,40,0.04);
 }
 
 .slider:before{
     content:'';
     position:absolute;
-    width:22px;
-    height:22px;
+    width:20px;
+    height:20px;
     left:3px;
     bottom:3px;
     background:white;
-    transition:.3s;
+    transition:transform .22s ease;
     border-radius:50%;
+    box-shadow:0 2px 4px rgba(16,24,40,0.06);
 }
 
 .switch input:checked + .slider{
-    background:#10b981;
+    background:var(--success);
 }
 
 .switch input:checked + .slider:before{
-    transform:translateX(24px);
+    transform:translateX(18px);
+}
+
+.switch,
+.slider{
+    cursor:pointer;
+}
+
+/* center status column in gudang table */
+.gudang-wrapper td:nth-child(4){
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+
+/* stronger, more 'paten' badges */
+.badge-active,
+.badge-inactive{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:72px;
+    padding:6px 12px;
+    font-weight:600;
+    box-shadow:0 1px 2px rgba(16,24,40,0.04);
 }
 
 .badge-active{
-    background:#10b981;
+    background:#16a34a;
     color:white;
     padding:6px 10px;
-    border-radius:20px;
+    border-radius:16px;
 }
 
 .badge-inactive{
-    background:#ef4444;
+    background:#ef4444; /* non-active red */
     color:white;
     padding:6px 10px;
-    border-radius:20px;
+    border-radius:16px;
 }
 
 .btn-primary{
-    border:none;
-    border-radius:10px;
-    background:linear-gradient(135deg,var(--primary),var(--secondary));
-    padding:10px 25px;
+    border:1px solid #e6eef9;
+    border-radius:8px;
+    background:transparent;
+    color:var(--dark);
+    padding:8px 18px;
     font-weight:600;
 }
 
@@ -200,14 +281,15 @@ body{
     border-radius:10px !important;
 }
 
+@media (max-width: 780px){
+    .filter-controls{flex-direction:column;align-items:stretch;gap:10px}
+    .filter-controls > .control-pill{min-width:100% !important}
+    .filter-controls .btn-cta, .filter-controls .btn-clear{width:100%}
+}
+
 </style>
 
 <div class="card main-card">
-
-<div class="card-header-custom">
-    {{-- <h4>Rencana Belanja Farmasi</h4>
-    <small>Perencanaan kebutuhan obat berdasarkan pengeluaran dan stok gudang</small> --}}
-</div>
 
 <div class="card-body">
 
@@ -215,43 +297,82 @@ body{
 
         <div class="filter-card">
 
-            <div class="row">
+            <div class="filter-controls">
 
-                <div class="col-md-3">
-                    <label>Tanggal Awal</label>
-                    <input type="date"
-                           name="tanggal_awal"
-                           class="form-control"
-                           value="{{ $tanggal_awal }}">
+                <div class="control-pill min-w-170">
+                    <div class="input-icon pill-inner">
+                        <svg class="icon-calendar" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <rect x="2" y="4" width="20" height="18" rx="3" ry="3" fill="none" stroke="#6B7280" stroke-width="1.2" />
+                            <rect x="7" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <rect x="11" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <rect x="15" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                        </svg>
+                        <label class="d-block mb-1">Tanggal Awal</label>
+                        <input type="date" name="tanggal_awal" class="form-control" value="{{ $tanggal_awal }}">
+                    </div>
                 </div>
 
-                <div class="col-md-3">
-                    <label>Tanggal Akhir</label>
-                    <input type="date"
-                           name="tanggal_akhir"
-                           class="form-control"
-                           value="{{ $tanggal_akhir }}">
+                <div class="control-pill min-w-170">
+                    <div class="input-icon pill-inner">
+                        <svg class="icon-calendar" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <rect x="2" y="4" width="20" height="18" rx="3" ry="3" fill="none" stroke="#6B7280" stroke-width="1.2" />
+                            <rect x="7" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <rect x="11" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <rect x="15" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                        </svg>
+                        <label class="d-block mb-1">Tanggal Akhir</label>
+                        <input type="date" name="tanggal_akhir" class="form-control" value="{{ $tanggal_akhir }}">
+                    </div>
                 </div>
 
-                <div class="col-md-2">
-                    <label>Urutkan Harga</label>
-                    <select name="filter_harga" class="form-control">
-                        <option value="">Default</option>
-                        <option value="termahal" {{ request('filter_harga')=='termahal' ? 'selected' : '' }}>
-                            Harga Termahal
-                        </option>
-                        <option value="termurah" {{ request('filter_harga')=='termurah' ? 'selected' : '' }}>
-                            Harga Termurah
-                        </option>
-                    </select>
+                <div class="control-pill min-w-160">
+                    <div>
+                        <label class="d-block mb-1">Urutkan Harga</label>
+                        <select name="filter_harga" class="form-control">
+                            <option value="">Default</option>
+                            <option value="termahal" {{ request('filter_harga')=='termahal' ? 'selected' : '' }}>Harga Termahal</option>
+                            <option value="termurah" {{ request('filter_harga')=='termurah' ? 'selected' : '' }}>Harga Termurah</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary btn-block">
-                        Tampilkan Data
-                    </button>
+                <div class="control-pill min-w-170 flex-1">
+                    <div>
+                        <label class="d-block mb-1">Filter Tipe</label>
+                        <select name="filter_type" class="form-control">
+                            <option value="">Semua</option>
+                            <option value="pengeluaran_terbanyak" {{ request('filter_type')=='pengeluaran_terbanyak' ? 'selected' : '' }}>Pengeluaran Terbanyak</option>
+                            <option value="pengeluaran_terdikit" {{ request('filter_type')=='pengeluaran_terdikit' ? 'selected' : '' }}>Pengeluaran Terdikit</option>
+                            <option value="stok_terbanyak" {{ request('filter_type')=='stok_terbanyak' ? 'selected' : '' }}>Stok Terbanyak</option>
+                            <option value="stok_terdikit" {{ request('filter_type')=='stok_terdikit' ? 'selected' : '' }}>Stok Terdikit</option>
+                            <option value="nilai_terbanyak" {{ request('filter_type')=='nilai_terbanyak' ? 'selected' : '' }}>Nilai Belanja Terbanyak</option>
+                            <option value="nilai_terendah" {{ request('filter_type')=='nilai_terendah' ? 'selected' : '' }}>Nilai Belanja Terdikit</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="control-pill min-w-100">
+                    <div class="pill-inner">
+                        <label class="d-block mb-1">Jumlah</label>
+                        <input type="number" name="filter_n" min="1" max="200" class="form-control" value="{{ request('filter_n', 10) }}">
+                    </div>
+                </div>
+
+                <div class="control-pill min-w-200">
+                    <div class="filter-actions">
+                        <button type="submit" class="btn-cta small">Terapkan</button>
+                        <button type="reset" class="btn-clear small">Reset</button>
+                    </div>
+                </div>
+
+
             </div>
+
+            <div class="filter-help">Pilih filter, lalu klik <strong>Tampilkan</strong> untuk memperbarui daftar.</div>
 
             <hr>
 
@@ -405,6 +526,102 @@ body{
 
     @endphp
 
+    @php
+        $collection = collect($obatTermahal);
+        $topPengeluaran = $collection->sortByDesc('pengeluaran')->first() ?? null;
+        $lowPengeluaran = $collection->sortBy('pengeluaran')->first() ?? null;
+        $topStok = $collection->sortByDesc('stok')->first() ?? null;
+        $lowStok = $collection->sortBy('stok')->first() ?? null;
+    @endphp
+
+    <div class="row mb-3">
+
+        <div class="col-md-3">
+            <div class="summary-box mini-summary" style="border-left:6px solid #fca5a5;">
+                <h6>Pengeluaran Terbanyak</h6>
+                <h5>{{ $topPengeluaran['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($topPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="summary-box mini-summary" style="border-left:6px solid #ef4444;">
+                <h6>Pengeluaran Terdikit</h6>
+                <h5>{{ $lowPengeluaran['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($lowPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="summary-box mini-summary" style="border-left:6px solid #60a5fa;">
+                <h6>Stok Terbanyak</h6>
+                <h5>{{ $topStok['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($topStok['stok'] ?? 0,0,',','.') }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="summary-box mini-summary" style="border-left:6px solid #9ca3af;">
+                <h6>Stok Terdikit</h6>
+                <h5>{{ $lowStok['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($lowStok['stok'] ?? 0,0,',','.') }}</div>
+            </div>
+        </div>
+
+    </div>
+
+    @php
+        // apply filter selection to table data (only affects displayed rows)
+        $filterType = request('filter_type');
+        $filterN = (int) request('filter_n', 10);
+
+        if($filterType && $filterN > 0){
+            $col = collect($obatTermahal);
+
+            if($filterType == 'pengeluaran_terbanyak'){
+                $obatTermahal = $col->sortByDesc('pengeluaran')->take($filterN)->values();
+            }elseif($filterType == 'pengeluaran_terdikit'){
+                // ignore items with pengeluaran == 0 when finding 'terdikit'
+                $colNonZero = $col->filter(function($r){
+                    return (!empty($r['pengeluaran']) && $r['pengeluaran'] > 0);
+                });
+                if($colNonZero->isEmpty()){
+                    $colNonZero = $col; // fallback if all zero
+                }
+                $obatTermahal = $colNonZero->sortBy('pengeluaran')->take($filterN)->values();
+            }elseif($filterType == 'stok_terbanyak'){
+                $obatTermahal = $col->sortByDesc('stok')->take($filterN)->values();
+            }elseif($filterType == 'stok_terdikit'){
+                $obatTermahal = $col->sortBy('stok')->take($filterN)->values();
+            }elseif($filterType == 'nilai_terbanyak'){
+                $obatTermahal = $col->sortByDesc('nilai_belanja')->take($filterN)->values();
+            }elseif($filterType == 'nilai_terendah'){
+                $colNonZeroVal = $col; // keep zeros as valid for nilai
+                $obatTermahal = $colNonZeroVal->sortBy('nilai_belanja')->take($filterN)->values();
+            }
+        }
+
+    @endphp
+
+    @php
+        // label for active filter
+        $filterLabelMap = [
+            'pengeluaran_terbanyak' => 'Pengeluaran Terbanyak',
+            'pengeluaran_terdikit' => 'Pengeluaran Terdikit',
+            'stok_terbanyak' => 'Stok Terbanyak',
+            'stok_terdikit' => 'Stok Terdikit',
+            'nilai_terbanyak' => 'Nilai Belanja Terbanyak',
+            'nilai_terendah' => 'Nilai Belanja Terdikit'
+        ];
+        $activeFilterLabel = $filterLabelMap[$filterType] ?? null;
+    @endphp
+
+    @if($activeFilterLabel)
+        <div class="mb-2">
+            <span style="background:#eef2f6;color:var(--text);border:1px solid #e6eef6;padding:6px 10px;border-radius:12px;font-weight:600;">Filter aktif: {{ $activeFilterLabel }} (Top {{ $filterN }})</span>
+        </div>
+    @endif
+
     <div class="row">
 
         <div class="col-md-4">
@@ -556,7 +773,7 @@ body{
 
 <script>
 
-$('#tableBelanja').DataTable({
+window.tableBelanja = $('#tableBelanja').DataTable({
     pageLength: 25,
     scrollX: true,
     responsive: true,
@@ -598,6 +815,17 @@ $('#tableBelanja').DataTable({
     }
 }
 ]
+});
+
+// Tombol aksi header
+document.getElementById('refreshBtn')?.addEventListener('click', function(){
+    location.reload();
+});
+
+document.getElementById('exportBtn')?.addEventListener('click', function(){
+    if(window.tableBelanja){
+        window.tableBelanja.button(0).trigger();
+    }
 });
 
 const token=
