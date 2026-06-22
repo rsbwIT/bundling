@@ -37,6 +37,7 @@ class LispasienRalan2 extends Component
     function getListPasienRalan()
     {
         $cariKode = $this->carinomor;
+
         $this->getPasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rkm_medis',
@@ -54,6 +55,7 @@ class LispasienRalan2 extends Component
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('bw_file_casemix_hasil', 'bw_file_casemix_hasil.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('resume_pasien', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -63,15 +65,18 @@ class LispasienRalan2 extends Component
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 if ($cariKode) {
-                    $query->orwhere('reg_periksa.no_rkm_medis', '=', "$cariKode")
-                        ->orwhere('pasien.nm_pasien', '=', "$cariKode")
-                        ->orwhere('bridging_sep.no_sep', '=', "$cariKode");
+                    $query->where('reg_periksa.no_rkm_medis', $cariKode)
+                        ->orWhere('pasien.nm_pasien', $cariKode)
+                        ->orWhere('bridging_sep.no_sep', $cariKode);
                 }
             })
-            ->where('reg_periksa.kd_pj', 'BPJ')
+            ->where(function ($query) {
+                $query->where('reg_periksa.kd_pj', 'BPJ')
+                    ->orWhere('penjab.png_jawab', 'LIKE', '%COB%');
+            })
             ->whereNotIn('reg_periksa.stts', ['Batal'])
-            ->where('reg_periksa.status_lanjut', '=', 'Ralan')
-            ->distinct() // Menghindari data ganda
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->distinct()
             ->groupBy('reg_periksa.no_rkm_medis', 'reg_periksa.no_rawat')
             ->get();
     }
@@ -338,7 +343,6 @@ class LispasienRalan2 extends Component
             // Reset input
             $this->upload_file_scan[$key] = null;
             $this->kode_berkas[$key] = null;
-
         } catch (\Throwable $th) {
             Log::error('UploadScan SFTP Error: ' . $th->getMessage());
             session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());
