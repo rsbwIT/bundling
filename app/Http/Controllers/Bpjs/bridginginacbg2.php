@@ -168,14 +168,38 @@ class bridginginacbg2 extends Controller
 
         $encrypted = $this->mc_encrypt($json, $this->getKey());
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'text/plain'
-        ])
-            ->withBody($encrypted, 'text/plain')
-            ->timeout(60)
-            ->post($this->getUrlWS());
+        $url = $this->getUrlWS();
 
-        return $this->decryptResponse($response);
+        $start = microtime(true);
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'text/plain',
+                'Connection' => 'keep-alive'
+            ])
+                ->withOptions(['connect_timeout' => 3])
+                ->retry(2, 100)
+                ->withBody($encrypted, 'text/plain')
+                ->timeout(30)
+                ->post($url);
+
+            $elapsed = round(microtime(true) - $start, 3);
+            Log::info('INACBG request', [
+                'method' => $payload['metadata']['method'] ?? null,
+                'url' => $url,
+                'elapsed_s' => $elapsed
+            ]);
+
+            return $this->decryptResponse($response);
+        } catch (\Throwable $e) {
+            $elapsed = round(microtime(true) - $start, 3);
+            Log::error('INACBG request failed', [
+                'method' => $payload['metadata']['method'] ?? null,
+                'url' => $url,
+                'error' => $e->getMessage(),
+                'elapsed_s' => $elapsed
+            ]);
+            throw $e;
+        }
     }
 
     public function index($norawat)
