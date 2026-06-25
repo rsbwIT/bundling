@@ -59,65 +59,123 @@ body{
 }
 
 .filter-card{
-    background:linear-gradient(180deg, #ffffff, #fbfdff);
-    border-radius:14px;
-    padding:18px;
-    box-shadow:0 6px 18px rgba(16,24,40,0.04);
-    margin-bottom:20px;
+    background:#ffffff;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 12px 24px rgba(15,23,42,0.06);
+    margin-bottom:24px;
+    border:1px solid rgba(148,163,184,0.14);
 }
 
-.filter-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.filter-card-header{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.filter-card-header .title{
+    margin:0;
+    font-size:1rem;
+    font-weight:700;
+    letter-spacing:.01em;
+    color:#111827;
+}
+
+.filter-card-header .subtitle{
+    margin:0;
+    font-size:0.88rem;
+    color:#475569;
+    max-width:560px;
+}
+
+.filter-controls{
+    display:grid;
+    gap:14px;
+    align-items:start;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+}
 .input-icon{position:relative}
-.input-icon svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.56}
-.input-icon .form-control{padding-left:44px;height:38px;border-radius:8px}
-.control-pill{display:flex;gap:8px;align-items:center;background:transparent;padding:8px 10px;border-radius:10px;border:1px solid #f1f5f9;min-height:62px}
+.input-icon svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.6}
+.input-icon .form-control{padding-left:46px;height:44px;border-radius:14px;background:#f8fafc;border:1px solid rgba(148,163,184,.2);color:var(--dark);box-shadow:none;transition:border-color .2s ease,box-shadow .2s ease}
+.input-icon .form-control:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.12);outline:none}
+.input-icon label{color:#334155;font-size:0.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.control-pill{display:flex;flex-direction:column;justify-content:center;gap:10px;background:#ffffff;padding:18px;border-radius:18px;border:1px solid rgba(148,163,184,.16);box-shadow:none;min-height:100px}
+.control-pill.buttons{
+    min-height:auto;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(100px,1fr));
+    gap:10px;
+    align-items:stretch;
+    padding:14px;
+}
+.control-pill.buttons button{width:100%;}
 .min-w-170{min-width:170px}
 .min-w-160{min-width:160px}
 .min-w-260{min-width:260px}
+.min-w-200{min-width:200px}
 .min-w-100{min-width:100px}
- .min-w-110{min-width:110px}
+.min-w-110{min-width:110px}
 .flex-1{flex:1}
-.pill-inner label{display:block;margin-bottom:6px;font-weight:600;color:var(--dark);font-size:0.9rem}
-.filter-actions{display:flex;gap:10px;align-items:center}
-.filter-actions.column{flex-direction:column;align-items:stretch;gap:6px}
-.btn-cta.small{padding:6px 10px;font-size:0.86rem;height:38px;border-radius:8px}
-.btn-clear.small{padding:6px 10px;font-size:0.86rem;height:38px;border-radius:8px}
-.filter-active-pill{background:linear-gradient(90deg,#eef2ff,#eef9ff);padding:6px 10px;border-radius:999px;border:1px solid #e6eef6;color:var(--text);font-weight:600;display:inline-flex;align-items:center;gap:8px}
-.filter-active-pill svg{opacity:.85}
-.btn-cta{background:linear-gradient(90deg,#0ea5a4,#34d399);color:white;border:none;padding:7px 16px;border-radius:8px;box-shadow:0 6px 12px rgba(14,165,164,0.08);font-weight:700;font-size:0.95rem}
-.btn-clear{background:transparent;border:1px solid #eef6fb;color:var(--text);padding:6px 12px;border-radius:8px;font-size:0.95rem}
-.btn-cta:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(14,165,164,0.12)}
-.btn-clear:hover{background:#fbfdff}
-.filter-help{font-size:0.85rem;color:var(--muted);margin-top:8px}
+.pill-inner label{display:block;margin-bottom:8px;font-weight:700;color:#334155;font-size:0.86rem}
+.filter-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.filter-actions.column{flex-direction:column;align-items:stretch;gap:10px}
+.btn-cta.small{padding:10px 18px;font-size:0.9rem;height:42px;border-radius:14px;box-shadow:none;transition:transform .2s ease,box-shadow .2s ease}
+.btn-clear.small{padding:10px 18px;font-size:0.9rem;height:42px;border-radius:14px;border:1px solid rgba(148,163,184,.2);background:#f9fafb;box-shadow:none;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+.filter-active-pill{background:#f8fafc;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.16);color:var(--text);font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.filter-active-pill svg{opacity:.75}
+.btn-cta{background:#0f766e;color:white;border:none;padding:10px 18px;border-radius:14px;font-weight:700;font-size:0.94rem;box-shadow:none;transition:transform .2s ease,filter .2s ease}
+.btn-clear{background:#f9fafb;border:1px solid rgba(148,163,184,.2);color:var(--dark);padding:10px 18px;border-radius:14px;font-size:0.94rem;box-shadow:none;transition:transform .2s ease,background .2s ease}
+.btn-cta:hover{transform:translateY(-1px);filter:brightness(1.04)}
+.btn-clear:hover{background:#f3f4f6;transform:translateY(-1px)}
+.filter-help{font-size:0.85rem;color:#6b7280;margin-top:10px}
 
 .summary-box{
-    border-radius:12px;
-    padding:18px;
+    border-radius:24px;
+    padding:20px 24px;
     color:var(--dark);
     position:relative;
     overflow:hidden;
     margin-bottom:16px;
-    background:var(--light);
-    border:1px solid #eef2f6;
+    background:#ffffff;
+    border:1px solid rgba(148,163,184,0.16);
+    box-shadow:0 18px 40px rgba(15,23,42,0.06);
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.summary-box:hover{
+    transform:translateY(-2px);
+    box-shadow:0 22px 48px rgba(15,23,42,0.1);
 }
 
 .summary-box h6{
     margin-bottom:10px;
-    opacity:.9;
+    color:#475569;
+    font-size:0.78rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
 }
 
 .summary-box h2{
-    font-weight:700;
+    font-weight:800;
     margin:0;
+    font-size:2rem;
+    letter-spacing:-0.03em;
 }
 
 .mini-summary{
-    padding:12px 14px;
+    padding:16px 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    min-height:140px;
 }
 
-.mini-summary h6{font-size:0.85rem;margin-bottom:6px;color:var(--muted)}
-.mini-summary h5{font-size:1rem;margin:0 0 4px 0;font-weight:700;color:var(--text)}
-.mini-summary .value{font-size:0.95rem;color:var(--text);font-weight:600}
+.mini-summary h6{font-size:0.78rem;margin-bottom:10px;color:#475569;letter-spacing:0.08em;text-transform:uppercase}
+.mini-summary h5{font-size:1.05rem;margin:0 0 10px 0;font-weight:800;color:#0f172a;line-height:1.2}
+.mini-summary .value{font-size:1rem;color:#334155;font-weight:700}
 
 .bg-stok{
     border-left:6px solid #60a5fa;
@@ -160,14 +218,21 @@ body{
 .skeleton-spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.06);border-top-color:rgba(0,0,0,0.18);animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+.table-responsive{
+    max-height:750px;
+    overflow:auto;
+    position:relative;
+}
+
 .table thead th{
     position:sticky;
     top:0;
-    z-index:99;
-    background:var(--secondary);
+    z-index:105;
+    background:#f8fafc;
     color:var(--text);
     font-size:12px;
-    border-bottom:1px solid #e6eef6;
+    border-bottom:1px solid #d1d5db;
+    box-shadow:0 4px 12px rgba(15,23,42,0.06);
 }
 
 .table tbody tr:hover{
@@ -192,8 +257,8 @@ body{
 .switch{
     position:relative;
     display:inline-block;
-    width:44px;
-    height:26px;
+    width:34px;
+    height:20px;
     vertical-align:middle;
 }
 
@@ -208,23 +273,27 @@ body{
     right:0;
     bottom:0;
     cursor:pointer;
-    background:#e6e9ee;
+    background:#e5e7eb;
     transition:.22s ease;
     border-radius:999px;
-    box-shadow:inset 0 1px 2px rgba(16,24,40,0.04);
+    box-shadow:inset 0 1px 2px rgba(16,24,40,0.08);
 }
 
 .slider:before{
-    content:'';
+    content:'⏻';
     position:absolute;
-    width:20px;
-    height:20px;
-    left:3px;
-    bottom:3px;
+    width:16px;
+    height:16px;
+    left:2px;
+    top:2px;
+    line-height:16px;
+    text-align:center;
+    color:#475569;
+    font-size:11px;
     background:white;
-    transition:transform .22s ease;
+    transition:transform .22s ease, color .22s ease, background .22s ease;
     border-radius:50%;
-    box-shadow:0 2px 4px rgba(16,24,40,0.06);
+    box-shadow:0 2px 4px rgba(16,24,40,0.08);
 }
 
 .switch input:checked + .slider{
@@ -232,7 +301,10 @@ body{
 }
 
 .switch input:checked + .slider:before{
-    transform:translateX(18px);
+    content:'⏻';
+    transform:translateX(14px);
+    color:white;
+    background:#16a34a;
 }
 
 .switch,
@@ -245,33 +317,59 @@ body{
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:8px;
+    gap:6px;
 }
 
-/* stronger, more 'paten' badges */
+/* enhanced active/non-active badges */
 .badge-active,
 .badge-inactive{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    min-width:72px;
-    padding:6px 12px;
-    font-weight:600;
-    box-shadow:0 1px 2px rgba(16,24,40,0.04);
+    min-width:auto;
+    gap:6px;
+    padding:4px 10px;
+    font-weight:700;
+    border-radius:999px;
+    color:white;
+    box-shadow:0 4px 10px rgba(15,23,42,0.05);
+    letter-spacing:0.01em;
+    text-transform:none;
+    font-size:0.78rem;
 }
 
 .badge-active{
-    background:#16a34a;
-    color:white;
-    padding:6px 10px;
-    border-radius:16px;
+    background:linear-gradient(135deg,#34d399,#10b981);
+}
+
+.badge-active:before{
+    content:'✔';
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.95);
+    font-size:0.7rem;
 }
 
 .badge-inactive{
-    background:#ef4444; /* non-active red */
-    color:white;
-    padding:6px 10px;
-    border-radius:16px;
+    background:linear-gradient(135deg,#f87171,#ef4444);
+}
+
+.badge-inactive:before{
+    content:'✕';
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.95);
+    font-size:0.7rem;
 }
 
 .btn-primary{
@@ -357,28 +455,23 @@ body{
                             <option value="stok_terdikit" {{ request('filter_type')=='stok_terdikit' ? 'selected' : '' }}>Stok Terdikit</option>
                             <option value="nilai_terbanyak" {{ request('filter_type')=='nilai_terbanyak' ? 'selected' : '' }}>Nilai Belanja Terbanyak</option>
                             <option value="nilai_terendah" {{ request('filter_type')=='nilai_terendah' ? 'selected' : '' }}>Nilai Belanja Terdikit</option>
+                            <option value="kebutuhan_terbanyak" {{ request('filter_type')=='kebutuhan_terbanyak' ? 'selected' : '' }}>Rencana Pembelian Terbanyak</option>
+                            <option value="kebutuhan_terdikit" {{ request('filter_type')=='kebutuhan_terdikit' ? 'selected' : '' }}>Rencana Pembelian Terdikit</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="control-pill min-w-100">
-                    <div class="pill-inner">
-                        <label class="d-block mb-1">Jumlah</label>
-                        <input type="number" name="filter_n" min="1" max="200" class="form-control" value="{{ request('filter_n', 10) }}">
-                    </div>
-                </div>
 
-                <div class="control-pill min-w-200">
-                    <div class="filter-actions">
-                        <button type="submit" class="btn-cta small">Terapkan</button>
-                        <button type="reset" class="btn-clear small">Reset</button>
-                    </div>
+                <div class="control-pill min-w-200 buttons">
+                    <button type="submit" class="btn-cta small">Terapkan</button>
+                    <button type="button" id="exportBtn" class="btn-cta small">Export</button>
+                    <button type="reset" class="btn-clear small">Reset</button>
+                    <button type="button" id="refreshBtn" class="btn-clear small">Segarkan</button>
                 </div>
-
 
             </div>
 
-            <div class="filter-help">Pilih filter, lalu klik <strong>Tampilkan</strong> untuk memperbarui daftar.</div>
+            <div class="filter-help">Pilih filter, lalu klik <strong>Terapkan</strong> untuk memperbarui daftar.</div>
 
             <hr>
 
@@ -543,7 +636,7 @@ body{
     <div class="row mb-3">
 
         <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #fca5a5;">
+            <div class="summary-box mini-summary" style="border-left:6px solid #f97316;background:linear-gradient(180deg,#fff7ed,#ffffff);">
                 <h6>Pengeluaran Terbanyak</h6>
                 <h5>{{ $topPengeluaran['nama_brng'] ?? '-' }}</h5>
                 <div class="value">{{ number_format($topPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
@@ -551,7 +644,7 @@ body{
         </div>
 
         <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #ef4444;">
+            <div class="summary-box mini-summary" style="border-left:6px solid #ef4444;background:linear-gradient(180deg,#fff1f2,#ffffff);">
                 <h6>Pengeluaran Terdikit</h6>
                 <h5>{{ $lowPengeluaran['nama_brng'] ?? '-' }}</h5>
                 <div class="value">{{ number_format($lowPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
@@ -559,7 +652,7 @@ body{
         </div>
 
         <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #60a5fa;">
+            <div class="summary-box mini-summary" style="border-left:6px solid #3b82f6;background:linear-gradient(180deg,#eff6ff,#ffffff);">
                 <h6>Stok Terbanyak</h6>
                 <h5>{{ $topStok['nama_brng'] ?? '-' }}</h5>
                 <div class="value">{{ number_format($topStok['stok'] ?? 0,0,',','.') }}</div>
@@ -567,7 +660,7 @@ body{
         </div>
 
         <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #9ca3af;">
+            <div class="summary-box mini-summary" style="border-left:6px solid #6b7280;background:linear-gradient(180deg,#f3f4f6,#ffffff);">
                 <h6>Stok Terdikit</h6>
                 <h5>{{ $lowStok['nama_brng'] ?? '-' }}</h5>
                 <div class="value">{{ number_format($lowStok['stok'] ?? 0,0,',','.') }}</div>
@@ -577,37 +670,72 @@ body{
     </div>
 
     @php
-        // apply filter selection to table data (only affects displayed rows)
-        $filterType = request('filter_type');
-        $filterN = (int) request('filter_n', 10);
+    $filterType = request('filter_type');
 
-        if($filterType && $filterN > 0){
-            $col = collect($obatTermahal);
+    if($filterType){
 
-            if($filterType == 'pengeluaran_terbanyak'){
-                $obatTermahal = $col->sortByDesc('pengeluaran')->take($filterN)->values();
-            }elseif($filterType == 'pengeluaran_terdikit'){
-                // ignore items with pengeluaran == 0 when finding 'terdikit'
-                $colNonZero = $col->filter(function($r){
-                    return (!empty($r['pengeluaran']) && $r['pengeluaran'] > 0);
-                });
-                if($colNonZero->isEmpty()){
-                    $colNonZero = $col; // fallback if all zero
-                }
-                $obatTermahal = $colNonZero->sortBy('pengeluaran')->take($filterN)->values();
-            }elseif($filterType == 'stok_terbanyak'){
-                $obatTermahal = $col->sortByDesc('stok')->take($filterN)->values();
-            }elseif($filterType == 'stok_terdikit'){
-                $obatTermahal = $col->sortBy('stok')->take($filterN)->values();
-            }elseif($filterType == 'nilai_terbanyak'){
-                $obatTermahal = $col->sortByDesc('nilai_belanja')->take($filterN)->values();
-            }elseif($filterType == 'nilai_terendah'){
-                $colNonZeroVal = $col; // keep zeros as valid for nilai
-                $obatTermahal = $colNonZeroVal->sortBy('nilai_belanja')->take($filterN)->values();
+        $col = collect($obatTermahal);
+
+        if($filterType == 'pengeluaran_terbanyak'){
+
+            $obatTermahal = $col
+                ->sortByDesc('pengeluaran')
+                ->values();
+
+        }elseif($filterType == 'pengeluaran_terdikit'){
+
+            $colNonZero = $col->filter(function($r){
+                return (!empty($r['pengeluaran']) && $r['pengeluaran'] > 0);
+            });
+
+            if($colNonZero->isEmpty()){
+                $colNonZero = $col;
             }
+
+            $obatTermahal = $colNonZero
+                ->sortBy('pengeluaran')
+                ->values();
+
+        }elseif($filterType == 'stok_terbanyak'){
+
+            $obatTermahal = $col
+                ->sortByDesc('stok')
+                ->values();
+
+        }elseif($filterType == 'stok_terdikit'){
+
+            $obatTermahal = $col
+                ->sortBy('stok')
+                ->values();
+
+        }elseif($filterType == 'nilai_terbanyak'){
+
+            $obatTermahal = $col
+                ->sortByDesc('nilai_belanja')
+                ->values();
+
+        }elseif($filterType == 'nilai_terendah'){
+
+            $obatTermahal = $col
+                ->sortBy('nilai_belanja')
+                ->values();
+
+        }elseif($filterType == 'kebutuhan_terbanyak'){
+
+            $obatTermahal = $col
+                ->sortByDesc('kebutuhan')
+                ->values();
+
+        }elseif($filterType == 'kebutuhan_terdikit'){
+
+            $obatTermahal = $col
+                ->sortBy('kebutuhan')
+                ->values();
+
         }
 
-    @endphp
+    }
+@endphp
 
     @php
         // label for active filter
@@ -617,14 +745,18 @@ body{
             'stok_terbanyak' => 'Stok Terbanyak',
             'stok_terdikit' => 'Stok Terdikit',
             'nilai_terbanyak' => 'Nilai Belanja Terbanyak',
-            'nilai_terendah' => 'Nilai Belanja Terdikit'
+            'nilai_terendah' => 'Nilai Belanja Terdikit',
+            'kebutuhan_terbanyak' => 'Rencana Pembelian Terbanyak',
+            'kebutuhan_terdikit' => 'Rencana Pembelian Terdikit'
         ];
         $activeFilterLabel = $filterLabelMap[$filterType] ?? null;
     @endphp
 
     @if($activeFilterLabel)
         <div class="mb-2">
-            <span style="background:#eef2f6;color:var(--text);border:1px solid #e6eef6;padding:6px 10px;border-radius:12px;font-weight:600;">Filter aktif: {{ $activeFilterLabel }} (Top {{ $filterN }})</span>
+            <span style="background:#eef2f6;color:var(--text);border:1px solid #e6eef6;padding:6px 10px;border-radius:12px;font-weight:600;">
+                Filter aktif: {{ $activeFilterLabel }}
+            </span>
         </div>
     @endif
 
@@ -971,14 +1103,13 @@ try{
             debounceTimer = setTimeout(()=> doSearch(v), 300);
         });
 
-        // if the form submits, prevent full reload and apply search instead
-        const form = searchInput.closest('form');
-        if(form){
-            form.addEventListener('submit', function(ev){
+        // Prevent Enter from submitting the filter form when typing in the search field.
+        searchInput.addEventListener('keydown', function(ev){
+            if(ev.key === 'Enter'){
                 ev.preventDefault();
-                doSearch(searchInput.value||'');
-            });
-        }
+                doSearch(this.value || '');
+            }
+        });
     }
 }catch(err){
     console.warn('Search bind error', err);

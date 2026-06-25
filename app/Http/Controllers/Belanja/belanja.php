@@ -19,7 +19,13 @@ class Belanja extends Controller
         |-----------------------
         */
         $barang = DB::table('databarang')
-            ->select('kode_brng', 'nama_brng', 'h_beli', 'kode_sat')
+            ->select(
+                'kode_brng',
+                'nama_brng',
+                'h_beli',
+                'kode_sat'
+            )
+            ->where('status', '1')
             ->get()
             ->keyBy('kode_brng');
 
@@ -56,6 +62,11 @@ class Belanja extends Controller
             ->groupBy('kode_brng');
 
 
+        /*
+        |-----------------------
+        | OBAT TERMAHAL + ITEM MCU
+        |-----------------------
+        */
         $obatTermahal = DB::table('databarang')
             ->select(
                 'kode_brng',
@@ -63,10 +74,31 @@ class Belanja extends Controller
                 'h_beli',
                 'kode_sat'
             )
-            ->where('status', '1') // jika ada field status aktif
+            ->where('status', '1')
             ->orderByDesc('h_beli')
-            ->limit(20)
             ->get();
+
+        $obatMCU = DB::table('databarang')
+            ->select(
+                'kode_brng',
+                'nama_brng',
+                'h_beli',
+                'kode_sat'
+            )
+            ->where('status', '1')
+            ->where('nama_brng', 'like', '%YELLOW CAP SST WITH GEL 4 ML%')
+            ->first();
+
+        if ($obatMCU) {
+
+            $sudahAda = $obatTermahal->contains(function ($item) use ($obatMCU) {
+                return $item->kode_brng == $obatMCU->kode_brng;
+            });
+
+            if (!$sudahAda) {
+                $obatTermahal->push($obatMCU);
+            }
+        }
 
         /*
         |-----------------------
