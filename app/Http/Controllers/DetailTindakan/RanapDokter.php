@@ -168,66 +168,66 @@ class RanapDokter extends Controller
             ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            // ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->leftJoin(
-                DB::raw("
-                    (
-                        SELECT no_rawat, MAX(tgl_bayar) AS tgl_bayar
-                        FROM bayar_piutang
-                        GROUP BY no_rawat
-                    ) bayar_piutang
-                "),
-                'reg_periksa.no_rawat',
-                '=',
-                'bayar_piutang.no_rawat'
-            )
-            // ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_dr.no_rawat')
-            ->leftJoin(
-                DB::raw("
-                    (
-                        SELECT
-                            no_rawat,
-                            MAX(status) AS status,
-                            MAX(tgl_piutang) AS tgl_piutang
-                        FROM piutang_pasien
-                        GROUP BY no_rawat
-                    ) piutang_pasien
-                "),
-                'rawat_jl_dr.no_rawat',
-                '=',
-                'piutang_pasien.no_rawat'
-            )
+            ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            // ->leftJoin(
+            //     DB::raw("
+            //         (
+            //             SELECT no_rawat, MAX(tgl_bayar) AS tgl_bayar
+            //             FROM bayar_piutang
+            //             GROUP BY no_rawat
+            //         ) bayar_piutang
+            //     "),
+            //     'reg_periksa.no_rawat',
+            //     '=',
+            //     'bayar_piutang.no_rawat'
+            // )
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_dr.no_rawat')
+            // ->leftJoin(
+            //     DB::raw("
+            //         (
+            //             SELECT
+            //                 no_rawat,
+            //                 MAX(status) AS status,
+            //                 MAX(tgl_piutang) AS tgl_piutang
+            //             FROM piutang_pasien
+            //             GROUP BY no_rawat
+            //         ) piutang_pasien
+            //     "),
+            //     'rawat_jl_dr.no_rawat',
+            //     '=',
+            //     'piutang_pasien.no_rawat'
+            // )
 
-            // ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
-            // ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
-            ->leftJoin(
-                DB::raw("
-                    (
-                        SELECT no_rawat,
-                            MAX(no_nota) AS no_nota,
-                            MAX(tanggal) AS tanggal
-                        FROM nota_inap
-                        GROUP BY no_rawat
-                    ) nota_inap
-                "),
-                'reg_periksa.no_rawat',
-                '=',
-                'nota_inap.no_rawat'
-            )
-            ->leftJoin(
-                DB::raw("
-                    (
-                        SELECT no_rawat,
-                            MAX(no_nota) AS no_nota,
-                            MAX(tanggal) AS tanggal
-                        FROM nota_jalan
-                        GROUP BY no_rawat
-                    ) nota_jalan
-                "),
-                'reg_periksa.no_rawat',
-                '=',
-                'nota_jalan.no_rawat'
-            )
+            ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
+            // ->leftJoin(
+            //     DB::raw("
+            //         (
+            //             SELECT no_rawat,
+            //                 MAX(no_nota) AS no_nota,
+            //                 MAX(tanggal) AS tanggal
+            //             FROM nota_inap
+            //             GROUP BY no_rawat
+            //         ) nota_inap
+            //     "),
+            //     'reg_periksa.no_rawat',
+            //     '=',
+            //     'nota_inap.no_rawat'
+            // )
+            // ->leftJoin(
+            //     DB::raw("
+            //         (
+            //             SELECT no_rawat,
+            //                 MAX(no_nota) AS no_nota,
+            //                 MAX(tanggal) AS tanggal
+            //             FROM nota_jalan
+            //             GROUP BY no_rawat
+            //         ) nota_jalan
+            //     "),
+            //     'reg_periksa.no_rawat',
+            //     '=',
+            //     'nota_jalan.no_rawat'
+            // )
             ->where('reg_periksa.status_lanjut', 'Ranap')
             ->where(function ($query) use ($kdPenjamin, $kdDokter, $status,  $tanggl1, $tanggl2) {
                 if ($kdPenjamin) {
