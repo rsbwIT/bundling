@@ -47,6 +47,7 @@ class SkriningDataTBC extends Controller
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('skrining_tbc', 'reg_periksa.no_rawat', '=', 'skrining_tbc.no_rawat')
+            ->where('reg_periksa.stts', '<>', 'Batal')
             ->whereBetween('reg_periksa.tgl_registrasi', [$tgl_dari, $tgl_sampai])
             ->orderBy('reg_periksa.tgl_registrasi')
             ->get();
