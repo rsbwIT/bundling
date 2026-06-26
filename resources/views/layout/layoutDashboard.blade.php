@@ -1952,18 +1952,18 @@
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-utensils"></i>
+                                <i class="nav-icon fas fa-user-graduate"></i>
                                 <p>
-                                    Gizi
+                                    PKPA
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ route('gizi.monitoring') }}" class="nav-link">
+                                    <a href="{{ route('pkpa.monitoring') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Monitoring Gizi</p>
+                                        <p>Monitoring PKPA</p>
                                     </a>
                                 </li>
                             </ul>

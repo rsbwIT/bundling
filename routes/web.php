@@ -148,7 +148,7 @@ use App\Http\Controllers\DetailTindakanBPJS\PeriksaRadiologiBpjs;
 use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
-use App\Http\Controllers\Gizi\MonitoringGiziController;
+use App\Http\Controllers\Pkpa\MonitoringPkpaController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
 use App\Http\Controllers\Laporan\PiutangHarian;
 use App\Http\Controllers\AI\User;
@@ -157,7 +157,7 @@ use App\Http\Controllers\Bpjs\bridginginacbg2;
 use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
 use App\Http\Controllers\Bpjs\BpjsFingerprintController;
 use App\Http\Controllers\Bpjs\MJKNController;
-use App\Http\Controllers\bpjs\MJKNController1;
+use App\Http\Controllers\Bpjs\MJKNController1;
 
 
 
@@ -821,8 +821,8 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         // LAB
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
 
-        // GIZI
-        Route::get('/monitoring-gizi', [MonitoringGiziController::class, 'index'])->name('gizi.monitoring');
+        // PKPA
+        Route::get('/monitoring-pkpa', [MonitoringPkpaController::class, 'index'])->name('pkpa.monitoring');
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);
