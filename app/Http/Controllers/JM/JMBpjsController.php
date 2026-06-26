@@ -804,7 +804,19 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.operator1 as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(ROUND(CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END, 2)) as total_ranap")
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                        CASE 
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                            ELSE 3750000
+                        END
+                    WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 
+                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 
+                END, 2)) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -848,13 +860,20 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.operator1 as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(paket_operasi.operator1) as total_ralan")
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000
+                    WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                    ELSE paket_operasi.operator1
+                END, 2)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
         ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
@@ -890,7 +909,17 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anestesi as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.35, 2)) as total_ranap")
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                        (CASE 
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                            ELSE 3750000
+                        END) * 0.35
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
+                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.35
+                END, 2)) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -934,7 +963,11 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anestesi as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(ROUND(paket_operasi.operator1 * 0.35, 2)) as total_ralan")
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.35
+                    ELSE paket_operasi.operator1 * 0.35
+                END, 2)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -1590,7 +1623,17 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.15, 2)) as total_ranap"),
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                        (CASE 
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                            ELSE 3750000
+                        END) * 0.15
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
+                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.15
+                END, 2)) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1633,7 +1676,11 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_operator1 as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(ROUND(paket_operasi.operator1 * 0.15, 2)) as total_ralan"),
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
+                    ELSE paket_operasi.operator1 * 0.15
+                END, 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1666,7 +1713,17 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_anestesi as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.10, 2)) as total_ranap"),
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                        (CASE 
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                            ELSE 3750000
+                        END) * 0.10
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
+                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.10
+                END, 2)) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1709,7 +1766,11 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.asisten_anestesi as kd_petugas',
             'petugas.nama as nm_petugas',
-            DB::raw("SUM(ROUND(paket_operasi.operator1 * 0.10, 2)) as total_ralan"),
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.10
+                    ELSE paket_operasi.operator1 * 0.10
+                END, 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1737,11 +1798,106 @@ class JMBpjsController extends Controller
         })
         ->groupBy('operasi.asisten_anestesi', 'petugas.nama');
 
-        // Gabungkan ralan paramedis (P1 + P1b + P5 Ralan + P6 Ralan)
+        // P7. Operasi - Omloop (Khusus Mata) RANAP
+        $queryPrOkOmloop = DB::table('operasi')
+        ->select(
+            'operasi.omloop as kd_petugas',
+            'petugas.nama as nm_petugas',
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                    ELSE 0
+                END
+            , 2)) as total_ranap"),
+            DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+        ->join('petugas', 'operasi.omloop', '=', 'petugas.nip')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
+        ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
+        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
+            $sub->select(DB::raw(1))
+                ->from('bayar_piutang')
+                ->whereColumn('bayar_piutang.no_rawat', 'reg_periksa.no_rawat')
+                ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2]);
+        })
+        ->whereExists(function ($sub) {
+            $sub->select(DB::raw(1))
+                ->from('piutang_pasien')
+                ->whereColumn('piutang_pasien.no_rawat', 'reg_periksa.no_rawat')
+                ->where('piutang_pasien.status', 'Lunas');
+        })
+        ->whereNotIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
+        ->whereNotNull('operasi.omloop')
+        ->where('operasi.omloop', '!=', '-')
+        ->where('operasi.omloop', '!=', '')
+        ->where('petugas.nama', '!=', 'Dahyar')
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('operasi.omloop', 'petugas.nama');
+
+        // P7. Operasi - Omloop (Khusus Mata) RALAN
+        $queryPrOkOmloopRalan = DB::table('operasi')
+        ->select(
+            'operasi.omloop as kd_petugas',
+            'petugas.nama as nm_petugas',
+            DB::raw("SUM(ROUND(
+                CASE 
+                    WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                    ELSE 0
+                END
+            , 2)) as total_ralan"),
+            DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+        ->join('petugas', 'operasi.omloop', '=', 'petugas.nip')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+        ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
+        ->where('piutang_pasien.status', 'Lunas')
+        ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
+        ->whereNotNull('operasi.omloop')
+        ->where('operasi.omloop', '!=', '-')
+        ->where('operasi.omloop', '!=', '')
+        ->where('petugas.nama', '!=', 'Dahyar')
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('operasi.omloop', 'petugas.nama');
+
+        // Gabungkan ralan paramedis (P1 + P1b + P5 Ralan + P6 Ralan + P7 Ralan)
         $resultsPrRalan = $queryPrRalan
             ->unionAll($queryPrRalanDrPr)
             ->unionAll($queryPrOkAsistenOp1Ralan)
             ->unionAll($queryPrOkAsistenAnestesiRalan)
+            ->unionAll($queryPrOkOmloopRalan)
             ->get();
 
         $dataPrRalan = $resultsPrRalan->groupBy('kd_petugas')->map(function ($row) {
@@ -1755,12 +1911,13 @@ class JMBpjsController extends Controller
             ];
         })->values();
 
-        // Gabungkan ranap paramedis (P2 + P3 + P4 + P5 + P6)
+        // Gabungkan ranap paramedis (P2 + P3 + P4 + P5 + P6 + P7)
         $resultsPrRanap = $queryPrRanapJl
             ->unionAll($queryPrRanap)
             ->unionAll($queryPrRanapDrPr)
             ->unionAll($queryPrOkAsistenOp1)
             ->unionAll($queryPrOkAsistenAnestesi)
+            ->unionAll($queryPrOkOmloop)
             ->get();
 
         $dataPrRanap = $resultsPrRanap->groupBy('kd_petugas')->map(function ($row) {
@@ -2031,7 +2188,19 @@ class JMBpjsController extends Controller
         // 5. Operasi (operator1)
         $q5 = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND(CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2046,7 +2215,17 @@ class JMBpjsController extends Controller
         // 5b. Operasi (dokter_anestesi)
         $q5b = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.35, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.35
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.35
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2106,12 +2285,19 @@ class JMBpjsController extends Controller
         // 5_ralan. Operasi (operator1) RALAN
         $q5_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("paket_operasi.operator1 as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        ELSE paket_operasi.operator1
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.operator1', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2120,12 +2306,17 @@ class JMBpjsController extends Controller
         // 5b_ralan. Operasi (dokter_anestesi) RALAN
         $q5b_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND(paket_operasi.operator1 * 0.35, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.35
+                        ELSE paket_operasi.operator1 * 0.35
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.dokter_anestesi', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2162,7 +2353,17 @@ class JMBpjsController extends Controller
         // 5e. Operasi (asisten_operator1) RANAP
         $q5_asisten = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.15, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.15
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Asisten Operator 1' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2178,12 +2379,17 @@ class JMBpjsController extends Controller
         // 5e_ralan. Operasi (asisten_operator1) RALAN
         $q5_asisten_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND(paket_operasi.operator1 * 0.15, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
+                        ELSE paket_operasi.operator1 * 0.15
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Asisten Operator 1' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.asisten_operator1', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2192,7 +2398,17 @@ class JMBpjsController extends Controller
         // 5f. Operasi (asisten_anestesi) RANAP
         $q5_asisten_anestesi = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND((CASE WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 END) * 0.10, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.10
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.10
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2208,16 +2424,70 @@ class JMBpjsController extends Controller
         // 5f_ralan. Operasi (asisten_anestesi) RALAN
         $q5_asisten_anestesi_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("ROUND(paket_operasi.operator1 * 0.10, 2) as tarif"),
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.10
+                        ELSE paket_operasi.operator1 * 0.10
+                    END, 2) as tarif"),
                 DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.asisten_anestesi', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q5_asisten_anestesi_ralan);
+
+        // 5g. Operasi (omloop) RANAP (Khusus Mata)
+        $q5_omloop = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                        ELSE 0
+                    END
+                , 2) as tarif"),
+                DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
+            ->where('operasi.omloop', $kdDokter)
+            ->whereNotIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->where(function($q) { 
+                $q->where(DB::raw("(SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1)"), 'LIKE', '%MATA%');
+            })->get();
+        $details = $details->merge($q5_omloop);
+
+        // 5g_ralan. Operasi (omloop) RALAN (Khusus Mata)
+        $q5_omloop_ralan = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+                DB::raw("ROUND(
+                    CASE 
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                        ELSE 0
+                    END
+                , 2) as tarif"),
+                DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ralan' as status"))
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
+            ->where('operasi.omloop', $kdDokter)
+            ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->where(function($q) { 
+                $q->where(DB::raw("(SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1)"), 'LIKE', '%MATA%');
+            })->get();
+        $details = $details->merge($q5_omloop_ralan);
 
         // 6. Radiologi (kd_dokter - PJ Rad)
         $q6 = DB::table('periksa_radiologi')
