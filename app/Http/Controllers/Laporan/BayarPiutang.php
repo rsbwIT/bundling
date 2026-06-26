@@ -50,19 +50,20 @@ class BayarPiutang extends Controller
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             // ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->leftJoin(DB::raw("
-                (
-                    SELECT
-                        no_rawat,
-                        MAX(tgl_bayar) AS tgl_bayar,
-                        SUM(besar_cicilan) AS besar_cicilan,
-                        SUM(diskon_piutang) AS diskon_piutang,
-                        SUM(tidak_terbayar) AS tidak_terbayar,
-                        GROUP_CONCAT(catatan SEPARATOR '; ') AS catatan
-                    FROM bayar_piutang
-                    GROUP BY no_rawat
-                ) bayar_piutang
-            "), 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            // ->leftJoin(DB::raw("
+            //     (
+            //         SELECT
+            //             no_rawat,
+            //             MAX(tgl_bayar) AS tgl_bayar,
+            //             SUM(besar_cicilan) AS besar_cicilan,
+            //             SUM(diskon_piutang) AS diskon_piutang,
+            //             SUM(tidak_terbayar) AS tidak_terbayar,
+            //             GROUP_CONCAT(catatan SEPARATOR '; ') AS catatan
+            //         FROM bayar_piutang
+            //         GROUP BY no_rawat
+            //     ) bayar_piutang
+            // "), 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             // // Testing
@@ -100,23 +101,23 @@ class BayarPiutang extends Controller
                     ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
 
-            ->groupBy('bayar_piutang.no_rawat')
+            // ->groupBy('bayar_piutang.no_rawat')
 
-            // ->groupBy(
-            //     'reg_periksa.no_rawat',
-            //     'bayar_piutang.tgl_bayar',
-            //     'bayar_piutang.besar_cicilan',
-            //     'bayar_piutang.diskon_piutang',
-            //     'bayar_piutang.tidak_terbayar',
-            //     'bayar_piutang.catatan',
-            //     'reg_periksa.no_rkm_medis',
-            //     'pasien.nm_pasien',
-            //     'reg_periksa.kd_pj',
-            //     'penjab.png_jawab',
-            //     'piutang_pasien.status',
-            //     'piutang_pasien.uangmuka',
-            //     'reg_periksa.status_lanjut'
-            // )
+            ->groupBy(
+                'reg_periksa.no_rawat',
+                'bayar_piutang.tgl_bayar',
+                'bayar_piutang.besar_cicilan',
+                'bayar_piutang.diskon_piutang',
+                'bayar_piutang.tidak_terbayar',
+                'bayar_piutang.catatan',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'reg_periksa.kd_pj',
+                'penjab.png_jawab',
+                'piutang_pasien.status',
+                'piutang_pasien.uangmuka',
+                'reg_periksa.status_lanjut'
+            )
             ->orderBy('bayar_piutang.no_rawat', 'asc')
             ->paginate(1000);
         $bayarPiutang->map(function ($item) {
