@@ -100,23 +100,23 @@ class BayarPiutang extends Controller
                     ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
 
-            // ->groupBy('bayar_piutang.no_rawat')
+            ->groupBy('bayar_piutang.no_rawat')
 
-            ->groupBy(
-                'reg_periksa.no_rawat',
-                'bayar_piutang.tgl_bayar',
-                'bayar_piutang.besar_cicilan',
-                'bayar_piutang.diskon_piutang',
-                'bayar_piutang.tidak_terbayar',
-                'bayar_piutang.catatan',
-                'reg_periksa.no_rkm_medis',
-                'pasien.nm_pasien',
-                'reg_periksa.kd_pj',
-                'penjab.png_jawab',
-                'piutang_pasien.status',
-                'piutang_pasien.uangmuka',
-                'reg_periksa.status_lanjut'
-            )
+            // ->groupBy(
+            //     'reg_periksa.no_rawat',
+            //     'bayar_piutang.tgl_bayar',
+            //     'bayar_piutang.besar_cicilan',
+            //     'bayar_piutang.diskon_piutang',
+            //     'bayar_piutang.tidak_terbayar',
+            //     'bayar_piutang.catatan',
+            //     'reg_periksa.no_rkm_medis',
+            //     'pasien.nm_pasien',
+            //     'reg_periksa.kd_pj',
+            //     'penjab.png_jawab',
+            //     'piutang_pasien.status',
+            //     'piutang_pasien.uangmuka',
+            //     'reg_periksa.status_lanjut'
+            // )
             ->orderBy('bayar_piutang.no_rawat', 'asc')
             ->paginate(1000);
         $bayarPiutang->map(function ($item) {
