@@ -22,7 +22,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('sep.simpanTtd') }}">
+    <form id="form-ttd" method="POST" action="{{ route('sep.simpanTtd') }}">
         @csrf
         <div class="mb-3">
             <label for="no_sep" class="form-label">Nomor SEP</label>
@@ -85,7 +85,7 @@
     document.getElementById("clear").addEventListener("click", () => signaturePad.clear());
 
     // Saat submit
-    document.querySelector("form").addEventListener("submit", function(e) {
+    document.getElementById("form-ttd").addEventListener("submit", function(e) {
         if (signaturePad.isEmpty()) {
             alert("Silakan tanda tangani terlebih dahulu.");
             e.preventDefault();
