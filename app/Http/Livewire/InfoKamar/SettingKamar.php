@@ -9,6 +9,9 @@ use App\Services\Bpjs\ReferensiBPJS;
 
 class SettingKamar extends Component
 {
+    public $statusMessage;
+    public $syncingBedId = null;
+    public $syncingBedLabel = null;
 
     protected $referensi;
     public function __construct()
@@ -99,28 +102,48 @@ class SettingKamar extends Component
     {
         date_default_timezone_set('Asia/Jakarta');
 
-        // logika status: 0 → 1 → 2 → 0 ...
-        switch ($status) {
-            case '0':
-                $updateStatus = '1';
-                break; // kosong → terisi
-            case '1':
-                $updateStatus = '2';
-                break; // terisi → cadangan
-            case '2':
-                $updateStatus = '0';
-                break; // cadangan → kosong
-            default:
-                $updateStatus = '0';
-        }
+        $updateStatus = $this->getNextStatus($status);
 
         DB::table('bw_display_bad')->where('id', $id)->update(['status' => $updateStatus]);
-        DB::table('bw_display_bad')
-            ->where('nm_ruangan_bpjs', $nm_ruangan_bpjs)
-            ->where('kd_kelas_bpjs', $kd_kelas_bpjs)
-            ->update(['times_update' => now()]);
+        DB::table('bw_display_bad')->update(['times_update' => now()]);
 
-        $this->UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs);
+        $this->syncingBedId = $id;
+        $this->syncingBedLabel = 'Mengirim ke MJKN...';
+        $this->getKamar();
+        $this->getRuang();
+        $this->statusMessage = 'Status kamar berubah di aplikasi lokal.';
+        $this->emit('$refresh');
+
+        $this->syncToMjkn($kd_kelas_bpjs, $nm_ruangan_bpjs);
+    }
+
+    public function syncToMjkn($kd_kelas_bpjs, $nm_ruangan_bpjs)
+    {
+        try {
+            $this->UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs);
+
+            if (!empty($this->respone)) {
+                $this->statusMessage = 'Status kamar berubah di aplikasi lokal dan dikirim ke MJKN.';
+            } else {
+                $this->statusMessage = 'Status kamar berubah di aplikasi lokal, tetapi sinkronisasi MJKN belum memberi respons.';
+            }
+        } catch (\Throwable $th) {
+            $this->respone = ['error' => $th->getMessage()];
+            $this->statusMessage = 'Status kamar berubah di aplikasi lokal, sinkronisasi MJKN gagal.';
+        } finally {
+            $this->syncingBedId = null;
+            $this->syncingBedLabel = null;
+        }
+    }
+
+    public function getNextStatus($status)
+    {
+        return match ($status) {
+            '0' => '1',
+            '1' => '2',
+            '2' => '0',
+            default => '0',
+        };
     }
 
     // TAMBAH KAMAR
@@ -164,7 +187,7 @@ class SettingKamar extends Component
     public function UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
         try {
-            $udapteKamar =  DB::table('bw_display_bad')
+            $udapteKamar = DB::table('bw_display_bad')
                 ->select(
                     'bw_display_bad.ruangan',
                     'bw_display_bad.nm_ruangan_bpjs',
@@ -179,9 +202,15 @@ class SettingKamar extends Component
                 ->where('bw_display_bad.nm_ruangan_bpjs', $nm_ruangan_bpjs)
                 ->groupBy('bw_display_bad.kd_kelas_bpjs')
                 ->first();
+
+            if (!$udapteKamar) {
+                $this->respone = ['error' => 'Data kamar tidak ditemukan untuk sinkronisasi MJKN.'];
+                return;
+            }
+
             $data = [
-                'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
-                'koderuang' =>   $udapteKamar->kd_ruang,
+                'kodekelas' => $udapteKamar->kd_kelas_bpjs,
+                'koderuang' => $udapteKamar->kd_ruang,
                 'namaruang' => 'R ' . $udapteKamar->nm_ruangan_bpjs,
                 'kapasitas' => $udapteKamar->kapasitas,
                 'tersedia' => $udapteKamar->tersedia,
@@ -189,14 +218,16 @@ class SettingKamar extends Component
                 'tersediawanita' => 0,
                 'tersediapriawanita' => $udapteKamar->tersedia,
             ];
-            // dd($data);
-            // $respone = json_decode($this->referensi->addRuangan(json_encode($data)));
 
+            $response = $this->referensi->updateRuangan(json_encode($data));
+            $decoded = json_decode($response);
 
-            $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
-            $this->respone = (array)$respone->metadata;
+            $this->respone = is_object($decoded) && isset($decoded->metadata)
+                ? (array) $decoded->metadata
+                : ['response' => $response];
         } catch (\Throwable $th) {
-            $this->respone = null;
+            $this->respone = ['error' => $th->getMessage()];
+            throw $th;
         }
     }
 }

@@ -60,6 +60,8 @@ class Sep_TTD extends Controller
             ]
         );
 
+        dd($request->all());
+
         return redirect()
             ->route('sep.formTtd', $request->no_sep)
             ->with('success', 'Tanda tangan berhasil disimpan.');
