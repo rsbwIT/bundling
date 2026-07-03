@@ -25,24 +25,14 @@
                     </button>
                 </div>
                 <div class="col-5">
-                    @if (!empty($statusMessage))
-                        <span class="float-right mx-2 text-success">
-                            <i class="fas fa-check mr-1"></i> {{ $statusMessage }}
-                        </span>
-                    @elseif (!empty($respone))
-                        @php
-                            $responseCode = data_get($respone, 'code', 0);
-                            $responseMessage = data_get($respone, 'message', data_get($respone, 'error', ''));
-                        @endphp
-
-                        @if ((int) $responseCode === 1)
+                    @if ($respone)
+                        @if ($respone['code'] == 1)
                             <span class="float-right mx-2 text-success">
                                 <i class="fas fa-check mr-1"></i> Data Kamar Berhasil Update Ke JKN
                             </span>
                         @else
                             <span class="float-right mx-2 text-danger">
-                                <i class="fas fa-ban mr-1"></i>
-                                {{ !empty($responseMessage) ? $responseMessage : 'Data Kamar Gagal Update Ke JKN' }}
+                                <i class="fas fa-ban mr-1"></i> Data Kamar Gagal Update Ke JKN
                             </span>
                         @endif
                     @endif
@@ -99,12 +89,8 @@
                                                                 <div class="card m-1 justify-content-center"
                                                                     style="background-color: {{ $bgColor }}; border:1px solid;">
                                                                     <button class="btn {{ $text }} w-100"
-                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{ $bed->kd_kelas_bpjs }}', '{{ $bed->nm_ruangan_bpjs }}')"
-                                                                        @if ($syncingBedId === $bed->id) disabled @endif>
+                                                                        wire:click="actionIsi('{{ $bed->status }}','{{ $bed->id }}', '{{ $bed->kd_kelas_bpjs }}', '{{ $bed->nm_ruangan_bpjs }}')">
                                                                         <b>{{ substr($bed->bad, -1) }}</b>
-                                                                        @if ($syncingBedId === $bed->id)
-                                                                            <small class="d-block">{{ $syncingBedLabel }}</small>
-                                                                        @endif
                                                                     </button>
                                                                 </div>
                                                             </div>
