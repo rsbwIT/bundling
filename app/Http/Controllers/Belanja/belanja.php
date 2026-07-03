@@ -23,6 +23,8 @@ class Belanja extends Controller
                 'kode_brng',
                 'nama_brng',
                 'h_beli',
+                'ralan',
+                'dasar',
                 'kode_sat'
             )
             ->where('status', '1')
@@ -72,6 +74,8 @@ class Belanja extends Controller
                 'kode_brng',
                 'nama_brng',
                 'h_beli',
+                'ralan',
+                'dasar',
                 'kode_sat'
             )
             ->where('status', '1')
@@ -83,6 +87,8 @@ class Belanja extends Controller
                 'kode_brng',
                 'nama_brng',
                 'h_beli',
+                'ralan',
+                'dasar',
                 'kode_sat'
             )
             ->where('status', '1')

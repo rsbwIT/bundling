@@ -584,6 +584,7 @@ body{
                 'nama_brng'      => $item->nama_brng,
                 'kode_sat'       => $item->kode_sat,
                 'harga_beli'     => $item->h_beli,
+                'ralan'          => $item->ralan,
                 'stok'           => $stok,
                 'pengeluaran'    => $keluar,
                 'kebutuhan'      => $kebutuhan,
@@ -795,7 +796,8 @@ body{
                 <th>No</th>
                 <th>Kode</th>
                 <th>Nama Barang</th>
-                <th>Harga Beli</th>
+                <th>Dasar</th>
+                <th>Harga Jual</th>
                 <th>Satuan</th>
                 <th>Total Stok</th>
                 <th>Pengeluaran</th>
@@ -861,6 +863,10 @@ body{
 
         <td align="right">
             {{ number_format($item->h_beli,2,',','.') }}
+        </td>
+
+        <td align="right">
+            {{ number_format($row['ralan'],2,',','.') }}
         </td>
 
         <td>{{ $item->kode_sat }}</td>
