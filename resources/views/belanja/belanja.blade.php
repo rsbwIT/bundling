@@ -6,10 +6,7 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<!-- DataTables CSS will be lazy-loaded to keep initial payload small -->
-
 <style>
-
 :root{
     --primary:#f3f6f9;
     --secondary:#eef2f6;
@@ -18,13 +15,10 @@
     --warning:#d97706;
     --dark:#1f2937;
     --light:#ffffff;
-    --text:#374151; /* neutral dark (not pure black) */
+    --text:#374151;
     --muted:#6b7280;
 }
-
-body{
-    background:#f1f5f9;
-}
+body{ background:#f1f5f9; }
 
 .main-card{
     border:none;
@@ -33,104 +27,152 @@ body{
     box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
-.card-header-custom{
-    background:linear-gradient(135deg,var(--primary),var(--secondary));
-    color:white;
-    padding:18px 26px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+/* Clean Unified Filter Card */
+.filter-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+    margin-bottom: 24px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
-.card-header-custom h4{
-    margin:0 0 4px 0;
-    font-weight:700;
-    font-size:1.15rem;
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
-.card-header-custom .header-subtitle{
-    display:block;
-    opacity:.92;
-    font-size:0.92rem;
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.header-actions .btn{    
-    margin-left:8px;
+.filter-group label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 0;
 }
 
-.filter-card{
-    background:#ffffff;
-    border-radius:20px;
-    padding:22px;
-    box-shadow:0 12px 24px rgba(15,23,42,0.06);
-    margin-bottom:24px;
-    border:1px solid rgba(148,163,184,0.14);
+.filter-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.filter-card-header{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    align-items:center;
-    gap:14px;
-    margin-bottom:18px;
+.filter-input-wrapper svg {
+    position: absolute;
+    left: 14px;
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+    pointer-events: none;
+    opacity: 0.8;
 }
 
-.filter-card-header .title{
-    margin:0;
-    font-size:1rem;
-    font-weight:700;
-    letter-spacing:.01em;
-    color:#111827;
+.filter-input-wrapper .form-control {
+    padding-left: 42px;
+    height: 44px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #1e293b;
+    font-size: 0.92rem;
+    box-shadow: none;
+    transition: all .2s ease;
+    width: 100%;
 }
 
-.filter-card-header .subtitle{
-    margin:0;
-    font-size:0.88rem;
-    color:#475569;
-    max-width:560px;
+.filter-input-wrapper .form-control:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    outline: none;
 }
 
-.filter-controls{
-    display:grid;
-    gap:14px;
-    align-items:start;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+.filter-help {
+    font-size: 0.85rem;
+    color: #6b7280;
 }
-.input-icon{position:relative}
-.input-icon svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.6}
-.input-icon .form-control{padding-left:46px;height:44px;border-radius:14px;background:#f8fafc;border:1px solid rgba(148,163,184,.2);color:var(--dark);box-shadow:none;transition:border-color .2s ease,box-shadow .2s ease}
-.input-icon .form-control:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.12);outline:none}
-.input-icon label{color:#334155;font-size:0.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.control-pill{display:flex;flex-direction:column;justify-content:center;gap:10px;background:#ffffff;padding:18px;border-radius:18px;border:1px solid rgba(148,163,184,.16);box-shadow:none;min-height:100px}
-.control-pill.buttons{
-    min-height:auto;
-    display:grid;
-    grid-template-columns:repeat(2,minmax(100px,1fr));
-    gap:10px;
-    align-items:stretch;
-    padding:14px;
+
+/* Actions Row styling */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 18px;
+    margin-top: 10px;
 }
-.control-pill.buttons button{width:100%;}
-.min-w-170{min-width:170px}
-.min-w-160{min-width:160px}
-.min-w-260{min-width:260px}
-.min-w-200{min-width:200px}
-.min-w-100{min-width:100px}
-.min-w-110{min-width:110px}
-.flex-1{flex:1}
-.pill-inner label{display:block;margin-bottom:8px;font-weight:700;color:#334155;font-size:0.86rem}
-.filter-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-.filter-actions.column{flex-direction:column;align-items:stretch;gap:10px}
-.btn-cta.small{padding:10px 18px;font-size:0.9rem;height:42px;border-radius:14px;box-shadow:none;transition:transform .2s ease,box-shadow .2s ease}
-.btn-clear.small{padding:10px 18px;font-size:0.9rem;height:42px;border-radius:14px;border:1px solid rgba(148,163,184,.2);background:#f9fafb;box-shadow:none;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
-.filter-active-pill{background:#f8fafc;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.16);color:var(--text);font-weight:600;display:inline-flex;align-items:center;gap:8px}
-.filter-active-pill svg{opacity:.75}
-.btn-cta{background:#0f766e;color:white;border:none;padding:10px 18px;border-radius:14px;font-weight:700;font-size:0.94rem;box-shadow:none;transition:transform .2s ease,filter .2s ease}
-.btn-clear{background:#f9fafb;border:1px solid rgba(148,163,184,.2);color:var(--dark);padding:10px 18px;border-radius:14px;font-size:0.94rem;box-shadow:none;transition:transform .2s ease,background .2s ease}
-.btn-cta:hover{transform:translateY(-1px);filter:brightness(1.04)}
-.btn-clear:hover{background:#f3f4f6;transform:translateY(-1px)}
-.filter-help{font-size:0.85rem;color:#6b7280;margin-top:10px}
+
+.btn-filter-action {
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-filter-apply {
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+}
+.btn-filter-apply:hover {
+    background: #0d5e58;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
+}
+
+.btn-filter-export {
+    background: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+.btn-filter-export:hover {
+    background: #2563eb;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+}
+
+.btn-filter-reset {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+.btn-filter-reset:hover {
+    background: #e2e8f0;
+    color: #334155;
+    transform: translateY(-1px);
+}
+
+.btn-filter-refresh {
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+.btn-filter-refresh:hover {
+    background: #f8fafc;
+    color: #475569;
+    transform: translateY(-1px);
+}
+.filter-active-pill{background:#eef2f6;padding:6px 12px;border-radius:12px;border:1px solid #e6eef6;color:var(--text);font-weight:600;display:inline-flex;align-items:center;gap:8px}
 
 .summary-box{
     border-radius:24px;
@@ -144,298 +186,322 @@ body{
     box-shadow:0 18px 40px rgba(15,23,42,0.06);
     transition:transform .2s ease, box-shadow .2s ease;
 }
+.summary-box:hover{ transform:translateY(-2px); box-shadow:0 22px 48px rgba(15,23,42,0.1); }
+.summary-box h6{ margin-bottom:10px; color:#475569; font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; }
+.summary-box h2{ font-weight:800; margin:0; font-size:2rem; letter-spacing:-0.03em; }
+.summary-box.mini-summary{ padding:16px 18px; display:flex; flex-direction:column; justify-content:space-between; min-height:140px; }
+.summary-box.mini-summary h6{ font-size:0.78rem; margin-bottom:10px; }
+.summary-box.mini-summary h5{ font-size:1.05rem; margin:0 0 10px 0; font-weight:800; color:#0f172a; line-height:1.2; }
+.summary-box.mini-summary .value{ font-size:1rem; color:#334155; font-weight:700; }
 
-.summary-box:hover{
-    transform:translateY(-2px);
-    box-shadow:0 22px 48px rgba(15,23,42,0.1);
+.variant-stok      { border-left:6px solid #60a5fa; }
+.variant-keluar    { border-left:6px solid #f6ad55; }
+.variant-kebutuhan { border-left:6px solid #fca5a5; }
+.variant-orange    { border-left:6px solid #f97316; background:linear-gradient(180deg,#fff7ed,#ffffff); }
+.variant-red       { border-left:6px solid #ef4444; background:linear-gradient(180deg,#fff1f2,#ffffff); }
+.variant-blue      { border-left:6px solid #3b82f6; background:linear-gradient(180deg,#eff6ff,#ffffff); }
+.variant-gray      { border-left:6px solid #6b7280; background:linear-gradient(180deg,#f3f4f6,#ffffff); }
+
+.gudang-wrapper{ max-height:250px; overflow:auto; border:1px solid #e2e8f0; border-radius:12px; background:#fff; }
+/* Clean Flat Table Styling */
+.table-responsive {
+    max-height: 750px;
+    overflow: auto;
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
 }
 
-.summary-box h6{
-    margin-bottom:10px;
-    color:#475569;
-    font-size:0.78rem;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
+#tableBelanja {
+    width: 100% !important;
+    border-collapse: collapse;
 }
 
-.summary-box h2{
-    font-weight:800;
-    margin:0;
-    font-size:2rem;
-    letter-spacing:-0.03em;
+#tableBelanja thead th {
+    position: sticky;
+    top: 0;
+    z-index: 105;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600;
+    text-transform: none;
+    font-size: 0.85rem;
+    padding: 12px 14px;
+    border-bottom: 2px solid #cbd5e1 !important;
+    border-top: none !important;
+    border-left: 1px solid #e2e8f0 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    text-align: center !important;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
-.mini-summary{
-    padding:16px 18px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    min-height:140px;
+#tableBelanja tbody tr {
+    background: #ffffff;
+    transition: background 0.15s ease;
 }
 
-.mini-summary h6{font-size:0.78rem;margin-bottom:10px;color:#475569;letter-spacing:0.08em;text-transform:uppercase}
-.mini-summary h5{font-size:1.05rem;margin:0 0 10px 0;font-weight:800;color:#0f172a;line-height:1.2}
-.mini-summary .value{font-size:1rem;color:#334155;font-weight:700}
-
-.bg-stok{
-    border-left:6px solid #60a5fa;
+#tableBelanja tbody tr:nth-of-type(even) {
+    background: #f8fafc;
 }
 
-.bg-keluar{
-    border-left:6px solid #f6ad55;
+#tableBelanja tbody tr:hover {
+    background: #f1f5f9 !important;
 }
 
-.bg-kebutuhan{
-    border-left:6px solid #fca5a5;
+#tableBelanja tbody td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #334155;
+    border: 1px solid #e2e8f0 !important;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
-.gudang-wrapper{
-    max-height:250px;
-    overflow:auto;
-    border:1px solid #e2e8f0;
-    border-radius:12px;
-    background:#fff;
+/* Numeric data cells alignment */
+.cell-number {
+    text-align: right;
+    font-weight: 600;
 }
 
-.table th{
-    white-space:nowrap;
+/* Text styles for key metrics instead of blocky badges */
+.text-stock {
+    color: #2563eb;
+    font-weight: 700;
 }
 
-.table td{
-    white-space:nowrap;
-    vertical-align:middle;
-    color:var(--text);
+.text-keluar {
+    color: #ea580c;
+    font-weight: 700;
 }
 
-.table-responsive{
-    max-height:750px;
-    overflow:auto;
+.text-kebutuhan {
+    color: #dc2626;
+    font-weight: 700;
 }
 
-/* lightweight loading skeleton for table area */
-.table-skeleton{position:relative;min-height:120px}
-.table-skeleton .skeleton-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));z-index:5}
-.skeleton-spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.06);border-top-color:rgba(0,0,0,0.18);animation:spin .9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.table-responsive{
-    max-height:750px;
-    overflow:auto;
-    position:relative;
+.text-kebutuhan-zero {
+    color: #64748b;
+    font-weight: 500;
 }
 
-.table thead th{
-    position:sticky;
-    top:0;
-    z-index:105;
-    background:#f8fafc;
-    color:var(--text);
-    font-size:12px;
-    border-bottom:1px solid #d1d5db;
-    box-shadow:0 4px 12px rgba(15,23,42,0.06);
+/* Monospace item codes - simplified */
+.code-item {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: #475569;
 }
 
-.table tbody tr:hover{
-    background:#eef6ff;
+/* Customizing DataTables Pagination to look clean and flat */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    margin: 0 2px !important;
+    padding: 5px 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    transition: all 0.15s ease !important;
 }
 
-.stock{
-    color:#2563eb;
-    font-weight:700;
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #0f766e !important;
+    color: #ffffff !important;
+    border-color: #0f766e !important;
 }
 
-.keluar{
-    color:#f59e0b;
-    font-weight:700;
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
 }
 
-.kebutuhan{
-    color:#ef4444;
-    font-weight:700;
+.dataTables_wrapper .dataTables_info {
+    font-size: 0.82rem;
+    color: #64748b;
+    padding-top: 12px;
 }
 
-.switch{
-    position:relative;
-    display:inline-block;
-    width:34px;
-    height:20px;
-    vertical-align:middle;
-}
-
-.switch input{
-    display:none;
-}
-
+.switch{ position:relative; display:inline-block; width:34px; height:20px; vertical-align:middle; }
+.switch input{ display:none; }
 .slider{
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    cursor:pointer;
-    background:#e5e7eb;
-    transition:.22s ease;
-    border-radius:999px;
-    box-shadow:inset 0 1px 2px rgba(16,24,40,0.08);
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    cursor:pointer; background:#e5e7eb; transition:.22s ease;
+    border-radius:999px; box-shadow:inset 0 1px 2px rgba(16,24,40,0.08);
 }
-
 .slider:before{
-    content:'⏻';
-    position:absolute;
-    width:16px;
-    height:16px;
-    left:2px;
-    top:2px;
-    line-height:16px;
-    text-align:center;
-    color:#475569;
-    font-size:11px;
-    background:white;
-    transition:transform .22s ease, color .22s ease, background .22s ease;
-    border-radius:50%;
-    box-shadow:0 2px 4px rgba(16,24,40,0.08);
+    content:''; position:absolute; width:16px; height:16px; left:2px; top:2px;
+    background:white; transition:transform .22s ease, color .22s ease, background .22s ease;
+    border-radius:50%; box-shadow:0 2px 4px rgba(16,24,40,0.08);
 }
+.switch input:checked + .slider{ background:var(--success); }
+.switch input:checked + .slider:before{ transform:translateX(14px); background:#16b981; }
+.switch, .slider{ cursor:pointer; }
 
-.switch input:checked + .slider{
-    background:var(--success);
-}
+.gudang-wrapper td:nth-child(4){ display:flex; align-items:center; justify-content:center; gap:6px; }
 
-.switch input:checked + .slider:before{
-    content:'⏻';
-    transform:translateX(14px);
-    color:white;
-    background:#16a34a;
+.badge-active, .badge-inactive{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:4px 10px; font-weight:700; border-radius:999px; color:white;
+    box-shadow:0 4px 10px rgba(15,23,42,0.05); font-size:0.78rem;
 }
+.badge-active{ background:linear-gradient(135deg,#34d399,#10b981); }
+.badge-inactive{ background:linear-gradient(135deg,#f87171,#ef4444); }
 
-.switch,
-.slider{
-    cursor:pointer;
-}
-
-/* center status column in gudang table */
-.gudang-wrapper td:nth-child(4){
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-}
-
-/* enhanced active/non-active badges */
-.badge-active,
-.badge-inactive{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:auto;
-    gap:6px;
-    padding:4px 10px;
-    font-weight:700;
-    border-radius:999px;
-    color:white;
-    box-shadow:0 4px 10px rgba(15,23,42,0.05);
-    letter-spacing:0.01em;
-    text-transform:none;
-    font-size:0.78rem;
-}
-
-.badge-active{
-    background:linear-gradient(135deg,#34d399,#10b981);
-}
-
-.badge-active:before{
-    content:'✔';
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:16px;
-    height:16px;
-    border-radius:50%;
-    background:rgba(255,255,255,0.2);
-    color:rgba(255,255,255,0.95);
-    font-size:0.7rem;
-}
-
-.badge-inactive{
-    background:linear-gradient(135deg,#f87171,#ef4444);
-}
-
-.badge-inactive:before{
-    content:'✕';
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:16px;
-    height:16px;
-    border-radius:50%;
-    background:rgba(255,255,255,0.2);
-    color:rgba(255,255,255,0.95);
-    font-size:0.7rem;
-}
-
-.btn-primary{
-    border:1px solid #e6eef9;
-    border-radius:8px;
-    background:transparent;
-    color:var(--dark);
-    padding:8px 18px;
-    font-weight:600;
-}
-
-.dataTables_filter input{
-    border-radius:10px !important;
-}
+.dataTables_filter input{ border-radius:10px !important; }
 
 @media (max-width: 780px){
-    .filter-controls{flex-direction:column;align-items:stretch;gap:10px}
-    .filter-controls > .control-pill{min-width:100% !important}
-    .filter-controls .btn-cta, .filter-controls .btn-clear{width:100%}
+    .filter-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .btn-filter-action {
+        width: 100%;
+    }
 }
 
+/* Hide default DataTables buttons and filter */
+.dt-buttons, .dataTables_filter {
+    display: none !important;
+}
+
+/* Custom premium styling for Copy Button and Search Box */
+.btn-copy-custom {
+    background: #16a34a;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+    transition: all .2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.btn-copy-custom:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25);
+    color: #ffffff;
+    text-decoration: none;
+}
+.btn-copy-custom:active {
+    transform: translateY(0);
+}
+
+.search-input-custom-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+.search-icon-custom {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+.search-input-custom {
+    padding: 8px 16px 8px 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.9rem;
+    width: 260px;
+    height: 38px;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+    transition: all 0.2s ease;
+}
+.search-input-custom:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    width: 320px;
+}
+
+.btn-atur-gudang {
+    height: 44px;
+    border-radius: 14px;
+    font-weight: 700;
+    background: #eff6ff;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    color: #2563eb;
+    font-size: 0.94rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: none;
+    transition: all .2s ease;
+    cursor: pointer;
+    width: 100%;
+}
+.btn-atur-gudang:hover {
+    background: #dbeafe;
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #1d4ed8;
+    transform: translateY(-1px);
+}
+.btn-atur-gudang:active {
+    transform: translateY(0);
+}
 </style>
 
 <div class="card main-card">
-
 <div class="card-body">
 
     <form method="GET" action="{{ route('belanja.index') }}">
 
         <div class="filter-card">
 
-            <div class="filter-controls">
+            <div class="filter-grid">
 
-                <div class="control-pill min-w-170">
-                    <div class="input-icon pill-inner">
-                        <svg class="icon-calendar" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <rect x="2" y="4" width="20" height="18" rx="3" ry="3" fill="none" stroke="#6B7280" stroke-width="1.2" />
-                            <rect x="7" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <rect x="11" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <rect x="15" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.2" />
-                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                <div class="filter-group">
+                    <label>Tanggal Awal</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke="#6B7280" stroke-width="1.8"/>
                         </svg>
-                        <label class="d-block mb-1">Tanggal Awal</label>
                         <input type="date" name="tanggal_awal" class="form-control" value="{{ $tanggal_awal }}">
                     </div>
                 </div>
 
-                <div class="control-pill min-w-170">
-                    <div class="input-icon pill-inner">
-                        <svg class="icon-calendar" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <rect x="2" y="4" width="20" height="18" rx="3" ry="3" fill="none" stroke="#6B7280" stroke-width="1.2" />
-                            <rect x="7" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <rect x="11" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <rect x="15" y="9" width="3" height="3" rx="0.6" fill="#6B7280" />
-                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.2" />
-                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.2" />
+                <div class="filter-group">
+                    <label>Tanggal Akhir</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="#6B7280" stroke-width="1.8"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke="#6B7280" stroke-width="1.8"/>
                         </svg>
-                        <label class="d-block mb-1">Tanggal Akhir</label>
                         <input type="date" name="tanggal_akhir" class="form-control" value="{{ $tanggal_akhir }}">
                     </div>
                 </div>
 
-                <div class="control-pill min-w-160">
-                    <div>
-                        <label class="d-block mb-1">Urutkan Harga</label>
+                <div class="filter-group">
+                    <label>Urutkan Harga</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6h18M6 12h12M10 18h4" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
                         <select name="filter_harga" class="form-control">
                             <option value="">Default</option>
                             <option value="termahal" {{ request('filter_harga')=='termahal' ? 'selected' : '' }}>Harga Termahal</option>
@@ -444,683 +510,357 @@ body{
                     </div>
                 </div>
 
-                <div class="control-pill min-w-170 flex-1">
-                    <div>
-                        <label class="d-block mb-1">Filter Tipe</label>
+                <div class="filter-group">
+                    <label>Filter Tipe</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
                         <select name="filter_type" class="form-control">
                             <option value="">Semua</option>
-                            <option value="pengeluaran_terbanyak" {{ request('filter_type')=='pengeluaran_terbanyak' ? 'selected' : '' }}>Pengeluaran Terbanyak</option>
-                            <option value="pengeluaran_terdikit" {{ request('filter_type')=='pengeluaran_terdikit' ? 'selected' : '' }}>Pengeluaran Terdikit</option>
-                            <option value="stok_terbanyak" {{ request('filter_type')=='stok_terbanyak' ? 'selected' : '' }}>Stok Terbanyak</option>
-                            <option value="stok_terdikit" {{ request('filter_type')=='stok_terdikit' ? 'selected' : '' }}>Stok Terdikit</option>
-                            <option value="nilai_terbanyak" {{ request('filter_type')=='nilai_terbanyak' ? 'selected' : '' }}>Nilai Belanja Terbanyak</option>
-                            <option value="nilai_terendah" {{ request('filter_type')=='nilai_terendah' ? 'selected' : '' }}>Nilai Belanja Terdikit</option>
-                            <option value="kebutuhan_terbanyak" {{ request('filter_type')=='kebutuhan_terbanyak' ? 'selected' : '' }}>Rencana Pembelian Terbanyak</option>
-                            <option value="kebutuhan_terdikit" {{ request('filter_type')=='kebutuhan_terdikit' ? 'selected' : '' }}>Rencana Pembelian Terdikit</option>
+                            @foreach($filterLabelMap ?? [] as $key => $label)
+                                <option value="{{ $key }}" {{ request('filter_type') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
 
+                <div class="filter-group">
+                    <label>Supplier</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m12-10a4 4 0 11-8 0 4 4 0 018 0zm6 3v2m0 0v2m0-2h-2m2-2h2" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <select name="supplier" class="form-control">
+                            <option value="">Semua Supplier</option>
+                            @foreach($supplierList ?? [] as $supplier)
+                                <option value="{{ $supplier->kode_suplier }}" {{ request('supplier') == $supplier->kode_suplier ? 'selected' : '' }}>
+                                    {{ $supplier->nama_suplier }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-                <div class="control-pill min-w-200 buttons">
-                    <button type="submit" class="btn-cta small">Terapkan</button>
-                    <button type="button" id="exportBtn" class="btn-cta small">Export</button>
-                    <button type="reset" class="btn-clear small">Reset</button>
-                    <button type="button" id="refreshBtn" class="btn-clear small">Segarkan</button>
+                <div class="filter-group">
+                    <label>Gudang</label>
+                    <button type="button" class="btn btn-atur-gudang" data-toggle="modal" data-target="#modalSettingGudang">
+                        <i class="fas fa-warehouse"></i> Atur Gudang
+                    </button>
                 </div>
 
             </div>
 
             <div class="filter-help">Pilih filter, lalu klik <strong>Terapkan</strong> untuk memperbarui daftar.</div>
 
-            <hr>
-
-            <h6 class="mb-3">
-                Setting Gudang yang Dihitung
-            </h6>
-
-            <div class="gudang-wrapper">
-
-                <table class="table table-bordered table-sm mb-0">
-
-                    <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Kode</th>
-                        <th>Nama Gudang</th>
-                        <th>Status</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-
-                    @foreach($bangsal as $b)
-
-                        @php
-                            $isActive=!in_array(
-                                $b->kd_bangsal,
-                                $nonaktif_bangsal ?? []
-                            );
-                        @endphp
-
-                        <tr>
-
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $b->kd_bangsal }}</td>
-                            <td>{{ $b->nm_bangsal }}</td>
-
-                            <td>
-
-                                <label class="switch">
-
-                                    <input type="checkbox"
-                                           class="toggle-bangsal"
-                                           data-kd="{{ $b->kd_bangsal }}"
-                                           {{ $isActive ? 'checked' : '' }}>
-
-                                    <span class="slider"></span>
-
-                                </label>
-
-                                <span id="label-{{ $b->kd_bangsal }}"
-                                      class="{{ $isActive ? 'badge-active' : 'badge-inactive' }}">
-                                      {{ $isActive ? 'Aktif' : 'Nonaktif' }}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    @endforeach
-
-                    </tbody>
-
-                </table>
-
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter-action btn-filter-apply">
+                    <i class="fas fa-check"></i> Terapkan
+                </button>
+                <button type="button" id="exportBtn" class="btn-filter-action btn-filter-export">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+                <a href="{{ route('belanja.index') }}" class="btn-filter-action btn-filter-reset">
+                    <i class="fas fa-undo"></i> Reset
+                </a>
+                <button type="button" id="refreshBtn" class="btn-filter-action btn-filter-refresh">
+                    <i class="fas fa-sync-alt"></i> Segarkan
+                </button>
             </div>
 
         </div>
-
     </form>
 
-    @php
-
-        $selectedBangsal =
-        $bangsal->whereNotIn(
-            'kd_bangsal',
-            $nonaktif_bangsal ?? []
-        );
-
-        $grandStok=0;
-        $grandKeluar=0;
-        $grandKebutuhan=0;
-
-        $obatTermahal = collect();
-
-        foreach($barang as $kode => $item){
-
-            $stokBarang = $stok_lokasi[$kode] ?? collect();
-
-            $stok = $stokBarang
-                ->whereIn(
-                    'kd_bangsal',
-                    $selectedBangsal->pluck('kd_bangsal')
-                )
-                ->sum('stok');
-
-            $keluar = $total_pengeluaran[$kode] ?? 0;
-
-            $kebutuhan = max(
-                $keluar - $stok,
-                0
-            );
-
-            // Total nilai pembelian
-            $nilaiBelanja = $kebutuhan * $item->h_beli;
-
-            // Simpan untuk diurutkan
-            $obatTermahal->push([
-                'kode_brng'      => $kode,
-                'nama_brng'      => $item->nama_brng,
-                'kode_sat'       => $item->kode_sat,
-                'harga_beli'     => $item->h_beli,
-                'ralan'          => $item->ralan,
-                'stok'           => $stok,
-                'pengeluaran'    => $keluar,
-                'kebutuhan'      => $kebutuhan,
-                'nilai_belanja'  => $nilaiBelanja
-            ]);
-
-            $grandStok += $stok;
-            $grandKeluar += $keluar;
-            $grandKebutuhan += $kebutuhan;
-        }
-
-        // Urutkan dari nilai belanja terbesar
-        $obatTermahal = $obatTermahal
-            ->sortByDesc('nilai_belanja')
-            ->values();
-
-        $filterHarga = request('filter_harga');
-
-            if($filterHarga == 'termahal'){
-
-                $obatTermahal = $obatTermahal
-                    ->sortByDesc('harga_beli')
-                    ->values();
-
-            }elseif($filterHarga == 'termurah'){
-
-                $obatTermahal = $obatTermahal
-                    ->sortBy('harga_beli')
-                    ->values();
-
-            }else{
-
-                // Default berdasarkan nilai belanja
-                $obatTermahal = $obatTermahal
-                    ->sortByDesc('nilai_belanja')
-                    ->values();
-
-            }
-
-    @endphp
-
-    @php
-        $collection = collect($obatTermahal);
-        $topPengeluaran = $collection->sortByDesc('pengeluaran')->first() ?? null;
-        $lowPengeluaran = $collection->sortBy('pengeluaran')->first() ?? null;
-        $topStok = $collection->sortByDesc('stok')->first() ?? null;
-        $lowStok = $collection->sortBy('stok')->first() ?? null;
-    @endphp
-
-    <div class="row mb-3">
-
-        <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #f97316;background:linear-gradient(180deg,#fff7ed,#ffffff);">
-                <h6>Pengeluaran Terbanyak</h6>
-                <h5>{{ $topPengeluaran['nama_brng'] ?? '-' }}</h5>
-                <div class="value">{{ number_format($topPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #ef4444;background:linear-gradient(180deg,#fff1f2,#ffffff);">
-                <h6>Pengeluaran Terdikit</h6>
-                <h5>{{ $lowPengeluaran['nama_brng'] ?? '-' }}</h5>
-                <div class="value">{{ number_format($lowPengeluaran['pengeluaran'] ?? 0,0,',','.') }}</div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #3b82f6;background:linear-gradient(180deg,#eff6ff,#ffffff);">
-                <h6>Stok Terbanyak</h6>
-                <h5>{{ $topStok['nama_brng'] ?? '-' }}</h5>
-                <div class="value">{{ number_format($topStok['stok'] ?? 0,0,',','.') }}</div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="summary-box mini-summary" style="border-left:6px solid #6b7280;background:linear-gradient(180deg,#f3f4f6,#ffffff);">
-                <h6>Stok Terdikit</h6>
-                <h5>{{ $lowStok['nama_brng'] ?? '-' }}</h5>
-                <div class="value">{{ number_format($lowStok['stok'] ?? 0,0,',','.') }}</div>
-            </div>
-        </div>
-
-    </div>
-
-    @php
-    $filterType = request('filter_type');
-
-    if($filterType){
-
-        $col = collect($obatTermahal);
-
-        if($filterType == 'pengeluaran_terbanyak'){
-
-            $obatTermahal = $col
-                ->sortByDesc('pengeluaran')
-                ->values();
-
-        }elseif($filterType == 'pengeluaran_terdikit'){
-
-            $colNonZero = $col->filter(function($r){
-                return (!empty($r['pengeluaran']) && $r['pengeluaran'] > 0);
-            });
-
-            if($colNonZero->isEmpty()){
-                $colNonZero = $col;
-            }
-
-            $obatTermahal = $colNonZero
-                ->sortBy('pengeluaran')
-                ->values();
-
-        }elseif($filterType == 'stok_terbanyak'){
-
-            $obatTermahal = $col
-                ->sortByDesc('stok')
-                ->values();
-
-        }elseif($filterType == 'stok_terdikit'){
-
-            $obatTermahal = $col
-                ->sortBy('stok')
-                ->values();
-
-        }elseif($filterType == 'nilai_terbanyak'){
-
-            $obatTermahal = $col
-                ->sortByDesc('nilai_belanja')
-                ->values();
-
-        }elseif($filterType == 'nilai_terendah'){
-
-            $obatTermahal = $col
-                ->sortBy('nilai_belanja')
-                ->values();
-
-        }elseif($filterType == 'kebutuhan_terbanyak'){
-
-            $obatTermahal = $col
-                ->sortByDesc('kebutuhan')
-                ->values();
-
-        }elseif($filterType == 'kebutuhan_terdikit'){
-
-            $obatTermahal = $col
-                ->sortBy('kebutuhan')
-                ->values();
-
-        }
-
-    }
-@endphp
-
-    @php
-        // label for active filter
-        $filterLabelMap = [
-            'pengeluaran_terbanyak' => 'Pengeluaran Terbanyak',
-            'pengeluaran_terdikit' => 'Pengeluaran Terdikit',
-            'stok_terbanyak' => 'Stok Terbanyak',
-            'stok_terdikit' => 'Stok Terdikit',
-            'nilai_terbanyak' => 'Nilai Belanja Terbanyak',
-            'nilai_terendah' => 'Nilai Belanja Terdikit',
-            'kebutuhan_terbanyak' => 'Rencana Pembelian Terbanyak',
-            'kebutuhan_terdikit' => 'Rencana Pembelian Terdikit'
-        ];
-        $activeFilterLabel = $filterLabelMap[$filterType] ?? null;
-    @endphp
-
-    @if($activeFilterLabel)
+    @if(!empty($filterLabelMap[$filterType ?? ''] ?? null))
         <div class="mb-2">
-            <span style="background:#eef2f6;color:var(--text);border:1px solid #e6eef6;padding:6px 10px;border-radius:12px;font-weight:600;">
-                Filter aktif: {{ $activeFilterLabel }}
-            </span>
+            <span class="filter-active-pill">Filter aktif: {{ $filterLabelMap[$filterType] }}</span>
         </div>
     @endif
 
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="summary-box mini-summary variant-orange">
+                <h6>Pengeluaran Terbanyak</h6>
+                <h5>{{ $summary['top_pengeluaran']['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($summary['top_pengeluaran']['pengeluaran'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-box mini-summary variant-red">
+                <h6>Pengeluaran Terdikit</h6>
+                <h5>{{ $summary['low_pengeluaran']['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($summary['low_pengeluaran']['pengeluaran'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-box mini-summary variant-blue">
+                <h6>Stok Terbanyak</h6>
+                <h5>{{ $summary['top_stok']['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($summary['top_stok']['stok'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-box mini-summary variant-gray">
+                <h6>Stok Terdikit</h6>
+                <h5>{{ $summary['low_stok']['nama_brng'] ?? '-' }}</h5>
+                <div class="value">{{ number_format($summary['low_stok']['stok'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-
-        <div class="col-md-4">
-            <div class="summary-box bg-stok">
-                <h6>Total Stok</h6>
-                <h2>{{ number_format($grandStok,0,',','.') }}</h2>
+        <div class="col-md-3">
+            <div class="summary-box variant-stok">
+                <h6>Stok Saat Ini</h6>
+                <h2>{{ number_format($summary['grand_stok'] ?? 0, 0, ',', '.') }}</h2>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="summary-box bg-keluar">
+        <div class="col-md-3">
+            <div class="summary-box variant-keluar">
+                <h6>Stok Tanggal Sebelumnya</h6>
+                <h2>{{ number_format($summary['grand_stok_sebelumnya'] ?? 0, 0, ',', '.') }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-box variant-kebutuhan">
                 <h6>Total Pengeluaran</h6>
-                <h2>{{ number_format($grandKeluar,0,',','.') }}</h2>
+                <h2>{{ number_format($summary['grand_keluar'] ?? 0, 0, ',', '.') }}</h2>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="summary-box bg-kebutuhan">
+        <div class="col-md-3">
+            <div class="summary-box variant-gray">
                 <h6>Rencana Pembelian</h6>
-                <h2>{{ number_format($grandKebutuhan,0,',','.') }}</h2>
+                <h2>{{ number_format($summary['grand_kebutuhan'] ?? 0, 0, ',', '.') }}</h2>
             </div>
         </div>
+    </div>
 
+    <!-- Toolbar Aksi Table: Copy Data & Pencarian -->
+    <div class="d-flex align-items-center mb-3 flex-wrap justify-content-between" style="gap: 15px;">
+        <div class="d-flex align-items-center flex-wrap" style="gap: 12px;">
+            <button type="button" id="btnCopyObat" class="btn-copy-custom">
+                <i class="fas fa-copy"></i> Copy Data Obat
+            </button>
+            <div class="search-input-custom-wrapper">
+                <i class="fas fa-search search-icon-custom"></i>
+                <input type="search" id="customSearchInput" class="search-input-custom" placeholder="Cari nama / kode barang...">
+            </div>
+        </div>
     </div>
 
     <div class="table-responsive">
-
         <table class="table table-bordered table-striped" id="tableBelanja">
-
             <thead>
-
             <tr>
                 <th>No</th>
                 <th>Kode</th>
                 <th>Nama Barang</th>
+                <th>Nama Supplier</th>
+                <th>Kategori</th>
+                <th>Golongan</th>
                 <th>Dasar</th>
                 <th>Harga Jual</th>
+                <th>Diskon</th>
+                <th>Besar Diskon</th>
                 <th>Satuan</th>
-                <th>Total Stok</th>
+                <th>Jumlah Beli</th>
+                <th>Stok Saat Ini</th>
+                <th>Stok Sebelumnya</th>
                 <th>Pengeluaran</th>
                 <th>Kebutuhan</th>
-
-                @foreach($selectedBangsal as $b)
+                @foreach($selectedBangsal ?? [] as $b)
                     <th>{{ $b->kd_bangsal }}</th>
                 @endforeach
-
             </tr>
-
             </thead>
-
             <tbody>
-
-            @php $no=1; @endphp
-
-            @foreach($obatTermahal as $row)
-
-    @php
-
-        $kode = $row['kode_brng'];
-
-        $item = (object)[
-            'nama_brng' => $row['nama_brng'],
-            'kode_sat'  => $row['kode_sat'],
-            'h_beli'    => $row['harga_beli']
-        ];
-
-        $stokBarang = $stok_lokasi[$kode] ?? collect();
-
-        $stokPerBangsal = [];
-
-        $total_stok = 0;
-
-        foreach($selectedBangsal as $b){
-
-            $stok = optional(
-                $stokBarang->firstWhere(
-                    'kd_bangsal',
-                    $b->kd_bangsal
-                )
-            )->stok ?? 0;
-
-            $stokPerBangsal[$b->kd_bangsal] = $stok;
-
-            $total_stok += $stok;
-        }
-
-        $pengeluaran = $row['pengeluaran'];
-
-        $kebutuhan = $row['kebutuhan'];
-
-    @endphp
-
-    <tr>
-
-        <td>{{ $no++ }}</td>
-
-        <td>{{ $kode }}</td>
-
-        <td>{{ $item->nama_brng }}</td>
-
-        <td align="right">
-            {{ number_format($item->h_beli,2,',','.') }}
-        </td>
-
-        <td align="right">
-            {{ number_format($row['ralan'],2,',','.') }}
-        </td>
-
-        <td>{{ $item->kode_sat }}</td>
-
-        <td align="right" class="stock">
-            {{ number_format($total_stok,0,',','.') }}
-        </td>
-
-        <td align="right" class="keluar">
-            {{ number_format($pengeluaran,0,',','.') }}
-        </td>
-
-        <td align="right" class="kebutuhan">
-            {{ number_format($kebutuhan,0,',','.') }}
-        </td>
-
-        @foreach($selectedBangsal as $b)
-
-            <td align="right">
-                {{ number_format($stokPerBangsal[$b->kd_bangsal] ?? 0,0,',','.') }}
-            </td>
-
-        @endforeach
-
-    </tr>
-
-@endforeach
-
+            @forelse($rows ?? [] as $i => $row)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td><span class="code-item">{{ $row['kode_brng'] }}</span></td>
+                    <td class="font-weight-bold" style="color: #0f172a;">{{ $row['nama_brng'] }}</td>
+                    <td>{{ $row['supplier_names'] ?: '-' }}</td>
+                    <td>{{ $row['kategori_nama'] ?? '-' }}</td>
+                    <td>{{ $row['golongan_nama'] ?? '-' }}</td>
+                    <td class="cell-number">{{ number_format($row['harga_beli'], 0, ',', '.') }}</td>
+                    <td class="cell-number">{{ number_format($row['ralan'], 0, ',', '.') }}</td>
+                    <td class="cell-number">{{ number_format($row['dis'] ?? 0, 0, ',', '.') }}%</td>
+                    <td class="cell-number">{{ number_format($row['besardis'] ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ $row['kode_sat'] }}</td>
+                    <td class="cell-number">{{ number_format($row['jumlah_beli'], 0, ',', '.') }}</td>
+                    <td class="cell-number text-stock">
+                        {{ number_format($row['stok'], 0, ',', '.') }}
+                    </td>
+                    <td class="cell-number text-muted">{{ number_format($row['stok_sebelumnya'], 0, ',', '.') }}</td>
+                    <td class="cell-number text-keluar">
+                        {{ number_format($row['pengeluaran'], 0, ',', '.') }}
+                    </td>
+                    <td class="cell-number">
+                        @if($row['kebutuhan'] > 0)
+                            <span class="text-kebutuhan">{{ number_format($row['kebutuhan'], 0, ',', '.') }}</span>
+                        @else
+                            <span class="text-kebutuhan-zero">0</span>
+                        @endif
+                    </td>
+                    @foreach($selectedBangsal ?? [] as $b)
+                        <td class="cell-number text-muted">{{ number_format($stokPerBangsalMap[$row['kode_brng']][$b->kd_bangsal] ?? 0, 0, ',', '.') }}</td>
+                    @endforeach
+                </tr>
+            @empty
+                <tr><td colspan="20" class="text-center text-muted py-4">Tidak ada data untuk filter ini.</td></tr>
+            @endforelse
             </tbody>
-
         </table>
-
     </div>
 
 </div>
-
-
 </div>
 
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
-
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
+(function(){
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+    const tableEl = document.getElementById('tableBelanja');
+    if(!tableEl) return;
 
-window.tableBelanja = $('#tableBelanja').DataTable({
-    pageLength: 25,
-    scrollX: true,
-    responsive: true,
-    ordering: false,
-
-    dom: 'Bfrtip',
-
-    buttons: [
-{
-    extend: 'copyHtml5',
-    text: '<i class="fas fa-copy"></i> Copy Data Obat',
-    className: 'btn btn-success btn-sm',
-    title: 'Rencana Belanja Farmasi',
-    exportOptions: {
-        columns: ':visible'
-    },
-
-    action: function (e, dt, button, config) {
-
-        $.fn.dataTable.ext.buttons.copyHtml5.action.call(
-            this,
-            e,
-            dt,
-            button,
-            config
-        );
-
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: '📋 Data berhasil dicopy',
-            text: 'Silakan paste ke Excel, WhatsApp, atau Telegram',
-            showConfirmButton: false,
-            timer: 2500,
-            timerProgressBar: true
-        });
-
-    }
-}
-]
-});
-
-// Setelah DataTable inisialisasi: tambahkan search kecil di sebelah tombol (Copy)
-try{
-    const attachSearchToButtons = () => {
-        const wrapper = document.getElementById('tableBelanja_wrapper');
-        if(!wrapper) return;
-        const btnContainer = wrapper.querySelector('.dt-buttons');
-        if(!btnContainer) return;
-
-        // hide original panel search to avoid duplication
-        const panelSearch = document.querySelector('.input-icon input[name="q"]');
-        if(panelSearch){
-            panelSearch.closest('.control-pill')?.classList.add('d-none');
-        }
-
-        // create compact search input next to buttons if not exists
-        if(!btnContainer.querySelector('.dt-inline-search-wrapper')){
-            // ensure button container aligns items
-            btnContainer.style.display = 'flex';
-            btnContainer.style.alignItems = 'center';
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'dt-inline-search-wrapper';
-            wrapper.style.display = 'inline-flex';
-            wrapper.style.alignItems = 'center';
-            wrapper.style.marginLeft = '8px';
-            wrapper.style.background = 'white';
-            wrapper.style.border = '1px solid #d1d5db';
-            wrapper.style.borderRadius = '6px';
-            wrapper.style.padding = '4px 8px';
-
-            const icon = document.createElement('span');
-            icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#6B7280" stroke-width="1.4"/></svg>';
-            icon.style.display = 'inline-flex';
-            icon.style.marginRight = '6px';
-
-            const inline = document.createElement('input');
-            inline.type = 'search';
-            inline.placeholder = 'Cari...';
-            inline.className = 'form-control dt-inline-search';
-            inline.style.width = '180px';
-            inline.style.border = 'none';
-            inline.style.boxShadow = 'none';
-            inline.style.padding = '4px 6px';
-            inline.style.height = '30px';
-            inline.style.fontSize = '0.9rem';
-            inline.style.background = 'transparent';
-
-            // set initial value from original panel (if any)
-            if(panelSearch) inline.value = panelSearch.value || '';
-
-            // debounce binding to table search
-            let t = null;
-            inline.addEventListener('input', function(){
-                const v = this.value || '';
-                clearTimeout(t);
-                t = setTimeout(()=>{
-                    if(window.tableBelanja){
-                        window.tableBelanja.search(v).draw();
-                    }
-                }, 300);
-            });
-
-            wrapper.appendChild(icon);
-            wrapper.appendChild(inline);
-            btnContainer.appendChild(wrapper);
-        }
-    };
-
-    // Try attach now, or after short delay if DataTables renders later
-    setTimeout(attachSearchToButtons, 250);
-    // also try when window.tableBelanja becomes available
-    if(!window.tableBelanja){
-        document.addEventListener('DOMContentLoaded', attachSearchToButtons);
-    }
-}catch(err){
-    console.warn('attachSearchToButtons error', err);
-}
-
-// Tombol aksi header
-document.getElementById('refreshBtn')?.addEventListener('click', function(){
-    location.reload();
-});
-
-document.getElementById('exportBtn')?.addEventListener('click', function(){
-    if(window.tableBelanja){
-        window.tableBelanja.button(0).trigger();
-    }
-});
-
-const token=
-document.querySelector('meta[name="csrf-token"]').content;
-
-document.querySelectorAll('.toggle-bangsal').forEach(el=>{
-
-    el.addEventListener('change',function(){
-
-        fetch("{{ route('belanja.toggleBangsal') }}",{
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':'application/json',
-                'X-CSRF-TOKEN':token
-            },
-
-            body:JSON.stringify({
-
-                kd_bangsal:this.dataset.kd,
-                status:this.checked ? 1 : 0
-
-            })
-
-        })
-        .then(r=>r.json())
-        .then(res=>{
-
-            if(res.success){
-
-                location.reload();
-
+    const tableBelanja = $(tableEl).DataTable({
+        pageLength: 25,
+        ordering: false,
+        autoWidth: false,
+        dom: 'Bfrtip',
+        buttons: [{
+            extend: 'copyHtml5',
+            text: '<i class="fas fa-copy"></i> Copy Data Obat',
+            className: 'btn btn-success btn-sm',
+            title: 'Rencana Belanja Farmasi',
+            exportOptions: { columns: ':visible' },
+            action: function(e, dt, button, config){
+                $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                if(window.Swal){
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: 'Data berhasil dicopy',
+                        text: 'Silakan paste ke Excel, WhatsApp, atau Telegram',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true
+                    });
+                }
             }
-
-        });
-
+        }]
     });
 
-});
+    // Custom Copy Button Action
+    document.getElementById('btnCopyObat')?.addEventListener('click', function() {
+        tableBelanja.button(0).trigger();
+    });
 
-// Hide DataTables generated search (table-specific) and bind our panel search to DataTables
-try{
-    // hide the specific generated filter area for this table
-    const dtFilter = document.getElementById('tableBelanja_filter');
-    if(dtFilter) dtFilter.style.display = 'none';
-
-    // bind our panel input (name=q) to datatables search with debounce
-    const searchInput = document.querySelector('input[name="q"]');
-    if(searchInput && window.tableBelanja){
+    // Custom Search Action with debounce
+    const searchInput = document.getElementById('customSearchInput');
+    if(searchInput){
         let debounceTimer = null;
-        const doSearch = (val) => {
-            window.tableBelanja.search(val).draw();
-        };
-
-        searchInput.addEventListener('input', function(e){
-            const v = this.value || '';
+        const doSearch = (val) => tableBelanja.search(val || '').draw();
+        searchInput.addEventListener('input', function(){
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(()=> doSearch(v), 300);
+            debounceTimer = setTimeout(() => doSearch(this.value), 300);
         });
-
-        // Prevent Enter from submitting the filter form when typing in the search field.
         searchInput.addEventListener('keydown', function(ev){
-            if(ev.key === 'Enter'){
-                ev.preventDefault();
-                doSearch(this.value || '');
-            }
+            if(ev.key === 'Enter'){ ev.preventDefault(); doSearch(this.value); }
         });
     }
-}catch(err){
-    console.warn('Search bind error', err);
-}
 
+    // Header action buttons
+    document.getElementById('refreshBtn')?.addEventListener('click', () => location.reload());
+    document.getElementById('exportBtn')?.addEventListener('click', () => tableBelanja.button(0).trigger());
+
+    // Toggle gudang with error feedback
+    document.querySelectorAll('.toggle-bangsal').forEach(el => {
+        el.addEventListener('change', function(){
+            fetch("{{ route('belanja.toggleBangsal') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                body: JSON.stringify({ kd_bangsal: this.dataset.kd, status: this.checked ? 1 : 0 })
+            })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                if(ok && data.success){
+                    location.reload();
+                } else {
+                    if(window.Swal){
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Tidak dapat memperbarui status gudang.' });
+                    } else {
+                        alert(data.message || 'Gagal memperbarui status gudang.');
+                    }
+                    this.checked = !this.checked; // revert
+                }
+            })
+            .catch(() => {
+                if(window.Swal){ Swal.fire({ icon: 'error', title: 'Gagal', text: 'Koneksi ke server terputus.' }); }
+                this.checked = !this.checked;
+            });
+        });
+    });
+})();
 </script>
+
+<!-- Modal Setting Gudang -->
+<div class="modal fade" id="modalSettingGudang" tabindex="-1" role="dialog" aria-labelledby="modalSettingGudangLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;">
+            <div class="modal-header border-0 bg-light py-3 px-4">
+                <h5 class="modal-title font-weight-bold text-dark" id="modalSettingGudangLabel">
+                    <i class="fas fa-warehouse text-primary mr-2"></i> Setting Gudang
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body px-4 pb-4 pt-2">
+                <p class="text-muted small mb-3">Aktifkan atau nonaktifkan gudang/bangsal yang datanya ingin dihitung dalam laporan rencana belanja ini.</p>
+                <div class="gudang-wrapper">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Kode</th>
+                                <th>Nama Gudang</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($bangsal ?? [] as $b)
+                                @php $isActive = !in_array($b->kd_bangsal, $nonaktif_bangsal ?? []); @endphp
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $b->kd_bangsal }}</td>
+                                    <td>{{ $b->nm_bangsal }}</td>
+                                    <td class="text-center">
+                                        <label class="switch mb-0">
+                                            <input type="checkbox"
+                                                   class="toggle-bangsal"
+                                                   data-kd="{{ $b->kd_bangsal }}"
+                                                   {{ $isActive ? 'checked' : '' }}>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="{{ $isActive ? 'badge-active' : 'badge-inactive' }} ml-1">
+                                            {{ $isActive ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4">
+                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 10px;" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection

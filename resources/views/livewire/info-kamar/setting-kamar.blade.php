@@ -26,15 +26,15 @@
                 </div>
                 <div class="col-5">
                     @if ($respone)
-                        @if ($respone['code'] == 1)
-                            <span class="float-right mx-2 text-success">
-                                <i class="fas fa-check mr-1"></i> Data Kamar Berhasil Update Ke JKN
-                            </span>
-                        @else
-                            <span class="float-right mx-2 text-danger">
-                                <i class="fas fa-ban mr-1"></i> Data Kamar Gagal Update Ke JKN
-                            </span>
-                        @endif
+                        <span class="float-right mx-2 {{ $respone['code'] == 1 ? 'text-success' : 'text-danger' }}">
+                            <i class="fas {{ $respone['code'] == 1 ? 'fa-check-circle' : 'fa-exclamation-triangle' }} mr-1"></i>
+                            <span>{{ $respone['message'] ?? ($respone['code'] == 1 ? 'Data kamar berhasil disinkronkan ke JKN.' : 'Sinkronisasi kamar ke JKN gagal.') }}</span>
+                            @if (($respone['action'] ?? '') === 'created')
+                                <small class="d-block mt-1">Ruangan belum ada di BPJS, sehingga data dibuat otomatis.</small>
+                            @elseif (($respone['action'] ?? '') === 'updated')
+                                <small class="d-block mt-1">Data ruangan berhasil diperbarui di BPJS.</small>
+                            @endif
+                        </span>
                     @endif
                 </div>
             </div>

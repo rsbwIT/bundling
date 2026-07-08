@@ -182,7 +182,8 @@ class SettingKamar extends Component
             $data = [
                 'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
                 'koderuang' =>   $udapteKamar->kd_ruang,
-                'namaruang' => 'R ' . $udapteKamar->nm_ruangan_bpjs,
+                // 'namaruang' => 'R ' . $udapteKamar->nm_ruangan_bpjs,
+                'namaruang' => $udapteKamar->nm_ruangan_bpjs,
                 'kapasitas' => $udapteKamar->kapasitas,
                 'tersedia' => $udapteKamar->tersedia,
                 'tersediapria' => 0,
@@ -193,10 +194,37 @@ class SettingKamar extends Component
             // $respone = json_decode($this->referensi->addRuangan(json_encode($data)));
 
 
-            $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
-            $this->respone = (array)$respone->metadata;
+            // $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
+            // $this->respone = (array)$respone->metadata;
+
+            $response = $this->referensi->updateRuangan(json_encode($data));
+            $decodedResponse = json_decode($response, true);
+            $metadata = $decodedResponse['metadata'] ?? [];
+            $message = trim((string) ($metadata['message'] ?? 'Sinkronisasi kamar selesai.'));
+            $code = $metadata['code'] ?? null;
+            $action = $metadata['action'] ?? '';
+            $success = false;
+
+            if (in_array((int) $code, [1, 200, 201], true)) {
+                $success = true;
+            } elseif ($message !== '') {
+                $normalizedMessage = strtolower($message);
+                $success = str_contains($normalizedMessage, 'berhasil')
+                    || str_contains($normalizedMessage, 'sukses')
+                    || str_contains($normalizedMessage, 'ok');
+            }
+
+            $this->respone = [
+                'code' => $success ? 1 : 0,
+                'message' => $message,
+                'action' => $action,
+            ];
         } catch (\Throwable $th) {
-            $this->respone = null;
+            $this->respone = [
+                'code' => 0,
+                'message' => 'Sinkronisasi kamar gagal: ' . $th->getMessage(),
+                'action' => '',
+            ];
         }
     }
 }

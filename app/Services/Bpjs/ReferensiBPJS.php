@@ -167,7 +167,43 @@ class ReferensiBPJS
     public function updateRuangan($data)
     {
         $endpoint = 'aplicaresws/rest/bed/update/' . $this->kode_rs;
-        return $this->aplicare->postRequest($endpoint, $data);
+        $response = $this->aplicare->postRequest($endpoint, $data);
+
+        try {
+            $decoded = json_decode($response, true);
+            $message = $decoded['metadata']['message'] ?? '';
+
+            if (
+                is_array($decoded) &&
+                (($decoded['metadata']['code'] ?? null) == 0) &&
+                stripos($message, 'Data tidak ada di database') !== false
+            ) {
+                $createdResponse = $this->addRuangan($data);
+
+                try {
+                    $createdDecoded = json_decode($createdResponse, true);
+                    if (is_array($createdDecoded) && isset($createdDecoded['metadata'])) {
+                        $createdDecoded['metadata']['action'] = 'created';
+                        $createdDecoded['metadata']['message'] = 'Ruangan belum ada di BPJS, data berhasil dibuat baru.';
+                        return json_encode($createdDecoded);
+                    }
+                } catch (\Throwable $th) {
+                    // fall through and return a friendly fallback response
+                }
+
+                return json_encode([
+                    'metadata' => [
+                        'code' => 1,
+                        'message' => 'Ruangan belum ada di BPJS, data berhasil dibuat baru.',
+                        'action' => 'created',
+                    ],
+                ]);
+            }
+        } catch (\Throwable $th) {
+            // fall through and return the original response
+        }
+
+        return $response;
     }
     public function deleteRuang($data)
     {
