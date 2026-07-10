@@ -563,6 +563,8 @@ class rincian extends Controller
         $rawItems = array_merge($itemsJL, $itemsJLDrPr, $itemsRI, $itemsRIDrPr);
 
         usort($rawItems, function($a, $b) {
+            $cmpName = strcmp($a->nm_perawatan, $b->nm_perawatan);
+            if ($cmpName !== 0) return $cmpName;
             return strcmp($a->tgl_perawatan, $b->tgl_perawatan);
         });
 
@@ -642,6 +644,8 @@ class rincian extends Controller
         $rawItems = array_merge($itemsJL, $itemsRI);
 
         usort($rawItems, function($a, $b) {
+            $cmpName = strcmp($a->nm_perawatan, $b->nm_perawatan);
+            if ($cmpName !== 0) return $cmpName;
             return strcmp($a->tgl_perawatan, $b->tgl_perawatan);
         });
 
