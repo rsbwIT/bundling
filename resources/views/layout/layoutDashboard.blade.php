@@ -1968,6 +1968,32 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-envelope-open-text"></i>
+                                <p>
+                                    Surat-Surat
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/listnama') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>List Nama Pasien</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- MENU KASIR --}}
+                        <li class="nav-header">Kasir</li>
+                        <li class="nav-item">
+                            <a href="{{ url('/list-nama-kasir') }}" class="nav-link">
+                                <i class="nav-icon fas fa-cash-register"></i>
+                                <p>Rincian Kasir</p>
+                            </a>
+                        </li>
 
                         {{-- MENU KEPEGAWAIAN --}}
                         <li class="nav-header user-panel"></li>

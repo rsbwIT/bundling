@@ -158,6 +158,9 @@ use App\Http\Controllers\Bpjs\LaporanKlaimIndividual;
 use App\Http\Controllers\Bpjs\BpjsFingerprintController;
 use App\Http\Controllers\Bpjs\MJKNController;
 use App\Http\Controllers\Bpjs\MJKNController1;
+use App\Http\Controllers\Surat\Listnama;
+use App\Http\Controllers\Rinciankasir\rincian;
+use App\Http\Controllers\Rinciankasir\listnamakasir;
 
 
 
@@ -823,6 +826,13 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         // PKPA
         Route::get('/monitoring-pkpa', [MonitoringPkpaController::class, 'index'])->name('pkpa.monitoring');
+
+        // LIST NAMA PASIEN
+        Route::get('/listnama', [Listnama::class, 'index'])->name('listnama.index');
+        Route::get('/surat-keterangan-dokter', [Listnama::class, 'suratKeteranganDokter'])->name('surat.keterangan-dokter');
+        Route::get('/surat-keterangan-vaksin', [Listnama::class, 'suratKeteranganVaksin'])->name('surat.keterangan-vaksin');
+        Route::get('/rincian-kasir', [rincian::class, 'show'])->name('rincian.show');
+        Route::get('/list-nama-kasir', [listnamakasir::class, 'index'])->name('rincian.listnama');
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);
