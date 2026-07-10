@@ -252,16 +252,36 @@
                                 </a>
 
                                 @php
-                                    $lembar = DB::table('fisioterapi_kunjungan')
+                                    $maxLembForm = DB::table('fisioterapi_form')
                                         ->where('no_rkm_medis', $row->no_rkm_medis)
                                         ->max('lembar') ?? 1;
+                                    $maxLembKunj = DB::table('fisioterapi_kunjungan')
+                                        ->where('no_rkm_medis', $row->no_rkm_medis)
+                                        ->max('lembar') ?? 1;
+                                    $maxLembar = max($maxLembForm, $maxLembKunj);
                                 @endphp
 
-                                <a href="{{ route('fisioterapi.print', [$row->no_rkm_medis, $lembar]) }}"
-                                    class="btn btn-secondary btn-sm"
-                                    style="border-radius:10px;font-weight:600;">
-                                    <i class="fas fa-print"></i> Print
-                                </a>
+                                @if($maxLembar > 1)
+                                    <div class="btn-group" style="display:inline-block;">
+                                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:10px; font-weight:600;">
+                                            <i class="fas fa-print"></i> Print
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            @for ($l = 1; $l <= $maxLembar; $l++)
+                                                <a class="dropdown-item" href="{{ route('fisioterapi.print', [$row->no_rkm_medis, $l]) }}" target="_blank">
+                                                    Lembar {{ $l }}
+                                                </a>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                @else
+                                    <a href="{{ route('fisioterapi.print', [$row->no_rkm_medis, 1]) }}"
+                                        class="btn btn-secondary btn-sm"
+                                        target="_blank"
+                                        style="border-radius:10px; font-weight:600;">
+                                        <i class="fas fa-print"></i> Print
+                                    </a>
+                                @endif
                             </td>
                         </tr>
 
