@@ -391,7 +391,11 @@ let pads = {};
 
 function initPads() {
     document.querySelectorAll('.signature-pad').forEach(c => {
-        const pad = new SignaturePad(c, { backgroundColor: '#fff' });
+        // Set internal canvas dimensions to match its CSS layout size
+        c.width = c.offsetWidth;
+        c.height = c.offsetHeight;
+
+        const pad = new SignaturePad(c, { backgroundColor: '#ffffff' });
         const role = c.dataset.role;
         const idx = c.dataset.index;
 
