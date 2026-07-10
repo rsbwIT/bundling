@@ -365,6 +365,7 @@ $programList = [
         </table>
     </div>
 </div>
+</form>
 
 
 <!-- ===================== BUTTONS ===================== -->
@@ -380,8 +381,6 @@ $programList = [
         <button type="submit" form="fisioterapiForm" class="btn btn-primary px-5 fw-bold">Simpan</button>
     </div>
 </div>
-
-</form>
 
 
 <!-- ===================== JS ===================== -->

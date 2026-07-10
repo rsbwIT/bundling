@@ -49,7 +49,7 @@ class Fisioterapi extends Controller
      * TAMPIL FORM FISIOTERAPI
      * =============================================================
      */
-    public function form($tahun, $bulan, $hari, $no_rawat)
+    public function form(Request $request, $tahun, $bulan, $hari, $no_rawat)
     {
         $full_no_rawat = "$tahun/$bulan/$hari/$no_rawat";
 
@@ -73,9 +73,16 @@ class Fisioterapi extends Controller
         $rm = $rawat->no_rkm_medis;
 
         /** CEK LEMBAR TERAKHIR **/
-        $lembar = DB::table('fisioterapi_kunjungan')
+        $maxKunjungan = DB::table('fisioterapi_kunjungan')
             ->where('no_rkm_medis', $rm)
             ->max('lembar') ?? 1;
+        $maxForm = DB::table('fisioterapi_form')
+            ->where('no_rkm_medis', $rm)
+            ->max('lembar') ?? 1;
+        $lembarMax = max($maxKunjungan, $maxForm);
+
+        // Gunakan lembar dari request, default ke lembarMax
+        $lembar = $request->input('lembar', $lembarMax);
 
         $kunjungan = DB::table('fisioterapi_kunjungan')
             ->where(['no_rkm_medis' => $rm, 'lembar' => $lembar])
@@ -88,8 +95,9 @@ class Fisioterapi extends Controller
             return !empty($kunjungan[$i]) && !empty($kunjungan[$i]->program) && !empty($kunjungan[$i]->tanggal);
         });
 
-        if ($full) {
+        if ($full && $lembar == $lembarMax) {
             $lembar++;
+            $lembarMax = $lembar;
 
             DB::table('fisioterapi_form')->updateOrInsert(
                 ['no_rkm_medis' => $rm, 'lembar' => $lembar],
@@ -119,6 +127,7 @@ class Fisioterapi extends Controller
             'form'          => $form,
             'kunjungan'     => $kunjungan,
             'lembar'        => $lembar,
+            'lembarMax'     => $lembarMax,
             'tahun'         => $tahun,
             'bulan'         => $bulan,
             'hari'          => $hari,
@@ -358,6 +367,52 @@ class Fisioterapi extends Controller
             Log::error('BASE64 ERROR: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * =============================================================
+     * BUAT LEMBAR BARU (NEW LEMBAR)
+     * =============================================================
+     */
+    public function newLembar(Request $request, $tahun, $bulan, $hari, $no_rawat)
+    {
+        $full_no_rawat = "$tahun/$bulan/$hari/$no_rawat";
+        
+        $rawat = DB::table('reg_periksa')
+            ->where('no_rawat', $full_no_rawat)
+            ->first();
+
+        if (!$rawat) {
+            return redirect()
+                ->route('fisioterapi.pasien')
+                ->with('error', 'Data pasien tidak ditemukan.');
+        }
+
+        $rm = $rawat->no_rkm_medis;
+
+        $maxForm = DB::table('fisioterapi_form')->where('no_rkm_medis', $rm)->max('lembar') ?? 0;
+        $maxKunjungan = DB::table('fisioterapi_kunjungan')->where('no_rkm_medis', $rm)->max('lembar') ?? 0;
+        $newLembar = max($maxForm, $maxKunjungan) + 1;
+
+        DB::table('fisioterapi_form')->insert([
+            'no_rkm_medis' => $rm,
+            'lembar' => $newLembar,
+            'diagnosa' => '',
+            'ft' => '',
+            'st' => '',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return redirect()
+            ->route('fisioterapi.form', [
+                'tahun' => $tahun,
+                'bulan' => $bulan,
+                'hari' => $hari,
+                'no_rawat' => $no_rawat,
+                'lembar' => $newLembar
+            ])
+            ->with('success', 'Lembar baru #' . $newLembar . ' berhasil dibuat.');
     }
     
 }
