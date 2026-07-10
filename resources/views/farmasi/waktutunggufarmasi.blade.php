@@ -66,136 +66,201 @@
         </div>
     </div>
 
-    {{-- ── Info Bar ── --}}
-    <div class="d-flex align-items-center mb-2" style="gap:8px;">
-        <span class="badge badge-light border text-secondary" style="font-size:.82rem;">
-            <i class="fas fa-users mr-1"></i>Total Antrian:
-            <strong id="totalCount">{{ count($data) }}</strong> resep
-        </span>
-        <span class="badge badge-light border text-secondary" style="font-size:.82rem;" id="filteredBadge" style="display:none;"></span>
-    </div>
-
-    {{-- ── Table Card ── --}}
-    <div class="card shadow-sm">
+    {{-- ── Tabs Navigation ── --}}
+    <div class="card card-primary card-tabs shadow-sm">
+        <div class="card-header p-0 pt-1">
+            <ul class="nav nav-tabs" id="farmasiTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active font-weight-bold" id="nonracik-tab" data-toggle="pill" href="#nonracik" role="tab" aria-controls="nonracik" aria-selected="true">
+                        <i class="fas fa-pills mr-1 text-info"></i> Obat Non-Racik
+                        <span class="badge badge-info ml-1" id="badge-count-nonracik">{{ count($nonRacik) }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold" id="racik-tab" data-toggle="pill" href="#racik" role="tab" aria-controls="racik" aria-selected="false">
+                        <i class="fas fa-mortar-pestle mr-1 text-warning"></i> Obat Racikan
+                        <span class="badge badge-warning text-dark ml-1" id="badge-count-racik">{{ count($racik) }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
         <div class="card-body p-0">
-            <div class="table-responsive" style="max-height:600px; overflow:auto;">
-                <table class="table table-bordered table-hover table-sm mb-0" id="tabelAntrian">
-                    <thead>
-                        <tr style="background:#f8fafc;">
-                            <th class="text-center" style="width:44px; position:sticky; top:0; z-index:2; background:#f8fafc;">#</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">No. RM</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Nama Pasien</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Tanggal</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Keterangan</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Racik/Non-Racik</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Daftar</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Selesai</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Tunggu</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelBody">
-                        @forelse ($data as $i => $row)
-                        <tr>
-                            <td class="text-center text-muted small">{{ $i + 1 }}</td>
-                            <td>
-                                <span class="badge badge-secondary" style="font-size:.75rem;">
-                                    {{ $row->rekam_medik }}
-                                </span>
-                            </td>
-                            <td class="font-weight-bold text-dark" style="white-space:nowrap;">
-                                {{ $row->nama_pasien }}
-                            </td>
-                            <td class="text-muted small" style="white-space:nowrap;">
-                                {{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}
-                            </td>
-                            <td class="small">{{ $row->keterangan ?: '-' }}</td>
-                            <td class="text-center">
-                                @if(strtolower($row->racik_non_racik) === 'racik')
-                                    <span class="badge badge-warning text-dark px-2" style="font-size:.72rem;">Racik</span>
-                                @elseif(strtolower($row->racik_non_racik) === 'non racik')
-                                    <span class="badge badge-info px-2" style="font-size:.72rem;">Non-Racik</span>
-                                @else
-                                    <span class="badge badge-light border px-2" style="font-size:.72rem;">{{ $row->racik_non_racik ?: '-' }}</span>
-                                @endif
-                            </td>
-                            <td class="small" style="white-space:nowrap;">
-                                {{ $row->waktu_daftar ? \Carbon\Carbon::parse($row->waktu_daftar)->format('d-m-Y H:i:s') : '-' }}
-                            </td>
-                            <td class="small" style="white-space:nowrap;">
-                                {{ $row->waktu_selesai ? \Carbon\Carbon::parse($row->waktu_selesai)->format('d-m-Y H:i:s') : '-' }}
-                            </td>
-                            <td class="text-center">
-                                @if(strtolower($row->status) === 'selesai' || $row->status == '3')
-                                    <span class="badge badge-success px-2" style="font-size:.72rem;">Selesai</span>
-                                @else
-                                    <span class="badge badge-danger px-2" style="font-size:.72rem;">{{ $row->status }}</span>
-                                @endif
-                            </td>
-                            <td class="font-weight-bold text-primary small" style="white-space:nowrap;">
-                                @if($row->waktu_tunggu_menit !== null && $row->waktu_tunggu_menit >= 0)
-                                    <i class="far fa-clock mr-1"></i> {{ $row->waktu_tunggu_jam_menit }}
-                                    <span class="text-muted font-weight-normal">({{ $row->waktu_tunggu_menit }} Menit)</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="10" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
-                                Tidak ada data antrian farmasi pada rentang tanggal
-                                <strong>{{ \Carbon\Carbon::parse($tgl1)->format('d/m/Y') }} s.d {{ \Carbon\Carbon::parse($tgl2)->format('d/m/Y') }}</strong>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="tab-content" id="farmasiTabContent">
+                
+                {{-- TAB 1: NON RACIK --}}
+                <div class="tab-pane fade show active" id="nonracik" role="tabpanel" aria-labelledby="nonracik-tab">
+                    <div class="table-responsive" style="max-height:600px; overflow:auto;">
+                        <table class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr style="background:#f8fafc;">
+                                    <th class="text-center" style="width:44px; position:sticky; top:0; z-index:2; background:#f8fafc;">#</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">No. RM</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Nama Pasien</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Tanggal</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Keterangan</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Daftar</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Selesai</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Tunggu</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tabelBody" id="bodyNonRacik">
+                                @forelse ($nonRacik as $i => $row)
+                                <tr>
+                                    <td class="text-center text-muted small">{{ $i + 1 }}</td>
+                                    <td>
+                                        <span class="badge badge-secondary" style="font-size:.75rem;">
+                                            {{ $row->rekam_medik }}
+                                        </span>
+                                    </td>
+                                    <td class="font-weight-bold text-dark" style="white-space:nowrap;">
+                                        {{ $row->nama_pasien }}
+                                    </td>
+                                    <td class="text-muted small" style="white-space:nowrap;">
+                                        {{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}
+                                    </td>
+                                    <td class="small">{{ $row->keterangan ?: '-' }}</td>
+                                    <td class="small" style="white-space:nowrap;">
+                                        {{ $row->waktu_daftar ? \Carbon\Carbon::parse($row->waktu_daftar)->format('d-m-Y H:i:s') : '-' }}
+                                    </td>
+                                    <td class="small" style="white-space:nowrap;">
+                                        {{ $row->waktu_selesai ? \Carbon\Carbon::parse($row->waktu_selesai)->format('d-m-Y H:i:s') : '-' }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if(strtolower($row->status) === 'selesai' || $row->status == '3')
+                                            <span class="badge badge-success px-2" style="font-size:.72rem;">Selesai</span>
+                                        @else
+                                            <span class="badge badge-danger px-2" style="font-size:.72rem;">{{ $row->status }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="font-weight-bold text-primary small" style="white-space:nowrap;">
+                                        @if($row->waktu_tunggu_menit !== null && $row->waktu_tunggu_menit >= 0)
+                                            <i class="far fa-clock mr-1"></i> {{ $row->waktu_tunggu_jam_menit }}
+                                            <span class="text-muted font-weight-normal">({{ $row->waktu_tunggu_menit }} Menit)</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                        Tidak ada antrian obat non-racik.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- TAB 2: RACIK --}}
+                <div class="tab-pane fade" id="racik" role="tabpanel" aria-labelledby="racik-tab">
+                    <div class="table-responsive" style="max-height:600px; overflow:auto;">
+                        <table class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr style="background:#f8fafc;">
+                                    <th class="text-center" style="width:44px; position:sticky; top:0; z-index:2; background:#f8fafc;">#</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">No. RM</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Nama Pasien</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Tanggal</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Keterangan</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Daftar</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Selesai</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status</th>
+                                    <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Waktu Tunggu</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tabelBody" id="bodyRacik">
+                                @forelse ($racik as $i => $row)
+                                <tr>
+                                    <td class="text-center text-muted small">{{ $i + 1 }}</td>
+                                    <td>
+                                        <span class="badge badge-secondary" style="font-size:.75rem;">
+                                            {{ $row->rekam_medik }}
+                                        </span>
+                                    </td>
+                                    <td class="font-weight-bold text-dark" style="white-space:nowrap;">
+                                        {{ $row->nama_pasien }}
+                                    </td>
+                                    <td class="text-muted small" style="white-space:nowrap;">
+                                        {{ \Carbon\Carbon::parse($row->tanggal)->format('d-m-Y') }}
+                                    </td>
+                                    <td class="small">{{ $row->keterangan ?: '-' }}</td>
+                                    <td class="small" style="white-space:nowrap;">
+                                        {{ $row->waktu_daftar ? \Carbon\Carbon::parse($row->waktu_daftar)->format('d-m-Y H:i:s') : '-' }}
+                                    </td>
+                                    <td class="small" style="white-space:nowrap;">
+                                        {{ $row->waktu_selesai ? \Carbon\Carbon::parse($row->waktu_selesai)->format('d-m-Y H:i:s') : '-' }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if(strtolower($row->status) === 'selesai' || $row->status == '3')
+                                            <span class="badge badge-success px-2" style="font-size:.72rem;">Selesai</span>
+                                        @else
+                                            <span class="badge badge-danger px-2" style="font-size:.72rem;">{{ $row->status }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="font-weight-bold text-primary small" style="white-space:nowrap;">
+                                        @if($row->waktu_tunggu_menit !== null && $row->waktu_tunggu_menit >= 0)
+                                            <i class="far fa-clock mr-1"></i> {{ $row->waktu_tunggu_jam_menit }}
+                                            <span class="text-muted font-weight-normal">({{ $row->waktu_tunggu_menit }} Menit)</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                        Tidak ada antrian obat racik.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
-
-        @if(count($data) > 0)
-        <div class="card-footer py-2 text-muted small">
-            Menampilkan <strong id="shownCount">{{ count($data) }}</strong> dari
-            <strong>{{ count($data) }}</strong> data
-        </div>
-        @endif
     </div>
 
 </div>
 
 <script>
 (function () {
-    const input   = document.getElementById('searchInput');
-    const rows    = document.querySelectorAll('#tabelBody tr');
-    const shown   = document.getElementById('shownCount');
-    const badge   = document.getElementById('filteredBadge');
+    const input            = document.getElementById('searchInput');
+    const rowsNonRacik     = document.querySelectorAll('#bodyNonRacik tr');
+    const rowsRacik        = document.querySelectorAll('#bodyRacik tr');
+    const badgeNonRacik    = document.getElementById('badge-count-nonracik');
+    const badgeRacik       = document.getElementById('badge-count-racik');
 
     if (!input) return;
 
     input.addEventListener('input', function () {
         const kw = this.value.trim().toLowerCase();
-        let visible = 0;
-
-        rows.forEach(row => {
-            if (row.cells.length < 3) return; // skip empty row
-            
+        
+        // Filter Non-Racik
+        let visibleNonRacik = 0;
+        rowsNonRacik.forEach(row => {
+            if (row.cells.length < 3) return;
             const match = !kw || row.innerText.toLowerCase().includes(kw);
             row.style.display = match ? '' : 'none';
-            if (match) visible++;
+            if (match) visibleNonRacik++;
         });
+        if (badgeNonRacik) badgeNonRacik.textContent = visibleNonRacik;
 
-        if (shown) shown.textContent = visible;
-
-        if (badge) {
-            if (kw) {
-                badge.style.display = '';
-                badge.innerHTML = `<i class="fas fa-filter mr-1"></i>Ditemukan: <strong>${visible}</strong>`;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
+        // Filter Racik
+        let visibleRacik = 0;
+        rowsRacik.forEach(row => {
+            if (row.cells.length < 3) return;
+            const match = !kw || row.innerText.toLowerCase().includes(kw);
+            row.style.display = match ? '' : 'none';
+            if (match) visibleRacik++;
+        });
+        if (badgeRacik) badgeRacik.textContent = visibleRacik;
     });
 })();
 </script>
