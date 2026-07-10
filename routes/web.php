@@ -161,6 +161,7 @@ use App\Http\Controllers\Bpjs\MJKNController1;
 use App\Http\Controllers\Surat\Listnama;
 use App\Http\Controllers\Rinciankasir\rincian;
 use App\Http\Controllers\Rinciankasir\listnamakasir;
+use App\Http\Controllers\Farmasi\waktutunggufarmasi;
 
 
 
@@ -576,6 +577,8 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
             ->name('pajak.simpan');
         Route::get('/pemesanan-farmasi/export', [PemesananFarmasi::class, 'export'])
             ->name('pemesanan.export');
+        Route::get('/waktu-tunggu-farmasi', [waktutunggufarmasi::class, 'index'])->name('waktutunggufarmasi.index');
+        Route::get('/waktu-tunggu-farmasi/export', [waktutunggufarmasi::class, 'export'])->name('waktutunggufarmasi.export');
 
 
 

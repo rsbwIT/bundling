@@ -1542,7 +1542,15 @@
                                     </a>
                                 </li>
                             </ul>
-
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/waktu-tunggu-farmasi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Waktu Tunggu Farmasi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                             {{-- MENU RM --}}
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
