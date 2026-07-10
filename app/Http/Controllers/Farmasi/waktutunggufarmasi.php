@@ -10,8 +10,8 @@ class waktutunggufarmasi extends Controller
 {
     public function index(Request $request)
     {
-        // Default range: awal bulan ini s.d hari ini
-        $tgl1 = $request->input('tgl1', date('Y-m-01'));
+        // Default range: hari ini s.d hari ini
+        $tgl1 = $request->input('tgl1', date('Y-m-d'));
         $tgl2 = $request->input('tgl2', date('Y-m-d'));
 
         // Jalankan raw query yang diinstruksikan oleh user
@@ -45,7 +45,7 @@ class waktutunggufarmasi extends Controller
 
     public function export(Request $request)
     {
-        $tgl1 = $request->input('tgl1', date('Y-m-01'));
+        $tgl1 = $request->input('tgl1', date('Y-m-d'));
         $tgl2 = $request->input('tgl2', date('Y-m-d'));
 
         $data = DB::select("
