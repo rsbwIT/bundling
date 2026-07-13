@@ -201,8 +201,13 @@
         }
     </style>
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- Top Action Bar -->
-    <div class="no-print d-flex justify-content-end mb-3 mx-auto" style="width: 210mm; max-width: 100%;">
+    <div class="no-print d-flex justify-content-end gap-2 mb-3 mx-auto" style="width: 210mm; max-width: 100%;">
+        <button class="btn btn-success" id="btnSimpanSurat">
+            <i class="fas fa-save mr-1"></i> Simpan Isi Surat
+        </button>
         <button class="btn btn-primary" onclick="window.print()">
             <i class="fas fa-print mr-1"></i> Cetak Surat Dokter
         </button>
@@ -264,7 +269,7 @@
         {{-- ── JUDUL ── --}}
         <div class="judul">SURAT KETERANGAN DOKTER</div>
         <div class="nomor">
-            Nomor: <input type="text" class="input-print" style="width: 80px; text-align: center; font-size: 11px;" placeholder="........"> /SKD/ <input type="text" class="input-print" style="width: 80px; text-align: center; font-size: 11px;" placeholder="........"> /{{ date('Y') }}
+            Nomor: {{ $nomor_surat }}
         </div>
 
         {{-- ── BODY ── --}}
@@ -318,9 +323,9 @@
         </p>
 
         <p class="body-text" style="margin-top: 6px;">
-            Diberikan istirahat selama <input type="text" class="input-print" style="width: 40px; text-align: center;" placeholder="......."> hari, 
-            terhitung mulai tanggal <input type="text" class="input-print" style="width: 140px; text-align: center;" value="{{ \Carbon\Carbon::parse($data->tgl_registrasi)->translatedFormat('d F Y') }}" placeholder="................"> s/d 
-            <input type="text" class="input-print" style="width: 140px; text-align: center;" value="{{ \Carbon\Carbon::parse($data->tgl_registrasi)->translatedFormat('d F Y') }}" placeholder="................">, 
+            Diberikan istirahat selama <input type="text" id="istirahat_hari" class="input-print" style="width: 40px; text-align: center;" value="{{ $isi_surat['istirahat_hari'] ?? '' }}" placeholder="......."> hari, 
+            terhitung mulai tanggal <input type="text" id="tgl_mulai" class="input-print" style="width: 140px; text-align: center;" value="{{ $isi_surat['tgl_mulai'] ?? \Carbon\Carbon::parse($data->tgl_registrasi)->translatedFormat('d F Y') }}" placeholder="................"> s/d 
+            <input type="text" id="tgl_sd" class="input-print" style="width: 140px; text-align: center;" value="{{ $isi_surat['tgl_sd'] ?? \Carbon\Carbon::parse($data->tgl_registrasi)->translatedFormat('d F Y') }}" placeholder="................">, 
             pasien dianjurkan untuk :
         </p>
 
@@ -328,7 +333,7 @@
             @for ($i = 1; $i <= 5; $i++)
             <div class="anjuran-row">
                 <span class="anjuran-no">{{ $i . ')' }}</span>
-                <div class="anjuran-line" contenteditable="true"></div>
+                <div class="anjuran-line" id="anjuran_{{ $i }}" contenteditable="true">{{ $isi_surat['anjuran_'.$i] ?? '' }}</div>
             </div>
             @endfor
         </div>
@@ -349,11 +354,48 @@
             </div>
             <p style="margin: 0; line-height: 1.5;">
                 Nama Dokter: <strong>{{ $data->nm_dokter ?? '' }}</strong><br>
-                SIP No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" class="input-print" style="width: 150px;" placeholder="................">
+                SIP No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" id="sip_no" class="input-print" style="width: 150px;" value="{{ $isi_surat['sip_no'] ?? '' }}" placeholder="................">
             </p>
         </div>
 
     </div>
 
 </div>
+
+{{-- SCRIPT SIMPAN ISI SURAT --}}
+<script>
+$(function(){
+    $('#btnSimpanSurat').click(function(){
+
+        let isiSurat = {
+            istirahat_hari: $('#istirahat_hari').val(),
+            tgl_mulai:      $('#tgl_mulai').val(),
+            tgl_sd:         $('#tgl_sd').val(),
+            anjuran_1:      $('#anjuran_1').text(),
+            anjuran_2:      $('#anjuran_2').text(),
+            anjuran_3:      $('#anjuran_3').text(),
+            anjuran_4:      $('#anjuran_4').text(),
+            anjuran_5:      $('#anjuran_5').text(),
+            sip_no:         $('#sip_no').val()
+        };
+
+        $.ajax({
+            url: '/surat-simpan-isi',
+            type: 'POST',
+            data: {
+                _token:      $('meta[name="csrf-token"]').attr('content'),
+                no_rawat:    '{{ $data->no_rawat }}',
+                jenis_surat: 'SKD',
+                isi_surat:   isiSurat
+            },
+            success: function(res){
+                alert(res.message);
+            },
+            error: function(xhr){
+                alert('ERROR: ' + xhr.responseText);
+            }
+        });
+    });
+});
+</script>
 @endsection

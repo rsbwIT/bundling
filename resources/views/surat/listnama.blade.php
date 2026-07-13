@@ -9,10 +9,15 @@
         <div>
             <small class="text-muted">Data registrasi pasien untuk pembuatan surat keterangan</small>
         </div>
-        <span class="badge badge-primary px-3 py-2" style="font-size:.85rem;">
-            <i class="fas fa-calendar-alt mr-1"></i>
-            {{ \Carbon\Carbon::parse($tgl1)->format('d/m/Y') }} s.d {{ \Carbon\Carbon::parse($tgl2)->format('d/m/Y') }}
-        </span>
+        <div class="d-flex align-items-center" style="gap:10px;">
+            <a href="{{ route('surat.terisi') }}" class="btn btn-success btn-sm font-weight-bold">
+                <i class="fas fa-file-alt mr-1"></i> Daftar Surat Terisi
+            </a>
+            <span class="badge badge-primary px-3 py-2" style="font-size:.85rem;">
+                <i class="fas fa-calendar-alt mr-1"></i>
+                {{ \Carbon\Carbon::parse($tgl1)->format('d/m/Y') }} s.d {{ \Carbon\Carbon::parse($tgl2)->format('d/m/Y') }}
+            </span>
+        </div>
     </div>
 
     {{-- ── Filter Card ── --}}

@@ -203,8 +203,13 @@
         }
     </style>
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- Top Action Bar -->
-    <div class="no-print d-flex justify-content-end mb-3 mx-auto" style="width: 210mm; max-width: 100%;">
+    <div class="no-print d-flex justify-content-end gap-2 mb-3 mx-auto" style="width: 210mm; max-width: 100%;">
+        <button class="btn btn-success" id="btnSimpanSurat">
+            <i class="fas fa-save mr-1"></i> Simpan Isi Surat
+        </button>
         <button class="btn btn-primary" onclick="window.print()">
             <i class="fas fa-print mr-1"></i> Cetak Surat Vaksin
         </button>
@@ -266,7 +271,7 @@
         {{-- ── JUDUL ── --}}
         <div class="judul">SURAT KETERANGAN VAKSINASI</div>
         <div class="nomor">
-            Nomor: <input type="text" class="input-print" style="width: 80px; text-align: center; font-size: 11px;" placeholder="........"> /SKV/ <input type="text" class="input-print" style="width: 80px; text-align: center; font-size: 11px;" placeholder="........"> /{{ date('Y') }}
+            Nomor: {{ $nomor_surat }}
         </div>
 
         {{-- ── BODY ── --}}
@@ -316,12 +321,12 @@
             <tr>
                 <td class="label">Berat Badan</td>
                 <td class="colon">:</td>
-                <td><input type="text" class="input-print" style="width: 80px;" placeholder="................"> Kg</td>
+                <td><input type="text" id="berat_badan" class="input-print" style="width: 80px;" value="{{ $isi_surat['berat_badan'] ?? '' }}" placeholder="................"> Kg</td>
             </tr>
             <tr>
                 <td class="label">Tinggi Badan</td>
                 <td class="colon">:</td>
-                <td><input type="text" class="input-print" style="width: 80px;" placeholder="................"> Cm</td>
+                <td><input type="text" id="tinggi_badan" class="input-print" style="width: 80px;" value="{{ $isi_surat['tinggi_badan'] ?? '' }}" placeholder="................"> Cm</td>
             </tr>
         </table>
 
@@ -332,7 +337,7 @@
         @for ($i = 1; $i <= 3; $i++)
         <div class="anjuran-row">
             <span class="anjuran-no">Dosis {{ $i }}</span>
-            <div class="anjuran-line" contenteditable="true"></div>
+            <div class="anjuran-line" id="dosis_{{ $i }}" contenteditable="true">{{ $isi_surat['dosis_'.$i] ?? '' }}</div>
         </div>
         @endfor
 
@@ -352,11 +357,45 @@
             </div>
             <p style="margin: 0; line-height: 1.5;">
                 Nama Dokter: <strong>{{ $data->nm_dokter ?? '' }}</strong><br>
-                SIP No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" class="input-print" style="width: 150px;" placeholder="................">
+                SIP No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" id="sip_no" class="input-print" style="width: 150px;" value="{{ $isi_surat['sip_no'] ?? '' }}" placeholder="................">
             </p>
         </div>
 
     </div>
 
 </div>
+
+{{-- SCRIPT SIMPAN ISI SURAT --}}
+<script>
+$(function(){
+    $('#btnSimpanSurat').click(function(){
+
+        let isiSurat = {
+            berat_badan:  $('#berat_badan').val(),
+            tinggi_badan: $('#tinggi_badan').val(),
+            dosis_1:      $('#dosis_1').text(),
+            dosis_2:      $('#dosis_2').text(),
+            dosis_3:      $('#dosis_3').text(),
+            sip_no:       $('#sip_no').val()
+        };
+
+        $.ajax({
+            url: '/surat-simpan-isi',
+            type: 'POST',
+            data: {
+                _token:      $('meta[name="csrf-token"]').attr('content'),
+                no_rawat:    '{{ $data->no_rawat }}',
+                jenis_surat: 'SKV',
+                isi_surat:   isiSurat
+            },
+            success: function(res){
+                alert(res.message);
+            },
+            error: function(xhr){
+                alert('ERROR: ' + xhr.responseText);
+            }
+        });
+    });
+});
+</script>
 @endsection

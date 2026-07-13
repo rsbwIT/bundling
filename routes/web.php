@@ -205,6 +205,14 @@ Route::group(['middleware' => 'default'], function () {
         // LIST PASIEN
         Route::get('/', [Listpasien::class, 'Listpasien']);
 
+        // SURAT
+        Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');
+        Route::get('/surat/ket-dokter', [Listnama::class, 'suratKeteranganDokter'])->name('surat.ket_dokter');
+        Route::get('/surat/ket-vaksin', [Listnama::class, 'suratKeteranganVaksin'])->name('surat.ket_vaksin');
+        Route::post('/surat/simpan-isi', [Listnama::class, 'simpanIsiSurat'])->name('surat.simpan_isi');
+        Route::get('/surat/terisi', [Listnama::class, 'suratTerisi'])->name('surat.terisi');
+        Route::delete('/surat/terisi/{id}', [Listnama::class, 'hapusSuratTerisi'])->name('surat.hapus');
+
         // OBAT
         Route::get('/returObat', [ReturObatController::class, 'Obat'])->middleware('permision-rsbw:penyakit');
         Route::get('/cariNorm', [ReturObatController::class, 'Obat']);
