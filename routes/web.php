@@ -188,6 +188,7 @@ Route::group(['middleware' => 'default'], function () {
     Route::group(['middleware' => 'auth-rsbw'], function () {
         Route::get('/test', [TestController::class, 'Test']);
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
+        Route::get('/jm-umum/detail', [JMUmumController::class, 'detail']);
         Route::get('/jm-bpjs', [JMBpjsController::class, 'index']);
         Route::get('/jm-bpjs/detail', [JMBpjsController::class, 'detail']);
         Route::get('/jm-asuransi', [JMAsuransiController::class, 'index']);

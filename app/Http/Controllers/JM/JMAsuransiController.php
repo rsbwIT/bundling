@@ -466,9 +466,11 @@ class JMAsuransiController extends Controller
             ->unionAll($queryLabDokterRalan)
             ->get();
 
-        $dataRalan = $results->groupBy('kd_dokter')->map(function ($row) {
+        $dataRalan = $results->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ralan' => $row->sum('total_ralan'),
             ];
@@ -1069,9 +1071,11 @@ class JMAsuransiController extends Controller
             ->unionAll($queryLabDokterRanap)
             ->get();
 
-        $dataRanap = $resultsRanap->groupBy('kd_dokter')->map(function ($row) {
+        $dataRanap = $resultsRanap->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ranap' => $row->sum('total_ranap'),
             ];
@@ -1080,6 +1084,9 @@ class JMAsuransiController extends Controller
         // Gabungkan ralan + ranap ke satu collection berdasarkan kd_dokter
         $allDokterKeys = $dataRalan->pluck('kd_dokter')
             ->merge($dataRanap->pluck('kd_dokter'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataCombined = $allDokterKeys->map(function ($kd) use ($dataRalan, $dataRanap) {
@@ -1514,9 +1521,11 @@ class JMAsuransiController extends Controller
             ->unionAll($queryPrRalanDrPr)
             ->get();
 
-        $dataPrRalan = $resultsPrRalan->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRalan = $resultsPrRalan->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ralan' => $row->sum('total_ralan'),
                 'jml_tindakan' => $row->sum('jml_tindakan'),
@@ -1525,17 +1534,20 @@ class JMAsuransiController extends Controller
             ];
         })->values();
 
-        // Gabungkan ranap paramedis (P2 + P3 + P4 + P5 + P6)
+        // Gabungkan ranap paramedis (P2 + P2b + P3 + P4 + P5 + P6)
         $resultsPrRanap = $queryPrRanapJl
+            ->unionAll($queryPrRanapJlDrPr)
             ->unionAll($queryPrRanap)
             ->unionAll($queryPrRanapDrPr)
             ->unionAll($queryPrOkAsistenOp1)
             ->unionAll($queryPrOkAsistenAnestesi)
             ->get();
 
-        $dataPrRanap = $resultsPrRanap->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRanap = $resultsPrRanap->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ranap' => $row->sum('total_ranap'),
                 'jml_tindakan' => $row->sum('jml_tindakan'),
@@ -1547,6 +1559,9 @@ class JMAsuransiController extends Controller
         // Gabungkan ralan + ranap paramedis
         $allPetugasKeys = $dataPrRalan->pluck('kd_petugas')
             ->merge($dataPrRanap->pluck('kd_petugas'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataParamedis = $allPetugasKeys->map(function ($nip) use ($dataPrRalan, $dataPrRanap) {
@@ -1908,6 +1923,58 @@ class JMAsuransiController extends Controller
             ->where('rawat_inap_pr.nip', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q11);
+
+        // 12. rawat_jl_drpr (Ralan/Ranap - Paramedis)
+        $q12 = DB::table('rawat_jl_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_drpr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ralan/Ranap - Tindakan DrPr (Paramedis)' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
+            ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_jl_drpr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q12);
+
+        // 13. rawat_inap_drpr (Ranap - Paramedis)
+        $q13 = DB::table('rawat_inap_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+                DB::raw("rawat_inap_drpr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ranap - Tindakan DrPr (Paramedis)' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_inap_drpr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q13);
+
+        // 14. operasi (Asisten Operator)
+        $q14 = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+                DB::raw("operasi.biayaasisten_operator1 as tarif"),
+                DB::raw("'Operasi - Asisten Operator' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('operasi.asisten_operator1', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q14);
+
+        // 15. operasi (Asisten Anestesi)
+        $q15 = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+                DB::raw("operasi.biayaasisten_anestesi as tarif"),
+                DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('operasi.asisten_anestesi', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q15);
 
         return view('detail-tindakan-umum.jm-asuransi-detail', [
             'details' => $details,

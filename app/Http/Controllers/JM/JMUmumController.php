@@ -371,9 +371,11 @@ class JMUmumController extends Controller
             ->unionAll($queryLabDokterRalan)
             ->get();
 
-        $dataRalan = $results->groupBy('kd_dokter')->map(function ($row) {
+        $dataRalan = $results->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ralan' => $row->sum('total_ralan'),
             ];
@@ -723,9 +725,11 @@ class JMUmumController extends Controller
             ->unionAll($queryLabDokterRanap)
             ->get();
 
-        $dataRanap = $resultsRanap->groupBy('kd_dokter')->map(function ($row) {
+        $dataRanap = $resultsRanap->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ranap' => $row->sum('total_ranap'),
             ];
@@ -734,6 +738,9 @@ class JMUmumController extends Controller
         // Gabungkan ralan + ranap ke satu collection berdasarkan kd_dokter
         $allDokterKeys = $dataRalan->pluck('kd_dokter')
             ->merge($dataRanap->pluck('kd_dokter'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataCombined = $allDokterKeys->map(function ($kd) use ($dataRalan, $dataRanap) {
@@ -1059,25 +1066,30 @@ class JMUmumController extends Controller
             ->unionAll($queryPrRalanDrPr)
             ->get();
 
-        $dataPrRalan = $resultsPrRalan->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRalan = $resultsPrRalan->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ralan' => $row->sum('total_ralan'),
             ];
         })->values();
 
-        // Gabungkan ranap paramedis (P2 + P3 + P4 + P5 + P6)
+        // Gabungkan ranap paramedis (P2 + P2b + P3 + P4 + P5 + P6)
         $resultsPrRanap = $queryPrRanapJl
+            ->unionAll($queryPrRanapJlDrPr)
             ->unionAll($queryPrRanap)
             ->unionAll($queryPrRanapDrPr)
             ->unionAll($queryPrOkAsistenOp1)
             ->unionAll($queryPrOkAsistenAnestesi)
             ->get();
 
-        $dataPrRanap = $resultsPrRanap->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRanap = $resultsPrRanap->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ranap' => $row->sum('total_ranap'),
             ];
@@ -1086,6 +1098,9 @@ class JMUmumController extends Controller
         // Gabungkan ralan + ranap paramedis
         $allPetugasKeys = $dataPrRalan->pluck('kd_petugas')
             ->merge($dataPrRanap->pluck('kd_petugas'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataParamedis = $allPetugasKeys->map(function ($nip) use ($dataPrRalan, $dataPrRanap) {
@@ -1230,6 +1245,317 @@ class JMUmumController extends Controller
             'unmatchedData'  => $unmatchedData,
             'tanggl1' => $tanggl1,
             'tanggl2' => $tanggl2
+        ]);
+    }
+
+    public function detail(Request $request)
+    {
+        $kdDokter = $request->kd_dokter;
+        $tanggl1 = $request->tgl1 ?? date('Y-m-01');
+        $tanggl2 = $request->tgl2 ?? date('Y-m-t');
+
+        if (!$kdDokter) {
+            return redirect('/jm-umum')->with('error', 'Kode dokter tidak ditemukan');
+        }
+
+        // Ambil nama dokter
+        $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
+            ?? $kdDokter;
+
+        $details = collect();
+
+        // 1. rawat_jl_dr (Ralan)
+        $q1 = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("'Ralan - Tindakan Dokter' as sumber"), DB::raw("'Ralan' as status"), 'rawat_jl_dr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_jl_dr', 'reg_periksa.no_rawat', '=', 'rawat_jl_dr.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_jl_dr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q1);
+
+        // 2. rawat_jl_drpr (Ralan - tarif dokter)
+        $q2 = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("'Ralan - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ralan' as status"), 'rawat_jl_drpr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_jl_drpr', 'reg_periksa.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_jl_drpr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q2);
+
+        // 2b. periksa_radiologi Ralan - JM Perujuk
+        $q2b = DB::table('periksa_radiologi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
+                DB::raw("'Radiologi - Perujuk' as sumber"), DB::raw("'Ralan' as status"), 'periksa_radiologi.tarif_perujuk as tarif')
+            ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_radiologi.dokter_perujuk', $kdDokter)->get();
+        $details = $details->merge($q2b);
+
+        // 2c. periksa_radiologi Ralan - JM PJ Rad
+        $q2c = DB::table('periksa_radiologi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
+                DB::raw("'Radiologi - PJ Rad' as sumber"), DB::raw("'Ralan' as status"), 'periksa_radiologi.tarif_tindakan_dokter as tarif')
+            ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_radiologi.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q2c);
+
+        // 2d. periksa_lab Lab PA Ralan - JM Perujuk
+        $q2d = DB::table('periksa_lab')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+                DB::raw("'Lab PA - Perujuk' as sumber"), DB::raw("'Ralan' as status"), 'periksa_lab.tarif_perujuk as tarif')
+            ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->where(function($q) {
+                $q->where('periksa_lab.kategori', 'PA')
+                  ->orWhere('jns_perawatan_lab.kategori', 'PA');
+            })
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_lab.dokter_perujuk', $kdDokter)->get();
+        foreach ($q2d as $item) {
+            $item->penjamin = 'Umum';
+        }
+        $details = $details->merge($q2d);
+
+        // 2e. periksa_lab Lab PA Ralan - JM PJ Lab
+        $q2e = DB::table('periksa_lab')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+                DB::raw("'Lab PA - PJ Lab' as sumber"), DB::raw("'Ralan' as status"), 'periksa_lab.tarif_tindakan_dokter as tarif')
+            ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->where(function($q) {
+                $q->where('periksa_lab.kategori', 'PA')
+                  ->orWhere('jns_perawatan_lab.kategori', 'PA');
+            })
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_lab.kd_dokter', $kdDokter)->get();
+        foreach ($q2e as $item) {
+            $item->penjamin = 'Umum';
+        }
+        $details = $details->merge($q2e);
+
+        // 3. rawat_inap_dr (Ranap Dokter Saja)
+        $q3 = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
+                DB::raw("'Ranap - Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"), 'rawat_inap_dr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_inap_dr', 'rawat_inap_dr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan_inap', 'rawat_inap_dr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_inap_dr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q3);
+
+        // 4. rawat_inap_drpr (Ranap Dokter & Paramedis) - Ambil tarif dokternya saja
+        $q4 = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
+                DB::raw("'Ranap - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ranap' as status"), 'rawat_inap_drpr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_inap_drpr', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_inap_drpr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q4);
+
+        // 5. OPERASI (operator1)
+        $q5 = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
+                DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ranap' as status"), 'operasi.biayaoperator1 as tarif')
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('operasi.operator1', $kdDokter)->get();
+        $details = $details->merge($q5);
+
+        // 5b. OPERASI (dokter_anestesi)
+        $q5b = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
+                DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ranap' as status"), 'operasi.biayadokter_anestesi as tarif')
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('operasi.dokter_anestesi', $kdDokter)->get();
+        $details = $details->merge($q5b);
+
+        // 6. rawat_jl_dr pada pasien Ranap
+        $q6_ranap_dr = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("'Ranap - Ralan Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"), 'rawat_jl_dr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_jl_dr', 'reg_periksa.no_rawat', '=', 'rawat_jl_dr.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_jl_dr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q6_ranap_dr);
+
+        // 7. rawat_jl_drpr pada pasien Ranap
+        $q7_ranap_drpr = DB::table('pasien')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("'Ranap - Ralan Tindakan DrPr' as sumber"), DB::raw("'Ranap' as status"), 'rawat_jl_drpr.tarif_tindakandr as tarif')
+            ->join('reg_periksa', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('rawat_jl_drpr', 'reg_periksa.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('rawat_jl_drpr.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q7_ranap_drpr);
+
+        // 8. periksa_radiologi Ranap - JM Perujuk
+        $q8_rad_perujuk = DB::table('periksa_radiologi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
+                DB::raw("'Radiologi - Perujuk' as sumber"), DB::raw("'Ranap' as status"), 'periksa_radiologi.tarif_perujuk as tarif')
+            ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_radiologi.dokter_perujuk', $kdDokter)->get();
+        $details = $details->merge($q8_rad_perujuk);
+
+        // 9. periksa_radiologi Ranap - JM PJ Rad
+        $q9_rad_dokter = DB::table('periksa_radiologi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
+                DB::raw("'Radiologi - PJ Rad' as sumber"), DB::raw("'Ranap' as status"), 'periksa_radiologi.tarif_tindakan_dokter as tarif')
+            ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_radiologi.kd_dokter', $kdDokter)->get();
+        $details = $details->merge($q9_rad_dokter);
+
+        // 10. periksa_lab Lab PA Ranap - JM Perujuk
+        $q10_lab_perujuk = DB::table('periksa_lab')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+                DB::raw("'Lab PA - Perujuk' as sumber"), DB::raw("'Ranap' as status"), 'periksa_lab.tarif_perujuk as tarif')
+            ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where(function($q) {
+                $q->where('periksa_lab.kategori', 'PA')
+                  ->orWhere('jns_perawatan_lab.kategori', 'PA');
+            })
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_lab.dokter_perujuk', $kdDokter)->get();
+        foreach ($q10_lab_perujuk as $item) {
+            $item->penjamin = 'Umum';
+        }
+        $details = $details->merge($q10_lab_perujuk);
+
+        // 11. periksa_lab Lab PA Ranap - JM PJ Lab
+        $q11_lab_dokter = DB::table('periksa_lab')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+                DB::raw("'Lab PA - PJ Lab' as sumber"), DB::raw("'Ranap' as status"), 'periksa_lab.tarif_tindakan_dokter as tarif')
+            ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where(function($q) {
+                $q->where('periksa_lab.kategori', 'PA')
+                  ->orWhere('jns_perawatan_lab.kategori', 'PA');
+            })
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('periksa_lab.kd_dokter', $kdDokter)->get();
+        foreach ($q11_lab_dokter as $item) {
+            $item->penjamin = 'Umum';
+        }
+        $details = $details->merge($q11_lab_dokter);
+
+        // Filter details to only include items where tarif > 0
+        $details = $details->filter(function($item) {
+            return $item->tarif > 0;
+        })->values();
+
+        return view('detail-tindakan-umum.jm-umum-detail', [
+            'details' => $details,
+            'nmDokter' => $nmDokter,
+            'kdDokter' => $kdDokter,
+            'tanggl1' => $tanggl1,
+            'tanggl2' => $tanggl2,
         ]);
     }
 }
