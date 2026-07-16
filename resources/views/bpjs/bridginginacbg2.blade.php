@@ -444,6 +444,24 @@ textarea:focus{
                                 required>
                         </td>
                     </tr>
+                    
+                    <tr>
+                        <td class="label">Pasien TB</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label style="margin: 0; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                    <input type="checkbox" id="is_pasien_tb" onchange="toggleSITB()" style="width: auto;"> Ya
+                                </label>
+                                
+                                <div id="container_sitb" style="display: none; align-items: center; gap: 10px; flex: 1;">
+                                    <input type="text" id="input_sitb" name="nomor_register_sitb" value="{{ old('nomor_register_sitb', $nomor_register_sitb ?? '') }}" style="width: 200px;" placeholder="Nomor Register">
+                                    <button type="button" id="btn_validasi_sitb" onclick="tampilkanModalValidasiSITB()" style="padding: 4px 10px; border: 1px solid #ccc; background: #eee; border-radius: 4px; cursor: pointer;">Validasi</button>
+                                    <button type="button" id="btn_batal_validasi_sitb" onclick="batalValidasiSITB()" style="padding: 4px 10px; border: 1px solid #dc3545; background: #dc3545; color: white; border-radius: 4px; cursor: pointer; display: none;">Batal Validasi</button>
+                                    <span id="sitb_status" style="font-size: 13px;"></span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
 
                     <tr>
                         <td class="label">Diastole</td>
@@ -636,6 +654,37 @@ textarea:focus{
     </div>
 </div>
 
+<!-- Modal Konfirmasi Validasi SITB -->
+<div class="modal fade" id="modalKonfirmasiSITB" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #333; color: white;">
+                <h5 class="modal-title">Konfirmasi Validasi Register SITB</h5>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <table class="table table-bordered" style="margin: 0;">
+                    <tr>
+                        <td align="right" style="width: 35%; color: #666;">Nama</td>
+                        <td id="sitb_modal_nama"></td>
+                    </tr>
+                    <tr>
+                        <td align="right" style="color: #666;">NIK</td>
+                        <td id="sitb_modal_nik"></td>
+                    </tr>
+                    <tr>
+                        <td align="right" style="color: #666;">Jenis Kelamin</td>
+                        <td id="sitb_modal_jk"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer" style="justify-content: center; background: #f8f9fa;">
+                <button type="button" class="btn btn-light" style="border: 1px solid #ccc; width: 120px;" onclick="validasiSITB()">Ya (Benar)</button>
+                <button type="button" class="btn btn-light" style="border: 1px solid #ccc; width: 120px;" data-dismiss="modal">Tidak (Batal)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // 1. Data Source (Langsung dari PHP ke JS)
     const dataPenyakit = [ @foreach(DB::table('penyakit')->get() as $p) { kd: "{{ $p->kd_penyakit }}", nm: "{{ addslashes($p->nm_penyakit) }}" }, @endforeach ];
@@ -676,6 +725,154 @@ textarea:focus{
             let checked = container.querySelectorAll('.pilih:checked');
             input.value = Array.from(checked).map(c => c.value).filter(Boolean).join('#');
         }
+    });
+
+    // Toggle SITB Input
+    function toggleSITB() {
+        let isTB = document.getElementById('is_pasien_tb').checked;
+        let containerSITB = document.getElementById('container_sitb');
+        let inputSITB = document.getElementById('input_sitb');
+
+        if (isTB) {
+            containerSITB.style.display = 'flex';
+            inputSITB.required = true;
+        } else {
+            containerSITB.style.display = 'none';
+            inputSITB.required = false;
+            inputSITB.value = '';
+            document.getElementById('sitb_status').innerHTML = '';
+        }
+    }
+
+    // 5b. Tampilkan Modal Konfirmasi sebelum Validasi
+    function tampilkanModalValidasiSITB() {
+        // Ambil dari variabel Blade
+        let nama = "{{ $pasien->nm_pasien ?? '-' }}";
+        let nik = "{{ $pasien->no_ktp ?? '-' }}";
+        let jk = "{{ isset($pasien->jk) ? ($pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan') : '-' }}";
+
+        document.getElementById('sitb_modal_nama').innerText = nama;
+        document.getElementById('sitb_modal_nik').innerText = nik;
+        document.getElementById('sitb_modal_jk').innerText = jk;
+
+        $('#modalKonfirmasiSITB').modal('show');
+    }
+
+    // 6. Validasi SITB (Eksekusi setelah Ya Benar ditekan)
+    function validasiSITB() {
+        let sep = document.querySelector('input[name="nosep"]').value;
+        let sitb = document.getElementById('input_sitb').value;
+        let no_rawat = document.querySelector('input[name="no_rawat"]').value;
+        let statusSpan = document.getElementById('sitb_status');
+        let btn = document.getElementById('btn_validasi_sitb');
+        let originalText = btn.innerHTML;
+
+        if (!sep) {
+            alert('Nomor SEP tidak ditemukan, pastikan SEP sudah tersimpan.');
+            return;
+        }
+        if (!sitb) {
+            alert('Nomor Register SITB harus diisi!');
+            return;
+        }
+
+        $('#modalKonfirmasiSITB').modal('hide'); // Tutup modal saat proses
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        statusSpan.innerHTML = 'Memproses...';
+        statusSpan.style.color = 'black';
+
+        fetch('{{ route("bpjs.inacbg.sitbValidate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                nomor_sep: sep,
+                nomor_register_sitb: sitb,
+                no_rawat: no_rawat
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            if (data.success) {
+                console.log("Response Validasi SITB:", data);
+                statusSpan.style.color = 'green';
+                statusSpan.innerHTML = data.message;
+                document.getElementById('btn_batal_validasi_sitb').style.display = 'inline-block';
+            } else {
+                statusSpan.style.color = 'red';
+                statusSpan.innerHTML = data.message;
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            statusSpan.style.color = 'red';
+            statusSpan.innerHTML = 'Terjadi kesalahan server';
+            console.error(err);
+        });
+    }
+
+    // 7. Batal Validasi SITB
+    function batalValidasiSITB() {
+        let sep = document.querySelector('input[name="nosep"]').value;
+        let statusSpan = document.getElementById('sitb_status');
+
+        if (!sep) {
+            alert('Nomor SEP harus diisi!');
+            return;
+        }
+
+        if (!confirm('Apakah Anda yakin ingin membatalkan validasi SITB?')) {
+            return;
+        }
+
+        let btn = document.getElementById('btn_batal_validasi_sitb');
+        let originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        fetch('{{ route("bpjs.inacbg.sitbInvalidate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                nomor_sep: sep
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            if (data.success) {
+                statusSpan.style.color = 'green';
+                statusSpan.innerHTML = data.message;
+                btn.style.display = 'none';
+            } else {
+                alert('Gagal: ' + data.message);
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Terjadi kesalahan pada server');
+            console.error(err);
+        });
+    }
+
+    // Panggil saat halaman diload untuk menyesuaikan state
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.getElementById('input_sitb').value !== '') {
+            document.getElementById('is_pasien_tb').checked = true;
+        }
+        toggleSITB();
     });
 </script>
 

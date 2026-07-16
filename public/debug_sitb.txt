@@ -1,0 +1,21 @@
+{
+    "metadata": {
+        "code": 200,
+        "message": "Ok"
+    },
+    "response": {
+        "status": "VALID",
+        "detail": "Nomor register valid (dan masuk dalam data klaim)",
+        "validation": {
+            "data": [
+                {
+                    "id": "2023000001460089",
+                    "nama": "Abdul jafaruddin",
+                    "nik": "1809050508880009",
+                    "jenis_kelamin_id": "1"
+                }
+            ],
+            "success": true
+        }
+    }
+}

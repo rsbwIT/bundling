@@ -220,6 +220,7 @@ class bridginginacbg2 extends Controller
                 'reg_periksa.tgl_registrasi',
                 'pasien.tgl_lahir',
                 'pasien.no_peserta',
+                'pasien.no_ktp',
                 'poliklinik.nm_poli',
                 'penjab.png_jawab',
                 'kamar.kelas',
@@ -501,6 +502,21 @@ class bridginginacbg2 extends Controller
 
             if (($res1['metadata']['message'] ?? '') !== 'Ok') {
                 throw new Exception('NEW CLAIM GAGAL: ' . json_encode($res1));
+            }
+
+            // 1.5 SITB VALIDATE
+            if (!empty($request->nomor_register_sitb)) {
+                $sitbPayload = [
+                    "metadata" => ["method" => "sitb_validate"],
+                    "data" => [
+                        "nomor_sep" => $request->nosep,
+                        "nomor_register_sitb" => $request->nomor_register_sitb
+                    ]
+                ];
+                $resSitb = $this->requestInacbg($sitbPayload);
+                if (($resSitb['metadata']['message'] ?? '') !== 'Ok') {
+                    throw new Exception('SITB VALIDATE GAGAL: ' . json_encode($resSitb));
+                }
             }
 
             // 2. SET CLAIM DATA
@@ -1031,6 +1047,121 @@ class bridginginacbg2 extends Controller
             DB::rollBack();
             Log::error('UPDATE DIAGNOSA/PROSEDUR ERROR: ' . $e->getMessage());
             return back()->with('error', 'Gagal update: ' . $e->getMessage());
+        }
+    }
+    public function sitbValidate(Request $request)
+    {
+        try {
+            if (!$request->nomor_sep || !$request->nomor_register_sitb) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor SEP atau Register SITB kosong'
+                ], 400);
+            }
+
+            // Execute new_claim first so INACBG recognizes the SEP
+            if ($request->no_rawat) {
+                $pasien = DB::table('reg_periksa')
+                    ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                    ->where('reg_periksa.no_rawat', $request->no_rawat)
+                    ->select('reg_periksa.no_rkm_medis', 'pasien.nm_pasien', 'pasien.jk', 'pasien.tgl_lahir', 'pasien.no_peserta', 'pasien.no_ktp')
+                    ->first();
+
+                if ($pasien) {
+                    $newClaim = [
+                        "metadata" => ["method" => "new_claim"],
+                        "data" => [
+                            "nomor_kartu" => $pasien->no_peserta,
+                            "nomor_sep"   => $request->nomor_sep,
+                            "nomor_rm"    => $pasien->no_rkm_medis,
+                            "nama_pasien" => $pasien->nm_pasien,
+                            "tgl_lahir"   => $pasien->tgl_lahir,
+                            "gender"      => $pasien->jk == 'L' ? '1' : '2'
+                        ]
+                    ];
+                    $this->requestInacbg($newClaim);
+                }
+            }
+
+            $sitbPayload = [
+                "metadata" => ["method" => "sitb_validate"],
+                "data" => [
+                    "nomor_sep" => $request->nomor_sep,
+                    "nomor_register_sitb" => $request->nomor_register_sitb
+                ]
+            ];
+            
+            $res = $this->requestInacbg($sitbPayload);
+            
+            if (($res['metadata']['code'] ?? 0) == 200 && ($res['response']['status'] ?? '') === 'VALID') {
+                $patientData = null;
+                if (isset($pasien)) {
+                    $patientData = [[
+                        'nama' => $pasien->nm_pasien,
+                        'nik' => $pasien->no_ktp,
+                        'jenis_kelamin_id' => $pasien->jk == 'L' ? '1' : '2'
+                    ]];
+                } else {
+                    $patientData = $res['validation']['data'] ?? $res['response']['data'] ?? $res['data'] ?? null;
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Validasi SITB Berhasil: ' . ($res['response']['detail'] ?? ''),
+                    'data' => $patientData
+                ]);
+            }
+            
+            $errMessage = $res['response']['detail'] ?? ($res['metadata']['message'] ?? 'Kesalahan pada server INACBG');
+            return response()->json([
+                'success' => false,
+                'message' => $errMessage
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function sitbInvalidate(Request $request)
+    {
+        try {
+            if (!$request->nomor_sep) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor SEP kosong'
+                ], 400);
+            }
+
+            $sitbPayload = [
+                "metadata" => ["method" => "sitb_invalidate"],
+                "data" => [
+                    "nomor_sep" => $request->nomor_sep
+                ]
+            ];
+            
+            $res = $this->requestInacbg($sitbPayload);
+            
+            if (($res['metadata']['code'] ?? 0) == 200) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pembatalan SITB Berhasil'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membatalkan: ' . json_encode($res)
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -254,6 +254,13 @@ Route::group(['middleware' => 'default'], function () {
         Route::any('/bpjs/inacbg/simpan', [bridginginacbg2::class, 'simpan'])
             ->name('bpjs.inacbg.simpan');
 
+        Route::post('/bpjs/inacbg/sitb-validate', [bridginginacbg2::class, 'sitbValidate'])
+            ->name('bpjs.inacbg.sitbValidate');
+
+        Route::post('/bpjs/inacbg/sitb-invalidate', [bridginginacbg2::class, 'sitbInvalidate'])
+            ->name('bpjs.inacbg.sitbInvalidate');
+
+
         // Tambahkan Route Baru untuk Tombol Grouper Saja
         Route::post('/bpjs/inacbg/grouper', [bridginginacbg2::class, 'grouper'])
             ->name('bpjs.inacbg.grouper');
