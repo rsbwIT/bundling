@@ -103,7 +103,7 @@ class JMUmumController extends Controller
         ['kode' => 'U18', 'nama' => 'Rizky Madiyya Taqwin, dr', 'id_khanza' => 'D0000053'],
         ['kode' => 'SP37', 'nama' => 'Roeswir Achary, dr, SpS', 'id_khanza' => 'D0000019'],
         ['kode' => 'SP38', 'nama' => 'Rolis Anggi Wurllyanti, drg, Sp.P.M', 'id_khanza' => 'D0000073'],
-        ['kode' => 'SP39', 'nama' => 'Rosdianti Diah Andhiani, dr, SpM', 'id_khanza' => 'D0000026'],
+        ['kode' => 'SP39', 'nama' => 'dr. M. Hamka Maha Putra, SpBM', 'id_khanza' => 'D0000135'],
         ['kode' => 'SP40', 'nama' => 'Ruskandi Martaatmadja, dr, SpA', 'id_khanza' => 'D0000020'],
         ['kode' => 'U19', 'nama' => 'Sabdo Mulyawan, dr', 'id_khanza' => 'D0000008'],
         ['kode' => 'SP41', 'nama' => 'Sanjoto Santibudi, dr, Sp.KFR', 'id_khanza' => 'D0000030'],
@@ -1147,12 +1147,12 @@ class JMUmumController extends Controller
             // 2. Tentukan Nama asli dari database
             $namaDb = $tpl['nama']; // Fallback menggunakan nama hardcode di atas
             if (!empty($id)) {
-                if (isset($pegawais[$id])) {
-                    $namaDb = $pegawais[$id];
-                } elseif (isset($dokters[$id])) {
+                if (isset($dokters[$id])) {
                     $namaDb = $dokters[$id];
                 } elseif (isset($petugass[$id])) {
                     $namaDb = $petugass[$id];
+                } elseif (isset($pegawais[$id])) {
+                    $namaDb = $pegawais[$id];
                 }
             }
 
