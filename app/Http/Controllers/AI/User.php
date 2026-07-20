@@ -16,8 +16,12 @@ class User extends Controller
             ->selectRaw("
                 p.nama as nama_petugas,
                 u.*,
+                CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)) as username_raw,
+                CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50)) as password_raw,
                 TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) as username_asli,
-                TRIM(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50))) as password_asli
+                TRIM(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50))) as password_asli,
+                IF(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)) LIKE '% %', 1, 0) as username_ada_spasi,
+                IF(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50)) LIKE '% %', 1, 0) as password_ada_spasi
             ")
             ->leftJoin('petugas as p', function ($join) {
                 $join->on(
@@ -130,6 +134,39 @@ class User extends Controller
 
         } catch (\Throwable $e) {
 
+            return response()->json([
+                'status' => false,
+                'message' => 'ERROR: '.$e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function perbaikiSpasi(Request $request)
+    {
+        try {
+            $username = $request->id_user;
+
+            if (!$username) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User tidak valid'
+                ]);
+            }
+
+            // Bersihkan spasi di id_user dan password untuk user ini
+            DB::table('user')
+                ->whereRaw("TRIM(CAST(AES_DECRYPT(id_user,'nur') AS CHAR(50))) = ?", [$username])
+                ->update([
+                    'id_user' => DB::raw("AES_ENCRYPT(TRIM(CAST(AES_DECRYPT(id_user,'nur') AS CHAR(50))), 'nur')"),
+                    'password' => DB::raw("AES_ENCRYPT(TRIM(CAST(AES_DECRYPT(password,'windi') AS CHAR(50))), 'windi')")
+                ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Spasi tersembunyi berhasil dibersihkan!'
+            ]);
+
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'ERROR: '.$e->getMessage()

@@ -448,6 +448,8 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         Route::post('/ai/user/akses/update', [User::class, 'updateAkses'])
             ->name('ai.user.akses.update');
+        Route::post('/ai/user/perbaiki-spasi', [User::class, 'perbaikiSpasi'])
+            ->name('ai.user.perbaiki_spasi');
         Route::post(
             '/ai/user/verifikasi-password',
             [User::class, 'verifikasiPassword']

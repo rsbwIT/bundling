@@ -52,9 +52,17 @@
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td>{{ $item->nama_petugas ?? '-' }}</td>
-                        <td>{{ $item->username_asli }}</td>
+                        <td>
+                            @if($item->username_ada_spasi == 1)
+                                <span class="badge bg-danger" title="Peringatan: Ada spasi tersembunyi di username ini!">⚠️ Spasi</span>
+                            @endif
+                            {{ $item->username_asli }}
+                        </td>
 
                         <td class="text-center">
+                            @if($item->password_ada_spasi == 1)
+                                <span class="badge bg-danger mr-1" title="Peringatan: Ada spasi tersembunyi di password ini!">⚠️ Spasi</span>
+                            @endif
                             <span id="pwd_{{ $loop->iteration }}"
                                   data-password="{{ $item->password_asli }}">
                                 ••••••••
@@ -70,9 +78,16 @@
                         <td class="text-center">{{ $item->status ?? '-' }}</td>
 
                         <td class="text-center">
+                            @if($item->username_ada_spasi == 1 || $item->password_ada_spasi == 1)
+                                <button type="button"
+                                        class="btn btn-sm btn-danger btnPerbaikiSpasi"
+                                        data-id="{{ $item->username_asli }}" title="Perbaiki Spasi Tersembunyi">
+                                    <i class="fas fa-magic"></i> Perbaiki
+                                </button>
+                            @endif
                             <button type="button"
                                     class="btn btn-sm btn-warning lihatAkses"
-                                    data-id="{{ $item->username_asli }}">
+                                    data-id="{{ $item->username_asli }}" title="Edit Akses">
                                 ⚙
                             </button>
                         </td>
@@ -238,6 +253,32 @@ $('#btnSimpanAkses').click(function(){
         }
     });
 
+});
+
+// PERBAIKI SPASI
+$(document).on('click', '.btnPerbaikiSpasi', function(){
+    let username = $(this).data('id');
+    if(!confirm("Yakin ingin membersihkan spasi tersembunyi pada user: " + username + "?")) return;
+
+    $.ajax({
+        url: '{{ url("/ai/user/perbaiki-spasi") }}',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            id_user: username
+        },
+        success: function(res){
+            if(res.status){
+                alert(res.message);
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        },
+        error: function(xhr){
+            alert("ERROR:\n" + xhr.responseText);
+        }
+    });
 });
 </script>
 
