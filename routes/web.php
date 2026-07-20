@@ -567,6 +567,13 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         Route::get('/fisioterapi', [Fisioterapi::class, 'listPasien'])->name('fisioterapi.pasien');
 
+        Route::get('/antrian-fisioterapi', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'index'])->name('antrian.fisioterapi');
+        Route::post('/antrian-fisioterapi/panggil', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'panggil']);
+        Route::post('/antrian-fisioterapi/video-command', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'videoCommand']);
+        Route::post('/antrian-fisioterapi/search-video', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'searchVideo']);
+        Route::get('/display-fisioterapi', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'display'])->name('antrian.fisioterapi.display');
+        Route::get('/api/display-fisioterapi/current', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'getCurrentPanggil']);
+
         Route::get('/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'form'])
             ->name('fisioterapi.form');
 
