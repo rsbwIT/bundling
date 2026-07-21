@@ -11,6 +11,13 @@ class JMBpjsController extends Controller
 {
     protected $cacheService;
 
+    public $tindakanDikecualikan = [
+        'Nebulizer (RJ)',
+        'Tindakan Ganti Balutan Dokter Spesialis',
+        'Tonometri',
+        // tambahkan nama/keyword tindakan lain di sini
+    ];
+
     // List Template dari Gambar (bisa ditambahkan 'id_khanza' nya nanti jika auto-match meleset)
     public $templateJM = [
         ['kode' => 'SP1', 'nama' => 'Achmad Gozali, dr, Sp.P', 'id_khanza' => 'D0000070'],
@@ -103,7 +110,7 @@ class JMBpjsController extends Controller
         ['kode' => 'U18', 'nama' => 'Rizky Madiyya Taqwin, dr', 'id_khanza' => 'D0000053'],
         ['kode' => 'SP37', 'nama' => 'Roeswir Achary, dr, SpS', 'id_khanza' => 'D0000019'],
         ['kode' => 'SP38', 'nama' => 'Rolis Anggi Wurllyanti, drg, Sp.P.M', 'id_khanza' => 'D0000073'],
-        ['kode' => 'SP39', 'nama' => 'Rosdianti Diah Andhiani, dr, SpM', 'id_khanza' => 'D0000026'],
+        ['kode' => 'SP39', 'nama' => 'dr. M. Hamka Maha Putra, SpBM', 'id_khanza' => 'D0000135'],
         ['kode' => 'SP40', 'nama' => 'Ruskandi Martaatmadja, dr, SpA', 'id_khanza' => 'D0000020'],
         ['kode' => 'U19', 'nama' => 'Sabdo Mulyawan, dr', 'id_khanza' => 'D0000008'],
         ['kode' => 'SP41', 'nama' => 'Sanjoto Santibudi, dr, Sp.KFR', 'id_khanza' => 'D0000030'],
@@ -149,7 +156,7 @@ class JMBpjsController extends Controller
         $this->cacheService = $cacheService;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, $isApi = false)
     {
         $actionCari = '/jm-bpjs';
         $dokter = $this->cacheService->getDokter();
@@ -164,7 +171,7 @@ class JMBpjsController extends Controller
         ->select(
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_dr.kd_dokter END as kd_dokter"),
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
-            DB::raw("SUM(CASE WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_dr.tarif_tindakandr END) END) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_dr','reg_periksa.no_rawat','=','rawat_jl_dr.no_rawat')
@@ -173,7 +180,7 @@ class JMBpjsController extends Controller
         ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
         ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -216,7 +223,7 @@ class JMBpjsController extends Controller
         ->select(
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_drpr.kd_dokter END as kd_dokter"),
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
-            DB::raw("SUM(CASE WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_drpr.tarif_tindakandr END) END) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0021', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_drpr','reg_periksa.no_rawat','=','rawat_jl_drpr.no_rawat')
@@ -226,7 +233,7 @@ class JMBpjsController extends Controller
         ->join('penjab','reg_periksa.kd_pj','=','penjab.kd_pj')
         ->join('petugas','rawat_jl_drpr.nip','=','petugas.nip')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -276,7 +283,7 @@ class JMBpjsController extends Controller
         ->join('dokter', 'periksa_radiologi.kd_dokter', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -316,7 +323,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->where('periksa_radiologi.tarif_perujuk', '>', 0)
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -357,7 +364,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->where('jns_perawatan_lab.kategori', 'PA')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -389,7 +396,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ralan')
         ->where('jns_perawatan_lab.kategori', 'PA')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -416,14 +423,16 @@ class JMBpjsController extends Controller
                 DB::raw("CASE WHEN rawat_inap_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_inap_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
                 'jns_perawatan_inap.nm_perawatan',
                 'jns_perawatan_inap.tarif_tindakandr as tarif_master',
-                'rawat_inap_dr.tarif_tindakandr as tarif_transaksi'
+                'rawat_inap_dr.tarif_tindakandr as tarif_transaksi',
+                'rawat_inap_dr.tgl_perawatan',
+                'rawat_inap_dr.jam_rawat'
             )
             ->join('reg_periksa', 'rawat_inap_dr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan_inap', 'rawat_inap_dr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
             ->join('dokter', 'rawat_inap_dr.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+            ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
             ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
                 $sub->select(DB::raw(1))
                     ->from('bayar_piutang')
@@ -445,14 +454,16 @@ class JMBpjsController extends Controller
                 DB::raw("CASE WHEN rawat_inap_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_inap_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
                 'jns_perawatan_inap.nm_perawatan',
                 'jns_perawatan_inap.tarif_tindakandr as tarif_master',
-                'rawat_inap_drpr.tarif_tindakandr as tarif_transaksi'
+                'rawat_inap_drpr.tarif_tindakandr as tarif_transaksi',
+                'rawat_inap_drpr.tgl_perawatan',
+                'rawat_inap_drpr.jam_rawat'
             )
             ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
             ->join('dokter', 'rawat_inap_drpr.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+            ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
             ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
                 $sub->select(DB::raw(1))
                     ->from('bayar_piutang')
@@ -474,7 +485,9 @@ class JMBpjsController extends Controller
                 DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
                 'jns_perawatan.nm_perawatan',
                 'jns_perawatan.tarif_tindakandr as tarif_master',
-                'rawat_jl_dr.tarif_tindakandr as tarif_transaksi'
+                'rawat_jl_dr.tarif_tindakandr as tarif_transaksi',
+                'rawat_jl_dr.tgl_perawatan',
+                'rawat_jl_dr.jam_rawat'
             )
             ->join('reg_periksa', 'rawat_jl_dr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -482,7 +495,7 @@ class JMBpjsController extends Controller
             ->join('dokter', 'rawat_jl_dr.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('reg_periksa.status_lanjut', 'Ranap')
-            ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+            ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
             ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
                 $sub->select(DB::raw(1))
                     ->from('bayar_piutang')
@@ -504,7 +517,9 @@ class JMBpjsController extends Controller
                 DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
                 'jns_perawatan.nm_perawatan',
                 'jns_perawatan.tarif_tindakandr as tarif_master',
-                'rawat_jl_drpr.tarif_tindakandr as tarif_transaksi'
+                'rawat_jl_drpr.tarif_tindakandr as tarif_transaksi',
+                'rawat_jl_drpr.tgl_perawatan',
+                'rawat_jl_drpr.jam_rawat'
             )
             ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -512,7 +527,7 @@ class JMBpjsController extends Controller
             ->join('dokter', 'rawat_jl_drpr.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('reg_periksa.status_lanjut', 'Ranap')
-            ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+            ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
             ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
                 $sub->select(DB::raw(1))
                     ->from('bayar_piutang')
@@ -545,26 +560,54 @@ class JMBpjsController extends Controller
             $rawRanapJlDrPr->where($searchClosure);
         }
 
-        $rawDetails = $rawRanapDr->unionAll($rawRanapDrPr)->unionAll($rawRanapJlDr)->unionAll($rawRanapJlDrPr)->get();
+        $rawDetails = $rawRanapDr->unionAll($rawRanapDrPr)->unionAll($rawRanapJlDr)->unionAll($rawRanapJlDrPr)->get()->sortBy(function($item) {
+            return ($item->tgl_perawatan ?? '9999-12-31') . ' ' . ($item->jam_rawat ?? '23:59:59');
+        })->values();
         $calculatedRanapData = collect();
 
         if ($rawDetails->count() > 0) {
             $noRawats = $rawDetails->pluck('no_rawat')->unique()->toArray();
 
             $operatedDocs = DB::table('operasi')
-                ->whereIn('no_rawat', $noRawats)
-                ->select('no_rawat', 'operator1', 'dokter_anestesi', 'dokter_anak', 'dokter_umum')
+                ->whereIn('operasi.no_rawat', $noRawats)
+                ->leftJoin('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
+                ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
+                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', 'operasi.dokter_anak', 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
                 ->get();
 
             $operators = [];
             $surgeryDoctors = [];
+            $operatorSpecialties = [];
             foreach ($operatedDocs as $op) {
                 if ($op->operator1) {
                     $operators[$op->no_rawat][$op->operator1] = true;
                     $surgeryDoctors[$op->no_rawat][$op->operator1] = true;
+                    if ($op->operator1_nmsps && $op->operator1_nmsps != 'UMUM') {
+                        $operatorSpecialties[$op->no_rawat][] = $op->operator1_nmsps;
+                    }
                 }
-                if ($op->dokter_anak) {
+                if ($op->dokter_anestesi && $op->dokter_anestesi != '-') {
+                    $surgeryDoctors[$op->no_rawat][$op->dokter_anestesi] = true;
+                }
+                if ($op->dokter_anak && $op->dokter_anak != '-') {
                     $surgeryDoctors[$op->no_rawat][$op->dokter_anak] = true;
+                }
+            }
+
+            if (!empty($operatorSpecialties)) {
+                $sameSpecialtyDocs = DB::table('dokter')
+                    ->join('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
+                    ->whereIn('spesialis.nm_sps', collect($operatorSpecialties)->flatten()->unique()->toArray())
+                    ->where('spesialis.nm_sps', '!=', 'UMUM')
+                    ->select('dokter.kd_dokter', 'spesialis.nm_sps')
+                    ->get();
+                    
+                foreach ($operatorSpecialties as $rawatNo => $spsList) {
+                    foreach ($sameSpecialtyDocs as $doc) {
+                        if (in_array($doc->nm_sps, $spsList)) {
+                            $surgeryDoctors[$rawatNo][$doc->kd_dokter] = true;
+                        }
+                    }
                 }
             }
             
@@ -579,10 +622,7 @@ class JMBpjsController extends Controller
                         $q2->where('jns_perawatan_inap.nm_perawatan', 'like', '%visite%')
                            ->where('jns_perawatan_inap.nm_perawatan', 'not like', '%visite hd%');
                     })
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%ekg%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%elektrocardiografi%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%echo%');
+                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%');
                 })
                 ->select('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'jns_perawatan_inap.nm_perawatan');
 
@@ -597,10 +637,7 @@ class JMBpjsController extends Controller
                         $q2->where('jns_perawatan_inap.nm_perawatan', 'like', '%visite%')
                            ->where('jns_perawatan_inap.nm_perawatan', 'not like', '%visite hd%');
                     })
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%ekg%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%elektrocardiografi%')
-                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%echo%');
+                    ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%');
                 })
                 ->select('rawat_inap_drpr.no_rawat', 'rawat_inap_drpr.kd_dokter', 'jns_perawatan_inap.nm_perawatan');
 
@@ -645,10 +682,7 @@ class JMBpjsController extends Controller
                         continue;
                     }
                     $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                        || stripos($v->nm_perawatan, 'ekg') !== false
-                        || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                        || stripos($v->nm_perawatan, 'echo') !== false
-                        || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                        || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
 
                     if ($isVisiteLike) {
                         $docsWithRealVisite[$v->kd_dokter] = true;
@@ -662,10 +696,7 @@ class JMBpjsController extends Controller
                         continue;
                     }
                     $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                        || stripos($v->nm_perawatan, 'ekg') !== false
-                        || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                        || stripos($v->nm_perawatan, 'echo') !== false
-                        || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                        || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
 
                     if ($isVisiteLike) {
                         $filteredList[] = $v;
@@ -680,22 +711,24 @@ class JMBpjsController extends Controller
             }
 
             $claims = DB::table('piutang_pasien')
-                ->whereIn('piutang_pasien.no_rawat', $noRawats)
-                ->join('reg_periksa', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-                ->select(
-                    'piutang_pasien.no_rawat',
-                    DB::raw('
-                        GREATEST(
-                            (
-                                COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = piutang_pasien.no_rawat), 0) + 
-                                COALESCE(piutang_pasien.uangmuka, 0) + 
-                                COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = piutang_pasien.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)
-                            ) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = piutang_pasien.no_rawat), 0), 0
-                        ) as total_claim
-                    ')
-                )
-                ->get()
-                ->keyBy('no_rawat');
+                    ->whereIn('piutang_pasien.no_rawat', $noRawats)
+                    ->join('reg_periksa', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+                    ->leftJoin('rvp_klaim_bpjs', 'piutang_pasien.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
+                    ->select(
+                        'piutang_pasien.no_rawat',
+                        DB::raw('(COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) as total_inacbg'),
+                        DB::raw('
+                            GREATEST(
+                                (
+                                    COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = piutang_pasien.no_rawat), 0) + 
+                                    COALESCE(piutang_pasien.uangmuka, 0) + 
+                                    COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = piutang_pasien.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)
+                                ) - COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE \'%Sewa Alat%\' OR jns_perawatan_inap.nm_perawatan LIKE \'%Alat Orthopedi%\' OR jns_perawatan_inap.nm_perawatan LIKE \'%Alat DJ STENT%\') AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%dr Exsa%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%dr. Exsa%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Nasrulloh%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Narrow Plate%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Ansorulloh%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Endoscopy Urologi%\' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = piutang_pasien.no_rawat), 0), 0
+                            ) as total_claim
+                        ')
+                    )
+                    ->get()
+                    ->keyBy('no_rawat');
 
             $doctorsSps = DB::table('dokter')
                 ->join('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
@@ -704,20 +737,21 @@ class JMBpjsController extends Controller
                 ->keyBy('kd_dokter');
 
             $processedNoRawats = [];
+            $jagaIgdProcessed = [];
 
             foreach ($rawDetails as $item) {
                 $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                 $isVisiteSp = stripos($item->nm_perawatan, 'Visite Dokter Spesialis') !== false;
                 $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                 $isSpirometri = stripos($item->nm_perawatan, 'spirometri') !== false;
-                $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false;
+                $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false);
                 $isJasaDokterJaga = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Jaga') !== false;
                 $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
                 $isEkg = stripos($item->nm_perawatan, 'ekg') !== false || stripos($item->nm_perawatan, 'elektrocardiografi') !== false;
                 $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
                 $isJasaPeriksaSp = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
 
-                $isPoolItem = $isVisite || $isKonsultasi || $isEkg || $isEcho || $isJasaPeriksaSp;
+                $isPoolItem = $isVisite || $isKonsultasi || $isJasaPeriksaSp;
 
                 $isMasterTariff = in_array($item->kd_jenis_prw, ['HD02-BPJ', 'KLS1-BPJ24-125', 'KLS2-BPJ24-125', 'KLS3-BPJ24-125', 'SEN-BPJ24-125', 'UTM-BPJ24-138', 'UTM-BPJ24-139', 'UTM-BPJ24-140', 'UTM-BPJ24-141', 'UTM-BPJ24-154', 'VDY-BPJ24-125', 'VDY-BPJ24-126', 'VDY-BPJ24-127'])
                     || $isJasaDokterJaga
@@ -726,65 +760,120 @@ class JMBpjsController extends Controller
 
                 $calculatedTariff = $isMasterTariff ? $item->tarif_master : $item->tarif_transaksi;
 
+                if ($isJasaDokterJaga) {
+                    if (isset($jagaIgdProcessed[$item->no_rawat])) {
+                        $calculatedTariff = 0;
+                    } else {
+                        $jagaIgdProcessed[$item->no_rawat] = true;
+                        if ($calculatedTariff > 50000) {
+                            $calculatedTariff = 50000;
+                        }
+                    }
+                }
+
+                if (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan operasi ukuran > 3 cm') !== false) {
+                    $calculatedTariff = 180000;
+                } elseif (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan biopsi') !== false) {
+                    $calculatedTariff = 120000;
+                } elseif (stripos($item->nm_perawatan, 'SITOLOGI') !== false && stripos($item->nm_perawatan, 'Cairan pleura') !== false) {
+                    $calculatedTariff = 120000;
+                } elseif (stripos($item->nm_perawatan, 'Persalinan Spontan') !== false) {
+                    $calculatedTariff = 70000;
+                }
+
                 if (in_array($item->kd_dokter, ['D0000103', 'D0000032']) && stripos($item->nm_perawatan, 'USG Kebidanan') !== false && stripos($item->nm_perawatan, '(RSBW)') === false) {
                     $calculatedTariff = $calculatedTariff * 0.5;
                 }
 
                 $docSps = $doctorsSps->get($item->kd_dokter);
-                $isSp = $docSps && $docSps->nm_sps !== 'UMUM';
+                $isSp = $docSps && strtoupper($docSps->nm_sps) !== 'UMUM';
 
                 $isOperator = isset($operators[$item->no_rawat][$item->kd_dokter]);
                 $isSurgeryDoc = isset($surgeryDoctors[$item->no_rawat][$item->kd_dokter]);
 
-                if ($isOperator) {
+                // Limit Visite Dokter Umum max 15.000
+                if ($isPoolItem && !$isSp && $calculatedTariff > 15000) {
+                    $calculatedTariff = 15000;
+                }
+
+                if ($this->isTindakanDikecualikan($item->nm_perawatan)) {
+                    $calculatedTariff = 0;
+                } elseif ($isOperator) {
                     $calculatedTariff = 0;
                 } elseif ($isSurgeryDoc && ($isVisite || $isKonsultasi || $isJasaPeriksaSp)) {
                     $calculatedTariff = 0;
+                } elseif ($isEcho) {
+                    if (isset($dpjpDoctors[$item->no_rawat][$item->kd_dokter])) {
+                        $calculatedTariff = 0; // dia DPJP -> tidak dapat
+                    }
+                    // bukan DPJP -> tetap pakai $calculatedTariff yang sudah dihitung di atas
+                } elseif ($isEkg && $isSp) {
+                    $calculatedTariff = 0; // Spesialis EKG = 0, Dr Umum dapat
                 } elseif ($isSp) {
                     if ($isSpirometri || $isUsgSp) {
                         $calculatedTariff = 0;
-                    } elseif ($isPoolItem) {
-                        if (isset($validVisits[$item->no_rawat])) {
-                            $list = $validVisits[$item->no_rawat];
-                            $totalVisite = count($list);
+                                        } elseif ($isPoolItem) {
+                        // Cek apakah pasien operasi
+                        $pasienOperasi = isset($operators[$item->no_rawat]) && !empty($operators[$item->no_rawat]);
 
+                        if ($pasienOperasi) {
+                            // Pasien operasi: gunakan tarif_transaksi (RVP), bukan pool 9%
+                            $calculatedTariff = $item->tarif_transaksi;
+                        } else {
+                            // Pasien non-operasi: gunakan pool 9% dari INA-CBG
+                            $hasVisiteFee = false;
                             $hasRealVisite = false;
-                            foreach ($list as $v) {
-                                if ($v->kd_dokter === $item->kd_dokter) {
-                                    $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                                        || stripos($v->nm_perawatan, 'ekg') !== false
-                                        || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                                        || stripos($v->nm_perawatan, 'echo') !== false
-                                        || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+
+                            if (isset($validVisits[$item->no_rawat])) {
+                                $list = $validVisits[$item->no_rawat];
+                                
+                                $doctorsWithRealVisite = [];
+                                foreach ($list as $v) {
+                                    $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false);
                                     if ($isVLike) {
-                                        $hasRealVisite = true;
-                                        break;
+                                        $doctorsWithRealVisite[$v->kd_dokter] = true;
+                                    }
+                                }
+
+                                if (isset($doctorsWithRealVisite[$item->kd_dokter])) {
+                                    $hasRealVisite = true;
+                                    $totalVisite = 0;
+                                    $dokterVisiteCount = 0;
+
+                                    foreach ($list as $v) {
+                                        if (isset($doctorsWithRealVisite[$v->kd_dokter])) {
+                                            $totalVisite++;
+                                        }
+                                        if ($v->kd_dokter === $item->kd_dokter) {
+                                            $dokterVisiteCount++;
+                                        }
+                                    }
+
+                                    if ($totalVisite > 0 && $dokterVisiteCount > 0) {
+                                        $processedKey = $item->no_rawat . '_' . $item->kd_dokter;
+                                        if (!isset($processedNoRawats[$processedKey])) {
+                                            $processedNoRawats[$processedKey] = true;
+                                            $claim = $claims->get($item->no_rawat);
+                                            $calculatedTariff = round((($claim ? $claim->total_inacbg : 0) * 0.09) * ($dokterVisiteCount / $totalVisite), 2);
+                                            $hasVisiteFee = true;
+                                        } else {
+                                            $calculatedTariff = 0;
+                                            $hasVisiteFee = true;
+                                        }
                                     }
                                 }
                             }
 
-                            if ($hasRealVisite) {
-                                $dokterVisiteCount = 0;
-                                foreach ($list as $v) {
-                                    if ($v->kd_dokter === $item->kd_dokter) {
-                                        $dokterVisiteCount++;
-                                    }
-                                }
-
-                                if ($totalVisite > 0 && $dokterVisiteCount > 0) {
-                                    $processedKey = $item->no_rawat . '_' . $item->kd_dokter;
-                                    if (!isset($processedNoRawats[$processedKey])) {
-                                        $processedNoRawats[$processedKey] = true;
-                                        $claim = $claims->get($item->no_rawat);
-                                        $totalClaim = $claim ? $claim->total_claim : 0;
-                                        $calculatedTariff = round(($totalClaim * 0.09) * ($dokterVisiteCount / $totalVisite), 2);
-                                    } else {
-                                        $calculatedTariff = 0;
-                                    }
+                            if (!$hasVisiteFee) {
+                                if ($isKonsultasi && !$hasRealVisite) {
+                                    // Biarkan tarif normal (Bypass Pool dan gunakan tarif transaksi/RVP)
+                                } else {
+                                    $calculatedTariff = 0;
                                 }
                             }
                         }
                     }
+
                 }
 
                 $item->calculated_tarif = $calculatedTariff;
@@ -813,10 +902,14 @@ class JMBpjsController extends Controller
                             ELSE 3750000
                         END
                     WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                    WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1
+                    WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1
+                    WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1
                     WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 
-                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 
-                END, 2)) as total_ranap")
+                    WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 
+                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 
+                END / GREATEST((SELECT COUNT(op3.operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.operator1 <> '-'), 1), 2)) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -825,7 +918,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -862,19 +955,24 @@ class JMBpjsController extends Controller
             'dokter.nm_dokter',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000
-                    WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
-                    ELSE paket_operasi.operator1
-                END, 2)) as total_ralan")
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20
+                    END / GREATEST((SELECT COUNT(op3.operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.operator1 <> '-'), 1), 2)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -911,15 +1009,21 @@ class JMBpjsController extends Controller
             'dokter.nm_dokter',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
-                        (CASE 
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
-                            ELSE 3750000
-                        END) * 0.35
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
-                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.35
-                END, 2)) as total_ranap")
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.35
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                    END / GREATEST((SELECT COUNT(op3.dokter_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anestesi <> '-'), 1), 2)) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -928,7 +1032,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -965,16 +1069,23 @@ class JMBpjsController extends Controller
             'dokter.nm_dokter',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.35
-                    ELSE paket_operasi.operator1 * 0.35
-                END, 2)) as total_ralan")
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.35
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                    END / GREATEST((SELECT COUNT(op3.dokter_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anestesi <> '-'), 1), 2)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('dokter', 'operasi.dokter_anestesi', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1018,15 +1129,15 @@ class JMBpjsController extends Controller
                     AND (operasi.dokter_umum IS NOT NULL AND operasi.dokter_umum != '' AND operasi.dokter_umum != '-')
                     THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.075, 2)
                     ELSE 0
-                END
+                END / GREATEST((SELECT COUNT(op3.dokter_anak) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anak <> '-'), 1)
             ) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1059,14 +1170,14 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_anak as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(paket_operasi.dokter_anak) as total_ralan")
+            DB::raw("SUM(paket_operasi.dokter_anak / GREATEST((SELECT COUNT(op3.dokter_anak) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anak <> '-'), 1)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1105,15 +1216,15 @@ class JMBpjsController extends Controller
                     AND (operasi.dokter_umum IS NOT NULL AND operasi.dokter_umum != '' AND operasi.dokter_umum != '-')
                     THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.075, 2)
                     ELSE 0
-                END
+                END / GREATEST((SELECT COUNT(op3.dokter_umum) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_umum <> '-'), 1)
             ) as total_ranap")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('dokter', 'operasi.dokter_umum', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1146,14 +1257,14 @@ class JMBpjsController extends Controller
         ->select(
             'operasi.dokter_umum as kd_dokter',
             'dokter.nm_dokter',
-            DB::raw("SUM(paket_operasi.dokter_umum) as total_ralan")
+            DB::raw("SUM(paket_operasi.dokter_umum / GREATEST((SELECT COUNT(op3.dokter_umum) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_umum <> '-'), 1)) as total_ralan")
         )
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('dokter', 'operasi.dokter_umum', '=', 'dokter.kd_dokter')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1194,9 +1305,11 @@ class JMBpjsController extends Controller
             ->unionAll($queryOperasiUmumRalan)
             ->get();
 
-        $dataRalan = $results->groupBy('kd_dokter')->map(function ($row) {
+        $dataRalan = $results->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ralan' => $row->sum('total_ralan'),
             ];
@@ -1216,7 +1329,7 @@ class JMBpjsController extends Controller
         ->join('dokter', 'periksa_radiologi.kd_dokter', '=', 'dokter.kd_dokter')
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1256,7 +1369,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->where('periksa_radiologi.tarif_perujuk', '>', 0)
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1285,13 +1398,19 @@ class JMBpjsController extends Controller
 
         // Merge our calculated inpatient doctor fees with the other inpatient categories
         $resultsRanap = collect();
-        $resultsRanap = $resultsRanap->merge($calculatedRanapData);
+        
+            \Illuminate\Support\Facades\Log::info("calculatedRanapData D0000099: ", $calculatedRanapData->where("kd_dokter", "D0000099")->toArray());
+            $resultsRanap = $resultsRanap->merge($calculatedRanapData);
         $resultsRanap = $resultsRanap->merge($queryOperasiRanap->get());
         $resultsRanap = $resultsRanap->merge($queryOperasiAnestesiRanap->get());
         $resultsRanap = $resultsRanap->merge($queryOperasiAnakRanap->get());
-        $resultsRanap = $resultsRanap->merge($queryOperasiUmumRanap->get());
+        
+            \Illuminate\Support\Facades\Log::info("queryOperasiUmumRanap D0000099: ", $queryOperasiUmumRanap->get()->where("kd_dokter", "D0000099")->toArray());
+            $resultsRanap = $resultsRanap->merge($queryOperasiUmumRanap->get());
         $resultsRanap = $resultsRanap->merge($queryRadiologiRanap->get());
-        $resultsRanap = $resultsRanap->merge($queryRadPerujukRanap->get());
+        
+            \Illuminate\Support\Facades\Log::info("queryRadPerujukRanap D0000099: ", $queryRadPerujukRanap->get()->where("kd_dokter", "D0000099")->toArray());
+            $resultsRanap = $resultsRanap->merge($queryRadPerujukRanap->get());
         
         // 10. Query periksa_lab Lab PA Ranap - JM Perujuk
         $queryLabPerujukRanap = DB::table('periksa_lab')
@@ -1307,7 +1426,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->where('jns_perawatan_lab.kategori', 'PA')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1339,7 +1458,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where('reg_periksa.status_lanjut', 'Ranap')
         ->where('jns_perawatan_lab.kategori', 'PA')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1360,9 +1479,11 @@ class JMBpjsController extends Controller
         $resultsRanap = $resultsRanap->merge($queryLabPerujukRanap->get());
         $resultsRanap = $resultsRanap->merge($queryLabDokterRanap->get());
 
-        $dataRanap = $resultsRanap->groupBy('kd_dokter')->map(function ($row) {
+        $dataRanap = $resultsRanap->groupBy(function($item) {
+            return trim($item->kd_dokter);
+        })->map(function ($row) {
             return (object) [
-                'kd_dokter' => $row->first()->kd_dokter,
+                'kd_dokter' => trim($row->first()->kd_dokter),
                 'nm_dokter' => $row->first()->nm_dokter,
                 'total_ranap' => $row->sum('total_ranap'),
             ];
@@ -1371,6 +1492,9 @@ class JMBpjsController extends Controller
         // Gabungkan ralan + ranap ke satu collection berdasarkan kd_dokter
         $allDokterKeys = $dataRalan->pluck('kd_dokter')
             ->merge($dataRanap->pluck('kd_dokter'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataCombined = $allDokterKeys->map(function ($kd) use ($dataRalan, $dataRanap) {
@@ -1413,7 +1537,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1451,7 +1575,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1488,7 +1612,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1525,7 +1649,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1562,7 +1686,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1599,7 +1723,7 @@ class JMBpjsController extends Controller
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) {
@@ -1625,15 +1749,21 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
-                        (CASE 
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
-                            ELSE 3750000
-                        END) * 0.15
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
-                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.15
-                END, 2)) as total_ranap"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                    END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2)) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1645,7 +1775,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1678,9 +1808,16 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
-                    ELSE paket_operasi.operator1 * 0.15
-                END, 2)) as total_ralan"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                    END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1689,10 +1826,10 @@ class JMBpjsController extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('petugas', 'operasi.asisten_operator1', '=', 'petugas.nip')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -1715,15 +1852,21 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
-                        (CASE 
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
-                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
-                            ELSE 3750000
-                        END) * 0.10
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
-                    ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.10
-                END, 2)) as total_ranap"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
+                            (CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 4700000
+                                ELSE 3750000
+                            END) * 0.10
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                    END / GREATEST((SELECT COUNT(op3.asisten_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_anestesi <> '-'), 1), 2)) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1735,7 +1878,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1768,9 +1911,16 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.10
-                    ELSE paket_operasi.operator1 * 0.10
-                END, 2)) as total_ralan"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.10
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                    END / GREATEST((SELECT COUNT(op3.asisten_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_anestesi <> '-'), 1), 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
             DB::raw("0 as jml_tindakan_hd_ranap")
@@ -1779,10 +1929,10 @@ class JMBpjsController extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('petugas', 'operasi.asisten_anestesi', '=', 'petugas.nip')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -1806,9 +1956,9 @@ class JMBpjsController extends Controller
             DB::raw("SUM(ROUND(
                 CASE 
                     WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
                     ELSE 0
-                END
+                END / GREATEST((SELECT COUNT(op3.omloop) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.omloop <> '-'), 1)
             , 2)) as total_ranap"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
@@ -1821,7 +1971,7 @@ class JMBpjsController extends Controller
         ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
             $sub->select(DB::raw(1))
                 ->from('bayar_piutang')
@@ -1858,9 +2008,9 @@ class JMBpjsController extends Controller
             DB::raw("SUM(ROUND(
                 CASE 
                     WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                        GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
                     ELSE 0
-                END
+                END / GREATEST((SELECT COUNT(op3.omloop) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.omloop <> '-'), 1)
             , 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
             DB::raw("0 as jml_tindakan_hd_ralan"),
@@ -1870,10 +2020,10 @@ class JMBpjsController extends Controller
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
         ->join('petugas', 'operasi.omloop', '=', 'petugas.nip')
-        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
         ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-        ->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])
+        ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2])
         ->where('piutang_pasien.status', 'Lunas')
         ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -1900,9 +2050,11 @@ class JMBpjsController extends Controller
             ->unionAll($queryPrOkOmloopRalan)
             ->get();
 
-        $dataPrRalan = $resultsPrRalan->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRalan = $resultsPrRalan->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ralan' => $row->sum('total_ralan'),
                 'jml_tindakan' => $row->sum('jml_tindakan'),
@@ -1913,6 +2065,7 @@ class JMBpjsController extends Controller
 
         // Gabungkan ranap paramedis (P2 + P3 + P4 + P5 + P6 + P7)
         $resultsPrRanap = $queryPrRanapJl
+            ->unionAll($queryPrRanapJlDrPr)
             ->unionAll($queryPrRanap)
             ->unionAll($queryPrRanapDrPr)
             ->unionAll($queryPrOkAsistenOp1)
@@ -1920,9 +2073,11 @@ class JMBpjsController extends Controller
             ->unionAll($queryPrOkOmloop)
             ->get();
 
-        $dataPrRanap = $resultsPrRanap->groupBy('kd_petugas')->map(function ($row) {
+        $dataPrRanap = $resultsPrRanap->groupBy(function($item) {
+            return trim($item->kd_petugas);
+        })->map(function ($row) {
             return (object) [
-                'kd_petugas' => $row->first()->kd_petugas,
+                'kd_petugas' => trim($row->first()->kd_petugas),
                 'nm_petugas' => $row->first()->nm_petugas,
                 'total_ranap' => $row->sum('total_ranap'),
                 'jml_tindakan' => $row->sum('jml_tindakan'),
@@ -1934,6 +2089,9 @@ class JMBpjsController extends Controller
         // Gabungkan ralan + ranap paramedis
         $allPetugasKeys = $dataPrRalan->pluck('kd_petugas')
             ->merge($dataPrRanap->pluck('kd_petugas'))
+            ->map(function($item) {
+                return trim($item);
+            })
             ->unique();
 
         $dataParamedis = $allPetugasKeys->map(function ($nip) use ($dataPrRalan, $dataPrRanap) {
@@ -1999,7 +2157,7 @@ class JMBpjsController extends Controller
             return (object) [
                 'kode_template'  => $tpl['kode'],
                 'nama_template'  => $namaDb, // Nama Live dari Pegawai/Dokter DB
-                'kode_id_khanza' => $id, 
+                'kode_id_khanza' => $matched ? $matched->kd_dokter : $id, 
                 'nama_khanza'    => $matched ? $matched->nm_dokter : $namaDb,
                 'total_ranap'    => $matched ? $matched->total_ranap : 0,
                 'total_ralan'    => $matched ? $matched->total_ralan : 0,
@@ -2083,6 +2241,10 @@ class JMBpjsController extends Controller
             ];
         })->values();
 
+        if ($isApi) {
+            return $mappedTemplate;
+        }
+
         return view('detail-tindakan-umum.jm-bpjs', [
             'actionCari'=> $actionCari,
             'dokter'=> $dokter,
@@ -2093,7 +2255,7 @@ class JMBpjsController extends Controller
         ]);
     }
 
-    public function detail(Request $request)
+    public function detail(Request $request, $isApi = false)
     {
         $kdDokter = $request->kd_dokter;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
@@ -2110,7 +2272,7 @@ class JMBpjsController extends Controller
 
         // Base filter for BPJS penjamin + bayar_piutang lunas
         $penjaminFilter = function ($query, $noRawatCol = 'reg_periksa.no_rawat') use ($tanggl1, $tanggl2) {
-            $query->whereIn('penjab.kd_pj', ['BPJ', 'IAK']);
+            $query->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); });
             $query->whereExists(function ($sub) use ($noRawatCol, $tanggl1, $tanggl2) {
                 $sub->select(DB::raw(1))
                     ->from('bayar_piutang')
@@ -2134,8 +2296,12 @@ class JMBpjsController extends Controller
         // 1. rawat_jl_dr (Ralan)
         $q1 = DB::table('rawat_jl_dr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_dr.tarif_tindakandr END as tarif"),
-                DB::raw("'Ralan - Tindakan Dokter' as sumber"), DB::raw("'Ralan' as status"))
+                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
+                    (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5
+                ELSE
+                    (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END)
+                END as tarif"),
+                DB::raw("'Ralan - Tindakan Dokter' as sumber"), DB::raw("'Ralan' as status"), 'rawat_jl_dr.tgl_perawatan', 'rawat_jl_dr.jam_rawat')
             ->join('reg_periksa', 'rawat_jl_dr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
@@ -2148,8 +2314,12 @@ class JMBpjsController extends Controller
         // 2. rawat_jl_drpr (Ralan - tarif dokter)
         $q2 = DB::table('rawat_jl_drpr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_drpr.tarif_tindakandr END as tarif"),
-                DB::raw("'Ralan - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ralan' as status"))
+                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
+                    (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5
+                ELSE
+                    (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END)
+                END as tarif"),
+                DB::raw("'Ralan - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ralan' as status"), 'rawat_jl_drpr.tgl_perawatan', 'rawat_jl_drpr.jam_rawat')
             ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
@@ -2162,8 +2332,9 @@ class JMBpjsController extends Controller
         // 3. rawat_inap_dr (Ranap) - tarif dari master jika Jasa Periksa Dokter Jaga
         $q3 = DB::table('rawat_inap_dr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
-                DB::raw("CASE WHEN rawat_inap_dr.kd_jenis_prw IN ('HD02-BPJ', 'KLS1-BPJ24-125', 'KLS2-BPJ24-125', 'KLS3-BPJ24-125', 'SEN-BPJ24-125', 'UTM-BPJ24-138', 'UTM-BPJ24-139', 'UTM-BPJ24-140', 'UTM-BPJ24-141', 'UTM-BPJ24-154', 'VDY-BPJ24-125', 'VDY-BPJ24-126', 'VDY-BPJ24-127') OR jns_perawatan_inap.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan_inap.nm_perawatan LIKE '%Dokter Umum HD%' OR jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' THEN jns_perawatan_inap.tarif_tindakandr ELSE rawat_inap_dr.tarif_tindakandr END as tarif"),
-                DB::raw("'Ranap - Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"))
+                DB::raw("CASE WHEN rawat_inap_dr.kd_jenis_prw IN ('HD02-BPJ', 'KLS1-BPJ24-125', 'KLS2-BPJ24-125', 'KLS3-BPJ24-125', 'SEN-BPJ24-125', 'UTM-BPJ24-138', 'UTM-BPJ24-139', 'UTM-BPJ24-140', 'UTM-BPJ24-141', 'UTM-BPJ24-154', 'VDY-BPJ24-125', 'VDY-BPJ24-126', 'VDY-BPJ24-127') OR jns_perawatan_inap.nm_perawatan LIKE '%Dokter Umum HD%' OR jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' THEN jns_perawatan_inap.tarif_tindakandr WHEN jns_perawatan_inap.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan_inap.tarif_tindakandr, 50000) ELSE rawat_inap_dr.tarif_tindakandr END as tarif"),
+                DB::raw("rawat_inap_dr.tarif_tindakandr as tarif_rvp"),
+                DB::raw("'Ranap - Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"), 'rawat_inap_dr.tgl_perawatan', 'rawat_inap_dr.jam_rawat')
             ->join('reg_periksa', 'rawat_inap_dr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan_inap', 'rawat_inap_dr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
@@ -2175,8 +2346,9 @@ class JMBpjsController extends Controller
         // 4. rawat_inap_drpr (Ranap - tarif dokter) - tarif dari master jika Jasa Periksa Dokter Jaga
         $q4 = DB::table('rawat_inap_drpr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
-                DB::raw("CASE WHEN rawat_inap_drpr.kd_jenis_prw IN ('HD02-BPJ', 'KLS1-BPJ24-125', 'KLS2-BPJ24-125', 'KLS3-BPJ24-125', 'SEN-BPJ24-125', 'UTM-BPJ24-138', 'UTM-BPJ24-139', 'UTM-BPJ24-140', 'UTM-BPJ24-141', 'UTM-BPJ24-154', 'VDY-BPJ24-125', 'VDY-BPJ24-126', 'VDY-BPJ24-127') OR jns_perawatan_inap.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan_inap.nm_perawatan LIKE '%Dokter Umum HD%' OR jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' THEN jns_perawatan_inap.tarif_tindakandr ELSE rawat_inap_drpr.tarif_tindakandr END as tarif"),
-                DB::raw("'Ranap - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ranap' as status"))
+                DB::raw("CASE WHEN rawat_inap_drpr.kd_jenis_prw IN ('HD02-BPJ', 'KLS1-BPJ24-125', 'KLS2-BPJ24-125', 'KLS3-BPJ24-125', 'SEN-BPJ24-125', 'UTM-BPJ24-138', 'UTM-BPJ24-139', 'UTM-BPJ24-140', 'UTM-BPJ24-141', 'UTM-BPJ24-154', 'VDY-BPJ24-125', 'VDY-BPJ24-126', 'VDY-BPJ24-127') OR jns_perawatan_inap.nm_perawatan LIKE '%Dokter Umum HD%' OR jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' THEN jns_perawatan_inap.tarif_tindakandr WHEN jns_perawatan_inap.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan_inap.tarif_tindakandr, 50000) ELSE rawat_inap_drpr.tarif_tindakandr END as tarif"),
+                DB::raw("rawat_inap_drpr.tarif_tindakandr as tarif_rvp"),
+                DB::raw("'Ranap - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ranap' as status"), 'rawat_inap_drpr.tgl_perawatan', 'rawat_inap_drpr.jam_rawat')
             ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
@@ -2197,10 +2369,14 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END
                         WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 
-                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 
-                    END, 2) as tarif"),
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1
+                    WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1
+                    WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 
+                    WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 
+                    END / GREATEST((SELECT COUNT(op3.operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.operator1 <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2224,8 +2400,14 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END) * 0.35
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
-                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.35
-                    END, 2) as tarif"),
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                    END / GREATEST((SELECT COUNT(op3.dokter_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anestesi <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2249,13 +2431,13 @@ class JMBpjsController extends Controller
                         AND (operasi.dokter_umum IS NOT NULL AND operasi.dokter_umum != '' AND operasi.dokter_umum != '-')
                         THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.075, 2)
                         ELSE 0
-                    END as tarif
+                    END / GREATEST((SELECT COUNT(op3.dokter_anak) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anak <> '-'), 1) as tarif
                 "),
                 DB::raw("'Operasi - Dokter Anak' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
             ->where('operasi.dokter_anak', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2270,13 +2452,13 @@ class JMBpjsController extends Controller
                         AND (operasi.dokter_umum IS NOT NULL AND operasi.dokter_umum != '' AND operasi.dokter_umum != '-')
                         THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.075, 2)
                         ELSE 0
-                    END as tarif
+                    END / GREATEST((SELECT COUNT(op3.dokter_umum) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_umum <> '-'), 1) as tarif
                 "),
                 DB::raw("'Operasi - Dokter Umum' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
             ->where('operasi.dokter_umum', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2288,15 +2470,20 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1
                         WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
-                        ELSE paket_operasi.operator1
-                    END, 2) as tarif"),
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20
+                    END / GREATEST((SELECT COUNT(op3.operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.operator1 <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.operator1', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -2309,13 +2496,20 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.35
-                        ELSE paket_operasi.operator1 * 0.35
-                    END, 2) as tarif"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.35
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.35
+                    END / GREATEST((SELECT COUNT(op3.dokter_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anestesi <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.dokter_anestesi', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -2325,12 +2519,12 @@ class JMBpjsController extends Controller
         // 5c_ralan. Operasi (dokter_anak) RALAN
         $q5c_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("paket_operasi.dokter_anak as tarif"),
+                DB::raw("paket_operasi.dokter_anak / GREATEST((SELECT COUNT(op3.dokter_anak) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_anak <> '-'), 1) as tarif"),
                 DB::raw("'Operasi - Dokter Anak' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('operasi.dokter_anak', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2339,12 +2533,12 @@ class JMBpjsController extends Controller
         // 5d_ralan. Operasi (dokter_umum) RALAN
         $q5d_ralan = DB::table('operasi')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
-                DB::raw("paket_operasi.dokter_umum as tarif"),
+                DB::raw("paket_operasi.dokter_umum / GREATEST((SELECT COUNT(op3.dokter_umum) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.dokter_umum <> '-'), 1) as tarif"),
                 DB::raw("'Operasi - Dokter Umum' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('operasi.dokter_umum', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2362,8 +2556,14 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END) * 0.15
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
-                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.15
-                    END, 2) as tarif"),
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                    END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Asisten Operator 1' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2382,13 +2582,20 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
-                        ELSE paket_operasi.operator1 * 0.15
-                    END, 2) as tarif"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.15
+                    END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Asisten Operator 1' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.asisten_operator1', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -2407,8 +2614,14 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END) * 0.10
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
-                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = operasi.no_rawat), 0), 0) * 0.20 * 0.10
-                    END, 2) as tarif"),
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan_inap.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan_inap.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                    END / GREATEST((SELECT COUNT(op3.asisten_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_anestesi <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2427,13 +2640,20 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.10
-                        ELSE paket_operasi.operator1 * 0.10
-                    END, 2) as tarif"),
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.10
+                        WHEN operasi.operator1 IN ('D0000043', 'D0000051') THEN GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) + (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                        ELSE GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)) - (COALESCE((SELECT SUM(CASE WHEN (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') AND jns_perawatan.nm_perawatan NOT LIKE '%dr Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%dr. Exsa%' AND jns_perawatan.nm_perawatan NOT LIKE '%Nasrulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Narrow Plate%' AND jns_perawatan.nm_perawatan NOT LIKE '%Ansorulloh%' AND jns_perawatan.nm_perawatan NOT LIKE '%Endoscopy Urologi%' THEN jns_perawatan.kso ELSE rawat_jl_dr.kso END) FROM rawat_jl_dr INNER JOIN jns_perawatan ON rawat_jl_dr.kd_jenis_prw = jns_perawatan.kd_jenis_prw WHERE rawat_jl_dr.no_rawat = operasi.no_rawat), 0) / GREATEST((SELECT COUNT(*) FROM operasi op2 WHERE op2.no_rawat = operasi.no_rawat AND op2.kode_paket = operasi.kode_paket), 1)), 0) * 0.20 * 0.10
+                    END / GREATEST((SELECT COUNT(op3.asisten_anestesi) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_anestesi <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.asisten_anestesi', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -2446,9 +2666,9 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
                         ELSE 0
-                    END
+                    END / GREATEST((SELECT COUNT(op3.omloop) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.omloop <> '-'), 1)
                 , 2) as tarif"),
                 DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2471,15 +2691,15 @@ class JMBpjsController extends Controller
                 DB::raw("ROUND(
                     CASE 
                         WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
+                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.05
                         ELSE 0
-                    END
+                    END / GREATEST((SELECT COUNT(op3.omloop) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.omloop <> '-'), 1)
                 , 2) as tarif"),
                 DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')
             ->where('operasi.omloop', $kdDokter)
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
@@ -2496,7 +2716,7 @@ class JMBpjsController extends Controller
                 DB::raw("'Radiologi - PJ Rad' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('periksa_radiologi.kd_dokter', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
@@ -2509,7 +2729,7 @@ class JMBpjsController extends Controller
                 DB::raw("'Radiologi - Perujuk' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
+            ->leftJoin('jns_perawatan_radiologi', 'periksa_radiologi.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('periksa_radiologi.dokter_perujuk', $kdDokter)
             ->where('periksa_radiologi.tarif_perujuk', '>', 0)
@@ -2574,7 +2794,8 @@ class JMBpjsController extends Controller
         // 12. rawat_jl_dr Ranap (tindakan ralan pada pasien ranap)
         $q12 = DB::table('rawat_jl_dr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_dr.tarif_tindakandr END as tarif"),
+                DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END as tarif"),
+                DB::raw("rawat_jl_dr.tarif_tindakandr as tarif_rvp"),
                 DB::raw("'Ranap - Tind. Ralan Dokter' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_jl_dr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2588,7 +2809,8 @@ class JMBpjsController extends Controller
         // 13. rawat_jl_drpr Ranap (tindakan ralan dr+pr pada pasien ranap)
         $q13 = DB::table('rawat_jl_drpr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr ELSE rawat_jl_drpr.tarif_tindakandr END as tarif"),
+                DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END as tarif"),
+                DB::raw("rawat_jl_drpr.tarif_tindakandr as tarif_rvp"),
                 DB::raw("'Ranap - Tind. Ralan DrPr' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -2598,6 +2820,63 @@ class JMBpjsController extends Controller
             ->where(DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_drpr.kd_dokter END"), $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q13);
+
+        // 14. rawat_jl_drpr Paramedis (tindakan ralan dr+pr pada paramedis)
+        $q14 = DB::table('rawat_jl_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_drpr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ralan - Paramedis DrPr' as sumber"), DB::raw("'Ralan' as status"))
+            ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->where('rawat_jl_drpr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q14);
+
+        // 15. rawat_inap_drpr Paramedis (tindakan ranap dr+pr pada paramedis)
+        $q15 = DB::table('rawat_inap_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+                DB::raw("rawat_inap_drpr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ranap - Paramedis DrPr' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_inap_drpr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q15);
+
+        // 16. rawat_jl_pr Paramedis Ranap (tindakan ralan pada paramedis utk ranap)
+        $q16 = DB::table('rawat_jl_pr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_pr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ralan - Paramedis' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_pr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where('rawat_jl_pr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->get();
+        $details = $details->merge($q16);
+
+        // 17. rawat_jl_drpr Paramedis Ranap (tindakan ralan dr+pr pada paramedis utk ranap)
+        $q17 = DB::table('rawat_jl_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_drpr.tarif_tindakanpr as tarif"),
+                DB::raw("'Ranap - Paramedis DrPr' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where('rawat_jl_drpr.nip', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->get();
+        $details = $details->merge($q17);
 
         // Apply proportional Visite calculation logic for Specialist doctors
         $isSp = DB::table('dokter')
@@ -2610,19 +2889,95 @@ class JMBpjsController extends Controller
             $noRawats = $details->pluck('no_rawat')->unique()->toArray();
 
             $operatedDocs = DB::table('operasi')
-                ->whereIn('no_rawat', $noRawats)
-                ->select('no_rawat', 'operator1', 'dokter_anestesi', 'dokter_anak', 'dokter_umum')
+                ->whereIn('operasi.no_rawat', $noRawats)
+                ->leftJoin('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
+                ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
+                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', 'operasi.dokter_anak', 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
                 ->get();
 
             $operators = [];
             $surgeryDoctors = [];
+            $operatorSpecialties = [];
             foreach ($operatedDocs as $op) {
                 if ($op->operator1) {
                     $operators[$op->no_rawat][$op->operator1] = true;
                     $surgeryDoctors[$op->no_rawat][$op->operator1] = true;
+                    if ($op->operator1_nmsps && $op->operator1_nmsps != 'UMUM') {
+                        $operatorSpecialties[$op->no_rawat][] = $op->operator1_nmsps;
+                    }
                 }
-                if ($op->dokter_anak) {
+                if ($op->dokter_anestesi && $op->dokter_anestesi != '-') {
+                    $surgeryDoctors[$op->no_rawat][$op->dokter_anestesi] = true;
+                }
+                if ($op->dokter_anak && $op->dokter_anak != '-') {
                     $surgeryDoctors[$op->no_rawat][$op->dokter_anak] = true;
+                }
+            }
+
+            if (!empty($operatorSpecialties)) {
+                $sameSpecialtyDocs = DB::table('dokter')
+                    ->join('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
+                    ->whereIn('spesialis.nm_sps', collect($operatorSpecialties)->flatten()->unique()->toArray())
+                    ->where('spesialis.nm_sps', '!=', 'UMUM')
+                    ->select('dokter.kd_dokter', 'spesialis.nm_sps')
+                    ->get();
+                    
+                foreach ($operatorSpecialties as $rawatNo => $spsList) {
+                    foreach ($sameSpecialtyDocs as $doc) {
+                        if (in_array($doc->nm_sps, $spsList)) {
+                            $surgeryDoctors[$rawatNo][$doc->kd_dokter] = true;
+                        }
+                    }
+                }
+            }
+
+            // Peta DPJP per no_rawat (dipakai baik cabang spesialis maupun non-spesialis)
+            $dpjpDoctors = [];
+            DB::table('dpjp_ranap')
+                ->whereIn('no_rawat', $noRawats)
+                ->select('no_rawat', 'kd_dokter')
+                ->get()
+                ->each(function ($d) use (&$dpjpDoctors) {
+                    $dpjpDoctors[$d->no_rawat][$d->kd_dokter] = true;
+                });
+
+            $firstJagaIgdDocs = [];
+            if (!empty($noRawats)) {
+                $q1_jaga = DB::table('rawat_jl_dr')
+                    ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+                    ->whereIn('rawat_jl_dr.no_rawat', $noRawats)
+                    ->where('jns_perawatan.nm_perawatan', 'like', '%Jasa Periksa Dokter Jaga%')
+                    ->select('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_dokter', 'rawat_jl_dr.tgl_perawatan', 'rawat_jl_dr.jam_rawat');
+                    
+                $q2_jaga = DB::table('rawat_inap_dr')
+                    ->join('jns_perawatan_inap', 'rawat_inap_dr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+                    ->whereIn('rawat_inap_dr.no_rawat', $noRawats)
+                    ->where('jns_perawatan_inap.nm_perawatan', 'like', '%Jasa Periksa Dokter Jaga%')
+                    ->select('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'rawat_inap_dr.tgl_perawatan', 'rawat_inap_dr.jam_rawat');
+                    
+                $q3_jaga = DB::table('rawat_inap_drpr')
+                    ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+                    ->whereIn('rawat_inap_drpr.no_rawat', $noRawats)
+                    ->where('jns_perawatan_inap.nm_perawatan', 'like', '%Jasa Periksa Dokter Jaga%')
+                    ->select('rawat_inap_drpr.no_rawat', 'rawat_inap_drpr.kd_dokter', 'rawat_inap_drpr.tgl_perawatan', 'rawat_inap_drpr.jam_rawat');
+                    
+                $q4_jaga = DB::table('rawat_jl_drpr')
+                    ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+                    ->whereIn('rawat_jl_drpr.no_rawat', $noRawats)
+                    ->where('jns_perawatan.nm_perawatan', 'like', '%Jasa Periksa Dokter Jaga%')
+                    ->select('rawat_jl_drpr.no_rawat', 'rawat_jl_drpr.kd_dokter', 'rawat_jl_drpr.tgl_perawatan', 'rawat_jl_drpr.jam_rawat');
+                    
+                $allJaga = $q1_jaga->unionAll($q2_jaga)->unionAll($q3_jaga)->unionAll($q4_jaga)->get();
+                
+                $groupedJaga = $allJaga->groupBy('no_rawat');
+                foreach ($groupedJaga as $nr => $items) {
+                    $first = $items->sortBy(function($i) {
+                        return ($i->tgl_perawatan ?? '9999-12-31') . ' ' . ($i->jam_rawat ?? '23:59:59');
+                    })->first();
+                    
+                    if ($first) {
+                        $firstJagaIgdDocs[$nr] = $first->kd_dokter;
+                    }
                 }
             }
 
@@ -2638,10 +2993,7 @@ class JMBpjsController extends Controller
                             $q2->where('jns_perawatan_inap.nm_perawatan', 'like', '%visite%')
                                ->where('jns_perawatan_inap.nm_perawatan', 'not like', '%visite hd%');
                         })
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%ekg%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%elektrocardiografi%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%echo%');
+                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%');
                     })
                     ->select('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'jns_perawatan_inap.nm_perawatan');
 
@@ -2656,10 +3008,7 @@ class JMBpjsController extends Controller
                             $q2->where('jns_perawatan_inap.nm_perawatan', 'like', '%visite%')
                                ->where('jns_perawatan_inap.nm_perawatan', 'not like', '%visite hd%');
                         })
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%ekg%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%elektrocardiografi%')
-                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%echo%');
+                        ->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%konsultasi%');
                     })
                     ->select('rawat_inap_drpr.no_rawat', 'rawat_inap_drpr.kd_dokter', 'jns_perawatan_inap.nm_perawatan');
 
@@ -2704,10 +3053,7 @@ class JMBpjsController extends Controller
                             continue;
                         }
                         $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                            || stripos($v->nm_perawatan, 'ekg') !== false
-                            || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                            || stripos($v->nm_perawatan, 'echo') !== false
-                            || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                            || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
 
                         if ($isVisiteLike) {
                             $docsWithRealVisite[$v->kd_dokter] = true;
@@ -2721,10 +3067,7 @@ class JMBpjsController extends Controller
                             continue;
                         }
                         $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                            || stripos($v->nm_perawatan, 'ekg') !== false
-                            || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                            || stripos($v->nm_perawatan, 'echo') !== false
-                            || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                            || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
 
                         if ($isVisiteLike) {
                             $filteredList[] = $v;
@@ -2741,37 +3084,93 @@ class JMBpjsController extends Controller
                 $claims = DB::table('piutang_pasien')
                     ->whereIn('piutang_pasien.no_rawat', $noRawats)
                     ->join('reg_periksa', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+                    ->leftJoin('rvp_klaim_bpjs', 'piutang_pasien.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
                     ->select(
                         'piutang_pasien.no_rawat',
+                        DB::raw('(COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) as total_inacbg'),
                         DB::raw('
                             GREATEST(
                                 (
                                     COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = piutang_pasien.no_rawat), 0) + 
                                     COALESCE(piutang_pasien.uangmuka, 0) + 
-                                    COALESCE((SELECT SUM(totalpiutang) FROM detail_piutang_pasien WHERE no_rawat = piutang_pasien.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)
-                                ) - COALESCE((SELECT SUM(kso) FROM rawat_inap_dr WHERE no_rawat = piutang_pasien.no_rawat), 0), 0
+                                    COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = piutang_pasien.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)
+                                ) - COALESCE((SELECT SUM(CASE WHEN (jns_perawatan_inap.nm_perawatan LIKE \'%Sewa Alat%\' OR jns_perawatan_inap.nm_perawatan LIKE \'%Alat Orthopedi%\' OR jns_perawatan_inap.nm_perawatan LIKE \'%Alat DJ STENT%\') AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%dr Exsa%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%dr. Exsa%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Nasrulloh%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Narrow Plate%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Ansorulloh%\' AND jns_perawatan_inap.nm_perawatan NOT LIKE \'%Endoscopy Urologi%\' THEN jns_perawatan_inap.kso ELSE rawat_inap_dr.kso END) FROM rawat_inap_dr INNER JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw WHERE rawat_inap_dr.no_rawat = piutang_pasien.no_rawat), 0), 0
                             ) as total_claim
                         ')
                     )
                     ->get()
                     ->keyBy('no_rawat');
 
-                $processedNoRawats = [];
+                // Gabungkan operasi kembar (duplikat) lalu jumlahkan tarif pecahannya (split fee)
+                $details = $details->groupBy(function($item) {
+                    if (isset($item->sumber) && stripos($item->sumber, 'Operasi') !== false) {
+                        return $item->no_rawat . '|' . $item->nm_perawatan . '|' . $item->sumber;
+                    }
+                    return spl_object_hash($item);
+                })->map(function($group) {
+                    $first = $group->first();
+                    if ($group->count() > 1) {
+                        $first->tarif = $group->sum('tarif');
+                    }
+                    return $first;
+                })->values();
 
-                $details->transform(function ($item) use ($validVisits, $claims, $kdDokter, $surgeryDoctors, $operators, &$processedNoRawats) {
+                $processedNoRawats = [];
+                $jagaIgdProcessedDetail = [];
+
+                $details = $details->sortBy(function($item) {
+                    return ($item->tgl_perawatan ?? '9999-12-31') . ' ' . ($item->jam_rawat ?? '23:59:59');
+                })->values();
+
+                $details->transform(function ($item) use ($validVisits, $claims, $kdDokter, $surgeryDoctors, $operators, &$processedNoRawats, &$jagaIgdProcessedDetail, $isSp, $dpjpDoctors, $firstJagaIgdDocs) {
                     $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                     $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                     $isSpirometri = stripos($item->nm_perawatan, 'spirometri') !== false;
-                    $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false;
+                    $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false);
                     $isEkg = stripos($item->nm_perawatan, 'ekg') !== false || stripos($item->nm_perawatan, 'elektrocardiografi') !== false;
                     $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
                     $isJasaPeriksaSp = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                    $isJasaDokterJaga = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Jaga') !== false;
 
-                    $isPoolItem = $isVisite || $isKonsultasi || $isEkg || $isEcho || $isJasaPeriksaSp;
+                    $isPoolItem = $isVisite || $isKonsultasi || $isJasaPeriksaSp;
 
-                    if ($item->status === 'Ranap') {
+                    if ($isJasaDokterJaga) {
+                        if (isset($firstJagaIgdDocs[$item->no_rawat]) && $firstJagaIgdDocs[$item->no_rawat] !== $kdDokter) {
+                            $item->tarif = 0;
+                        } elseif (isset($jagaIgdProcessedDetail[$item->no_rawat])) {
+                            $item->tarif = 0;
+                        } else {
+                            $jagaIgdProcessedDetail[$item->no_rawat] = true;
+                        }
+                    }
+
+                    if (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan operasi ukuran > 3 cm') !== false) {
+                        $item->tarif = 180000;
+                    } elseif (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan biopsi') !== false) {
+                        $item->tarif = 120000;
+                    } elseif (stripos($item->nm_perawatan, 'SITOLOGI') !== false && stripos($item->nm_perawatan, 'Cairan pleura') !== false) {
+                        $item->tarif = 120000;
+                    } elseif (stripos($item->nm_perawatan, 'Persalinan Spontan') !== false) {
+                        $item->tarif = 70000;
+                    }
+
+                    // Limit Visite Dokter Umum max 15.000
+                    if ($isPoolItem && !$isSp && $item->tarif > 15000) {
+                        $item->tarif = 15000;
+                    }
+
+                    if ($this->isTindakanDikecualikan($item->nm_perawatan)) {
+                        $item->tarif = 0;
+                    } elseif ($isEcho) {
+                        if (isset($dpjpDoctors[$item->no_rawat][$kdDokter])) {
+                            $item->tarif = 0;
+                        }
+                    } elseif ($isEkg && $isSp) {
+                        $item->tarif = 0;
+                    } elseif ($item->status === 'Ranap') {
                         $isOperator = isset($operators[$item->no_rawat][$kdDokter]);
                         $isSurgeryDoc = isset($surgeryDoctors[$item->no_rawat][$kdDokter]);
+                        
                         if ($isOperator && in_array($item->sumber, [
                             'Ranap - Tindakan Dokter',
                             'Ranap - Tindakan DrPr (Dokter)',
@@ -2781,62 +3180,121 @@ class JMBpjsController extends Controller
                             $item->tarif = 0;
                         } elseif ($isSurgeryDoc && ($isVisite || $isKonsultasi || $isJasaPeriksaSp)) {
                             $item->tarif = 0;
-                        } elseif ($isSpirometri || $isUsgSp) {
-                            $item->tarif = 0;
-                        } elseif ($isPoolItem) {
-                            if (isset($validVisits[$item->no_rawat])) {
-                                $list = $validVisits[$item->no_rawat];
-                                $totalVisite = count($list);
-                                
-                                $hasRealVisite = false;
-                                foreach ($list as $v) {
-                                    if ($v->kd_dokter === $kdDokter) {
-                                        $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                                            || stripos($v->nm_perawatan, 'ekg') !== false
-                                            || stripos($v->nm_perawatan, 'elektrocardiografi') !== false
-                                            || stripos($v->nm_perawatan, 'echo') !== false
-                                            || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
-                                        if ($isVLike) {
+                        } elseif ($isSp) {
+                            if ($isSpirometri || $isUsgSp) {
+                                $item->tarif = 0;
+                            } elseif ($isPoolItem) {
+                                // Cek apakah pasien operasi
+                                $pasienOperasi = isset($operators[$item->no_rawat]) && !empty($operators[$item->no_rawat]);
+
+                                if ($pasienOperasi) {
+                                    // Pasien operasi: gunakan tarif_rvp (tarif_transaksi/RVP), bukan pool 9%
+                                    $item->tarif = isset($item->tarif_rvp) ? $item->tarif_rvp : $item->tarif;
+                                } else {
+                                    // Pasien non-operasi: gunakan pool 9% dari INA-CBG
+                                    $hasVisiteFee = false;
+                                    $hasRealVisite = false;
+
+                                    if (isset($validVisits[$item->no_rawat])) {
+                                        $list = $validVisits[$item->no_rawat];
+                                        
+                                        $doctorsWithRealVisite = [];
+                                        foreach ($list as $v) {
+                                            $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false);
+                                            if ($isVLike) {
+                                                $doctorsWithRealVisite[$v->kd_dokter] = true;
+                                            }
+                                        }
+
+                                        if (isset($doctorsWithRealVisite[$kdDokter])) {
                                             $hasRealVisite = true;
-                                            break;
+                                            $totalVisite = 0;
+                                            $dokterVisiteCount = 0;
+
+                                            foreach ($list as $v) {
+                                                if (isset($doctorsWithRealVisite[$v->kd_dokter])) {
+                                                    $totalVisite++;
+                                                }
+                                                if ($v->kd_dokter === $kdDokter) {
+                                                    $dokterVisiteCount++;
+                                                }
+                                            }
+
+                                            if ($totalVisite > 0 && $dokterVisiteCount > 0) {
+                                                if (!isset($processedNoRawats[$item->no_rawat])) {
+                                                    $processedNoRawats[$item->no_rawat] = true;
+                                                    $claim = $claims->get($item->no_rawat);
+                                                    $totalInacbg = $claim ? $claim->total_inacbg : 0;
+                                                    $item->tarif = round(($totalInacbg * 0.09) * ($dokterVisiteCount / $totalVisite), 2);
+                                                } else {
+                                                    $item->tarif = 0;
+                                                }
+                                                $hasVisiteFee = true;
+                                            }
                                         }
                                     }
-                                }
-                                
-                                if ($hasRealVisite) {
-                                    $dokterVisiteCount = 0;
-                                    foreach ($list as $v) {
-                                        if ($v->kd_dokter === $kdDokter) {
-                                            $dokterVisiteCount++;
-                                        }
-                                    }
-                                    
-                                    if ($totalVisite > 0 && $dokterVisiteCount > 0) {
-                                        if (!isset($processedNoRawats[$item->no_rawat])) {
-                                            $processedNoRawats[$item->no_rawat] = true;
-                                            $claim = $claims->get($item->no_rawat);
-                                            $totalClaim = $claim ? $claim->total_claim : 0;
-                                            $item->tarif = round(($totalClaim * 0.09) * ($dokterVisiteCount / $totalVisite), 2);
+
+                                    if (!$hasVisiteFee) {
+                                        if ($isKonsultasi && !$hasRealVisite) {
+                                            // Biarkan tarif normal (Bypass Pool dan gunakan tarif transaksi/RVP)
                                         } else {
                                             $item->tarif = 0;
                                         }
                                     }
                                 }
-                            } else {
-                                $item->tarif = 0;
                             }
                         }
+
                     }
                     return $item;
                 });
             } else {
-                $details->transform(function ($item) use ($kdDokter, $surgeryDoctors, $operators) {
+                $jagaIgdProcessedDetail = [];
+                $details = $details->sortBy(function($item) {
+                    return ($item->tgl_perawatan ?? '9999-12-31') . ' ' . ($item->jam_rawat ?? '23:59:59');
+                })->values();
+
+                $details->transform(function ($item) use ($kdDokter, $surgeryDoctors, $operators, $dpjpDoctors, $firstJagaIgdDocs, &$jagaIgdProcessedDetail) {
                     $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                     $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
+                    $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
+                    $isJasaDokterJaga = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Jaga') !== false;
+                    $isJasaPeriksaSp = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                    $isPoolItem = $isVisite || $isKonsultasi || $isJasaPeriksaSp;
 
-                    if ($item->status === 'Ranap') {
+                    if ($isJasaDokterJaga) {
+                        if (isset($firstJagaIgdDocs[$item->no_rawat]) && $firstJagaIgdDocs[$item->no_rawat] !== $kdDokter) {
+                            $item->tarif = 0;
+                        } elseif (isset($jagaIgdProcessedDetail[$item->no_rawat])) {
+                            $item->tarif = 0;
+                        } else {
+                            $jagaIgdProcessedDetail[$item->no_rawat] = true;
+                        }
+                    }
+
+                    if (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan operasi ukuran > 3 cm') !== false) {
+                        $item->tarif = 180000;
+                    } elseif (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan biopsi') !== false) {
+                        $item->tarif = 120000;
+                    } elseif (stripos($item->nm_perawatan, 'SITOLOGI') !== false && stripos($item->nm_perawatan, 'Cairan pleura') !== false) {
+                        $item->tarif = 120000;
+                    }
+
+                    // Limit Visite/Konsultasi/Jasa Spesialis untuk Dokter Umum max 15.000
+                    if ($isPoolItem && $item->tarif > 15000) {
+                        $item->tarif = 15000;
+                    }
+
+                    if ($this->isTindakanDikecualikan($item->nm_perawatan)) {
+                        $item->tarif = 0;
+                    } elseif ($isEcho) {
+                        if (isset($dpjpDoctors[$item->no_rawat][$kdDokter])) {
+                            $item->tarif = 0;
+                        }
+                    } elseif ($item->status === 'Ranap') {
                         $isOperator = isset($operators[$item->no_rawat][$kdDokter]);
                         $isSurgeryDoc = isset($surgeryDoctors[$item->no_rawat][$kdDokter]);
+                        
                         if ($isOperator && in_array($item->sumber, [
                             'Ranap - Tindakan Dokter',
                             'Ranap - Tindakan DrPr (Dokter)',
@@ -2853,6 +3311,107 @@ class JMBpjsController extends Controller
             }
         }
 
+        // Set raw HD operator fee to 0 in detail items (since they are redistributed)
+        foreach ($details as $item) {
+            if (stripos($item->nm_perawatan, 'jasa operator hd') !== false) {
+                $item->tarif = 0;
+            }
+        }
+
+        // Calculate and add redistributed HD operator fee
+        $hdKusNip = '09964020055';
+        $hdKusCount = DB::table('rawat_jl_pr')
+            ->join('reg_periksa', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_pr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_jl_pr.nip', $hdKusNip)
+            ->where('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->count()
+            +
+            DB::table('rawat_jl_drpr')
+            ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_jl_drpr.nip', $hdKusNip)
+            ->where('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->count()
+            +
+            DB::table('rawat_inap_pr')
+            ->join('reg_periksa', 'rawat_inap_pr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan_inap', 'rawat_inap_pr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_inap_pr.nip', $hdKusNip)
+            ->where('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%')
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->count()
+            +
+            DB::table('rawat_inap_drpr')
+            ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('rawat_inap_drpr.nip', $hdKusNip)
+            ->where('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%')
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })
+            ->count();
+
+        $pembagianHD = [
+            '09964020055' => 4800, // HD Kus (Kuspratiknyo)
+            '0525010752'  => 2700, // HD Mala
+            '05011989'    => 2100, // HD Ria
+            '1124010723'  => 1900, // HD Danu
+            '1224020728'  => 1900, // HD Ronal
+            '0611010186'  => 1900, // HD Sumo
+            '0525010751'  => 1900, // HD Sabtina
+            '1215010264'  => 1600, // HD Sutriyanti
+            '1013010222'  => 1600, // HD Lili
+            '1216010284'  => 1600, // HD Vina
+            '603010118'   => 1600, // HD Sayu Putu
+            '1021.01.0572'=> 450,  // HD Ade
+            '1125010787'  => 1200, // HD Yopi
+        ];
+
+        if (isset($pembagianHD[$kdDokter])) {
+            $nilai = $pembagianHD[$kdDokter];
+            $tambahan = $nilai * $hdKusCount;
+            if ($tambahan > 0) {
+                $details->push((object) [
+                    'no_rawat' => '-',
+                    'nm_pasien' => 'TIM HEMODIALISA',
+                    'nm_perawatan' => 'Pembagian Jasa Operator HD (Redistribusi)',
+                    'tarif' => $tambahan,
+                    'sumber' => 'Redistribusi Jasa HD',
+                    'status' => 'Ranap'
+                ]);
+            }
+        }
+
+        // Batch load and assign penjamin name to each detail row
+        $uniqueNoRawats = $details->pluck('no_rawat')->unique()->filter(function($val) { return $val !== '-'; })->toArray();
+        if (!empty($uniqueNoRawats)) {
+            $penjamins = DB::table('reg_periksa')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->whereIn('reg_periksa.no_rawat', $uniqueNoRawats)
+                ->pluck('penjab.png_jawab', 'reg_periksa.no_rawat');
+            
+            foreach ($details as $item) {
+                if ($item->no_rawat !== '-') {
+                    $item->penjamin = $penjamins->get($item->no_rawat) ?? '-';
+                } else {
+                    $item->penjamin = '-';
+                }
+            }
+        } else {
+            foreach ($details as $item) {
+                $item->penjamin = '-';
+            }
+        }
+
+        if ($isApi) {
+            return $details;
+        }
+
         return view('detail-tindakan-umum.jm-bpjs-detail', [
             'details' => $details,
             'nmDokter' => $nmDokter,
@@ -2860,5 +3419,15 @@ class JMBpjsController extends Controller
             'tanggl1' => $tanggl1,
             'tanggl2' => $tanggl2,
         ]);
+    }
+
+    private function isTindakanDikecualikan($namaPerawatan)
+    {
+        foreach ($this->tindakanDikecualikan as $keyword) {
+            if (stripos($namaPerawatan, $keyword) !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 }
