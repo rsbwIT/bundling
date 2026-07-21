@@ -78,7 +78,7 @@
             <div class="d-flex align-items-center">
                 <div class="mr-3 d-flex align-items-center">
                     <label for="volumeSlider" class="m-0 mr-2"><i class="fas fa-volume-up"></i> Volume:</label>
-                    <input type="range" id="volumeSlider" min="0" max="100" value="27" style="width: 150px;" onchange="sendVideoCommand('volume', this.value)">
+                    <input type="range" id="volumeSlider" min="0" max="100" value="27" style="width: 150px;" oninput="document.getElementById('volumeLabel').innerText = this.value + '%'" onchange="sendVideoCommand('volume', this.value)">
                     <span id="volumeLabel" class="ml-2 font-weight-bold">27%</span>
                 </div>
                 <button type="button" class="btn btn-sm btn-success rounded-pill px-3 mr-2" onclick="sendVideoCommand('play', adminPlayer ? adminPlayer.getCurrentTime() : 0)" title="Mainkan Video">
@@ -97,6 +97,12 @@
 
     {{-- ── Table Card ── --}}
     <div class="card shadow-sm">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Data Antrian Pasien</h6>
+            <button type="button" class="btn btn-sm btn-info rounded-pill px-3" onclick="refreshTable()" id="btnRefreshTable">
+                <i class="fas fa-sync-alt mr-1"></i> Refresh Tabel
+            </button>
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
                 <table class="table table-sm table-bordered table-hover" id="tabelPasien" style="font-size: 0.9rem;">
@@ -111,7 +117,7 @@
                             <th class="text-center" style="position:sticky; top:0; z-index:2; background:#f8fafc; width:100px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tbodyPasien">
                         @forelse($antrian as $index => $item)
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
@@ -367,7 +373,6 @@
             if(action === 'volume') {
                 document.getElementById('volumeLabel').innerText = value + '%';
                 if (adminPlayer && typeof adminPlayer.setVolume === 'function') {
-                    if(value > 0) adminPlayer.unMute();
                     adminPlayer.setVolume(value);
                 }
             } else if (action === 'skip') {
@@ -386,6 +391,75 @@
             }
         }, 0);
     }
+    function refreshTable() {
+        let tgl = $('#tgl_registrasi').val();
+        let btn = $('#btnRefreshTable');
+        let icon = btn.find('i');
+        
+        icon.addClass('fa-spin');
+        btn.prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ url('/antrian-fisioterapi') }}',
+            type: 'GET',
+            data: { tgl_registrasi: tgl },
+            success: function(response) {
+                let html = '';
+                if(response.length > 0) {
+                    response.forEach(function(item, index) {
+                        // Escape quotes for JS string
+                        let nm_pasien = item.nm_pasien.replace(/'/g, "\\'");
+                        let nm_poli = item.nm_poli.replace(/'/g, "\\'");
+                        
+                        html += `
+                        <tr>
+                            <td class="text-center">${index + 1}</td>
+                            <td>${item.no_reg}</td>
+                            <td>${item.no_rawat}</td>
+                            <td>${item.no_rkm_medis}</td>
+                            <td>${item.nm_pasien}</td>
+                            <td>${item.nm_poli}</td>
+                            <td class="text-center align-middle">
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm" style="font-size: 0.8rem; letter-spacing: 0.5px; transition: all 0.3s;" onclick="panggilPasien('${item.no_rawat}', '${nm_pasien}', '${item.no_reg}', '${nm_poli}')" onmouseover="this.classList.replace('btn-outline-primary', 'btn-primary')" onmouseout="this.classList.replace('btn-primary', 'btn-outline-primary')">
+                                    <i class="fas fa-bullhorn mr-1"></i> Panggil
+                                </button>
+                            </td>
+                        </tr>
+                        `;
+                    });
+                } else {
+                    html = `
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-3">Tidak ada data antrian untuk tanggal ini.</td>
+                        </tr>
+                    `;
+                }
+                $('#tbodyPasien').html(html);
+                
+                // Reapply search filter
+                let searchInput = document.getElementById('searchInput');
+                if (searchInput.value) {
+                    let event = new Event('keyup');
+                    searchInput.dispatchEvent(event);
+                }
+                
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: 'Tabel berhasil diperbarui', showConfirmButton: false, timer: 1500
+                });
+            },
+            error: function() {
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Gagal memuat data antrian', showConfirmButton: false, timer: 1500
+                });
+            },
+            complete: function() {
+                icon.removeClass('fa-spin');
+                btn.prop('disabled', false);
+            }
+        });
+    }
 </script>
 
 <!-- YouTube Iframe API for Audio on Admin -->
@@ -399,7 +473,7 @@
             videoId: 'l8HbfVjp844', // Default video
             playerVars: {
                 'autoplay': 0,
-                'mute': 0, // Suara nyala di Admin!
+                'mute': 1, // Suara dimatikan di Admin!
                 'controls': 0,
                 'showinfo': 0,
                 'rel': 0,
@@ -408,7 +482,26 @@
             events: {
                 'onReady': function(event) {
                     event.target.setVolume(27);
-                    // Biarkan pause sampai user klik Play
+                    // Ambil status video terakhir agar sinkron dengan display saat direfresh
+                    $.ajax({
+                        url: '{{ url('/api/display-fisioterapi/current') }}',
+                        type: 'GET',
+                        cache: false,
+                        success: function(response) {
+                            if(response.video) {
+                                if(response.video.action === 'change_video' && response.video.value) {
+                                    adminPlayer.loadVideoById(response.video.value);
+                                    adminPlayer.playVideo();
+                                } else if(response.video.action === 'play') {
+                                    if(response.video.value) adminPlayer.seekTo(parseFloat(response.video.value));
+                                    adminPlayer.playVideo();
+                                } else if(response.video.action === 'pause') {
+                                    if(response.video.value) adminPlayer.seekTo(parseFloat(response.video.value));
+                                    adminPlayer.pauseVideo();
+                                }
+                            }
+                        }
+                    });
                 }
             }
         });

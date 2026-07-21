@@ -234,6 +234,7 @@
             });
         }
         function onPlayerReady(event) {
+            event.target.setVolume(27);
             event.target.mute();
             event.target.playVideo();
         }
@@ -252,7 +253,7 @@
                         lastVideoCmdTime = parseFloat(response.video.time);
                         if(response.video.action === 'skip' && typeof player.seekTo === 'function') {
                             player.seekTo(0);
-                            player.mute();
+                            player.unMute();
                             player.playVideo();
                         } else if(response.video.action === 'change_video' && typeof player.loadVideoById === 'function') {
                             // Tampilkan toast agar kita tahu TV benar-benar menerima perintah
@@ -263,7 +264,7 @@
                                 });
                             }
                             player.loadVideoById(response.video.value);
-                            player.mute();
+                            player.unMute();
                             player.playVideo();
                         } else if(response.video.action === 'play' && typeof player.playVideo === 'function') {
                             if(typeof Swal !== 'undefined') {
@@ -284,6 +285,9 @@
                             if (Math.abs(currentTime - targetTime) > 0.5) {
                                 player.seekTo(targetTime);
                             }
+                        } else if(response.video.action === 'volume' && typeof player.setVolume === 'function') {
+                            player.unMute();
+                            player.setVolume(parseInt(response.video.value, 10));
                         }
                     }
 

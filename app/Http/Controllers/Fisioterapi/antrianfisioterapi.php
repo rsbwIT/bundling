@@ -11,7 +11,7 @@ class antrianfisioterapi extends Controller
     public function index(Request $request)
     {
         // Menggunakan tanggal dari request atau default hari ini (sesuai query contoh 2026-07-20)
-        $tgl_registrasi = $request->input('tgl_registrasi', '2026-07-20');
+        $tgl_registrasi = $request->input('tgl_registrasi', date('Y-m-d'));
 
         $antrian = DB::table('reg_periksa')
             ->select(
@@ -27,6 +27,10 @@ class antrianfisioterapi extends Controller
             ->where('poliklinik.nm_poli', 'Poliklinik Rehabilitasi Medik')
             ->where('reg_periksa.tgl_registrasi', $tgl_registrasi)
             ->get();
+
+        if ($request->ajax()) {
+            return response()->json($antrian);
+        }
 
         // Return to blade view
         return view('fisioterapi.antrianfisioterapi', compact('antrian', 'tgl_registrasi'));
@@ -72,8 +76,8 @@ class antrianfisioterapi extends Controller
             'time'   => microtime(true)   // Gunakan microtime agar tidak bentrok jika dipanggil di detik yang sama
         ];
         
-        // Simpan command ke cache dengan waktu yang cukup lama agar tidak terlewat
-        \Illuminate\Support\Facades\Cache::put('fisioterapi_video_command', $cmd, 120);
+        // Simpan command ke cache dengan waktu yang cukup lama (12 jam)
+        \Illuminate\Support\Facades\Cache::put('fisioterapi_video_command', $cmd, 60 * 12);
         
         return response()->json(['success' => true]);
     }
