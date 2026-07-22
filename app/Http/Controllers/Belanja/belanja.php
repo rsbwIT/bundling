@@ -94,6 +94,11 @@ class Belanja extends Controller
         $rows    = $built['rows'];
         $stokPerBangsalMap = $built['stok_per_bangsal'];
 
+        $hanyaKebutuhan = $request->hanya_kebutuhan == '1';
+        if ($hanyaKebutuhan) {
+            $rows = array_filter($rows, fn($r) => $r['kebutuhan'] > 0);
+        }
+
         // Hitung ringkasan (top/low + grand total) dalam satu pass
         $summary = $this->computeSummary($rows);
 
@@ -461,5 +466,92 @@ class Belanja extends Controller
         });
 
         return $rows;
+    }
+    public function getPengeluaranDetail(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $kode_brng = $request->kode_brng;
+        $tglAwal = $this->sanitizeDate($request->tanggal_awal, date('Y-m-d'));
+        $tglAkhir = $this->sanitizeDate($request->tanggal_akhir, date('Y-m-d'));
+
+        if (!$kode_brng) {
+            return response()->json([]);
+        }
+
+        $pengeluaran = DB::table('pengeluaran_obat_bhp')
+            ->join('detail_pengeluaran_obat_bhp', 'detail_pengeluaran_obat_bhp.no_keluar', '=', 'pengeluaran_obat_bhp.no_keluar')
+            ->join('bangsal', 'pengeluaran_obat_bhp.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->select(
+                'pengeluaran_obat_bhp.tanggal as tanggal',
+                'pengeluaran_obat_bhp.no_keluar as no_rawat',
+                'bangsal.nm_bangsal', 
+                DB::raw("'Pengeluaran BHP' as tujuan"),
+                DB::raw("'-' as nm_pasien"),
+                DB::raw('SUM(detail_pengeluaran_obat_bhp.jumlah) as jumlah')
+            )
+            ->whereBetween('pengeluaran_obat_bhp.tanggal', [$tglAwal, $tglAkhir])
+            ->where('detail_pengeluaran_obat_bhp.kode_brng', $kode_brng)
+            ->groupBy('pengeluaran_obat_bhp.tanggal', 'pengeluaran_obat_bhp.no_keluar', 'bangsal.nm_bangsal');
+
+        $pemberian = DB::table('detail_pemberian_obat')
+            ->join('bangsal', 'detail_pemberian_obat.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->join('reg_periksa', 'detail_pemberian_obat.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->select(
+                'detail_pemberian_obat.tgl_perawatan as tanggal',
+                'detail_pemberian_obat.no_rawat',
+                'bangsal.nm_bangsal', 
+                DB::raw("'Pemberian Obat' as tujuan"),
+                'pasien.nm_pasien',
+                DB::raw('SUM(detail_pemberian_obat.jml) as jumlah')
+            )
+            ->whereBetween('detail_pemberian_obat.tgl_perawatan', [$tglAwal, $tglAkhir])
+            ->where('detail_pemberian_obat.kode_brng', $kode_brng)
+            ->groupBy('detail_pemberian_obat.tgl_perawatan', 'detail_pemberian_obat.no_rawat', 'bangsal.nm_bangsal', 'pasien.nm_pasien');
+
+        $resep = DB::table('resep_pulang')
+            ->join('bangsal', 'resep_pulang.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->join('reg_periksa', 'resep_pulang.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->select(
+                'resep_pulang.tanggal as tanggal',
+                'resep_pulang.no_rawat',
+                'bangsal.nm_bangsal', 
+                DB::raw("'Resep Pulang' as tujuan"),
+                'pasien.nm_pasien',
+                DB::raw('SUM(resep_pulang.jml_barang) as jumlah')
+            )
+            ->whereBetween('resep_pulang.tanggal', [$tglAwal, $tglAkhir])
+            ->where('resep_pulang.kode_brng', $kode_brng)
+            ->groupBy('resep_pulang.tanggal', 'resep_pulang.no_rawat', 'bangsal.nm_bangsal', 'pasien.nm_pasien');
+
+        $penjualan = DB::table('penjualan')
+            ->join('detailjual', 'detailjual.nota_jual', '=', 'penjualan.nota_jual')
+            ->join('bangsal', 'penjualan.kd_bangsal', '=', 'bangsal.kd_bangsal')
+            ->select(
+                'penjualan.tgl_jual as tanggal',
+                'penjualan.nota_jual as no_rawat',
+                'bangsal.nm_bangsal', 
+                DB::raw("'Penjualan Bebas' as tujuan"),
+                DB::raw("IFNULL(penjualan.nm_pasien, 'Pasien Umum') as nm_pasien"),
+                DB::raw('SUM(detailjual.jumlah) as jumlah')
+            )
+            ->whereBetween('penjualan.tgl_jual', [$tglAwal, $tglAkhir])
+            ->where('detailjual.kode_brng', $kode_brng)
+            ->groupBy('penjualan.tgl_jual', 'penjualan.nota_jual', 'bangsal.nm_bangsal', 'penjualan.nm_pasien');
+
+        $union = $pengeluaran
+            ->unionAll($pemberian)
+            ->unionAll($resep)
+            ->unionAll($penjualan);
+
+        $results = DB::table(DB::raw("({$union->toSql()}) as sub"))
+            ->mergeBindings($union)
+            ->select('tanggal', 'no_rawat', 'nm_bangsal', 'nm_pasien', 'tujuan', DB::raw('SUM(jumlah) as total_jumlah'))
+            ->groupBy('tanggal', 'no_rawat', 'nm_bangsal', 'nm_pasien', 'tujuan')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('total_jumlah')
+            ->get();
+
+        return response()->json($results);
     }
 }

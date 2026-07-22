@@ -543,6 +543,19 @@ body{ background:#f1f5f9; }
                 </div>
 
                 <div class="filter-group">
+                    <label>Filter Kebutuhan</label>
+                    <div class="filter-input-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <select name="hanya_kebutuhan" class="form-control">
+                            <option value="">Semua Barang</option>
+                            <option value="1" {{ request('hanya_kebutuhan') == '1' ? 'selected' : '' }}>Hanya Ada Kebutuhan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-group">
                     <label>Gudang</label>
                     <button type="button" class="btn btn-atur-gudang" data-toggle="modal" data-target="#modalSettingGudang">
                         <i class="fas fa-warehouse"></i> Atur Gudang
@@ -693,7 +706,13 @@ body{ background:#f1f5f9; }
                     </td>
                     <td class="cell-number text-muted">{{ number_format($row['stok_sebelumnya'], 0, ',', '.') }}</td>
                     <td class="cell-number text-keluar">
-                        {{ number_format($row['pengeluaran'], 0, ',', '.') }}
+                        @if($row['pengeluaran'] > 0)
+                            <a href="javascript:void(0)" onclick="showPengeluaranDetail('{{ $row['kode_brng'] }}', '{{ addslashes($row['nama_brng']) }}', '{{ $tanggal_awal }}', '{{ $tanggal_akhir }}')" style="color: inherit; text-decoration: underline;">
+                                {{ number_format($row['pengeluaran'], 0, ',', '.') }}
+                            </a>
+                        @else
+                            {{ number_format($row['pengeluaran'], 0, ',', '.') }}
+                        @endif
                     </td>
                     <td class="cell-number">
                         @if($row['kebutuhan'] > 0)
@@ -805,6 +824,44 @@ body{ background:#f1f5f9; }
         });
     });
 })();
+
+function showPengeluaranDetail(kodeBrng, namaBrng, tglAwal, tglAkhir) {
+    document.getElementById('pengeluaranObatName').innerText = namaBrng;
+    document.getElementById('tbodyPengeluaranDetail').innerHTML = '<tr><td colspan="2" class="text-center">Memuat...</td></tr>';
+    $('#modalPengeluaranDetail').modal('show');
+
+    fetch(`{{ route('belanja.pengeluaranDetail') }}?kode_brng=${kodeBrng}&tanggal_awal=${tglAwal}&tanggal_akhir=${tglAkhir}`)
+        .then(response => response.json())
+        .then(data => {
+            let html = '';
+            let total = 0;
+            if(data.length > 0) {
+                data.forEach(item => {
+                    let jumlah = parseFloat(item.total_jumlah);
+                    total += jumlah;
+                    html += `
+                        <tr>
+                            <td>${item.nm_bangsal || '-'}</td>
+                            <td class="text-right font-weight-bold text-danger">${new Intl.NumberFormat('id-ID').format(jumlah)}</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                    <tr class="bg-light">
+                        <td class="font-weight-bold text-right">Total Keseluruhan</td>
+                        <td class="text-right font-weight-bold text-danger" style="font-size: 1.1em;">${new Intl.NumberFormat('id-ID').format(total)}</td>
+                    </tr>
+                `;
+            } else {
+                html = '<tr><td colspan="2" class="text-center text-muted">Tidak ada data detail pengeluaran</td></tr>';
+            }
+            document.getElementById('tbodyPengeluaranDetail').innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('tbodyPengeluaranDetail').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Gagal memuat data</td></tr>';
+            console.error('Error fetching pengeluaran detail:', error);
+        });
+}
 </script>
 
 <!-- Modal Setting Gudang -->
@@ -862,5 +919,88 @@ body{ background:#f1f5f9; }
         </div>
     </div>
 </div>
+
+<!-- Modal Detail Pengeluaran -->
+<div class="modal fade" id="modalPengeluaranDetail" tabindex="-1" role="dialog" aria-labelledby="modalPengeluaranDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+            <div class="modal-header bg-primary text-white" style="border-radius: 16px 16px 0 0;">
+                <h5 class="modal-title" id="modalPengeluaranDetailLabel">
+                    <i class="fas fa-info-circle mr-2"></i> Detail Pengeluaran Obat
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <h6 class="font-weight-bold mb-3" id="pengeluaranObatName" style="color: #0f172a; font-size: 1.1em;">Nama Obat</h6>
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-bordered table-striped" id="tablePengeluaranDetail">
+                        <thead style="position: sticky; top: 0; background: #f8fafc; z-index: 1;">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>No. Rawat/Struk</th>
+                                <th>Unit / Bangsal Pemakai</th>
+                                <th>Nama Pasien</th>
+                                <th>Jenis</th>
+                                <th class="text-right" style="width: 100px;">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPengeluaranDetail">
+                            <tr><td colspan="6" class="text-center py-3">Memuat...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showPengeluaranDetail(kodeBrng, namaBrng, tglAwal, tglAkhir) {
+    document.getElementById('pengeluaranObatName').innerText = namaBrng;
+    document.getElementById('tbodyPengeluaranDetail').innerHTML = '<tr><td colspan="6" class="text-center">Memuat...</td></tr>';
+    $('#modalPengeluaranDetail').modal('show');
+
+    fetch(`{{ route('belanja.pengeluaranDetail') }}?kode_brng=${kodeBrng}&tanggal_awal=${tglAwal}&tanggal_akhir=${tglAkhir}`)
+        .then(response => response.json())
+        .then(data => {
+            let html = '';
+            let total = 0;
+            if(data.length > 0) {
+                data.forEach(item => {
+                    let jumlah = parseFloat(item.total_jumlah);
+                    total += jumlah;
+                    html += `
+                        <tr>
+                            <td>${item.tanggal || '-'}</td>
+                            <td>${item.no_rawat || '-'}</td>
+                            <td>${item.nm_bangsal || '-'}</td>
+                            <td>${item.nm_pasien || '-'}</td>
+                            <td><span class="badge badge-info">${item.tujuan || '-'}</span></td>
+                            <td class="text-right font-weight-bold text-danger">${new Intl.NumberFormat('id-ID').format(jumlah)}</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                    <tr class="bg-light">
+                        <td colspan="5" class="font-weight-bold text-right">Total Keseluruhan</td>
+                        <td class="text-right font-weight-bold text-danger" style="font-size: 1.1em;">${new Intl.NumberFormat('id-ID').format(total)}</td>
+                    </tr>
+                `;
+            } else {
+                html = '<tr><td colspan="6" class="text-center text-muted">Tidak ada data detail pengeluaran</td></tr>';
+            }
+            document.getElementById('tbodyPengeluaranDetail').innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('tbodyPengeluaranDetail').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';
+            console.error('Error fetching pengeluaran detail:', error);
+        });
+}
+</script>
 
 @endsection

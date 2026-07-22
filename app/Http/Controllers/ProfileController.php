@@ -11,9 +11,13 @@ class ProfileController extends Controller
 {
     public function uploadPhoto(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+        if ($validator->fails()) {
+            Log::error('Profile upload validation failed: ' . json_encode($validator->errors()));
+            return redirect()->back()->with('error', 'Validasi gagal: ' . $validator->errors()->first());
+        }
 
         $user = session('user');
         if(!$user || empty($user->nama)){
@@ -43,10 +47,9 @@ class ProfileController extends Controller
         // Attempt to upload to remote Khanza SFTP (non-blocking for UX)
         $sftpSuccess = false;
         try {
-            $remoteDir = 'webapps/penggajian/';
-            $remotePath = $remoteDir . $name;
+            $remotePath = $name;
             // use configured SFTP disk; adjust disk name if needed
-            Storage::disk('sftp_berkas')->put($remotePath, file_get_contents($dir . '/' . $name));
+            Storage::disk('sftp_photo')->put($remotePath, file_get_contents($dir . '/' . $name));
             $sftpSuccess = true;
         } catch (\Exception $e) {
             Log::error('Profile photo SFTP upload failed for ' . $name . ': ' . $e->getMessage());
@@ -56,8 +59,8 @@ class ProfileController extends Controller
         // If remote put succeeded, update DB to store remote filename and session foto to remote URL
         if ($sftpSuccess) {
             try {
-                DB::table('pegawai')->where('nama', $user->nama)->update(['photo' => $name]);
-                $remoteUrl = rtrim(env('URL_KHANZA', ''), '/') . '/webapps/penggajian/' . $name;
+                DB::table('pegawai')->where('nama', $user->nama)->update(['photo' => 'pages/pegawai/photo/' . $name]);
+                $remoteUrl = rtrim(env('URL_KHANZA', ''), '/') . '/webapps/penggajian/pages/pegawai/photo/' . $name;
                 $user->foto = $remoteUrl;
                 session(['user' => $user]);
             } catch (\Exception $e) {
@@ -96,9 +99,8 @@ class ProfileController extends Controller
         // Attempt SFTP put to remote Khanza
         $sftpSuccess = false;
         try {
-            $remoteDir = 'webapps/penggajian/';
-            $remotePath = $remoteDir . $name;
-            Storage::disk('sftp_berkas')->put($remotePath, file_get_contents($dir . '/' . $name));
+            $remotePath = $name;
+            Storage::disk('sftp_photo')->put($remotePath, file_get_contents($dir . '/' . $name));
             $sftpSuccess = true;
         } catch (\Exception $e) {
             Log::error('Profile photo for nik ' . $nik . ' SFTP upload failed: ' . $e->getMessage());
@@ -108,7 +110,7 @@ class ProfileController extends Controller
         if ($sftpSuccess) {
             try {
                 // store the remote filename in DB so views can resolve via URL_KHANZA
-                DB::table('pegawai')->where('nik', $nik)->update(['photo' => $name]);
+                DB::table('pegawai')->where('nik', $nik)->update(['photo' => 'pages/pegawai/photo/' . $name]);
             } catch (\Exception $e) {
                 Log::error('Failed to update pegawai.photo after SFTP for nik ' . $nik . ': ' . $e->getMessage());
             }

@@ -465,6 +465,8 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
         Route::post('/belanja/toggle-bangsal', [Belanja::class, 'toggleBangsal'])
             ->name('belanja.toggleBangsal');
+        Route::get('/belanja/pengeluaran-detail', [Belanja::class, 'getPengeluaranDetail'])
+            ->name('belanja.pengeluaranDetail');
 
 
         // DETAIL TINDAKAN Asuransi

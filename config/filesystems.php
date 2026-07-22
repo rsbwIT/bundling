@@ -71,6 +71,24 @@ return [
             'visibility' => 'public',
         ],
 
+        'sftp_photo' => [
+            'driver' => 'sftp',
+            'host' => env('SFTP_HOST'),
+            'port' => (int) env('SFTP_PORT'),
+            'username' => env('SFTP_USERNAME'),
+            'password' => env('SFTP_PASSWORD'),
+            'root' => '/opt/lampp/htdocs/webapps/penggajian/pages/pegawai/photo',
+            'permissions' => [
+                'file' => [
+                    'public' => 0644,
+                ],
+                'dir' => [
+                    'public' => 0755,
+                ],
+            ],
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
