@@ -26,6 +26,7 @@
                 </div>
 
                 <div class="col-md-5 text-end">
+                    <button type="button" class="btn btn-success me-2" id="btnTambahUser">Tambah User</button>
                     <b>Total Data : {{ count($data) }}</b>
                 </div>
 
@@ -90,6 +91,11 @@
                                     data-id="{{ $item->username_asli }}" title="Edit Akses">
                                 ⚙
                             </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-danger btnHapusUser"
+                                    data-id="{{ $item->username_asli }}" title="Hapus User">
+                                🗑️
+                            </button>
                         </td>
                     </tr>
                 @endforeach
@@ -135,14 +141,132 @@
     </div>
 </div>
 
+{{-- MODAL TAMBAH USER --}}
+<div class="modal fade" id="modalTambahUser" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah User Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Cari Pegawai / Dokter</label>
+                    <input type="text" id="search_pegawai" class="form-control mb-2" placeholder="Ketik nama atau NIP...">
+                    <div id="list_pegawai" class="list-group" style="max-height: 200px; overflow-y: auto;">
+                        <!-- list items -->
+                    </div>
+                    <input type="hidden" id="add_username">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Copy Hak Akses Dari (Opsional)</label>
+                    <select id="copy_from" class="form-select">
+                        <option value="">-- Pilih User (Kosongkan jika tidak disalin) --</option>
+                        @foreach($data as $u)
+                            <option value="{{ $u->username_asli }}">{{ $u->nama_petugas ?? $u->username_asli }} ({{ $u->username_asli }})</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" id="btnSimpanNewUser">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- SCRIPT --}}
 <script>
 let modalAkses;
+let modalTambahUser;
 
 $(function(){
 
     modalAkses = new bootstrap.Modal(document.getElementById('modalAkses'));
+    modalTambahUser = new bootstrap.Modal(document.getElementById('modalTambahUser'));
 
+});
+
+
+// TAMBAH USER MODAL
+$('#btnTambahUser').click(function(){
+    $('#add_username').val('');
+    $('#search_pegawai').val('');
+    $('#list_pegawai').html('');
+    $('#copy_from').val('');
+    $('#btnSimpanNewUser').prop('disabled', false).text('Simpan');
+    modalTambahUser.show();
+});
+
+let searchTimeout;
+$('#search_pegawai').keyup(function(){
+    clearTimeout(searchTimeout);
+    let kw = $(this).val();
+    if(kw.length < 2) {
+        $('#list_pegawai').html('');
+        return;
+    }
+    
+    $('#list_pegawai').html('<div class="text-center py-2"><i class="fas fa-spinner fa-spin"></i> Mencari...</div>');
+    
+    searchTimeout = setTimeout(function() {
+        $.get('/ai/user/search-pegawai?q=' + kw, function(res){
+            let html = '';
+            if (res.data.length === 0) {
+                html = '<div class="text-center py-2 text-muted">Tidak ditemukan</div>';
+            } else {
+                res.data.forEach(item => {
+                    html += `<button type="button" class="list-group-item list-group-item-action btn-pilih-pegawai" data-nip="${item.nip}">
+                        <b>${item.nama}</b><br><small>${item.nip} - ${item.jenis}</small>
+                    </button>`;
+                });
+            }
+            $('#list_pegawai').html(html);
+        });
+    }, 500);
+});
+
+$(document).on('click', '.btn-pilih-pegawai', function(){
+    $('.btn-pilih-pegawai').removeClass('active bg-primary text-white');
+    $(this).addClass('active bg-primary text-white');
+    $('#add_username').val($(this).data('nip'));
+});
+
+// SIMPAN USER BARU
+$('#btnSimpanNewUser').click(function(){
+    let username = $('#add_username').val();
+    let copy_from = $('#copy_from').val();
+
+    if(!username){
+        alert('Pilih pegawai atau dokter terlebih dahulu!');
+        return;
+    }
+
+    $(this).prop('disabled', true).text('Menyimpan...');
+
+    $.ajax({
+        url: '/ai/user/store',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            username: username,
+            copy_from: copy_from
+        },
+        success: function(res){
+            alert(res.message);
+            if(res.status){
+                modalTambahUser.hide();
+                location.reload();
+            } else {
+                $('#btnSimpanNewUser').prop('disabled', false).text('Simpan');
+            }
+        },
+        error: function(xhr){
+            alert('Gagal menambahkan user baru: ' + xhr.responseText);
+            $('#btnSimpanNewUser').prop('disabled', false).text('Simpan');
+        }
+    });
 });
 
 
@@ -266,6 +390,32 @@ $(document).on('click', '.btnPerbaikiSpasi', function(){
         data: {
             _token: $('meta[name="csrf-token"]').attr('content'),
             id_user: username
+        },
+        success: function(res){
+            if(res.status){
+                alert(res.message);
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        },
+        error: function(xhr){
+            alert("ERROR:\n" + xhr.responseText);
+        }
+    });
+});
+
+// HAPUS USER
+$(document).on('click', '.btnHapusUser', function(){
+    let username = $(this).data('id');
+    if(!confirm("Yakin ingin menghapus user: " + username + "?")) return;
+
+    $.ajax({
+        url: '{{ url("/ai/user/destroy") }}',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            username: username
         },
         success: function(res){
             if(res.status){

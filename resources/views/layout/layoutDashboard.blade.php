@@ -644,14 +644,19 @@
                 <nav class="mt-2 sidebar-nav">
                     <ul id="sidebarnav" class="nav nav-pills nav-sidebar flex-column" data-widget="treeview"
                         role="menu" data-accordion="false">
-                        {{-- MENU HOME --}}
+                        {{-- MENU HOME (MONITORING SINYAL) --}}
                         <li class="nav-item">
                             <a href="{{ url('/') }}" class="nav-link">
+                                <i class="nav-icon fas fa-heartbeat"></i>
+                                <p>Dashboard Sinyal</p>
+                            </a>
+                        </li>
+                        
+                        {{-- MENU BRIDGING LIS (EX-HOME) --}}
+                        <li class="nav-item">
+                            <a href="{{ url('/bridging-lis') }}" class="nav-link">
                                 <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Home
-                                    {{-- <span class="right badge badge-danger">New</span> --}}
-                                </p>
+                                <p>Bridging LIS</p>
                             </a>
                         </li>
                         {{-- <li class="nav-item">

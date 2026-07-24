@@ -48,9 +48,21 @@ class AuthController extends Controller
             return redirect('/login');
         }else{
             $userLogin = DB::table('pegawai')
-                ->select('pegawai.nama')
+                ->select('pegawai.nik', 'pegawai.nama', 'pegawai.photo')
                 ->where('pegawai.nik', '=', $request->id_user)
                 ->first();
+            
+            // Map 'photo' to 'foto' so it works seamlessly with avatar and ProfileController
+            if ($userLogin && isset($userLogin->photo)) {
+                $userLogin->foto = $userLogin->photo;
+                
+                // If it's a local upload path, convert it to relative URL
+                if (strpos($userLogin->foto, 'uploads/') === 0) {
+                    $parsed = parse_url(asset($userLogin->foto));
+                    $userLogin->foto = ($parsed['path'] ?? '') . (isset($parsed['query']) ? '?'.$parsed['query'] : '');
+                }
+            }
+
             session(['user' => $userLogin]);
             session(['auth' => $data]);
             return redirect()->intended('/')->with('sucsessLogin', 'Berhasil Masuk');

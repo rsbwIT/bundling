@@ -12,6 +12,8 @@ use App\Http\Controllers\Bpjs\GabungBerkas;
 use App\Http\Controllers\Laporan\BayarUmum;
 use App\Http\Controllers\Laporan\CobHarian;
 use App\Http\Controllers\Bpjs\BpjsController;
+use App\Http\Controllers\Bpjs\MonitoringBridgingController;
+use App\Http\Controllers\Bpjs\MonitoringSignalController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
 use App\Http\Controllers\JM\JMUmumController;
@@ -203,8 +205,11 @@ Route::group(['middleware' => 'default'], function () {
         // Admin: upload photo for a specific pegawai (by NIK)
         Route::post('/pegawai/{nik}/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhotoForNik'])->name('pegawai.upload.photo');
 
-        // LIST PASIEN
-        Route::get('/', [Listpasien::class, 'Listpasien']);
+        // LIST PASIEN (Diubah menjadi Bridging LIS)
+        Route::get('/bridging-lis', [Listpasien::class, 'Listpasien']);
+
+        // DASHBOARD UTAMA (Home diganti ke Monitoring Signal)
+        Route::get('/', [App\Http\Controllers\Bpjs\MonitoringSignalController::class, 'index']);
 
         // SURAT
         Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');
@@ -460,6 +465,13 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         Route::get('/ai/user/akses/{id}', [User::class, 'getAkses']);
         Route::post('/ai/user/akses/update', [User::class, 'updateAkses']);
+
+        Route::get('/ai/user/search-pegawai', [User::class, 'searchPegawai']);
+        Route::post('/ai/user/store', [User::class, 'store']);
+        Route::post('/ai/user/update-password', [User::class, 'updatePassword']);
+        Route::get('/ai/user/list', [User::class, 'getList']);
+        Route::post('/ai/user/akses/copy', [User::class, 'copyAkses']);
+        Route::post('/ai/user/destroy', [User::class, 'destroy']);
 
         // belanja
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
@@ -896,3 +908,10 @@ Route::post('/upload-api', function (\Illuminate\Http\Request $request) {
         'file_path' => 'pages/upload/' . $file_name
     ]);
 });
+
+// BPJS Bridging Monitoring Route (Log Data)
+Route::get('/bpjs/monitoring-bridging', [MonitoringBridgingController::class, 'index'])->name('bpjs.monitoring');
+
+// BPJS Signal Monitoring Route (Status Ping)
+Route::get('/bpjs/monitoring-signal', [MonitoringSignalController::class, 'index'])->name('bpjs.signal');
+Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.signal.check');
