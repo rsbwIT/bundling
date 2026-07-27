@@ -427,9 +427,9 @@ Route::group(['middleware' => 'default'], function () {
 
         // belanja
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
-        Route::post('/belanja/toggle-bangsal', [Belanja::class, 'toggleBangsal'])
+        Route::post('/belanja/toggle-bangsal', [belanja::class, 'toggleBangsal'])
             ->name('belanja.toggleBangsal');
-        Route::get('/belanja/pengeluaran-detail', [Belanja::class, 'getPengeluaranDetail'])
+        Route::get('/belanja/pengeluaran-detail', [belanja::class, 'getPengeluaranDetail'])
             ->name('belanja.pengeluaranDetail');
 
 
@@ -826,5 +826,5 @@ Route::get('/api/icd9', function() { return response()->json(DB::table('icd9')->
 
 
 // Added Belanja PDF Route
-Route::get('/belanja/cetak-pdf', [\App\Http\Controllers\Belanja\Belanja::class, 'cetakPdf'])->name('belanja.cetakPdf');
+Route::get('/belanja/cetak-pdf', [belanja::class, 'cetakPdf'])->name('belanja.cetakPdf');
 
