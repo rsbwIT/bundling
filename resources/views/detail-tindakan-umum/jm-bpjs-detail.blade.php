@@ -26,6 +26,7 @@
                             <th>No</th>
                             <th>No Rawat</th>
                             <th>Nama Pasien</th>
+                            <th>Penanggung Jawab</th>
                             <th>Nama Tindakan</th>
                             <th>Sumber</th>
                             <th>Status</th>
@@ -39,6 +40,7 @@
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $item->no_rawat }}</td>
                                 <td>{{ $item->nm_pasien }}</td>
+                                <td>{{ $item->penjamin }}</td>
                                 <td>{{ $item->nm_perawatan }}</td>
                                 <td>
                                     <span class="badge {{ str_contains($item->sumber, 'Ralan') ? 'badge-info' : (str_contains($item->sumber, 'Operasi') ? 'badge-warning' : (str_contains($item->sumber, 'Radiologi') ? 'badge-secondary' : (str_contains($item->sumber, 'Lab') ? 'badge-dark' : 'badge-success'))) }}">
@@ -50,13 +52,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">Tidak ada data tindakan ditemukan.</td>
+                                <td colspan="8" class="text-center">Tidak ada data tindakan ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>
                     <tfoot style="background-color: #e9ecef; font-weight: bold;">
                         <tr>
-                            <td colspan="6" class="text-right">TOTAL</td>
+                            <td colspan="7" class="text-right">TOTAL</td>
                             <td class="text-right">{{ number_format($details->sum('tarif')) }}</td>
                         </tr>
                     </tfoot>
