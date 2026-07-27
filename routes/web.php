@@ -819,3 +819,8 @@ Route::get('/bpjs/monitoring-bridging', [MonitoringBridgingController::class, 'i
 // BPJS Signal Monitoring Route (Status Ping)
 Route::get('/bpjs/monitoring-signal', [MonitoringSignalController::class, 'index'])->name('bpjs.signal');
 Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.signal.check');
+
+// API Routes for INACBG
+Route::get('/api/penyakit', function() { return response()->json(DB::table('penyakit')->select('kd_penyakit as kd', 'nm_penyakit as nm')->get()); });
+Route::get('/api/icd9', function() { return response()->json(DB::table('icd9')->select('kode as kd', 'deskripsi_panjang as nm')->get()); });
+

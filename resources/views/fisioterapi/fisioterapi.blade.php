@@ -219,10 +219,7 @@
 
                         @php
                             $tglReg = $row->tgl_registrasi ?? null;
-                            $adaKunjungan = DB::table('fisioterapi_kunjungan')
-                                ->where('no_rkm_medis', $row->no_rkm_medis)
-                                ->where('tanggal', $tglReg)
-                                ->exists();
+                            $adaKunjungan = $row->adaKunjungan > 0;
                         @endphp
 
                         <tr class="{{ $adaKunjungan ? 'visited' : '' }}">
@@ -252,12 +249,8 @@
                                 </a>
 
                                 @php
-                                    $maxLembForm = DB::table('fisioterapi_form')
-                                        ->where('no_rkm_medis', $row->no_rkm_medis)
-                                        ->max('lembar') ?? 1;
-                                    $maxLembKunj = DB::table('fisioterapi_kunjungan')
-                                        ->where('no_rkm_medis', $row->no_rkm_medis)
-                                        ->max('lembar') ?? 1;
+                                    $maxLembForm = $row->maxLembForm ?? 1;
+                                    $maxLembKunj = $row->maxLembKunj ?? 1;
                                     $maxLembar = max($maxLembForm, $maxLembKunj);
                                 @endphp
 

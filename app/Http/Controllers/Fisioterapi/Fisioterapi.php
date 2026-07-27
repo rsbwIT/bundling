@@ -35,6 +35,19 @@ class Fisioterapi extends Controller
                 'poliklinik.nm_poli',
                 'dokter.nm_dokter'
             )
+            ->addSelect([
+                'adaKunjungan' => DB::table('fisioterapi_kunjungan')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis')
+                    ->whereColumn('tanggal', 'reg_periksa.tgl_registrasi')
+                    ->limit(1),
+                'maxLembForm' => DB::table('fisioterapi_form')
+                    ->selectRaw('MAX(lembar)')
+                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis'),
+                'maxLembKunj' => DB::table('fisioterapi_kunjungan')
+                    ->selectRaw('MAX(lembar)')
+                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis')
+            ])
             ->get();
 
         return view('fisioterapi.fisioterapi', compact(

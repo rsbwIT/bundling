@@ -687,8 +687,21 @@ textarea:focus{
 
 <script>
     // 1. Data Source (Langsung dari PHP ke JS)
-    const dataPenyakit = [ @foreach(DB::table('penyakit')->get() as $p) { kd: "{{ $p->kd_penyakit }}", nm: "{{ addslashes($p->nm_penyakit) }}" }, @endforeach ];
-    const dataProsedur = [ @foreach(DB::table('icd9')->get() as $pr) { kd: "{{ $pr->kode }}", nm: "{{ addslashes($pr->deskripsi_panjang) }}" }, @endforeach ];
+    let dataPenyakit = [];
+    let dataProsedur = [];
+
+    // Load data secara asinkron di belakang layar agar tidak memberatkan HTML (Wussh!)
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/penyakit')
+            .then(res => res.json())
+            .then(data => dataPenyakit = data)
+            .catch(e => console.error('Gagal memuat penyakit:', e));
+
+        fetch('/api/icd9')
+            .then(res => res.json())
+            .then(data => dataProsedur = data)
+            .catch(e => console.error('Gagal memuat prosedur:', e));
+    });
 
     // 2. Fungsi Render Ringan (Limit 30 item saat tidak dicari)
     function render(data, bodyId, inputId, filter = "") {

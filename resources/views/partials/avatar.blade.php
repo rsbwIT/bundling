@@ -5,11 +5,6 @@ $sizeStyle = $style ?? '';
 $extraClass = $class ?? '';
 $idAttr = isset($id) ? 'id="'.$id.'"' : '';
 
-$photoPath = null;
-if($nik){
-    $photoPath = DB::table('pegawai')->where('nik', $nik)->value('photo');
-}
-
 $src = asset('img/user.jpg');
 
 if(!empty(session('user')->foto)){
@@ -23,6 +18,11 @@ if(!empty(session('user')->foto)){
     } else {
         $src = asset($sf);
     }
+}
+
+$photoPath = null;
+if(($src === asset('img/user.jpg')) && $nik){
+    $photoPath = DB::table('pegawai')->where('nik', $nik)->value('photo');
 }
 
 if(($src === asset('img/user.jpg')) && !empty($photoPath) && $photoPath != 'pages/pegawai/photo/'){
