@@ -907,19 +907,23 @@ class QueryResumeDll
             ->orderBy('pemeriksaan_ralan.tgl_perawatan', 'asc')
             ->orderBy('pemeriksaan_ralan.jam_rawat', 'asc')
             ->get();
-        $soapiePasien->map(function ($item) {
-            $item->getDiagnosa = DB::table('diagnosa_pasien')
-                ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
-                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
-                ->where('diagnosa_pasien.no_rawat', $item->no_rawat)
-                ->orderBy('diagnosa_pasien.prioritas', 'asc')
-                ->get();
-            $item->getProcedure = DB::table('prosedur_pasien')
-                ->select('icd9.deskripsi_pendek', 'prosedur_pasien.kode', 'prosedur_pasien.prioritas')
-                ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
-                ->where('prosedur_pasien.no_rawat', $item->no_rawat)
-                ->orderBy('prosedur_pasien.prioritas', 'asc')
-                ->get();
+        $getDiagnosa = DB::table('diagnosa_pasien')
+            ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
+            ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+            ->where('diagnosa_pasien.no_rawat', $noRawat)
+            ->orderBy('diagnosa_pasien.prioritas', 'asc')
+            ->get();
+        $getProcedure = DB::table('prosedur_pasien')
+            ->select('icd9.deskripsi_pendek', 'prosedur_pasien.kode', 'prosedur_pasien.prioritas')
+            ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
+            ->where('prosedur_pasien.no_rawat', $noRawat)
+            ->orderBy('prosedur_pasien.prioritas', 'asc')
+            ->get();
+
+        $soapiePasien->transform(function ($item) use ($getDiagnosa, $getProcedure) {
+            $item->getDiagnosa = $getDiagnosa;
+            $item->getProcedure = $getProcedure;
+            return $item;
         });
         return $soapiePasien;
     }
@@ -970,19 +974,23 @@ class QueryResumeDll
             ->orderBy('pemeriksaan_ranap.jam_rawat', 'asc')
             ->take(1)
             ->get();
-        $soapiePasien->map(function ($item) {
-            $item->getDiagnosa = DB::table('diagnosa_pasien')
-                ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
-                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
-                ->where('diagnosa_pasien.no_rawat', $item->no_rawat)
-                ->orderBy('diagnosa_pasien.prioritas', 'asc')
-                ->get();
-            $item->getProcedure = DB::table('prosedur_pasien')
-                ->select('icd9.deskripsi_pendek', 'prosedur_pasien.kode', 'prosedur_pasien.prioritas')
-                ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
-                ->where('prosedur_pasien.no_rawat', $item->no_rawat)
-                ->orderBy('prosedur_pasien.prioritas', 'asc')
-                ->get();
+        $getDiagnosa = DB::table('diagnosa_pasien')
+            ->select('penyakit.nm_penyakit', 'diagnosa_pasien.kd_penyakit', 'diagnosa_pasien.prioritas')
+            ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+            ->where('diagnosa_pasien.no_rawat', $noRawat)
+            ->orderBy('diagnosa_pasien.prioritas', 'asc')
+            ->get();
+        $getProcedure = DB::table('prosedur_pasien')
+            ->select('icd9.deskripsi_pendek', 'prosedur_pasien.kode', 'prosedur_pasien.prioritas')
+            ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
+            ->where('prosedur_pasien.no_rawat', $noRawat)
+            ->orderBy('prosedur_pasien.prioritas', 'asc')
+            ->get();
+
+        $soapiePasien->transform(function ($item) use ($getDiagnosa, $getProcedure) {
+            $item->getDiagnosa = $getDiagnosa;
+            $item->getProcedure = $getProcedure;
+            return $item;
         });
         return $soapiePasien;
     }
