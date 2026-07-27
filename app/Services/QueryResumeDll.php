@@ -405,31 +405,42 @@ class QueryResumeDll
             ->orderBy('periksa_lab.tgl_periksa', 'desc')
             ->orderBy('periksa_lab.jam', 'desc')
             ->get();
-        $getLaborat->map(function ($periksa) {
-            $periksa->getPeriksaLab = DB::table('periksa_lab')
-                ->select('jns_perawatan_lab.kd_jenis_prw', 'jns_perawatan_lab.nm_perawatan', 'periksa_lab.biaya')
-                ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
-                ->where([
-                    ['periksa_lab.kategori', 'PK'],
-                    ['periksa_lab.no_rawat', $periksa->no_rawat],
-                    ['periksa_lab.tgl_periksa', $periksa->tgl_periksa],
-                    ['periksa_lab.jam', $periksa->jam],
-                ])
-                ->orderBy('jns_perawatan_lab.kd_jenis_prw', 'asc')
-                ->get();
-            $periksa->getPeriksaLab->map(function ($detaillab) use ($periksa) {
-                $detaillab->getDetailLab = DB::table('detail_periksa_lab')
-                    ->select('detail_periksa_lab.no_rawat', 'detail_periksa_lab.tgl_periksa', 'template_laboratorium.Pemeriksaan', 'detail_periksa_lab.nilai', 'template_laboratorium.satuan', 'detail_periksa_lab.nilai_rujukan', 'detail_periksa_lab.biaya_item', 'detail_periksa_lab.keterangan', 'detail_periksa_lab.kd_jenis_prw')
-                    ->join('template_laboratorium', 'detail_periksa_lab.id_template', '=', 'template_laboratorium.id_template')
-                    ->where([
-                        ['detail_periksa_lab.kd_jenis_prw', $detaillab->kd_jenis_prw],
-                        ['detail_periksa_lab.no_rawat', $periksa->no_rawat],
-                        ['detail_periksa_lab.tgl_periksa', $periksa->tgl_periksa],
-                        ['detail_periksa_lab.jam', $periksa->jam],
-                    ])
-                    ->orderBy('template_laboratorium.urut', 'asc')
-                    ->get();
+        // Ambil semua periksa_lab untuk no_rawat ini sekaligus
+        $allPeriksaLab = DB::table('periksa_lab')
+            ->select('periksa_lab.tgl_periksa', 'periksa_lab.jam', 'jns_perawatan_lab.kd_jenis_prw', 'jns_perawatan_lab.nm_perawatan', 'periksa_lab.biaya')
+            ->join('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->where('periksa_lab.kategori', 'PK')
+            ->where('periksa_lab.no_rawat', $noRawat)
+            ->orderBy('jns_perawatan_lab.kd_jenis_prw', 'asc')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->tgl_periksa . '|' . $item->jam;
             });
+
+        // Ambil semua detail_periksa_lab untuk no_rawat ini sekaligus
+        $allDetailLab = DB::table('detail_periksa_lab')
+            ->select('detail_periksa_lab.tgl_periksa', 'detail_periksa_lab.jam', 'template_laboratorium.Pemeriksaan', 'detail_periksa_lab.nilai', 'template_laboratorium.satuan', 'detail_periksa_lab.nilai_rujukan', 'detail_periksa_lab.biaya_item', 'detail_periksa_lab.keterangan', 'detail_periksa_lab.kd_jenis_prw')
+            ->join('template_laboratorium', 'detail_periksa_lab.id_template', '=', 'template_laboratorium.id_template')
+            ->where('detail_periksa_lab.no_rawat', $noRawat)
+            ->orderBy('template_laboratorium.urut', 'asc')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->tgl_periksa . '|' . $item->jam . '|' . $item->kd_jenis_prw;
+            });
+
+        // Gabungkan di memori PHP
+        $getLaborat->transform(function ($periksa) use ($allPeriksaLab, $allDetailLab) {
+            $keyPeriksa = $periksa->tgl_periksa . '|' . $periksa->jam;
+            $periksaLabs = $allPeriksaLab->get($keyPeriksa, collect());
+
+            $periksaLabs->transform(function ($detaillab) use ($allDetailLab, $keyPeriksa) {
+                $keyDetail = $keyPeriksa . '|' . $detaillab->kd_jenis_prw;
+                $detaillab->getDetailLab = $allDetailLab->get($keyDetail, collect());
+                return $detaillab;
+            });
+
+            $periksa->getPeriksaLab = $periksaLabs;
+            return $periksa;
         });
         return $getLaborat;
     }
@@ -1006,44 +1017,59 @@ class QueryResumeDll
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->where('data_triase_igd.no_rawat', $noRawat)
             ->get();
-        $getTriaseIGD->map(function ($item) {
-            $item->triaseSekender = DB::table('data_triase_igdsekunder')
-                ->select(
-                    'data_triase_igdsekunder.no_rawat',
-                    'data_triase_igdsekunder.anamnesa_singkat as keluhan_utama',
-                    DB::raw("'-' as kebutuhan_khusus"),
-                    'data_triase_igdsekunder.catatan',
-                    'data_triase_igdsekunder.plan',
-                    'data_triase_igdsekunder.tanggaltriase',
-                    'data_triase_igdsekunder.nik',
-                    'pegawai.nama'
-                )
-                ->join('pegawai', 'data_triase_igdsekunder.nik', '=', 'pegawai.nik')
-                ->where('data_triase_igdsekunder.no_rawat', $item->no_rawat)
-                ->get();
-            $item->triasePrimer = DB::table('data_triase_igdprimer')
-                ->select(
-                    'data_triase_igdprimer.no_rawat',
-                    'data_triase_igdprimer.keluhan_utama',
-                    'data_triase_igdprimer.kebutuhan_khusus',
-                    'data_triase_igdprimer.catatan',
-                    'data_triase_igdprimer.plan',
-                    'data_triase_igdprimer.tanggaltriase',
-                    'data_triase_igdprimer.nik',
-                    'pegawai.nama'
-                )
-                ->join('pegawai', 'data_triase_igdprimer.nik', '=', 'pegawai.nik')
-                ->where('data_triase_igdprimer.no_rawat', $item->no_rawat)
-                ->get();
-            $scales = [1, 2, 3, 4, 5];
+        // Eager load sekunder dan primer
+        $allTriaseSekunder = DB::table('data_triase_igdsekunder')
+            ->select(
+                'data_triase_igdsekunder.no_rawat',
+                'data_triase_igdsekunder.anamnesa_singkat as keluhan_utama',
+                DB::raw("'-' as kebutuhan_khusus"),
+                'data_triase_igdsekunder.catatan',
+                'data_triase_igdsekunder.plan',
+                'data_triase_igdsekunder.tanggaltriase',
+                'data_triase_igdsekunder.nik',
+                'pegawai.nama'
+            )
+            ->join('pegawai', 'data_triase_igdsekunder.nik', '=', 'pegawai.nik')
+            ->where('data_triase_igdsekunder.no_rawat', $noRawat)
+            ->get()
+            ->groupBy('no_rawat');
+
+        $allTriasePrimer = DB::table('data_triase_igdprimer')
+            ->select(
+                'data_triase_igdprimer.no_rawat',
+                'data_triase_igdprimer.keluhan_utama',
+                'data_triase_igdprimer.kebutuhan_khusus',
+                'data_triase_igdprimer.catatan',
+                'data_triase_igdprimer.plan',
+                'data_triase_igdprimer.tanggaltriase',
+                'data_triase_igdprimer.nik',
+                'pegawai.nama'
+            )
+            ->join('pegawai', 'data_triase_igdprimer.nik', '=', 'pegawai.nik')
+            ->where('data_triase_igdprimer.no_rawat', $noRawat)
+            ->get()
+            ->groupBy('no_rawat');
+
+        $scalesData = [];
+        $scales = [1, 2, 3, 4, 5];
+        foreach ($scales as $scale) {
+            $scalesData[$scale] = DB::table('data_triase_igddetail_skala' . $scale)
+                ->select('data_triase_igddetail_skala' . $scale . '.no_rawat', 'master_triase_skala' . $scale . '.pengkajian_skala' . $scale, 'master_triase_pemeriksaan.nama_pemeriksaan')
+                ->join('master_triase_skala' . $scale, 'data_triase_igddetail_skala' . $scale . '.kode_skala' . $scale, '=', 'master_triase_skala' . $scale . '.kode_skala' . $scale)
+                ->join('master_triase_pemeriksaan', 'master_triase_skala' . $scale . '.kode_pemeriksaan', '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                ->where('data_triase_igddetail_skala' . $scale . '.no_rawat', $noRawat)
+                ->get()
+                ->groupBy('no_rawat');
+        }
+
+        $getTriaseIGD->transform(function ($item) use ($allTriaseSekunder, $allTriasePrimer, $scales, $scalesData) {
+            $item->triaseSekender = $allTriaseSekunder->get($item->no_rawat, collect());
+            $item->triasePrimer = $allTriasePrimer->get($item->no_rawat, collect());
+
             foreach ($scales as $scale) {
-                $item->{'data_triase_igddetail_skala' . $scale} = DB::table('data_triase_igddetail_skala' . $scale)
-                    ->select('master_triase_skala' . $scale . '.pengkajian_skala' . $scale, 'master_triase_pemeriksaan.nama_pemeriksaan')
-                    ->join('master_triase_skala' . $scale, 'data_triase_igddetail_skala' . $scale . '.kode_skala' . $scale, '=', 'master_triase_skala' . $scale . '.kode_skala' . $scale)
-                    ->join('master_triase_pemeriksaan', 'master_triase_skala' . $scale . '.kode_pemeriksaan', '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
-                    ->where('data_triase_igddetail_skala' . $scale . '.no_rawat', $item->no_rawat)
-                    ->get();
+                $item->{'data_triase_igddetail_skala' . $scale} = $scalesData[$scale]->get($item->no_rawat, collect());
             }
+            return $item;
         });
 
         return $getTriaseIGD;
