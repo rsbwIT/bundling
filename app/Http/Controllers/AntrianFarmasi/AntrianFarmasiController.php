@@ -15,12 +15,7 @@ class AntrianFarmasiController extends Controller
     // Menampilkan halaman antrian
     public function index()
     {
-        $antrian = DB::table('antrian')
-            ->where('tanggal', Carbon::today()->toDateString()) // Hanya tampilkan antrian hari ini
-            ->orderBy('nomor_antrian', 'asc')
-            ->get();
-
-        return view('antrian-farmasi.index', compact('antrian'));
+        return view('antrian-farmasi.index');
     }
 
     // Mengambil antrian farmasi
@@ -156,16 +151,5 @@ class AntrianFarmasiController extends Controller
 
         $this->emit('panggilDitekan');
     }
-
-
-
-
-
-//     public function panggil($no_rawat)
-// {
-//     logger()->info("panggil() dipanggil dengan no_rawat = $no_rawat");
-
-//     $this->emit('panggilDitekan', $no_rawat);
-// }
 
 }
