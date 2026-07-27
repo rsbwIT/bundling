@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use PDF;
 
 class Belanja extends Controller
 {
@@ -130,6 +131,75 @@ class Belanja extends Controller
             'filterType',
             'filterLabelMap'
         ));
+    }
+
+    public function cetakPdf(Request $request)
+    {
+        $tanggal_awal  = $this->sanitizeDate($request->tanggal_awal, date('Y-m-d'));
+        $tanggal_akhir = $this->sanitizeDate($request->tanggal_akhir, date('Y-m-d'));
+        if ($tanggal_awal > $tanggal_akhir) {
+            [$tanggal_awal, $tanggal_akhir] = [$tanggal_akhir, $tanggal_awal];
+        }
+        $tanggalSebelumnya = date('Y-m-d', strtotime($tanggal_awal . ' -1 day'));
+
+        $supplierFilter = is_string($request->supplier) && $request->supplier !== ''
+            ? $request->supplier
+            : null;
+        $filterHarga = is_string($request->filter_harga) ? $request->filter_harga : null;
+        $filterType  = is_string($request->filter_type) ? $request->filter_type : null;
+
+        // Data master (di-cache karena jarang berubah)
+        $bangsal          = $this->getBangsalCached();
+        $nonaktif_bangsal = $this->getNonaktifBangsalCached();
+        $supplierList     = $this->getSupplierListCached();
+        $selectedBangsal  = $bangsal->whereNotIn('kd_bangsal', $nonaktif_bangsal)->values();
+
+        // Data report (di-cache per-range tanggal)
+        $barang                  = $this->getBarang();
+        $stok_lokasi             = $this->getStokLokasiCached();
+        $total_pengeluaran       = $this->getTotalPengeluaranCached($tanggal_awal, $tanggal_akhir);
+        $riwayat_stok_sebelumnya = $this->getRiwayatStokCached($tanggalSebelumnya);
+        $data_batch_beli_map     = $this->getDataBatchBeliCached($tanggal_awal, $tanggal_akhir, $supplierFilter);
+        $bangsal_kd_list         = $selectedBangsal->pluck('kd_bangsal')->all();
+
+        // Bangun baris laporan + map stok per-bangsal dalam satu pass
+        $built   = $this->buildRows(
+            $barang,
+            $stok_lokasi,
+            $bangsal_kd_list,
+            $total_pengeluaran,
+            $riwayat_stok_sebelumnya,
+            $data_batch_beli_map
+        );
+        $rows    = $built['rows'];
+        $stokPerBangsalMap = $built['stok_per_bangsal'];
+
+        $hanyaKebutuhan = $request->hanya_kebutuhan == '1';
+        if ($hanyaKebutuhan) {
+            $rows = array_filter($rows, fn($r) => $r['kebutuhan'] > 0);
+        }
+
+        // Hitung ringkasan (top/low + grand total) dalam satu pass
+        $summary = $this->computeSummary($rows);
+
+        // Terapkan sorting sesuai filter (default: nilai_belanja desc)
+        $rows = $this->applySort($rows, $filterHarga, $filterType);
+
+        $getSetting = DB::table('setting')->first();
+
+        $pdf = PDF::loadView('belanja.pdf', compact(
+            'tanggal_awal',
+            'tanggal_akhir',
+            'selectedBangsal',
+            'rows',
+            'stokPerBangsalMap',
+            'summary',
+            'filterType',
+            'getSetting'
+        ));
+
+        $pdf->setPaper('a4', 'landscape');
+        return $pdf->stream('Laporan_Belanja_' . $tanggal_awal . '_sampai_' . $tanggal_akhir . '.pdf');
     }
 
     public function toggleBangsal(Request $request): \Illuminate\Http\JsonResponse

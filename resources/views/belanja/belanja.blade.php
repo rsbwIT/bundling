@@ -570,8 +570,11 @@ body{ background:#f1f5f9; }
                 <button type="submit" class="btn-filter-action btn-filter-apply">
                     <i class="fas fa-check"></i> Terapkan
                 </button>
+                <button type="submit" formaction="{{ route('belanja.cetakPdf') }}" formtarget="_blank" class="btn-filter-action btn-filter-export" style="background:#dc2626; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);">
+                    <i class="fas fa-file-pdf"></i> Cetak PDF
+                </button>
                 <button type="button" id="exportBtn" class="btn-filter-action btn-filter-export">
-                    <i class="fas fa-file-export"></i> Export
+                    <i class="fas fa-file-excel"></i> Excel
                 </button>
                 <a href="{{ route('belanja.index') }}" class="btn-filter-action btn-filter-reset">
                     <i class="fas fa-undo"></i> Reset

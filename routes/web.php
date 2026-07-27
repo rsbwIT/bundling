@@ -824,3 +824,7 @@ Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class,
 Route::get('/api/penyakit', function() { return response()->json(DB::table('penyakit')->select('kd_penyakit as kd', 'nm_penyakit as nm')->get()); });
 Route::get('/api/icd9', function() { return response()->json(DB::table('icd9')->select('kode as kd', 'deskripsi_panjang as nm')->get()); });
 
+
+// Added Belanja PDF Route
+Route::get('/belanja/cetak-pdf', [\App\Http\Controllers\Belanja\Belanja::class, 'cetakPdf'])->name('belanja.cetakPdf');
+

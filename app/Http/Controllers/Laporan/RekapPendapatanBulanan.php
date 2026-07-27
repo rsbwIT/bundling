@@ -72,12 +72,16 @@ class RekapPendapatanBulanan extends Controller
 
         // ====================== AMBIL DETAIL BILLING ======================
 
+        $noRawats = $bayarUmum->pluck('no_rawat');
+        $allBilling = DB::table('billing')
+            ->select('no_rawat', 'status', 'totalbiaya')
+            ->whereIn('no_rawat', $noRawats)
+            ->get()
+            ->groupBy('no_rawat');
+
         foreach ($bayarUmum as $item) {
 
-            $billing = DB::table('billing')
-                ->select('status', 'totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
+            $billing = $allBilling->get($item->no_rawat, collect());
 
             $item->getRegistrasi = $billing->where('status', 'Registrasi');
 
