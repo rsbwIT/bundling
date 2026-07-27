@@ -508,6 +508,53 @@
                         </td>
                     </tr>
                 @endforelse
+                
+                <tfoot class="bg-light font-weight-bold">
+                    <tr>
+                        <td colspan="7" class="text-right">Total Keseluruhan</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getRegistrasi->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getObat->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getReturObat->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getResepPulang->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => 
+                            $i->getRalanDokter->sum('totalbiaya') + 
+                            $i->getRalanParamedis->sum('totalbiaya') + 
+                            $i->getRalanDrParamedis->sum('totalbiaya') + 
+                            $i->getRanapDokter->sum('totalbiaya') + 
+                            $i->getRanapDrParamedis->sum('totalbiaya') + 
+                            $i->getRanapParamedis->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getOprasi->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getLaborat->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getRadiologi->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getTambahan->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getKamarInap->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getPotongan->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => 
+                            $i->getRegistrasi->sum('totalbiaya') +
+                            $i->getObat->sum('totalbiaya') +
+                            $i->getReturObat->sum('totalbiaya') +
+                            $i->getResepPulang->sum('totalbiaya') +
+                            $i->getRalanDokter->sum('totalbiaya') +
+                            $i->getRalanParamedis->sum('totalbiaya') +
+                            $i->getRalanDrParamedis->sum('totalbiaya') +
+                            $i->getRanapDokter->sum('totalbiaya') +
+                            $i->getRanapDrParamedis->sum('totalbiaya') +
+                            $i->getRanapParamedis->sum('totalbiaya') +
+                            $i->getOprasi->sum('totalbiaya') +
+                            $i->getLaborat->sum('totalbiaya') +
+                            $i->getRadiologi->sum('totalbiaya') +
+                            $i->getTambahan->sum('totalbiaya') +
+                            $i->getKamarInap->sum('totalbiaya') +
+                            $i->getPotongan->sum('totalbiaya')), 0, '.', ',') }}</td>
+                        <td colspan="4"></td>
+                        <td class="text-right">{{ number_format($getCobHarian->sum(fn($i) => $i->getLunasCob->nominal_cob ?? 0), 0, '.', ',') }}</td>
+                        <td class="text-right">{{ number_format($getCobHarian->sum(fn($i) => 
+                            ($i->getPenjabCOB->where('png_jawab', '!=', 'BPJS')->where('png_jawab', '!=', 'ASR - JAMSOSTEK')->sum('totalpiutang')) - 
+                            ($i->getLunasCob->nominal_cob ?? 0)
+                        ), 0, '.', ',') }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
 
             </table>
 
