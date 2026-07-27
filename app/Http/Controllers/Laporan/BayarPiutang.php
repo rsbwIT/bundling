@@ -95,146 +95,86 @@ class BayarPiutang extends Controller
                     $query->where('reg_periksa.status_lanjut', $statusLanjut);
                 }
             })
-            ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                    ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
-                    ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+            ->when(!empty($cariNomor), function ($query) use ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
             })
-
-            // ->groupBy('bayar_piutang.no_rawat')
-
-            ->groupBy(
-                'reg_periksa.no_rawat',
-                'bayar_piutang.tgl_bayar',
-                'bayar_piutang.besar_cicilan',
-                'bayar_piutang.diskon_piutang',
-                'bayar_piutang.tidak_terbayar',
-                'bayar_piutang.catatan',
-                'reg_periksa.no_rkm_medis',
-                'pasien.nm_pasien',
-                'reg_periksa.kd_pj',
-                'penjab.png_jawab',
-                'piutang_pasien.status',
-                'piutang_pasien.uangmuka',
-                'reg_periksa.status_lanjut'
-            )
             ->orderBy('bayar_piutang.no_rawat', 'asc')
-            ->paginate(1000);
-        $bayarPiutang->map(function ($item) {
+            ->paginate(10000);
+        $noRawats = $bayarPiutang->pluck('no_rawat')->toArray();
+
+        // Eager load bridging_sep
+        $seps = collect();
+        if (!empty($noRawats)) {
+            $seps = DB::table('bridging_sep')
+                ->select('no_rawat', 'no_sep', 'jnspelayanan')
+                ->whereIn('no_rawat', $noRawats)
+                ->get()
+                ->groupBy('no_rawat');
+        }
+
+        // Eager load billing
+        $billings = collect();
+        if (!empty($noRawats)) {
+            $billings = DB::table('billing')
+                ->select('no_rawat', 'no', 'status', 'totalbiaya', 'nm_perawatan')
+                ->whereIn('no_rawat', $noRawats)
+                ->get()
+                ->groupBy('no_rawat');
+        }
+
+        $bayarPiutang->map(function ($item) use ($seps, $billings) {
+            $itemSeps = $seps->get($item->no_rawat, collect());
+            
             // NOMOR SEP
-            $item->getNoSep = DB::table('bridging_sep')
-                ->select('no_sep')
-                ->where('no_rawat', $item->no_rawat)
-                ->where(function ($query) use ($item) {
-                    if ($item->status_lanjut == 'Ralan') {
-                        $query->where('jnspelayanan', '=', '2');
-                    } else {
-                        $query->where('jnspelayanan', '=', '1');
-                    }
-                })
-                ->get();
+            $item->getNoSep = $itemSeps->filter(function($sep) use ($item) {
+                if ($item->status_lanjut == 'Ralan') {
+                    return $sep->jnspelayanan == '2';
+                } else {
+                    return $sep->jnspelayanan == '1';
+                }
+            })->values();
+
+            $itemBillings = $billings->get($item->no_rawat, collect());
+
             // NOMOR NOTA
-            $item->getNomorNota = DB::table('billing')
-                ->select('nm_perawatan')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('no', '=', 'No.Nota')
-                ->get();
+            $item->getNomorNota = $itemBillings->where('no', 'No.Nota')->values();
             // REGISTRASI
-            $item->getRegistrasi = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Registrasi')
-                ->get();
+            $item->getRegistrasi = $itemBillings->where('status', 'Registrasi')->values();
             // Obat+Emb+Tsl / OBAT
-            $item->getObat = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Obat')
-                ->get();
+            $item->getObat = $itemBillings->where('status', 'Obat')->values();
             // Retur Obat
-            $item->getReturObat = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Retur Obat')
-                ->get();
+            $item->getReturObat = $itemBillings->where('status', 'Retur Obat')->values();
             // Resep Pulang
-            $item->getResepPulang = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Resep Pulang')
-                ->get();
+            $item->getResepPulang = $itemBillings->where('status', 'Resep Pulang')->values();
             // RALAN DOKTER / 1 Paket Tindakan
-            $item->getRalanDokter = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Dokter')
-                ->get();
+            $item->getRalanDokter = $itemBillings->where('status', 'Ralan Dokter')->values();
             // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-            $item->getRalanDrParamedis = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Dokter Paramedis')
-                ->get();
+            $item->getRalanDrParamedis = $itemBillings->where('status', 'Ralan Dokter Paramedis')->values();
             // RALAN PARAMEDIS / 3 Paket Tindakan
-            $item->getRalanParamedis = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Paramedis')
-                ->get();
+            $item->getRalanParamedis = $itemBillings->where('status', 'Ralan Paramedis')->values();
             // RANAP DOKTER / 4 Paket Tindakan
-            $item->getRanapDokter = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ranap Dokter')
-                ->get();
+            $item->getRanapDokter = $itemBillings->where('status', 'Ranap Dokter')->values();
             // RANAP DOKTER PARAMEDIS / 5 Paket Tindakan
-            $item->getRanapDrParamedis = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ranap Dokter Paramedis')
-                ->get();
+            $item->getRanapDrParamedis = $itemBillings->where('status', 'Ranap Dokter Paramedis')->values();
             // RANAP PARAMEDIS / 6 Ranap Paramedis
-            $item->getRanapParamedis = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ranap Paramedis')
-                ->get();
+            $item->getRanapParamedis = $itemBillings->where('status', 'Ranap Paramedis')->values();
             // OPRASI
-            $item->getOprasi = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Operasi')
-                ->get();
+            $item->getOprasi = $itemBillings->where('status', 'Operasi')->values();
             // LABORAT
-            $item->getLaborat = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Laborat')
-                ->get();
+            $item->getLaborat = $itemBillings->where('status', 'Laborat')->values();
             // RADIOLOGI
-            $item->getRadiologi = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Radiologi')
-                ->get();
+            $item->getRadiologi = $itemBillings->where('status', 'Radiologi')->values();
             // TAMBAHAN
-            $item->getTambahan = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Tambahan')
-                ->get();
+            $item->getTambahan = $itemBillings->where('status', 'Tambahan')->values();
             // POTONGAN
-            $item->getPotongan = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Potongan')
-                ->get();
+            $item->getPotongan = $itemBillings->where('status', 'Potongan')->values();
             // KAMAR INAP
-            $item->getKamarInap = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Kamar')
-                ->get();
+            $item->getKamarInap = $itemBillings->where('status', 'Kamar')->values();
+
             return $item;
         });
         return view('laporan.bayarPiutang', [
