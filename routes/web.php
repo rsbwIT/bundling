@@ -165,12 +165,6 @@ use App\Http\Controllers\Rinciankasir\rincian;
 use App\Http\Controllers\Rinciankasir\listnamakasir;
 use App\Http\Controllers\Farmasi\waktutunggufarmasi;
 
-
-
-
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -301,32 +295,12 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('bpjs.updateDiagnosa');
 
-        // Route::get(
-        //     '/bpjs/fingerprint',
-        //     [BpjsFingerprintController::class, 'index']
-        // );
-
-        // Route::post(
-        //     '/bpjs/fingerprint/verifikasi',
-        //     [BpjsFingerprintController::class, 'verifikasi']
-        // );
-
-
-        // Route::get('/bpjs/fingerprint', [BpjsFingerprintController::class, 'index']);
-        // Route::post('/bpjs/fingerprint/verifikasi', [BpjsFingerprintController::class, 'verifikasi']);
-
-
-
         Route::get('/bpjs/fingerprint', [BpjsFingerprintController::class, 'index']);
         Route::get('/bpjs/fingerprint/check-device', [BpjsFingerprintController::class, 'checkDevice']);
         Route::post('/bpjs/fingerprint/verifikasi', [BpjsFingerprintController::class, 'verifikasi']);
 
 
         //MJKN API
-
-
-
-
         Route::get('/mjkn', [MJKNController::class, 'index']);
         Route::post('/mjkn/token', [MJKNController::class, 'token']);
         Route::get('/mjkn/pasien', [MJKNController::class, 'pasien']);
@@ -338,63 +312,47 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/mjkn/batalantrean', [MJKNController::class, 'batal']);
         Route::post('/mjkn/sisaantrean', [MJKNController::class, 'sisa']);
 
-        Route::post('/cariantrean',
-    [MJKNController::class,'cariAntrean']);
+        Route::post(
+            '/cariantrean',
+            [MJKNController::class,'cariAntrean']
+        );
 
 
-    Route::get('/mjkn', [MJKNController::class,'index']);
+        Route::get('/mjkn', [MJKNController::class,'index']);
 
-Route::prefix('mjkn')->group(function () {
+        Route::prefix('mjkn')->group(function () {
 
-    Route::get('/token',
-        [MJKNController::class,'token']);
+            Route::get(
+                '/token',
+                [MJKNController::class,'token']
+            );
 
-    Route::post('/ambilantrean',
-        [MJKNController::class,'ambilAntrean']);
-});
+            Route::post(
+                '/ambilantrean',
+                [MJKNController::class,'ambilAntrean']
+            );
+        });
 
-Route::get('/mjkn', [MJKNController::class,'index']);
-Route::get('/mjkn/token', [MJKNController::class,'token']);
-Route::post('/mjkn/caripasien', [MJKNController::class,'cariPasien']);
-Route::post('/mjkn/ambilantrean', [MJKNController::class,'ambilAntrean']);
+        Route::get('/mjkn', [MJKNController::class,'index']);
+        Route::get('/mjkn/token', [MJKNController::class,'token']);
+        Route::post('/mjkn/caripasien', [MJKNController::class,'cariPasien']);
+        Route::post('/mjkn/ambilantrean', [MJKNController::class,'ambilAntrean']);
 
+        Route::prefix('mjkn')->group(function () {
+            Route::get('/', [MJKNController::class,'index']);
+            Route::post('/caripasien', [MJKNController::class,'cariPasien']);
+            Route::post('/ambilantrean', [MJKNController::class,'ambilAntrean']);
+            Route::post('/checkin', [MJKNController::class,'checkinAntrean']);
+            Route::post('/sisa', [MJKNController::class,'sisaAntrean']);
+            Route::post('/batal', [MJKNController::class,'batalAntrean']);
+            Route::post('/updatetask', [MJKNController::class,'updateTask']);
+        });
 
-// fiix
-// Route::get('/mjkn',[MJKNController::class,'index']);
-// Route::post('/mjkn/caripasien',[MJKNController::class,'cariPasien']);
-// Route::post('/mjkn/ambilantrean',[MJKNController::class,'ambilAntrean']);
-// Route::post('/mjkn/checkin', [MJKNController::class,'checkinAntrean']);
-// Route::post('/mjkn/batal', [MJKNController::class,'batalAntrean']);
-// Route::post('/mjkn/sisa', [MJKNController::class,'sisaAntrean']);
-// Route::post('/mjkn/updatetask', [MJKNController::class, 'updateTask']);
-
-Route::prefix('mjkn')->group(function () {
-
-    Route::get('/', [MJKNController::class,'index']);
-
-    Route::post('/caripasien', [MJKNController::class,'cariPasien']);
-
-    Route::post('/ambilantrean', [MJKNController::class,'ambilAntrean']);
-
-    Route::post('/checkin', [MJKNController::class,'checkinAntrean']);
-
-    Route::post('/sisa', [MJKNController::class,'sisaAntrean']);
-
-    Route::post('/batal', [MJKNController::class,'batalAntrean']);
-
-    Route::post('/updatetask', [MJKNController::class,'updateTask']);
-});
-
-
-// versi baru
-Route::get('/mjkn/ambil-antrian', [MJKNController1::class, 'index']);
-
-Route::post('/mjkn/ambil-antrian', [MJKNController1::class, 'ambilAntrian'])
-    ->name('mjkn.ambil-antrian');
-
-Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
-
-
+        // versi baru
+        Route::get('/mjkn/ambil-antrian', [MJKNController1::class, 'index']);
+        Route::post('/mjkn/ambil-antrian', [MJKNController1::class, 'ambilAntrian'])
+            ->name('mjkn.ambil-antrian');
+        Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         // FARMASI
         Route::get('/list-pasien-farmasi', [SepResepController::class, 'ListPasienFarmasi']);
@@ -414,7 +372,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         // AIChat
         Route::get('/chat', [ChatController::class, 'index']);
         Route::post('/chat', [ChatController::class, 'send']);
-
 
         // LAPORAN / KEUANGAN
         Route::get('/pembayaran-ralan', [PembayaranRalan::class, 'PembayaranRanal']);
@@ -438,11 +395,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::post('simpan-cob', [PiutangHarian::class, 'simpanCob'])->name('simpan-cob');
 
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
-
-        //     Route::get('/rekap-pendapatan-bulanan', function () {
-        //     dd('test routing');
-        // });
-
 
         //user
         Route::get('/ai/user', [User::class, 'index'])
@@ -505,8 +457,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/periksalabpabulanan', [PeriksaLabPABulanan::class, 'index']);
         Route::get('/periksalabpaumum', [PeriksaLabPAUmum::class, 'index']);
 
-
-
         // DETAIL TINDAKAN Umum
         Route::get('/ralan-dokter-umum', [RalanDokterUm::class, 'RalanDokterUm']);
         Route::get('/ralan-paramedis-umum', [RalanParamedisUm::class, 'RalanParamedisUm']);
@@ -544,24 +494,13 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/antrian-farmasi1', [AntrianFarmasi1::class, 'AntrianFarmasi1']);
         Route::get('/antrian-farmasi-download', [AntrianFarmasi1::class, 'downloadAutorunfarmasi']);
         Route::get('/panggil-farmasi1', [AntrianFarmasi1::class, 'panggilfarmasi']);
-
         Route::get('/tes', [AntrianFarmasi1::class, 'PanggilFarmasi1']);
 
-
         // FARMASI TERBARU
-
         Route::get('/farmasi/antrian', PanggilanFarmasiBaru::class)->name('farmasi.antrian');
         Route::post('/farmasi/antrian/update-status/{nomor}', [PanggilanFarmasiBaru::class, 'updateStatus'])
             ->name('farmasi.antrian.update-status');
-
-
-
-
-
-
         Route::get('/display-farmasi', DisplayFarmasiBaru::class)->name('display.farmasi');
-
-
 
         //display farmasi
         Route::get('/antrian-farmasi/api-tv', [PanggilanFarmasiBaru::class, 'apiTv'])
@@ -578,9 +517,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         //DISPLAY
         Route::get('/info-kamar-ruangan', [InfoKamar::class, 'InfoKamarRuangan']);
 
-
-
-
         Route::get('/fisioterapi', [Fisioterapi::class, 'listPasien'])->name('fisioterapi.pasien');
 
         Route::get('/antrian-fisioterapi', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'index'])->name('antrian.fisioterapi');
@@ -589,26 +525,16 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::post('/antrian-fisioterapi/search-video', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'searchVideo']);
         Route::get('/display-fisioterapi', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'display'])->name('antrian.fisioterapi.display');
         Route::get('/api/display-fisioterapi/current', [\App\Http\Controllers\Fisioterapi\antrianfisioterapi::class, 'getCurrentPanggil']);
-
         Route::get('/fisioterapi/form/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'form'])
             ->name('fisioterapi.form');
-
         Route::post('/fisioterapi/form/save/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'saveForm'])
             ->name('fisioterapi.form.save');
-
         Route::post('/fisioterapi/lembar/new/{tahun}/{bulan}/{hari}/{no_rawat}', [Fisioterapi::class, 'newLembar'])
             ->name('fisioterapi.lembar.new');
-
-        // Route::get(
-        //     '/fisioterapi/print/{tahun}/{bulan}/{hari}/{no_rawat}',
-        //     [PrintController::class, 'index']
-        // )->name('fisioterapi.print');
-
         Route::get(
             '/fisioterapi/print/{no_rkm_medis}/{lembar}',
             [App\Http\Controllers\Fisioterapi\Print\PrintController::class, 'print']
         )->name('fisioterapi.print');
-
 
         //PEMESANAN
         Route::get('/pemesanan-farmasi', [PemesananFarmasi::class, 'pemesanan']);
@@ -618,9 +544,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
             ->name('pemesanan.export');
         Route::get('/waktu-tunggu-farmasi', [waktutunggufarmasi::class, 'index'])->name('waktutunggufarmasi.index');
         Route::get('/waktu-tunggu-farmasi/export', [waktutunggufarmasi::class, 'export'])->name('waktutunggufarmasi.export');
-
-
-
 
         // RM
         Route::get('/berkas-rm', [BerkasRM::class, 'BerkasRM']);
@@ -639,14 +562,11 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/pasien-meninggal', [PasienMeninggal::class, 'PasienMeninggal']);
         Route::get('/tabulasi-igd', [TabulasiIGD::class, 'TabulasiIGD']);
 
-        //DIAGNOSA 
+        //DIAGNOSA
         Route::get('/rm/diagnosa', [Diagnosa::class, 'index'])->name('rm.diagnosa');
-
-
 
         //AntrianFarmasi
         Route::get('/antrian-farmasi', [AntrianFarmasiController::class, 'index'])->name('antrian-farmasi.index');
-        // Route::get('/display-farmasi', [DisplayController::class, 'index'])->name('display-farmasi');
 
         //PasienKamarInap
         Route::get('/rawat-inap', [RawatInap::class, 'RawatInap']);
@@ -668,7 +588,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         //tes
         Route::get('/antrian-farmasi/panggil', [\App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController::class, 'panggil'])->name('antrian-farmasi.panggil');
-        // Route::get('/antrian-farmasi/panggil', [AntrianFarmasiController::class, 'panggil']);
         Route::get('/pharmacy-display', App\Http\Livewire\AntrianFarmasi\Farmasi::class)->name('antrian-farmasi.display');
         Route::get('/antrian-farmasi/call', PanggilAntrianFarmasi::class)->name('antrian-farmasi.call');
         Route::post('/antrian-farmasi/ambil', [AntrianFarmasiController::class, 'ambilAntrian'])->name('antrian-farmasi.ambilAntrian');
@@ -692,7 +611,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::post('/lan/heartbeat', [Lan::class, 'heartbeat']);
         Route::post('/lan/send', [Lan::class, 'sendMessage']);
         Route::get('/lan/fetch', [Lan::class, 'fetchMessage']);
-
 
         //REGPERIKSA
 
@@ -776,14 +694,7 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/sep/ttd/{no_sep}', [Sep_TTD::class, 'form'])->name('sep.formTtd');
         Route::post('/sep/ttd', [Sep_TTD::class, 'simpan'])->name('sep.simpanTtd');
 
-
-
-
-
-
         // antrianpendaftaranbaru
-
-
         Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
         Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('antrian.update-status');
         Route::post('/antrian/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])
@@ -795,12 +706,9 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
         Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
         Route::post('/antrian/selesai', [AntrianPendaftaranBaru::class, 'selesai'])->name('antrian.selesai');
 
-
         // kamarinapdr
-
         Route::get('/kamar-inap-dr', [App\Http\Controllers\PasienKamarInap\KamarInapDr::class, 'index'])
             ->name('kamarinapdr.index');
-
         Route::post('/ranap/save-wa', [RanapController::class, 'saveAndSendWA'])->name('ranap.save_wa');
 
         // 🔹 Jadwal Operasi
@@ -820,9 +728,7 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
             Route::post('/daftar-belum-nota', [KroscekPasien::class, 'getDaftarPasienBelumNota'])->name('daftar.belum.nota');
         });
 
-
         // Urologi
-
         Route::get('/urologi', [Urologi::class, 'index']);
         Route::get('/form_usg', [Urologi::class, 'formUsg']);
         Route::post('/urologi/usg/simpan', [Urologi::class, 'simpanUsg'])
@@ -832,7 +738,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
             '/urologi/usg/cetak/{no_rawat}',
             [\App\Http\Controllers\Urologi\Urologi::class, 'cetakUsg']
         )->where('no_rawat', '.*');
-
 
         // skrining tbc
         Route::get('/skriningtbc', [SkriningTBC::class, 'index'])
@@ -845,7 +750,6 @@ Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         //LAPORAN LAB
         Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);
-
 
         // KEPERAWATAN
         Route::get('/home-keperawatan', [HomeKeperawatan::class, 'HomeKeperawatan']);
