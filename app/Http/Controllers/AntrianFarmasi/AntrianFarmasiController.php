@@ -26,6 +26,7 @@ class AntrianFarmasiController extends Controller
 
         // Cek apakah pasien terdaftar hari ini
         $pasien = DB::table('pasien')
+            ->select('pasien.no_rkm_medis', 'pasien.nm_pasien', 'reg_periksa.no_rawat')
             ->join('reg_periksa', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->where('pasien.no_rkm_medis', $noRkmMedis)
             ->where('reg_periksa.tgl_registrasi', $today)
@@ -46,6 +47,7 @@ class AntrianFarmasiController extends Controller
 
         // Ambil nomor antrian terakhir berdasarkan kategori
         $lastAntrian = DB::table('antrian')
+            ->select('nomor_antrian')
             ->where('tanggal', $today)
             ->where('racik_non_racik', $kategoriObat)
             ->orderBy('nomor_antrian', 'desc')
