@@ -96,7 +96,7 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => null,        // Example: 'local', 's3'              Default: 'default'
+        'disk' => env('FILESYSTEM_DISK', 'local'), // Menyamakan dengan pengaturan disk di .env
         'rules' => ['required', 'file', 'max:102400'], // Allows up to 100MB
         'directory' => null,   // Example: 'tmp'                      Default  'livewire-tmp'
         'middleware' => null,  // Example: 'throttle:5,1'             Default: 'throttle:60,1'
