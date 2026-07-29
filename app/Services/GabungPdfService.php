@@ -131,17 +131,21 @@ class GabungPdfService
         if ($importedPages > 0) {
             $no_rawatSTR = str_replace('/', '', $no_rawat);
             
-            // Hapus file lama jika ada untuk menghindari penumpukan file
+            // Coba ambil nomor SEP
+            $nosep = DB::table('bridging_sep')->where('no_rawat', $no_rawat)->value('no_sep');
+            
+            // Gunakan nomor SEP sebagai nama file jika ada, jika tidak gunakan HASIL-norawat
+            $nama_file = $nosep ? $nosep : 'HASIL-' . $no_rawatSTR;
+            $path_file = $nama_file . '.pdf';
+            
+            // Hapus file lama jika ada untuk menghindari penumpukan (walaupun Output('F') akan menimpa)
             $fileLama = DB::table('bw_file_casemix_hasil')->where('no_rawat', $no_rawat)->first();
-            if ($fileLama) {
+            if ($fileLama && $fileLama->file !== $path_file) {
                 $pathLama = public_path('hasil_pdf/' . $fileLama->file);
                 if (file_exists($pathLama)) {
                     @unlink($pathLama);
                 }
             }
-
-            // Gunakan timestamp agar nama file unik dan terhindar dari cache browser
-            $path_file = 'HASIL-' . time() . '-' . $no_rawatSTR . '.pdf';
             
             $outputDir = public_path('hasil_pdf');
             if (!file_exists($outputDir)) {
@@ -149,7 +153,7 @@ class GabungPdfService
             }
             $outputPath = $outputDir . '/' . $path_file;
             
-            // Simpan file PDF baru
+            // Simpan file PDF baru (Otomatis menimpa jika nama file sama)
             $pdf->Output($outputPath, 'F');
 
             // Update ke database
