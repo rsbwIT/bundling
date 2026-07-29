@@ -144,23 +144,30 @@ class GabungPdfService
             // Gunakan nomor SEP sebagai nama file jika ada, jika tidak gunakan HASIL-norawat
             $nama_file = $nosep ? $nosep : 'HASIL-' . $no_rawatSTR;
             $path_file = $nama_file . '.pdf';
+
+            // Deteksi folder public web server (mendukung APANEL/cPanel public_html)
+            $outputDir = public_path('hasil_pdf');
+            if (file_exists(base_path('../public_html'))) {
+                $outputDir = base_path('../public_html/hasil_pdf');
+            } elseif (file_exists(base_path('../../public_html'))) {
+                $outputDir = base_path('../../public_html/hasil_pdf');
+            }
             
-            // Hapus file lama jika ada untuk menghindari penumpukan (walaupun Output('F') akan menimpa)
+            // Hapus file lama jika ada untuk menghindari penumpukan
             $fileLama = DB::table('bw_file_casemix_hasil')->where('no_rawat', $no_rawat)->first();
             if ($fileLama && $fileLama->file !== $path_file) {
-                $pathLama = public_path('hasil_pdf/' . $fileLama->file);
+                $pathLama = $outputDir . '/' . $fileLama->file;
                 if (file_exists($pathLama)) {
                     @unlink($pathLama);
                 }
             }
             
-            $outputDir = public_path('hasil_pdf');
             if (!file_exists($outputDir)) {
                 mkdir($outputDir, 0777, true);
             }
             $outputPath = $outputDir . '/' . $path_file;
             
-            // Simpan file PDF baru (Otomatis menimpa jika nama file sama)
+            // Simpan file PDF baru
             $pdf->Output($outputPath, 'F');
 
             // Update ke database
