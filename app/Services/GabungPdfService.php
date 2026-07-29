@@ -129,9 +129,19 @@ class GabungPdfService
         }
 
         if ($importedPages > 0) {
-            // Simpan hasil penggabungan jika ada halaman
             $no_rawatSTR = str_replace('/', '', $no_rawat);
-            $path_file = 'HASIL' . '-' . $no_rawatSTR . '.pdf';
+            
+            // Hapus file lama jika ada untuk menghindari penumpukan file
+            $fileLama = DB::table('bw_file_casemix_hasil')->where('no_rawat', $no_rawat)->first();
+            if ($fileLama) {
+                $pathLama = public_path('hasil_pdf/' . $fileLama->file);
+                if (file_exists($pathLama)) {
+                    @unlink($pathLama);
+                }
+            }
+
+            // Gunakan timestamp agar nama file unik dan terhindar dari cache browser
+            $path_file = 'HASIL-' . time() . '-' . $no_rawatSTR . '.pdf';
             
             $outputDir = public_path('hasil_pdf');
             if (!file_exists($outputDir)) {
@@ -139,10 +149,10 @@ class GabungPdfService
             }
             $outputPath = $outputDir . '/' . $path_file;
             
-            // Timpa jika file PDF sudah ada (Fpdi -> Output('F') otomatis menimpa)
+            // Simpan file PDF baru
             $pdf->Output($outputPath, 'F');
 
-            // Simpan atau timpa ke database dengan transaksi
+            // Update ke database
             DB::beginTransaction();
             try {
                 DB::table('bw_file_casemix_hasil')->updateOrInsert(
