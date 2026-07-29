@@ -71,47 +71,46 @@ class GabungPdfService
             ->get()
             ->filter(function ($item) {
                 $file_name = basename($item->lokasi_file);
-                $path1 = storage_path('app/public/file_scan/' . $file_name);
-                $path2 = public_path('storage/file_scan/' . $file_name);
-                return file_exists($path1) || file_exists($path2);
+                $path = storage_path('app/public/file_scan/' . $file_name);
+                return file_exists($path);
             })
             ->first(); // ambil yang pertama yang ADA FILE-nya
 
 
         // Ambil path file jika ada
         $pdfFiles = [];
-        
-        $getValidPath = function ($relativePath) {
-            $storagePath = storage_path('app/public/' . $relativePath);
-            if (file_exists($storagePath)) {
-                return $storagePath;
-            }
-            $publicPath = public_path('storage/' . $relativePath);
-            if (file_exists($publicPath)) {
-                return $publicPath;
-            }
-            return null;
-        };
-
         if ($cekINACBG) {
-            $path = $getValidPath('file_inacbg/' . $cekINACBG->file);
-            if ($path) $pdfFiles[] = $path;
+            $pdfFiles[] = public_path('storage/file_inacbg/' . $cekINACBG->file);
         }
         if ($cekRESUMEDLL) {
-            $path = $getValidPath('resume_dll/' . $cekRESUMEDLL->file);
-            if ($path) $pdfFiles[] = $path;
+            $pdfFiles[] = public_path('storage/resume_dll/' . $cekRESUMEDLL->file);
         }
+        // if ($cekSCAN) {
+        //     $pdfFiles[] = public_path('storage/file_scan/' . $cekSCAN->file);
+        // }
+        // if ($cekSCAN) {
+        //     $pdfFiles[] = public_path('storage/' . $cekSCAN->lokasi_file);
+        // }
         if ($cekSCAN) {
-            $file_name = basename($cekSCAN->lokasi_file);
-            $path = $getValidPath('file_scan/' . $file_name);
-            if ($path) $pdfFiles[] = $path;
+            // Ambil nama file dari path relatif di DB
+            $file_name = basename($cekSCAN->lokasi_file); // misal pages/upload/021-20251021000350.pdf → 021-20251021000350.pdf
+
+            // Path publik Laravel
+            $public_file_path = public_path('storage/file_scan/' . $file_name);
+
+            if (file_exists($public_file_path)) {
+                $pdfFiles[] = $public_file_path;
+            }
         }
+
 
         // Pastikan tidak ada file yang diambil dua kali
         $pdfFiles = array_unique($pdfFiles);
 
         // Mulai proses penggabungan PDF
         $pdf = new Fpdi();
+        $importedPages = 0;
+
         foreach ($pdfFiles as $pdfPath) {
             if (file_exists($pdfPath)) {
                 try {
@@ -121,6 +120,7 @@ class GabungPdfService
                         $size = $pdf->getTemplateSize($template);
                         $pdf->AddPage($size['orientation'], $size);
                         $pdf->useTemplate($template);
+                        $importedPages++;
                     }
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error("FPDI Error parsing $pdfPath: " . $e->getMessage());
@@ -128,26 +128,37 @@ class GabungPdfService
             }
         }
 
-        // Simpan hasil penggabungan
-        $no_rawatSTR = str_replace('/', '', $no_rawat);
-        $path_file = 'HASIL' . '-' . $no_rawatSTR . '.pdf';
-        $outputPath = public_path('hasil_pdf/' . $path_file);
-        $pdf->Output($outputPath, 'F');
-
-        // Simpan ke database dengan transaksi
-        DB::beginTransaction();
-        try {
-            $cekBerkas = DB::table('bw_file_casemix_hasil')->where('no_rawat', $no_rawat)->exists();
-            if (!$cekBerkas) {
-                DB::table('bw_file_casemix_hasil')->insert([
-                    'no_rkm_medis' => $no_rkm_medis,
-                    'no_rawat' => $no_rawat,
-                    'file' => $path_file,
-                ]);
+        if ($importedPages > 0) {
+            // Simpan hasil penggabungan jika ada halaman
+            $no_rawatSTR = str_replace('/', '', $no_rawat);
+            $path_file = 'HASIL' . '-' . $no_rawatSTR . '.pdf';
+            
+            $outputDir = public_path('hasil_pdf');
+            if (!file_exists($outputDir)) {
+                mkdir($outputDir, 0777, true);
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
+            $outputPath = $outputDir . '/' . $path_file;
+            
+            // Timpa jika file PDF sudah ada (Fpdi -> Output('F') otomatis menimpa)
+            $pdf->Output($outputPath, 'F');
+
+            // Simpan atau timpa ke database dengan transaksi
+            DB::beginTransaction();
+            try {
+                DB::table('bw_file_casemix_hasil')->updateOrInsert(
+                    ['no_rawat' => $no_rawat],
+                    [
+                        'no_rkm_medis' => $no_rkm_medis,
+                        'file' => $path_file,
+                    ]
+                );
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+        } else {
+            \Illuminate\Support\Facades\Log::warning("Tidak ada halaman PDF yang berhasil di-import untuk no_rawat: $no_rawat");
         }
     }
 }
