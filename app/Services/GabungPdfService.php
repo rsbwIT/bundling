@@ -71,38 +71,41 @@ class GabungPdfService
             ->get()
             ->filter(function ($item) {
                 $file_name = basename($item->lokasi_file);
-                $path = storage_path('app/public/file_scan/' . $file_name);
-                return file_exists($path);
+                $path1 = storage_path('app/public/file_scan/' . $file_name);
+                $path2 = public_path('storage/file_scan/' . $file_name);
+                return file_exists($path1) || file_exists($path2);
             })
             ->first(); // ambil yang pertama yang ADA FILE-nya
 
 
         // Ambil path file jika ada
         $pdfFiles = [];
+        
+        $getValidPath = function ($relativePath) {
+            $storagePath = storage_path('app/public/' . $relativePath);
+            if (file_exists($storagePath)) {
+                return $storagePath;
+            }
+            $publicPath = public_path('storage/' . $relativePath);
+            if (file_exists($publicPath)) {
+                return $publicPath;
+            }
+            return null;
+        };
+
         if ($cekINACBG) {
-            $pdfFiles[] = public_path('storage/file_inacbg/' . $cekINACBG->file);
+            $path = $getValidPath('file_inacbg/' . $cekINACBG->file);
+            if ($path) $pdfFiles[] = $path;
         }
         if ($cekRESUMEDLL) {
-            $pdfFiles[] = public_path('storage/resume_dll/' . $cekRESUMEDLL->file);
+            $path = $getValidPath('resume_dll/' . $cekRESUMEDLL->file);
+            if ($path) $pdfFiles[] = $path;
         }
-        // if ($cekSCAN) {
-        //     $pdfFiles[] = public_path('storage/file_scan/' . $cekSCAN->file);
-        // }
-        // if ($cekSCAN) {
-        //     $pdfFiles[] = public_path('storage/' . $cekSCAN->lokasi_file);
-        // }
         if ($cekSCAN) {
-            // Ambil nama file dari path relatif di DB
-            $file_name = basename($cekSCAN->lokasi_file); // misal pages/upload/021-20251021000350.pdf → 021-20251021000350.pdf
-
-            // Path publik Laravel
-            $public_file_path = public_path('storage/file_scan/' . $file_name);
-
-            if (file_exists($public_file_path)) {
-                $pdfFiles[] = $public_file_path;
-            }
+            $file_name = basename($cekSCAN->lokasi_file);
+            $path = $getValidPath('file_scan/' . $file_name);
+            if ($path) $pdfFiles[] = $path;
         }
-
 
         // Pastikan tidak ada file yang diambil dua kali
         $pdfFiles = array_unique($pdfFiles);
@@ -111,12 +114,16 @@ class GabungPdfService
         $pdf = new Fpdi();
         foreach ($pdfFiles as $pdfPath) {
             if (file_exists($pdfPath)) {
-                $pageCount = $pdf->setSourceFile($pdfPath);
-                for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
-                    $template = $pdf->importPage($pageNumber);
-                    $size = $pdf->getTemplateSize($template);
-                    $pdf->AddPage($size['orientation'], $size);
-                    $pdf->useTemplate($template);
+                try {
+                    $pageCount = $pdf->setSourceFile($pdfPath);
+                    for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
+                        $template = $pdf->importPage($pageNumber);
+                        $size = $pdf->getTemplateSize($template);
+                        $pdf->AddPage($size['orientation'], $size);
+                        $pdf->useTemplate($template);
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("FPDI Error parsing $pdfPath: " . $e->getMessage());
                 }
             }
         }
