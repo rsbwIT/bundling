@@ -59,6 +59,62 @@
                         @endif
                     </div>
                     @if ($jumlahData > 0)
+                        {{-- BERKAS INACBG --}}
+                        @if ($getInacbg)
+                            <div class="card-body">
+                                <div class="card py-3 d-flex justify-content-center align-items-center" id="pdf-container-inacbg">
+                                    <!-- PDF rendered as canvas -->
+                                </div>
+                            </div>
+                            
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function() {
+                                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                                    
+                                    var url = "{{ asset('storage/file_scan/' . basename($getInacbg->lokasi_file)) }}";
+                                    var container = document.getElementById('pdf-container-inacbg');
+                                    
+                                    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+                                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                                            pdf.getPage(pageNum).then(function(page) {
+                                                var scale = 2.0; // Render at high res
+                                                var viewport = page.getViewport({scale: scale});
+                                                
+                                                var canvas = document.createElement('canvas');
+                                                canvas.style.display = 'block';
+                                                canvas.style.width = '100%';
+                                                canvas.style.maxWidth = '1000px';
+                                                canvas.style.height = 'auto';
+                                                
+                                                var context = canvas.getContext('2d');
+                                                canvas.height = viewport.height;
+                                                canvas.width = viewport.width;
+                                                
+                                                container.appendChild(canvas);
+                                                
+                                                var renderContext = {
+                                                    canvasContext: context,
+                                                    viewport: viewport
+                                                };
+                                                page.render(renderContext).promise.then(function() {
+                                                    var img = document.createElement('img');
+                                                    img.src = canvas.toDataURL('image/png');
+                                                    img.style.width = '100%';
+                                                    img.style.maxWidth = '1000px';
+                                                    img.style.display = 'block';
+                                                    img.style.margin = '0 auto';
+                                                    container.replaceChild(img, canvas);
+                                                });
+                                            });
+                                        }
+                                    }).catch(function(error) {
+                                        console.error('Error loading INACBG PDF:', error);
+                                        container.innerHTML = '<div class="p-4 text-danger">Gagal memuat preview PDF.</div>';
+                                    });
+                                });
+                            </script>
+                        @endif
                         {{-- INCLUDE BERKAS ============================================================= --}}
                         @foreach ($settingBundling as $item)
                             @include('bpjs.component.' . $item->nama_berkas)

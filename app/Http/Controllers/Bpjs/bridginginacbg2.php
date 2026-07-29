@@ -767,6 +767,9 @@ class bridginginacbg2 extends Controller
                 ]
             );
 
+            // AUTO SIMPAN PDF E-KLAIM
+            $this->autoSavePdf($request->nosep);
+
             DB::commit();
 
             return redirect()->back()
@@ -953,6 +956,83 @@ class bridginginacbg2 extends Controller
         ]);
     }
 
+    private function autoSavePdf($nosep)
+    {
+        try {
+            $result = $this->claimPrint($nosep);
+            if (($result['metadata']['message'] ?? '') !== 'Ok' || empty($result['data'])) return false;
+
+            $pdf = base64_decode($result['data']);
+            if ($pdf === false) return false;
+
+            $no_rawat = DB::table('bridging_sep')->where('no_sep', $nosep)->value('no_rawat');
+            if ($no_rawat) {
+                $kodeBerkas = DB::table('master_berkas_digital')->where('nama', 'INACBG')->value('kode');
+                if ($kodeBerkas) {
+                    $filename = $kodeBerkas . '-' . $nosep . '.pdf';
+                    $remote_path = 'pages/upload/' . $filename;
+                    
+                    $cekSCAN = DB::table('berkas_digital_perawatan')
+                        ->where('no_rawat', $no_rawat)
+                        ->where('kode', $kodeBerkas)
+                        ->first();
+                    
+                    if ($cekSCAN) {
+                        DB::table('berkas_digital_perawatan')
+                            ->where('no_rawat', $no_rawat)
+                            ->where('kode', $kodeBerkas)
+                            ->update(['lokasi_file' => $remote_path]);
+                    } else {
+                        DB::table('berkas_digital_perawatan')->insert([
+                            'no_rawat' => $no_rawat,
+                            'kode' => $kodeBerkas,
+                            'lokasi_file' => $remote_path
+                        ]);
+                    }
+
+                    try {
+                        if (env('SFTP_HOST')) {
+                            $sftp = new \phpseclib3\Net\SFTP(env('SFTP_HOST'), env('SFTP_PORT', 22));
+                            if ($sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
+                                $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
+                                $sftp->put($sftp_full_path, $pdf);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('SFTP Error INACBG: ' . $e->getMessage());
+                    }
+
+                    $public_storage_path = public_path('storage/file_scan/' . $filename);
+                    if (!file_exists(dirname($public_storage_path))) {
+                        mkdir(dirname($public_storage_path), 0755, true);
+                    }
+                    file_put_contents($public_storage_path, $pdf);
+
+                    // SIMPAN JUGA UNTUK CASEMIX BUNDLING
+                    $public_inacbg_path = public_path('storage/file_inacbg/' . $filename);
+                    if (!file_exists(dirname($public_inacbg_path))) {
+                        mkdir(dirname($public_inacbg_path), 0755, true);
+                    }
+                    file_put_contents($public_inacbg_path, $pdf);
+
+                    $cekCasemix = DB::table('bw_file_casemix_inacbg')->where('no_rawat', $no_rawat)->first();
+                    if ($cekCasemix) {
+                        DB::table('bw_file_casemix_inacbg')->where('no_rawat', $no_rawat)->update(['file' => $filename]);
+                    } else {
+                        DB::table('bw_file_casemix_inacbg')->insert([
+                            'no_rawat' => $no_rawat,
+                            'file' => $filename
+                        ]);
+                    }
+                }
+            }
+            return true;
+        } catch (\Exception $e) {
+            Log::error('AUTO SAVE PDF ERROR', ['msg' => $e->getMessage()]);
+            return false;
+        }
+    }
+
     public function printClaim($nosep)
     {
         try {
@@ -974,6 +1054,9 @@ class bridginginacbg2 extends Controller
             if ($pdf === false) {
                 throw new Exception('Base64 PDF tidak valid');
             }
+
+            // SIMPAN PDF KE DB DAN STORAGE SEBAGAI BERKAS INACBG (Menggunakan method terpisah untuk fallback jika diperlukan)
+            $this->autoSavePdf($nosep);
 
             return response($pdf)
                 ->header('Content-Type', 'application/pdf')

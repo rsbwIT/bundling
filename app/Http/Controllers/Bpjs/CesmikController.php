@@ -116,6 +116,13 @@ class CesmikController extends Controller
 
             // 14 SURAT PRI BPJS
             $getSuratPriBpjs = QueryResumeDll::suratPriBpjs($noRawat);
+
+            // 15 BERKAS INACBG
+            $kodeInacbg = DB::table('master_berkas_digital')->where('nama', 'INACBG')->value('kode');
+            $getInacbg = DB::table('berkas_digital_perawatan')
+                ->where('no_rawat', $noRawat)
+                ->where('kode', $kodeInacbg)
+                ->first();
         } else {
             $getSetting = '';
             $settingBundling = '';
@@ -135,6 +142,7 @@ class CesmikController extends Controller
             $getTriaseIGD = '';
             $getSuratPriBpjs = '';
             $resume_ralan = '';
+            $getInacbg = '';
         }
 
         // VIEW
@@ -157,6 +165,7 @@ class CesmikController extends Controller
             'getTriaseIGD' => $getTriaseIGD,
             'getSuratPriBpjs' => $getSuratPriBpjs,
             'resume_ralan' => $resume_ralan,
+            'getInacbg' => $getInacbg,
         ]);
     }
 }

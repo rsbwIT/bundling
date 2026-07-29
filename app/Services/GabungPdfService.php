@@ -61,8 +61,13 @@ class GabungPdfService
         $cekRESUMEDLL = DB::table('bw_file_casemix_remusedll')->where('no_rawat', $no_rawat)->first();
         // $cekSCAN = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
         // $cekSCAN = DB::table('berkas_digital_perawatan')->where('no_rawat', $no_rawat)->first();
+        $kodeInacbg = DB::table('master_berkas_digital')->where('nama', 'INACBG')->value('kode');
+
         $cekSCAN = DB::table('berkas_digital_perawatan')
             ->where('no_rawat', $no_rawat)
+            ->when($kodeInacbg, function($query) use ($kodeInacbg) {
+                return $query->where('kode', '!=', $kodeInacbg);
+            })
             ->get()
             ->filter(function ($item) {
                 $file_name = basename($item->lokasi_file);
