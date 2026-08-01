@@ -24,7 +24,7 @@ class JMUmumController extends Controller
         ['kode' => 'SP4', 'nama' => 'Anisrulloh, dr, Sp.THT.KL M.Kes', 'id_khanza' => 'D0000043'],
         ['kode' => 'U4', 'nama' => 'Arief Yulizar, dr', 'id_khanza' => 'D0000005'],
         ['kode' => 'SP5', 'nama' => 'Arman Sanun, dr, SpOG', 'id_khanza' => 'D0000032'],
-        ['kode' => 'U27', 'nama' => 'Arya Pandu Astaguna, dr', 'id_khanza' => 'D0000087'],
+        ['kode' => 'U27', 'nama' => 'Arya Pandu Astaguna, dr', 'id_khanza' => 'D0000137'],
         ['kode' => 'SWL3', 'nama' => 'Astika Septiyani', 'id_khanza' => '512010199'],
         ['kode' => 'U5', 'nama' => 'Hendro Prasetiyo, dr', 'id_khanza' => 'D0000112'],
         ['kode' => 'U6', 'nama' => 'Azizha Risa Luthfia, dr', 'id_khanza' => 'D0000074'],
