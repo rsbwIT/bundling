@@ -19,8 +19,11 @@ class SkriningDataTBC extends Controller
             $tgl_sampai = date('Y-m-d');
         }
 
+        // FILTER ASAL MASUK
+        $asal_masuk = $request->asal_masuk ?? '';
+
         // DATA TABEL
-        $data = DB::table('reg_periksa')
+        $query = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rawat',
                 'reg_periksa.no_rkm_medis',
@@ -28,6 +31,12 @@ class SkriningDataTBC extends Controller
                 'reg_periksa.status_lanjut',
                 'pasien.nm_pasien',
                 'poliklinik.nm_poli',
+                DB::raw("
+                    CASE 
+                        WHEN poliklinik.kd_poli = 'IGDK' OR poliklinik.nm_poli LIKE '%IGD%' THEN 'IGD'
+                        ELSE 'Poli'
+                    END AS asal_masuk
+                "),
                 DB::raw("
                     (SELECT bangsal.nm_bangsal 
                      FROM kamar_inap 
@@ -48,9 +57,21 @@ class SkriningDataTBC extends Controller
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->leftJoin('skrining_tbc', 'reg_periksa.no_rawat', '=', 'skrining_tbc.no_rawat')
             ->where('reg_periksa.stts', '<>', 'Batal')
-            ->whereBetween('reg_periksa.tgl_registrasi', [$tgl_dari, $tgl_sampai])
-            ->orderBy('reg_periksa.tgl_registrasi')
-            ->get();
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tgl_dari, $tgl_sampai]);
+
+        if (!empty($asal_masuk)) {
+            if ($asal_masuk == 'IGD') {
+                $query->where(function($q) {
+                    $q->where('reg_periksa.kd_poli', 'IGDK')
+                      ->orWhere('poliklinik.nm_poli', 'LIKE', '%IGD%');
+                });
+            } elseif ($asal_masuk == 'Poli') {
+                $query->where('reg_periksa.kd_poli', '<>', 'IGDK')
+                      ->where('poliklinik.nm_poli', 'NOT LIKE', '%IGD%');
+            }
+        }
+
+        $data = $query->orderBy('reg_periksa.tgl_registrasi')->get();
 
         // ================= TOTAL =================
         $total_pasien = $data->count();
@@ -63,6 +84,7 @@ class SkriningDataTBC extends Controller
             'data',
             'tgl_dari',
             'tgl_sampai',
+            'asal_masuk',
             'total_pasien',
             'total_sudah',
             'total_belum'

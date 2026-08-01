@@ -83,16 +83,25 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 d-flex gap-2">
-                        <button class="btn btn-primary px-4">
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Asal Masuk</label>
+                        <select name="asal_masuk" class="form-select">
+                            <option value="">-- Semua --</option>
+                            <option value="IGD" {{ ($asal_masuk ?? '') == 'IGD' ? 'selected' : '' }}>IGD</option>
+                            <option value="Poli" {{ ($asal_masuk ?? '') == 'Poli' ? 'selected' : '' }}>Poli</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 d-flex gap-2">
+                        <button class="btn btn-primary px-3">
                             <i class="bi bi-search"></i> Tampilkan
                         </button>
 
-                        <a href="{{ url('/skrining-tbc') }}" class="btn btn-outline-secondary px-4">
+                        <a href="{{ url('/skrining-tbc') }}" class="btn btn-outline-secondary px-3">
                             <i class="bi bi-arrow-clockwise"></i> Hari Ini
                         </a>
 
-                        <button type="button" class="btn btn-success px-4" onclick="copyToExcel()">
+                        <button type="button" class="btn btn-success px-3" onclick="copyToExcel()">
                             <i class="bi bi-file-earmark-excel"></i> Salin ke Excel
                         </button>
                     </div>
@@ -113,6 +122,7 @@
                         <th>No RM</th>
                         <th>Nama Pasien</th>
                         <th width="120">Tgl Registrasi</th>
+                        <th width="100">Asal Masuk</th>
                         <th width="120">Status Lanjut</th>
                         <th>Ruang / Poli</th>
                         <th width="160">Skrining TBC</th>
@@ -128,6 +138,13 @@
                         <td>{{ $row->nm_pasien }}</td>
                         <td class="text-center">
                             {{ \Carbon\Carbon::parse($row->tgl_registrasi)->format('d-m-Y') }}
+                        </td>
+                        <td class="text-center">
+                            @if($row->asal_masuk == 'IGD')
+                                <span class="badge bg-danger">IGD</span>
+                            @else
+                                <span class="badge bg-primary">Poli</span>
+                            @endif
                         </td>
                         <td class="text-center">
                             <span class="badge bg-info">{{ $row->status_lanjut }}</span>
@@ -155,7 +172,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="9" class="text-center text-muted py-4">
                             Tidak ada data pada rentang tanggal ini
                         </td>
                     </tr>
