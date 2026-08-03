@@ -16,6 +16,7 @@ class JMBpjsController extends Controller
         'Tindakan Ganti Balutan Dokter Spesialis',
         'Tonometri',
         'Pasang NGT / Selang Lambung (Dokter Spesialis)',
+        'Tindakan Ekstubasi dr. Radin Intan Sp.AN R. ICU 3'
         // tambahkan nama/keyword tindakan lain di sini
     ];
 
