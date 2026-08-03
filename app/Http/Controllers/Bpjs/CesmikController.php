@@ -123,6 +123,26 @@ class CesmikController extends Controller
                 ->where('no_rawat', $noRawat)
                 ->where('kode', $kodeInacbg)
                 ->first();
+
+            // 16 SEMUA BERKAS DIGITAL LAINNYA
+            $semuaBerkasDigital = DB::table('berkas_digital_perawatan')
+                ->join('master_berkas_digital', 'berkas_digital_perawatan.kode', '=', 'master_berkas_digital.kode')
+                ->select('master_berkas_digital.nama', 'master_berkas_digital.kode', 'berkas_digital_perawatan.lokasi_file')
+                ->where('berkas_digital_perawatan.no_rawat', $noRawat)
+                ->when($kodeInacbg, function($query) use ($kodeInacbg) {
+                    return $query->where('berkas_digital_perawatan.kode', '!=', $kodeInacbg);
+                })
+                ->get();
+                
+            $settingBundlingArray = DB::table('bw_setting_bundling')->pluck('status', 'nama_berkas')->toArray();
+            
+            // Jadikan "Berkas Digital Keperawatan" sebagai MASTER SWITCH untuk semua file digital (kecuali INACBG)
+            $masterSwitch = $settingBundlingArray['Berkas Digital Keperawatan'] ?? '0';
+            
+            if ($masterSwitch != '1') {
+                // Kosongkan semua berkas digital jika switch utama dimatikan
+                $semuaBerkasDigital = collect([]);
+            }
         } else {
             $getSetting = '';
             $settingBundling = '';
@@ -143,6 +163,7 @@ class CesmikController extends Controller
             $getSuratPriBpjs = '';
             $resume_ralan = '';
             $getInacbg = '';
+            $semuaBerkasDigital = [];
         }
 
         // VIEW
@@ -166,6 +187,7 @@ class CesmikController extends Controller
             'getSuratPriBpjs' => $getSuratPriBpjs,
             'resume_ralan' => $resume_ralan,
             'getInacbg' => $getInacbg,
+            'semuaBerkasDigital' => $semuaBerkasDigital,
         ]);
     }
 }

@@ -14,7 +14,7 @@ class User extends Controller
 
         $data = DB::table('user as u')
             ->selectRaw("
-                p.nama as nama_petugas,
+                COALESCE(d.nm_dokter, p.nama) as nama_petugas,
                 u.*,
                 CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)) as username_raw,
                 CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50)) as password_raw,
@@ -30,11 +30,21 @@ class User extends Controller
                     DB::raw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)))")
                 );
             })
-            ->when($cari, function ($q) use ($cari) {
-                $q->where('p.nama', 'like', "%{$cari}%")
-                  ->orWhereRaw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) LIKE ?", ["%{$cari}%"]);
+            ->leftJoin('dokter as d', function ($join) {
+                $join->on(
+                    'd.kd_dokter',
+                    '=',
+                    DB::raw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)))")
+                );
             })
-            ->orderBy('p.nama')
+            ->when($cari, function ($q) use ($cari) {
+                $q->where(function($query) use ($cari) {
+                    $query->where('p.nama', 'like', "%{$cari}%")
+                          ->orWhere('d.nm_dokter', 'like', "%{$cari}%")
+                          ->orWhereRaw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) LIKE ?", ["%{$cari}%"]);
+                });
+            })
+            ->orderByRaw('COALESCE(d.nm_dokter, p.nama)')
             ->get();
 
         return view('ai.user', compact('data', 'cari'));
@@ -278,13 +288,16 @@ class User extends Controller
     {
         $data = DB::table('user as u')
             ->selectRaw("
-                p.nama as nama_petugas,
+                COALESCE(d.nm_dokter, p.nama) as nama_petugas,
                 TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) as username_asli
             ")
             ->leftJoin('petugas as p', function ($join) {
                 $join->on('p.nip', '=', DB::raw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)))"));
             })
-            ->orderBy('p.nama')
+            ->leftJoin('dokter as d', function ($join) {
+                $join->on('d.kd_dokter', '=', DB::raw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)))"));
+            })
+            ->orderByRaw('COALESCE(d.nm_dokter, p.nama)')
             ->get();
         return response()->json(['status' => true, 'data' => $data]);
     }

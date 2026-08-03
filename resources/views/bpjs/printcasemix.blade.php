@@ -87,7 +87,9 @@
     @if ($jumlahData > 0)
         {{-- INCLUDE BERKAS ============================================================= --}}
         @foreach ($settingBundling as $item)
-            @include('bpjs.component.print.' . $item->nama_berkas)
+            @if(view()->exists('bpjs.component.print.' . $item->nama_berkas))
+                @include('bpjs.component.print.' . $item->nama_berkas)
+            @endif
         @endforeach
     @else
         <div class="card-body">

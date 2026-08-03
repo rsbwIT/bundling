@@ -118,10 +118,20 @@
                                 });
                             </script>
                         @endif
+
                         {{-- INCLUDE BERKAS ============================================================= --}}
                         @foreach ($settingBundling as $item)
-                            @include('bpjs.component.' . $item->nama_berkas)
+                            @if(view()->exists('bpjs.component.' . $item->nama_berkas))
+                                @include('bpjs.component.' . $item->nama_berkas)
+                            @endif
                         @endforeach
+                        
+                        {{-- BERKAS DIGITAL LAINNYA (DINAMIS) --}}
+                        @if(isset($semuaBerkasDigital) && count($semuaBerkasDigital) > 0)
+                            @foreach ($semuaBerkasDigital as $berkas)
+                                @include('bpjs.component.berkas-digital-dinamis', ['berkas' => $berkas])
+                            @endforeach
+                        @endif
                         {{--  --}}
                     @else
                         <div class="card-body">

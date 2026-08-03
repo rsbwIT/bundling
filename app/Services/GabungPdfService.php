@@ -63,19 +63,51 @@ class GabungPdfService
         // $cekSCAN = DB::table('berkas_digital_perawatan')->where('no_rawat', $no_rawat)->first();
         $kodeInacbg = DB::table('master_berkas_digital')->where('nama', 'INACBG')->value('kode');
 
-        $cekSCAN = DB::table('berkas_digital_perawatan')
-            ->where('no_rawat', $no_rawat)
-            ->when($kodeInacbg, function($query) use ($kodeInacbg) {
-                return $query->where('kode', '!=', $kodeInacbg);
-            })
-            ->get()
-            ->filter(function ($item) {
-                $file_name = basename($item->lokasi_file);
-                $path1 = storage_path('app/public/file_scan/' . $file_name);
-                $path2 = public_path('storage/file_scan/' . $file_name);
-                return file_exists($path1) || file_exists($path2);
-            })
-            ->first(); // ambil yang pertama yang ADA FILE-nya
+        $settingBundlingArray = DB::table('bw_setting_bundling')->pluck('status', 'nama_berkas')->toArray();
+        $masterSwitch = $settingBundlingArray['Berkas Digital Keperawatan'] ?? '0';
+
+        $cekSCAN = collect([]);
+        if ($masterSwitch == '1') {
+            $cekSCAN = DB::table('berkas_digital_perawatan')
+                ->join('master_berkas_digital', 'berkas_digital_perawatan.kode', '=', 'master_berkas_digital.kode')
+                ->select('berkas_digital_perawatan.*', 'master_berkas_digital.nama')
+                ->where('berkas_digital_perawatan.no_rawat', $no_rawat)
+                ->when($kodeInacbg, function($query) use ($kodeInacbg) {
+                    return $query->where('berkas_digital_perawatan.kode', '!=', $kodeInacbg);
+                })
+                ->get()
+                ->filter(function ($item) {
+                    $file_name = basename($item->lokasi_file);
+                    $path1 = storage_path('app/public/file_scan/' . $file_name);
+                    $path2 = public_path('storage/file_scan/' . $file_name);
+                    
+                    if (file_exists($path1) || file_exists($path2)) {
+                        return true;
+                    }
+                    
+                    // Coba ambil dari URL KHANZA jika tidak ada di lokal
+                    $urlWebapps = env('URL_KHANZA') . "/webapps/berkasrawat/" . $item->lokasi_file;
+                    $tempPath = storage_path('app/public/file_scan/temp_' . $file_name);
+                    
+                    // Pastikan folder exist
+                    if (!file_exists(storage_path('app/public/file_scan'))) {
+                        @mkdir(storage_path('app/public/file_scan'), 0777, true);
+                    }
+                    
+                    try {
+                        $response = \Illuminate\Support\Facades\Http::timeout(15)->get($urlWebapps);
+                        if ($response->successful()) {
+                            file_put_contents($tempPath, $response->body());
+                            return true;
+                        }
+                    } catch (\Exception $e) {
+                        // Gagal mengambil
+                        \Illuminate\Support\Facades\Log::error("Gagal download PDF dari Khanza: " . $e->getMessage());
+                    }
+                    
+                    return false;
+                });
+        }
 
 
         // Ambil path file jika ada
@@ -104,10 +136,18 @@ class GabungPdfService
             if ($path) $pdfFiles[] = $path;
         }
         
-        if ($cekSCAN) {
-            $file_name = basename($cekSCAN->lokasi_file); 
-            $path = $getValidPath('file_scan/' . $file_name);
-            if ($path) $pdfFiles[] = $path;
+        if ($cekSCAN && count($cekSCAN) > 0) {
+            foreach ($cekSCAN as $scan) {
+                $file_name = basename($scan->lokasi_file); 
+                $path = $getValidPath('file_scan/' . $file_name);
+                
+                // Jika tidak ketemu, cari file temp-nya
+                if (!$path) {
+                    $path = $getValidPath('file_scan/temp_' . $file_name);
+                }
+                
+                if ($path) $pdfFiles[] = $path;
+            }
         }
 
 
