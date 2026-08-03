@@ -337,6 +337,31 @@ class LispasienRalan2 extends Component
                 ]);
             }
 
+            // Cek Master Switch
+            $masterSwitch = DB::table('bw_setting_bundling')
+                ->where('nama_berkas', 'Berkas Digital Keperawatan')
+                ->value('status');
+
+            if ($masterSwitch == '0') {
+                $no_rawatSTR = str_replace('/', '', $no_rawat);
+                $path_file_scan = 'SCAN' . '-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+                $public_storage_scan = public_path('storage/file_scan/' . $path_file_scan);
+                copy($public_storage_path, $public_storage_scan);
+                
+                $cekBerkasScan = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->exists();
+                if (!$cekBerkasScan) {
+                    DB::table('bw_file_casemix_scan')->insert([
+                        'no_rkm_medis' => $no_rkm_medis,
+                        'no_rawat' => $no_rawat,
+                        'file' => $path_file_scan,
+                    ]);
+                } else {
+                    DB::table('bw_file_casemix_scan')
+                        ->where('no_rawat', $no_rawat)
+                        ->update(['file' => $path_file_scan]);
+                }
+            }
+
             session()->flash('successSaveINACBG', 'Berhasil Mengupload File Scan ke server dan public storage.');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
 

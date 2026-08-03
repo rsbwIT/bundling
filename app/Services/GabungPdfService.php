@@ -107,6 +107,12 @@ class GabungPdfService
                     
                     return false;
                 });
+        } else {
+            $oldScan = DB::table('bw_file_casemix_scan')->where('no_rawat', $no_rawat)->first();
+            if ($oldScan) {
+                // Buat struktur yang sama agar bisa diloop di bawah
+                $cekSCAN = collect([(object)['lokasi_file' => $oldScan->file]]);
+            }
         }
 
 

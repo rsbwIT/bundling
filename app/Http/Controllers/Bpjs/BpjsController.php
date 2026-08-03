@@ -98,6 +98,29 @@ class BpjsController extends Controller
                     'lokasi_file' => $remote_path,
                 ]);
             }
+
+            // Cek Master Switch
+            $masterSwitch = DB::table('bw_setting_bundling')
+                ->where('nama_berkas', 'Berkas Digital Keperawatan')
+                ->value('status');
+
+            if ($masterSwitch == '0') {
+                $path_file_scan = 'SCAN' . '-' . $no_rawatSTR . '.' . $file->getClientOriginalExtension();
+                Storage::disk('public')->put('file_scan/' . $path_file_scan, file_get_contents($file));
+                
+                $cekBerkasScan = DB::table('bw_file_casemix_scan')->where('no_rawat', $request->no_rawat)->exists();
+                if (!$cekBerkasScan) {
+                    DB::table('bw_file_casemix_scan')->insert([
+                        'no_rkm_medis' => $request->no_rkm_medis,
+                        'no_rawat' => $request->no_rawat,
+                        'file' => $path_file_scan,
+                    ]);
+                } else {
+                    DB::table('bw_file_casemix_scan')
+                        ->where('no_rawat', $request->no_rawat)
+                        ->update(['file' => $path_file_scan]);
+                }
+            }
         }
         Session::flash('successSaveINACBG', 'INACBG / SCAN');
         $redirectUrl = url('/casemix-home-cari');
