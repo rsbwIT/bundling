@@ -70,6 +70,17 @@
                                             <label class="custom-file-label" for="berkas_claim">Berkas INACBG</label>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label>Jenis Berkas SCAN</label>
+                                        <select class="form-control" name="kode_berkas">
+                                            <option value="">-- Pilih Jenis Berkas --</option>
+                                            @foreach(DB::table('master_berkas_digital')->orderBy('nama')->get() as $berkas)
+                                                <option value="{{ $berkas->kode }}">{{ $berkas->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="berkas_claim">Berkas SCAN</label>
                                         <div class="custom-file">

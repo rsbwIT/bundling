@@ -47,19 +47,55 @@ class BpjsController extends Controller
             }
         }
 
-        // Berkas INACBG
-        if ($request->hasFile('file_scan')) {
+        // Berkas SCAN
+        if ($request->hasFile('file_scan') && $request->kode_berkas) {
             $file = $request->file('file_scan');
+            $kode = $request->kode_berkas;
             $no_rawatSTR = str_replace('/', '', $request->no_rawat);
-            $path_file = 'SCAN' . '-' . $no_rawatSTR. '.' . $file->getClientOriginalExtension();
-            Storage::disk('public')->put('file_scan/' . $path_file, file_get_contents($file));
-            $cekBerkas = DB::table('bw_file_casemix_scan')->where('no_rawat', $request->no_rawat)
-                ->exists();
-            if (!$cekBerkas){
-                DB::table('bw_file_casemix_scan')->insert([
-                    'no_rkm_medis' => $request->no_rkm_medis,
+            $file_name = $kode . '-' . $no_rawatSTR. '.' . $file->getClientOriginalExtension();
+            
+            // Simpan ke storage local
+            Storage::disk('public')->put('file_scan/' . $file_name, file_get_contents($file));
+            
+            // Upload SFTP ke server Khanza
+            try {
+                $local_path = $file->storeAs('temp', $file_name, 'local');
+                $local_full_path = storage_path('app/' . $local_path);
+                
+                $sftp = new \phpseclib3\Net\SFTP(env('SFTP_HOST'), env('SFTP_PORT'));
+                if ($sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
+                    $remote_path = 'pages/upload/' . $file_name;
+                    $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
+                    $sftp->put($sftp_full_path, $local_full_path, \phpseclib3\Net\SFTP::SOURCE_LOCAL_FILE);
+                }
+                
+                if (file_exists($local_full_path)) {
+                    unlink($local_full_path);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('SFTP Error Upload Berkas Ranap: ' . $e->getMessage());
+            }
+
+            $remote_path = 'pages/upload/' . $file_name;
+
+            // Simpan ke berkas_digital_perawatan
+            $cekSCAN = DB::table('berkas_digital_perawatan')
+                ->where('no_rawat', $request->no_rawat)
+                ->where('kode', $kode)
+                ->first();
+
+            if ($cekSCAN) {
+                DB::table('berkas_digital_perawatan')
+                    ->where('no_rawat', $request->no_rawat)
+                    ->where('kode', $kode)
+                    ->update([
+                        'lokasi_file' => $remote_path,
+                    ]);
+            } else {
+                DB::table('berkas_digital_perawatan')->insert([
                     'no_rawat' => $request->no_rawat,
-                    'file' => $path_file,
+                    'kode' => $kode,
+                    'lokasi_file' => $remote_path,
                 ]);
             }
         }
