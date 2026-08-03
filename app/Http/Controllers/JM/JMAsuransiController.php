@@ -153,7 +153,9 @@ class JMAsuransiController extends Controller
     {
         $actionCari = '/jm-asuransi';
         $dokter = $this->cacheService->getDokter();
-        $penjab = $this->cacheService->getPenjab();
+        $penjab = collect($this->cacheService->getPenjab())->reject(function ($item) {
+            return in_array($item->kd_pj, ['UMU', 'BPJ']) || stripos($item->png_jawab, 'COB') !== false;
+        });
 
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
