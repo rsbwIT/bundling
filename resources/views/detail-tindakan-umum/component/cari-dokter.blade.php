@@ -46,7 +46,7 @@
                             </div>
                             <div class="modal-body">
                                 <select multiple="multiple" size="10" name="duallistbox_penjab[]">
-                                    @foreach ($penjab as $item)
+                                    @foreach ($penjab ?? [] as $item)
                                         <option value="{{ $item->kd_pj }}">{{ $item->png_jawab }}</option>
                                     @endforeach
                                 </select>
