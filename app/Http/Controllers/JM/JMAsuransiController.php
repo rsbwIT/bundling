@@ -24,7 +24,7 @@ class JMAsuransiController extends Controller
         ['kode' => 'SP4', 'nama' => 'Anisrulloh, dr, Sp.THT.KL M.Kes', 'id_khanza' => 'D0000043'],
         ['kode' => 'U4', 'nama' => 'Arief Yulizar, dr', 'id_khanza' => 'D0000005'],
         ['kode' => 'SP5', 'nama' => 'Arman Sanun, dr, SpOG', 'id_khanza' => 'D0000032'],
-        ['kode' => 'U27', 'nama' => 'Arya Pandu Astaguna, dr', 'id_khanza' => 'D0000087'],
+        ['kode' => 'U27', 'nama' => 'Arya Pandu Astaguna, dr', 'id_khanza' => 'D0000137'],
         ['kode' => 'SWL3', 'nama' => 'Astika Septiyani', 'id_khanza' => '512010199'],
         ['kode' => 'U5', 'nama' => 'Hendro Prasetiyo, dr', 'id_khanza' => 'D0000112'],
         ['kode' => 'U6', 'nama' => 'Azizha Risa Luthfia, dr', 'id_khanza' => 'D0000074'],
@@ -153,7 +153,9 @@ class JMAsuransiController extends Controller
     {
         $actionCari = '/jm-asuransi';
         $dokter = $this->cacheService->getDokter();
-        $penjab = $this->cacheService->getPenjab();
+        $penjab = collect($this->cacheService->getPenjab())->reject(function ($item) {
+            return in_array($item->kd_pj, ['UMU', 'BPJ']) || stripos($item->png_jawab, 'COB') !== false;
+        });
 
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
@@ -392,6 +394,7 @@ class JMAsuransiController extends Controller
                     ->where('piutang_pasien.status', 'Lunas');
             });
         })
+        ->where('periksa_lab.dokter_perujuk', 'D0000133')
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
         })
@@ -1001,6 +1004,7 @@ class JMAsuransiController extends Controller
                     ->where('piutang_pasien.status', 'Lunas');
             });
         })
+        ->where('periksa_lab.dokter_perujuk', 'D0000133')
         ->where(function ($query) use ($kdDokter) {
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
         })
@@ -1879,6 +1883,7 @@ class JMAsuransiController extends Controller
             ->leftJoin('jns_perawatan_lab', 'periksa_lab.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('periksa_lab.dokter_perujuk', $kdDokter)
+            ->where('periksa_lab.dokter_perujuk', 'D0000133')
             ->where(function($q) { $q->where('periksa_lab.kategori', 'PA')->orWhere('jns_perawatan_lab.kategori', 'PA'); })
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q8);

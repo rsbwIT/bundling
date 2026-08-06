@@ -16,6 +16,7 @@ class JMBpjsController extends Controller
         'Tindakan Ganti Balutan Dokter Spesialis',
         'Tonometri',
         'Pasang NGT / Selang Lambung (Dokter Spesialis)',
+        'Tindakan Ekstubasi dr. Radin Intan Sp.AN R. ICU 3'
         // tambahkan nama/keyword tindakan lain di sini
     ];
 
@@ -161,6 +162,7 @@ class JMBpjsController extends Controller
     {
         $actionCari = '/jm-bpjs';
         $dokter = $this->cacheService->getDokter();
+        $penjab = $this->cacheService->getPenjab();
 
         $cariNomor = $request->cariNomor;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
@@ -693,32 +695,17 @@ class JMBpjsController extends Controller
 
             $validVisits = [];
             foreach ($visiteCounts as $noRawat => $rawList) {
-                $docsWithRealVisite = [];
-                foreach ($rawList as $v) {
-                    $isSurgDoc = isset($surgeryDoctors[$noRawat][$v->kd_dokter]);
-                    if ($isSurgDoc) {
-                        continue;
-                    }
-                    $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                        || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
-
-                    if ($isVisiteLike) {
-                        $docsWithRealVisite[$v->kd_dokter] = true;
-                    }
-                }
-                
                 $filteredList = [];
                 foreach ($rawList as $v) {
                     $isSurgDoc = isset($surgeryDoctors[$noRawat][$v->kd_dokter]);
                     if ($isSurgDoc) {
                         continue;
                     }
-                    $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                        || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
+                    $isVisiteOrKonsul = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
+                        || stripos($v->nm_perawatan, 'konsultasi') !== false
+                        || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
 
-                    if ($isVisiteLike) {
-                        $filteredList[] = $v;
-                    } elseif (stripos($v->nm_perawatan, 'konsultasi') !== false && isset($docsWithRealVisite[$v->kd_dokter])) {
+                    if ($isVisiteOrKonsul) {
                         $filteredList[] = $v;
                     }
                 }
@@ -856,21 +843,23 @@ class JMBpjsController extends Controller
                             if (isset($validVisits[$item->no_rawat])) {
                                 $list = $validVisits[$item->no_rawat];
                                 
-                                $doctorsWithRealVisite = [];
+                                $doctorsWithPoolItems = [];
                                 foreach ($list as $v) {
-                                    $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false);
-                                    if ($isVLike) {
-                                        $doctorsWithRealVisite[$v->kd_dokter] = true;
+                                    $isVOrKLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
+                                        || stripos($v->nm_perawatan, 'konsultasi') !== false
+                                        || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                                    if ($isVOrKLike) {
+                                        $doctorsWithPoolItems[$v->kd_dokter] = true;
                                     }
                                 }
 
-                                if (isset($doctorsWithRealVisite[$item->kd_dokter])) {
+                                if (isset($doctorsWithPoolItems[$item->kd_dokter])) {
                                     $hasRealVisite = true;
                                     $totalVisite = 0;
                                     $dokterVisiteCount = 0;
 
                                     foreach ($list as $v) {
-                                        if (isset($doctorsWithRealVisite[$v->kd_dokter])) {
+                                        if (isset($doctorsWithPoolItems[$v->kd_dokter])) {
                                             $totalVisite++;
                                         }
                                         if ($v->kd_dokter === $item->kd_dokter) {
@@ -894,11 +883,7 @@ class JMBpjsController extends Controller
                             }
 
                             if (!$hasVisiteFee) {
-                                if ($isKonsultasi && !$hasRealVisite) {
-                                    // Biarkan tarif normal (Bypass Pool dan gunakan tarif transaksi/RVP)
-                                } else {
-                                    $calculatedTariff = 0;
-                                }
+                                $calculatedTariff = 0;
                             }
                         }
                     }
@@ -2294,6 +2279,7 @@ class JMBpjsController extends Controller
         return view('detail-tindakan-umum.jm-bpjs', [
             'actionCari'=> $actionCari,
             'dokter'=> $dokter,
+            'penjab'=> $penjab,
             'mappedTemplate' => $mappedTemplate,
             'unmatchedData'  => $unmatchedData,
             'tanggl1' => $tanggl1,
@@ -3106,32 +3092,17 @@ class JMBpjsController extends Controller
 
                 $validVisits = [];
                 foreach ($visiteCounts as $noRawat => $rawList) {
-                    $docsWithRealVisite = [];
-                    foreach ($rawList as $v) {
-                        $isSurgDoc = isset($surgeryDoctors[$noRawat][$v->kd_dokter]);
-                        if ($isSurgDoc) {
-                            continue;
-                        }
-                        $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                            || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
-
-                        if ($isVisiteLike) {
-                            $docsWithRealVisite[$v->kd_dokter] = true;
-                        }
-                    }
-                    
                     $filteredList = [];
                     foreach ($rawList as $v) {
                         $isSurgDoc = isset($surgeryDoctors[$noRawat][$v->kd_dokter]);
                         if ($isSurgDoc) {
                             continue;
                         }
-                        $isVisiteLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
-                            || ($v->kd_dokter === 'D0000043' && stripos($v->nm_perawatan, 'konsultasi') !== false);
+                        $isVisiteOrKonsul = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
+                            || stripos($v->nm_perawatan, 'konsultasi') !== false
+                            || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
 
-                        if ($isVisiteLike) {
-                            $filteredList[] = $v;
-                        } elseif (stripos($v->nm_perawatan, 'konsultasi') !== false && isset($docsWithRealVisite[$v->kd_dokter])) {
+                        if ($isVisiteOrKonsul) {
                             $filteredList[] = $v;
                         }
                     }
@@ -3258,21 +3229,23 @@ class JMBpjsController extends Controller
                                     if (isset($validVisits[$item->no_rawat])) {
                                         $list = $validVisits[$item->no_rawat];
                                         
-                                        $doctorsWithRealVisite = [];
+                                        $doctorsWithPoolItems = [];
                                         foreach ($list as $v) {
-                                            $isVLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false);
-                                            if ($isVLike) {
-                                                $doctorsWithRealVisite[$v->kd_dokter] = true;
+                                            $isVOrKLike = (stripos($v->nm_perawatan, 'visite') !== false && stripos($v->nm_perawatan, 'visite hd') === false)
+                                                || stripos($v->nm_perawatan, 'konsultasi') !== false
+                                                || stripos($v->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
+                                            if ($isVOrKLike) {
+                                                $doctorsWithPoolItems[$v->kd_dokter] = true;
                                             }
                                         }
 
-                                        if (isset($doctorsWithRealVisite[$kdDokter])) {
+                                        if (isset($doctorsWithPoolItems[$kdDokter])) {
                                             $hasRealVisite = true;
                                             $totalVisite = 0;
                                             $dokterVisiteCount = 0;
 
                                             foreach ($list as $v) {
-                                                if (isset($doctorsWithRealVisite[$v->kd_dokter])) {
+                                                if (isset($doctorsWithPoolItems[$v->kd_dokter])) {
                                                     $totalVisite++;
                                                 }
                                                 if ($v->kd_dokter === $kdDokter) {
@@ -3295,11 +3268,7 @@ class JMBpjsController extends Controller
                                     }
 
                                     if (!$hasVisiteFee) {
-                                        if ($isKonsultasi && !$hasRealVisite) {
-                                            // Biarkan tarif normal (Bypass Pool dan gunakan tarif transaksi/RVP)
-                                        } else {
-                                            $item->tarif = 0;
-                                        }
+                                        $item->tarif = 0;
                                     }
                                 }
                             }
