@@ -352,6 +352,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/mjkn/ambil-antrian', [MJKNController1::class, 'index']);
         Route::post('/mjkn/ambil-antrian', [MJKNController1::class, 'ambilAntrian'])
             ->name('mjkn.ambil-antrian');
+        
+        // Task ID Mobile JKN
+        Route::get('/mjkn/taskid', [App\Http\Controllers\Bpjs\TaskIDController::class, 'index'])->name('mjkn.taskid');
+        Route::post('/mjkn/taskid/search', [App\Http\Controllers\Bpjs\TaskIDController::class, 'search'])->name('mjkn.taskid.search');
+        Route::post('/mjkn/taskid/getlisttask', [App\Http\Controllers\Bpjs\TaskIDController::class, 'getListTask'])->name('mjkn.taskid.getlisttask');
         Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         // FARMASI
@@ -828,3 +833,13 @@ Route::get('/api/icd9', function() { return response()->json(DB::table('icd9')->
 // Added Belanja PDF Route
 Route::get('/belanja/cetak-pdf', [belanja::class, 'cetakPdf'])->name('belanja.cetakPdf');
 
+
+// Routes for Antrean Mobile JKN Manual Check
+Route::get('/bpjs/mjkn/antrean', [App\Http\Controllers\Bpjs\MJKNController::class, 'antreanMjknView'])->name('bpjs.mjkn.antrean');
+Route::get('/bpjs/mjkn/antrean/data', [App\Http\Controllers\Bpjs\MJKNController::class, 'antreanMjknData'])->name('bpjs.mjkn.antrean.data');
+Route::post('/bpjs/mjkn/antrean/kirim', [App\Http\Controllers\Bpjs\MJKNController::class, 'kirimAntreanMjknManual'])->name('bpjs.mjkn.antrean.kirim');
+
+
+Route::post('/bpjs/mjkn/antrean/kirim-single', [App\Http\Controllers\Bpjs\MJKNController::class, 'kirimAntreanMjknSingle'])->name('bpjs.mjkn.antrean.kirim.single');
+
+Route::post('/bpjs/mjkn/antrean/update-task', [App\Http\Controllers\Bpjs\MJKNController::class, 'updateTask'])->name('bpjs.mjkn.antrean.updateTask');

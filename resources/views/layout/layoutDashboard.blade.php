@@ -1643,6 +1643,18 @@
                                         <p>Ambil Antrean M-JKN</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/mjkn/taskid') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Task ID BPJS</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/bpjs/mjkn/antrean') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Kirim Task Id M-JKN</p>
+                                    </a>
+                                </li>
 
                             </ul>
                         </li>
