@@ -2199,6 +2199,30 @@ class JMBpjsController extends Controller
             ];
         });
 
+        // Sync doctor totals with detail() calculations to guarantee 100% parity between Index and Detail
+        $doctorDetailsCache = [];
+        $mappedTemplate = $mappedTemplate->map(function ($item) use ($tanggl1, $tanggl2, $cariNomor, &$doctorDetailsCache) {
+            if ($item->kode_id_khanza && strpos($item->kode_id_khanza, 'D') === 0 && !$cariNomor) {
+                $kd = $item->kode_id_khanza;
+                if (!isset($doctorDetailsCache[$kd])) {
+                    $subReq = new \Illuminate\Http\Request([
+                        'kd_dokter' => $kd,
+                        'tgl1' => $tanggl1,
+                        'tgl2' => $tanggl2
+                    ]);
+                    $doctorDetailsCache[$kd] = $this->detail($subReq, true);
+                }
+                $dets = $doctorDetailsCache[$kd];
+                $totRanap = $dets->where('status', 'Ranap')->sum('tarif');
+                $totRalan = $dets->where('status', 'Ralan')->sum('tarif');
+
+                $item->total_ranap = $totRanap;
+                $item->total_ralan = $totRalan;
+                $item->grand_total = $totRanap + $totRalan;
+            }
+            return $item;
+        });
+
         // -------------------------------------------------------------
         // PEMBAGIAN KHUSUS JASA OPERATOR HD (PARAMEDIS 09964020055)
         // -------------------------------------------------------------
