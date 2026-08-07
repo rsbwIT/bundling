@@ -136,7 +136,7 @@ class RanapDokter extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_jenis_prw', 'rawat_inap_dr.jam_rawat', 'rawat_inap_dr.tarif_tindakandr', 'rawat_inap_dr.tgl_perawatan')
+            ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'rawat_inap_dr.kd_jenis_prw', 'rawat_inap_dr.jam_rawat', 'rawat_inap_dr.tarif_tindakandr', 'rawat_inap_dr.tgl_perawatan')
             ->orderByDesc('rawat_inap_dr.no_rawat')
             ->get();
         $RalanDokter = DB::table('pasien')
@@ -249,7 +249,7 @@ class RanapDokter extends Controller
                 $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
-            ->groupBy('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_jenis_prw', 'rawat_jl_dr.jam_rawat', 'rawat_jl_dr.tarif_tindakandr', 'rawat_jl_dr.tgl_perawatan')
+            ->groupBy('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_dokter', 'rawat_jl_dr.kd_jenis_prw', 'rawat_jl_dr.jam_rawat', 'rawat_jl_dr.tarif_tindakandr', 'rawat_jl_dr.tgl_perawatan')
             ->orderBy('rawat_jl_dr.no_rawat', 'desc')
             ->get();
 
