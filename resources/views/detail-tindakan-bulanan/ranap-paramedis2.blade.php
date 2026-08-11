@@ -12,67 +12,69 @@
                     </button>
                 </div>
             </div>
-            <table class="table table-sm table-bordered table-striped table-responsive text-xs" style="white-space: nowrap;"
-                id="tableToCopy">
-                <thead>
-                    <tr>
-                        <th>No.Rawat</th>
-                        <th>No SEP</th>
-                        <th>No Nota</th>
-                        <th>Tgl Bayar</th>
-                        <th>No.RM</th>
-                        <th>Nama Pasien</th>
-                        <th>Kd.Tindakan</th>
-                        <th>Nama Perawatan</th>
-                        <th>NIP</th>
-                        <th>Paramedis Yg Menangani</th>
-                        <th>Tanggal</th>
-                        <th>Jam</th>
-                        <th>Cara Bayar</th>
-                        <th>Ruang</th>
-                        <th>Jasa Sarana</th>
-                        <th>Paket BHP</th>
-                        <th>JM Paramedis</th>
-                        <th>KSO</th>
-                        <th>Manajemen</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $mergedData = $getRanapParamedis2->merge($RalanParamedis2);
-                        $sortedData = $mergedData->sortBy('no_rawat');
-                    @endphp
-
-                    @foreach ($sortedData as $item)
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped text-xs" style="white-space: nowrap;"
+                    id="tableToCopy">
+                    <thead>
                         <tr>
-                            <td>{{ $item->no_rawat }}</td>
-                            <td>{{ $item->no_sep }}</td>
-                            <td>{{ $item->no_nota }}</td>
-                            <td>{{ $item->tgl_bayar }}</td>
-                            <td>{{ $item->no_rkm_medis }}</td>
-                            <td>{{ $item->nm_pasien }}</td>
-                            <td>{{ $item->kd_jenis_prw }}</td>
-                            <td>{{ $item->nm_perawatan }}</td>
-                            <td>{{ $item->nip }}</td>
-                            <td>{{ $item->nama }}</td>
-                            <td>{{ $item->tgl_perawatan }}</td>
-                            <td>{{ $item->jam_rawat }}</td>
-                            <td>{{ $item->png_jawab }}</td>
-                            <td>{{ $item->ruang ?? $item->nm_poli }}</td>
-                            <!-- Tampilkan ruang jika ada, jika tidak, tampilkan nama poli -->
-                            <td>{{ round($item->material) }}</td>
-                            <td>{{ round($item->bhp) }}</td>
-                            <td>{{ round($item->tarif_tindakanpr) }}</td>
-                            <td>{{ round($item->kso) }}</td>
-                            <td>{{ round($item->menejemen) }}</td>
-                            <td>{{ round($item->biaya_rawat) }}</td>
-                            <td>{{ $item->status }}</td>
+                            <th>No.Rawat</th>
+                            <th>No SEP</th>
+                            <th>No Nota</th>
+                            <th>Tgl Bayar</th>
+                            <th>No.RM</th>
+                            <th>Nama Pasien</th>
+                            <th>Kd.Tindakan</th>
+                            <th>Nama Perawatan</th>
+                            <th>NIP</th>
+                            <th>Paramedis Yg Menangani</th>
+                            <th>Tanggal</th>
+                            <th>Jam</th>
+                            <th>Cara Bayar</th>
+                            <th>Ruang</th>
+                            <th>Jasa Sarana</th>
+                            <th>Paket BHP</th>
+                            <th>JM Paramedis</th>
+                            <th>KSO</th>
+                            <th>Manajemen</th>
+                            <th>Total</th>
+                            <th>Status</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @php
+                            $mergedData = $getRanapParamedis2->merge($RalanParamedis2);
+                            $sortedData = $mergedData->sortBy('no_rawat');
+                        @endphp
+
+                        @foreach ($sortedData as $item)
+                            <tr>
+                                <td>{{ $item->no_rawat }}</td>
+                                <td>{{ $item->no_sep }}</td>
+                                <td>{{ $item->no_nota }}</td>
+                                <td>{{ $item->tgl_bayar }}</td>
+                                <td>{{ $item->no_rkm_medis }}</td>
+                                <td>{{ $item->nm_pasien }}</td>
+                                <td>{{ $item->kd_jenis_prw }}</td>
+                                <td>{{ $item->nm_perawatan }}</td>
+                                <td>{{ $item->nip }}</td>
+                                <td>{{ $item->nama }}</td>
+                                <td>{{ $item->tgl_perawatan }}</td>
+                                <td>{{ $item->jam_rawat }}</td>
+                                <td>{{ $item->png_jawab }}</td>
+                                <td>{{ $item->ruang ?? $item->nm_poli }}</td>
+                                <!-- Tampilkan ruang jika ada, jika tidak, tampilkan nama poli -->
+                                <td>{{ round($item->material) }}</td>
+                                <td>{{ round($item->bhp) }}</td>
+                                <td>{{ round($item->tarif_tindakanpr) }}</td>
+                                <td>{{ round($item->kso) }}</td>
+                                <td>{{ round($item->menejemen) }}</td>
+                                <td>{{ round($item->biaya_rawat) }}</td>
+                                <td>{{ $item->status }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script>
