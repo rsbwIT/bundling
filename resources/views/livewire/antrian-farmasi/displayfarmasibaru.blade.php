@@ -176,6 +176,69 @@
             0% { transform: translateX(0%); }
             100% { transform: translateX(-100%); }
         }
+
+        /* --- Next Queue Grid --- */
+        .next-queue-container {
+            margin-top: auto; /* Push to the bottom to keep cards perfectly aligned */
+            background: #fafafa;
+            border-radius: 15px;
+            padding: 1.2rem;
+            border: 1px solid #e0e0e0;
+        }
+        .next-queue-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #546e7a;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .next-queue-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .next-queue-card {
+            background: #ffffff;
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .next-queue-no-grid {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #00796b;
+            margin-bottom: 0.2rem;
+        }
+        .next-queue-name-grid {
+            display: block;
+            font-size: 0.85rem;
+            color: #455a64;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 4px;
+        }
+        .next-queue-empty {
+            text-align: center;
+            color: #90a4ae;
+            font-size: 0.95rem;
+            font-style: italic;
+            padding: 1rem 0;
+        }
+        .next-queue-more {
+            grid-column: span 2;
+            text-align: center;
+            color: #00796b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding-top: 0.5rem;
+        }
     </style>
 
     <!-- Header -->
@@ -195,25 +258,34 @@
             @php
                 $daftar = $antrians->where('keterangan', $jenis);
                 $dipanggil = $daftar->where('status','DIPANGGIL')->first();
-                $menunggu = $daftar->where('status','MENUNGGU')->first();
+                
+                if ($dipanggil) {
+                    $utama = $dipanggil;
+                    $status_utama = 'DIPANGGIL';
+                    $selanjutnya = $daftar->where('status', 'MENUNGGU')->values();
+                } else {
+                    $utama = $daftar->where('status', 'MENUNGGU')->first();
+                    $status_utama = $utama ? 'MENUNGGU' : null;
+                    $selanjutnya = $utama ? $daftar->where('status', 'MENUNGGU')->slice(1)->values() : collect();
+                }
             @endphp
 
             <div class="loket-card">
                 <div class="loket-title">{{ strtoupper($jenis) }}</div>
 
-                @if($dipanggil)
+                @if($status_utama == 'DIPANGGIL')
                     <div class="status-dipanggil">
-                        <div class="antrian-no">{{ $dipanggil->nomor_antrian }}</div>
-                        <div class="antrian-pasien">{{ strtoupper($dipanggil->nama_pasien) }}</div>
+                        <div class="antrian-no">{{ $utama->nomor_antrian }}</div>
+                        <div class="antrian-pasien">{{ strtoupper($utama->nama_pasien) }}</div>
                     </div>
                     <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
                         📢 PANGGIL
                     </div>
 
-                @elseif($menunggu)
+                @elseif($status_utama == 'MENUNGGU')
                     <div class="status-menunggu">
-                        <div class="antrian-no">{{ $menunggu->nomor_antrian }}</div>
-                        <div class="antrian-pasien">{{ strtoupper($menunggu->nama_pasien) }}</div>
+                        <div class="antrian-no">{{ $utama->nomor_antrian }}</div>
+                        <div class="antrian-pasien">{{ strtoupper($utama->nama_pasien) }}</div>
                     </div>
                     <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
                         <span class="emoji">💊</span> Obat sedang disiapkan...
@@ -223,6 +295,31 @@
                     <div class="empty">
                         <i class="fas fa-clipboard-list"></i>
                         📭 Tidak ada antrian saat ini
+                    </div>
+                @endif
+                
+                @if($status_utama)
+                    <div class="next-queue-container">
+                        <div class="next-queue-title">Antrian Selanjutnya</div>
+                        @if($selanjutnya->count() > 0)
+                            <div class="next-queue-grid">
+                                @foreach($selanjutnya->take(4) as $next)
+                                    <div class="next-queue-card">
+                                        <span class="next-queue-no-grid">{{ $next->nomor_antrian }}</span>
+                                        <span class="next-queue-name-grid">{{ strtoupper($next->nama_pasien) }}</span>
+                                    </div>
+                                @endforeach
+                                @if($selanjutnya->count() > 4)
+                                    <div class="next-queue-more">
+                                        + {{ $selanjutnya->count() - 4 }} antrian lainnya...
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="next-queue-empty">
+                                - Belum ada antrian lain -
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
