@@ -13,7 +13,7 @@ class JMUmumController extends Controller
 
     // List Template dari Gambar (bisa ditambahkan 'id_khanza' nya nanti jika auto-match meleset)
     public $templateJM = [
-        ['kode' => 'SP1', 'nama' => 'Achmad Gozali, dr, Sp.P', 'id_khanza' => 'D0000070'],
+        ['kode' => 'SP1', 'nama' => 'Achmad Gozali, dr, Sp.P', 'id_khanza' => 'D0000138'],
         ['kode' => 'FG1', 'nama' => 'Agung Rangga Dinata', 'id_khanza' => '0518010327'],
         ['kode' => 'U1', 'nama' => 'Mohamad Farhan, dr', 'id_khanza' => 'D0000113'],
         ['kode' => 'SP2', 'nama' => 'Nindya Sari Diajeng Larasati, dr, SpJP', 'id_khanza' => 'D0000136'],
@@ -48,7 +48,7 @@ class JMUmumController extends Controller
         ['kode' => 'SP15', 'nama' => 'Ghita Widya Murti, dr, SpP', 'id_khanza' => 'D0000105'],
         ['kode' => 'SP16', 'nama' => 'Indri Widiarti, dr, Sp.PA', 'id_khanza' => 'D0000133'],
         ['kode' => 'SP17', 'nama' => 'Shintia Putri Wulandari, dr, Sp.THT', 'id_khanza' => 'D0000111'],
-        ['kode' => 'OK4', 'nama' => 'Harsono', 'id_khanza' => ''],
+        ['kode' => 'OK4', 'nama' => 'Harsono', 'id_khanza' => '0521.01.0553'],
         ['kode' => 'U25', 'nama' => 'Senja Nurhayati, dr', 'id_khanza' => 'D0000121'],
         ['kode' => 'HD1', 'nama' => 'HD Andan', 'id_khanza' => ''],
         ['kode' => 'HD2', 'nama' => 'HD Bayu', 'id_khanza' => ''],
