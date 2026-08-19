@@ -98,6 +98,7 @@ use App\Http\Controllers\AI\ChatController;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Controllers\AI\AIChat;
+use App\Http\Controllers\Gizi\GiziController;
 use App\Http\Controllers\AI\AIChatController;
 use App\Http\Controllers\PasienKamarInap\RawatInap;
 use App\Http\Controllers\PasienKamarInap\InfoKamarInap;
@@ -833,7 +834,6 @@ Route::get('/api/icd9', function() { return response()->json(DB::table('icd9')->
 // Added Belanja PDF Route
 Route::get('/belanja/cetak-pdf', [belanja::class, 'cetakPdf'])->name('belanja.cetakPdf');
 
-
 // Routes for Antrean Mobile JKN Manual Check
 Route::get('/bpjs/mjkn/antrean', [App\Http\Controllers\Bpjs\MJKNController::class, 'antreanMjknView'])->name('bpjs.mjkn.antrean');
 Route::get('/bpjs/mjkn/antrean/data', [App\Http\Controllers\Bpjs\MJKNController::class, 'antreanMjknData'])->name('bpjs.mjkn.antrean.data');
@@ -843,3 +843,14 @@ Route::post('/bpjs/mjkn/antrean/kirim', [App\Http\Controllers\Bpjs\MJKNControlle
 Route::post('/bpjs/mjkn/antrean/kirim-single', [App\Http\Controllers\Bpjs\MJKNController::class, 'kirimAntreanMjknSingle'])->name('bpjs.mjkn.antrean.kirim.single');
 
 Route::post('/bpjs/mjkn/antrean/update-task', [App\Http\Controllers\Bpjs\MJKNController::class, 'updateTask'])->name('bpjs.mjkn.antrean.updateTask');
+
+// Fallback for Livewire file upload GET requests
+Route::get('/livewire/upload-file', function () {
+    return redirect('/');
+});
+
+// Route Pelayanan Gizi / Diet Pasien
+Route::get('/gizi', [GiziController::class, 'index'])->name('gizi.index');
+Route::get('/gizi/print-label', [GiziController::class, 'printLabel'])->name('gizi.printLabel');
+
+
