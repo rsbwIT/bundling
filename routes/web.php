@@ -206,6 +206,10 @@ Route::group(['middleware' => 'default'], function () {
         // DASHBOARD UTAMA (Home diganti ke Monitoring Signal)
         Route::get('/', [App\Http\Controllers\Bpjs\MonitoringSignalController::class, 'index']);
 
+        // MONITORING SIGNAL BPJS - Log Gangguan
+        Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.monitoring.check');
+        Route::get('/bpjs/monitoring-signal/logs', [MonitoringSignalController::class, 'getLogs'])->name('bpjs.monitoring.logs');
+
         // SURAT
         Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');
         Route::get('/surat/ket-dokter', [Listnama::class, 'suratKeteranganDokter'])->name('surat.ket_dokter');
@@ -358,6 +362,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/mjkn/taskid', [App\Http\Controllers\Bpjs\TaskIDController::class, 'index'])->name('mjkn.taskid');
         Route::post('/mjkn/taskid/search', [App\Http\Controllers\Bpjs\TaskIDController::class, 'search'])->name('mjkn.taskid.search');
         Route::post('/mjkn/taskid/getlisttask', [App\Http\Controllers\Bpjs\TaskIDController::class, 'getListTask'])->name('mjkn.taskid.getlisttask');
+        Route::post('/mjkn/taskid/batal', [App\Http\Controllers\Bpjs\TaskIDController::class, 'batalAntrean'])->name('mjkn.taskid.batal');
         Route::get('/mjkn/status', [MJKNController1::class,'statusAntrean']);
 
         // FARMASI

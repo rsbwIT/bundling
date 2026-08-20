@@ -67,46 +67,83 @@
 
 
 <!-- Chart Section -->
-<div class="card mb-4 border-0 shadow-sm rounded">
-    <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+<div class="card mb-3 border-0 shadow-sm rounded">
+    <div class="card-header bg-white border-bottom-0 pt-2 pb-0 d-flex justify-content-between align-items-center">
         <h6 class="fw-bold text-secondary mb-0"><i class="fas fa-chart-line me-2"></i> Real-time Latency (Average)</h6>
+        <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="bukaModalGangguan()">
+            <i class="fas fa-history me-1"></i> Riwayat
+        </button>
     </div>
-    <div class="card-body">
-        <canvas id="latencyChart" style="height: 250px; width: 100%;"></canvas>
+    <div class="card-body py-1">
+        <canvas id="latencyChart" style="height: 150px; width: 100%;"></canvas>
     </div>
 </div>
 
 <!-- Endpoints Grid -->
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-3">
     @foreach($services as $service)
     <div class="col">
         <div class="card card-endpoint h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="bg-light p-2 rounded text-primary">
-                        <i class="{{ $service['icon'] }} fa-lg"></i>
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="bg-light p-1 rounded text-primary">
+                        <i class="{{ $service['icon'] }}"></i>
                     </div>
-                    <span class="status-badge status-loading" id="badge-{{ $service['id'] }}">
+                    <span class="status-badge status-loading" id="badge-{{ $service['id'] }}" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">
                         <span class="status-dot loading" id="dot-{{ $service['id'] }}"></span>
                         <span id="text-{{ $service['id'] }}">Checking</span>
                     </span>
                 </div>
-                <h6 class="fw-bold mb-1">{{ $service['name'] }}</h6>
-                <p class="text-muted small text-truncate mb-3" title="{{ $service['url'] }}">{{ $service['url'] }}</p>
+                <h6 class="fw-bold mb-0 text-truncate" style="font-size: 0.9rem;">{{ $service['name'] }}</h6>
+                <p class="text-muted text-truncate mb-2" style="font-size: 0.7rem;" title="{{ $service['url'] }}">{{ $service['url'] }}</p>
                 
-                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-auto">
                     <div>
-                        <small class="text-muted d-block">Response Time</small>
-                        <strong class="fs-5" id="latency-{{ $service['id'] }}">- ms</strong>
+                        <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">Response Time</small>
+                        <strong class="fs-6" id="latency-{{ $service['id'] }}">- ms</strong>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="checkSingle('{{ $service['id'] }}', '{{ $service['url'] }}')">
-                        <i class="fas fa-sync-alt" id="spin-{{ $service['id'] }}"></i>
+                    <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="checkSingle('{{ $service['id'] }}', '{{ $service['name'] }}', '{{ $service['url'] }}')">
+                        <i class="fas fa-sync-alt small" id="spin-{{ $service['id'] }}"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
     @endforeach
+</div>
+
+<!-- Modal Riwayat Gangguan (Bootstrap 4 compatible) -->
+<div class="modal fade" id="modalRiwayatGangguan" tabindex="-1" role="dialog" aria-labelledby="modalRiwayatGangguanLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalRiwayatGangguanLabel"><i class="fas fa-history mr-2"></i> Riwayat Gangguan (Downtime)</h5>
+                <button type="button" class="close text-white" onclick="tutupModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu Gangguan</th>
+                                <th>Layanan</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyRiwayatGangguan">
+                            <tr><td colspan="4" class="text-center py-4">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="tutupModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -238,7 +275,7 @@
         updateGlobalStats();
     }
 
-    async function checkSingle(id, url) {
+    async function checkSingle(id, name, url) {
         updateUI(id, 'checking', 0);
         
         try {
@@ -248,7 +285,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ id: id, name: name, url: url })
             });
             const data = await response.json();
             
@@ -264,8 +301,71 @@
 
     function checkAll() {
         services.forEach(service => {
-            checkSingle(service.id, service.url);
+            checkSingle(service.id, service.name, service.url);
         });
+    }
+
+    function bukaModalGangguan() {
+        fetchLogs();
+        // Coba Bootstrap 4 dulu, fallback ke manual
+        if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
+            $('#modalRiwayatGangguan').modal('show');
+        } else {
+            const modal = document.getElementById('modalRiwayatGangguan');
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+            // Tambahkan backdrop
+            let backdrop = document.getElementById('modal-backdrop');
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.id = 'modal-backdrop';
+                backdrop.className = 'modal-backdrop fade show';
+                document.body.appendChild(backdrop);
+            }
+        }
+    }
+
+    function tutupModal() {
+        if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
+            $('#modalRiwayatGangguan').modal('hide');
+        } else {
+            const modal = document.getElementById('modalRiwayatGangguan');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            const backdrop = document.getElementById('modal-backdrop');
+            if (backdrop) backdrop.remove();
+        }
+    }
+
+    async function fetchLogs() {
+        const tbody = document.getElementById('tbodyRiwayatGangguan');
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Memuat data...</td></tr>';
+        try {
+            const response = await fetch("{{ url('/bpjs/monitoring-signal/logs') }}");
+            const logs = await response.json();
+            
+            if(logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Belum ada catatan gangguan.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            logs.forEach((log, index) => {
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${log.waktu_gangguan}</strong></td>
+                        <td>${log.service_name} <br> <small class="text-muted">${log.url}</small></td>
+                        <td><span class="badge badge-danger">${log.keterangan}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data riwayat.</td></tr>';
+        }
     }
 
     // Initial check

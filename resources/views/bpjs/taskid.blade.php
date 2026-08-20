@@ -100,6 +100,22 @@
                   </tbody>
               </table>
           </div>
+
+          <!-- Form keterangan batal -->
+          <div class="mt-3" id="formBatalSection">
+              <label class="font-weight-bold text-danger"><i class="fas fa-ban"></i> Batal Antrean MJKN</label>
+              <div class="input-group">
+                  <input type="text" id="inputKeteranganBatal" class="form-control"
+                      placeholder="Keterangan pembatalan (wajib diisi)..."
+                      value="Batal antrian oleh petugas RS">
+                  <div class="input-group-append">
+                      <button class="btn btn-danger" id="btnBatalAntrean" onclick="konfirmasiBatal()">
+                          <i class="fas fa-ban"></i> Batalkan Antrean
+                      </button>
+                  </div>
+              </div>
+              <small class="text-muted">* Tindakan ini akan membatalkan antrean pasien di sistem BPJS MJKN.</small>
+          </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#modalTaskID').modal('hide')">Tutup</button>
@@ -109,7 +125,82 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Simpan kodebooking yang sedang dibuka di modal
+    var _currentKodeBooking = '';
+
+    function konfirmasiBatal() {
+        var keterangan = $('#inputKeteranganBatal').val().trim();
+        if (!keterangan) {
+            Swal.fire('Peringatan', 'Keterangan pembatalan wajib diisi!', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Batalkan Antrean?',
+            html: 'No. Booking: <b>' + _currentKodeBooking + '</b><br>Keterangan: <b>' + keterangan + '</b><br><br>' +
+                  '<span class="text-danger">Tindakan ini tidak dapat dibatalkan.</span>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-ban"></i> Ya, Batalkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                batalAntrean(_currentKodeBooking, keterangan);
+            }
+        });
+    }
+
+    function batalAntrean(kodebooking, keterangan) {
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Sedang membatalkan antrean ke server BPJS...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        $.ajax({
+            url: "{{ route('mjkn.taskid.batal') }}",
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                kodebooking: kodebooking,
+                keterangan: keterangan
+            },
+            success: function(res) {
+                Swal.close();
+                if (res.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: res.message || 'Antrean berhasil dibatalkan.',
+                        icon: 'success'
+                    }).then(() => {
+                        $('#modalTaskID').modal('hide');
+                        cariTaskID(); // refresh tabel
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal',
+                        html: (res.message || 'Gagal membatalkan antrean.') +
+                              '<br><small class="text-muted">Raw: ' + JSON.stringify(res.data || {}) + '</small>',
+                        icon: 'error'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.close();
+                var msg = 'Terjadi kesalahan sistem';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                Swal.fire('Error', msg, 'error');
+            }
+        });
+    }
+
     function cariTaskID() {
         let btnCari = $('#btnCari');
         let tbody = $('#tbodyTaskID');
@@ -196,8 +287,10 @@
     }
 
     function lihatTask(kodebooking, namaPasien) {
+        _currentKodeBooking = kodebooking;
         $('#modalPasienNama').text(namaPasien);
         $('#modalKodeBooking').text(kodebooking);
+        $('#inputKeteranganBatal').val('Batal antrian oleh petugas RS');
         
         let modalTbody = $('#modalTbodyTasks');
         modalTbody.html('<tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin"></i> Mengambil data dari BPJS...</td></tr>');

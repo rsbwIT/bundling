@@ -135,6 +135,27 @@
                             @endif
                         @endforeach
                     @endif
+                    @if ($batalCekin)
+                        @foreach ($batalCekin as $item)
+                            @if (is_object($item))
+                                @if ($item->code == 200)
+                                    <div class="alert alert-success alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert"
+                                            aria-hidden="true">&times;</button>
+                                        <i class="icon fas fa-check"></i> Cekin berhasil dibatalkan! (Task 99)
+                                        status : {{ $item->message }}
+                                    </div>
+                                @else
+                                    <div class="alert alert-danger alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert"
+                                            aria-hidden="true">&times;</button>
+                                        <i class="icon fas fa-ban"></i> Gagal batal cekin! {{ $item->code }}
+                                        status : {{ $item->message }}
+                                    </div>
+                                @endif
+                            @endif
+                        @endforeach
+                    @endif
                 </div>
             </div>
         </div>
@@ -229,6 +250,12 @@
                                             <button data-toggle="modal" class="dropdown-item"
                                                 wire:click="batalAntranMJKN('{{ $item->nobooking }}')"><i
                                                     class="fas fa-times"></i> Batal antrian
+                                            </button>
+                                            <div class="dropdown-divider"></div>
+                                            <button class="dropdown-item text-danger"
+                                                wire:click="batalCekin('{{ $item->nobooking }}')"
+                                                onclick="return confirm('Yakin batalkan cekin untuk {{ $item->nobooking }}?')">
+                                                <i class="fas fa-undo-alt"></i> Batal Cekin
                                             </button>
                                         </div>
                                     </div>

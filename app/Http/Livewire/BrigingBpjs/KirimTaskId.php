@@ -30,6 +30,7 @@ class KirimTaskId extends Component
         $this->tanggal1 = date('Y-m-d');
         $this->tanggal2 = date('Y-m-d');
         $this->konfirmasi_cekin = false;
+        $this->batalCekin = null;
         $this->getPasienMJKN();
     }
     public function render()
@@ -123,6 +124,24 @@ class KirimTaskId extends Component
         } catch (\Throwable $th) {
             $this->batalAntran = [];
         }
+    }
 
+    public $batalCekin;
+    public function batalCekin($nobooking)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $timestamp_sec = strtotime($this->date . ' ' . $this->time);
+        $waktu = $timestamp_sec * 1000;
+        try {
+            $jayParsedAry = [
+                "kodebooking" => $nobooking,
+                "taskid"      => 99,
+                "waktu"       => $waktu
+            ];
+            $data = json_decode($this->ReferensiBpjs->cekinBPJS(json_encode($jayParsedAry)));
+            $this->batalCekin = [$data->metadata];
+        } catch (\Throwable $th) {
+            $this->batalCekin = [];
+        }
     }
 }

@@ -172,4 +172,92 @@ class TaskIDController extends Controller
             ], 500);
         }
     }
+
+    public function batalAntrean(Request $request)
+    {
+        $kodebooking = $request->input('kodebooking');
+        $keterangan  = $request->input('keterangan', 'Batal antrian oleh petugas RS');
+
+        if (!$kodebooking) {
+            return response()->json(['success' => false, 'message' => 'Kode booking harus diisi'], 400);
+        }
+
+        try {
+            // Gunakan endpoint MJKN_RS (sama seperti MJKNController)
+            $baseUrl  = rtrim(env('MJKN_RS'), '/');
+            $username = env('X_USERNAME');
+            $password = env('X_PASSWORD');
+
+            // Ambil token
+            $authResponse = Http::timeout(30)
+                ->withHeaders([
+                    'x-username' => $username,
+                    'x-password' => $password,
+                ])
+                ->get($baseUrl . '/auth');
+
+            if (!$authResponse->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mendapatkan token MJKN'
+                ], 500);
+            }
+
+            $authJson = $authResponse->json();
+            $token    = $authJson['response']['token'] ?? $authJson['token'] ?? null;
+
+            if (!$token) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token MJKN tidak tersedia'
+                ], 500);
+            }
+
+            // Kirim batal antrean
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'x-token'    => $token,
+                    'x-username' => $username,
+                ])
+                ->post($baseUrl . '/batalantrean', [
+                    'kodebooking' => $kodebooking,
+                    'keterangan'  => $keterangan,
+                ]);
+
+            $result = $response->json();
+
+            Log::info('MJKN BATAL ANTREAN', [
+                'kodebooking' => $kodebooking,
+                'result'      => $result
+            ]);
+
+            $code = $result['metadata']['code'] ?? null;
+
+            if ($code == 200) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['metadata']['message'] ?? 'Berhasil dibatalkan',
+                    'data'    => $result
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['metadata']['message'] ?? 'Gagal membatalkan antrean (code: ' . $code . ')',
+                    'data'    => $result
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('MJKN BATAL ANTREAN ERROR', [
+                'kodebooking' => $kodebooking,
+                'message'     => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
+

@@ -543,7 +543,7 @@ body{ background:#f1f5f9; }
                 </div>
 
                 <div class="filter-group">
-                    <label>Filter Kebutuhan</label>
+                    <label>Filter Kondisi</label>
                     <div class="filter-input-wrapper">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke="#6B7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -551,6 +551,7 @@ body{ background:#f1f5f9; }
                         <select name="hanya_kebutuhan" class="form-control">
                             <option value="">Semua Barang</option>
                             <option value="1" {{ request('hanya_kebutuhan') == '1' ? 'selected' : '' }}>Hanya Ada Kebutuhan</option>
+                            <option value="ada_stok" {{ request('hanya_kebutuhan') == 'ada_stok' ? 'selected' : '' }}>Hanya Ada Stok</option>
                         </select>
                     </div>
                 </div>
@@ -799,32 +800,63 @@ body{ background:#f1f5f9; }
     document.getElementById('refreshBtn')?.addEventListener('click', () => location.reload());
     document.getElementById('exportBtn')?.addEventListener('click', () => tableBelanja.button(0).trigger());
 
-    // Toggle gudang with error feedback
-    document.querySelectorAll('.toggle-bangsal').forEach(el => {
-        el.addEventListener('change', function(){
+    // Toggle gudang with error feedback using event delegation
+    let shouldReload = false;
+    document.addEventListener('change', function(e){
+        if(e.target && e.target.classList.contains('toggle-bangsal')){
+            const checkbox = e.target;
+            const badge = checkbox.closest('td').querySelector('.badge-active, .badge-inactive, span[class*="badge-"]');
+            
+            console.log('Toggle clicked:', checkbox.dataset.kd, 'New status:', checkbox.checked);
+            if(!badge) {
+                console.error('Badge element not found for', checkbox.dataset.kd);
+            }
+
             fetch("{{ route('belanja.toggleBangsal') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
-                body: JSON.stringify({ kd_bangsal: this.dataset.kd, status: this.checked ? 1 : 0 })
+                body: JSON.stringify({ kd_bangsal: checkbox.dataset.kd, status: checkbox.checked ? 1 : 0 })
             })
-            .then(r => r.json().then(data => ({ ok: r.ok, data })))
-            .then(({ ok, data }) => {
-                if(ok && data.success){
-                    location.reload();
-                } else {
-                    if(window.Swal){
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Tidak dapat memperbarui status gudang.' });
-                    } else {
-                        alert(data.message || 'Gagal memperbarui status gudang.');
-                    }
-                    this.checked = !this.checked; // revert
+            .then(async r => {
+                const text = await r.text();
+                console.log('Server response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    return { ok: r.ok, data };
+                } catch(err) {
+                    console.error('Response was not JSON:', text);
+                    throw new Error('Invalid JSON response: ' + text.substring(0, 100));
                 }
             })
-            .catch(() => {
-                if(window.Swal){ Swal.fire({ icon: 'error', title: 'Gagal', text: 'Koneksi ke server terputus.' }); }
-                this.checked = !this.checked;
+            .then(({ ok, data }) => {
+                if(ok && data.success){
+                    shouldReload = true;
+                    if(badge) {
+                        if(checkbox.checked) {
+                            badge.className = 'badge-active ml-1';
+                            badge.innerText = 'Aktif';
+                        } else {
+                            badge.className = 'badge-inactive ml-1';
+                            badge.innerText = 'Nonaktif';
+                        }
+                    }
+                } else {
+                    alert('Gagal dari server: ' + (data.message || 'Error'));
+                    checkbox.checked = !checkbox.checked; // revert
+                }
+            })
+            .catch((err) => {
+                console.error('Fetch error:', err);
+                alert('Terjadi kesalahan koneksi/server. Cek Console (F12). Pesan: ' + err.message);
+                checkbox.checked = !checkbox.checked;
             });
-        });
+        }
+    });
+
+    $('#modalSettingGudang').on('hidden.bs.modal', function () {
+        if(shouldReload) {
+            location.reload();
+        }
     });
 })();
 

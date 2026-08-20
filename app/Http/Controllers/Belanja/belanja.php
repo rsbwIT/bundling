@@ -78,10 +78,10 @@ class Belanja extends Controller
         // Data report (di-cache per-range tanggal)
         $barang                  = $this->getBarang();
         $stok_lokasi             = $this->getStokLokasiCached();
-        $total_pengeluaran       = $this->getTotalPengeluaranCached($tanggal_awal, $tanggal_akhir);
+        $bangsal_kd_list         = $selectedBangsal->pluck('kd_bangsal')->all();
+        $total_pengeluaran       = $this->getTotalPengeluaranCached($tanggal_awal, $tanggal_akhir, $bangsal_kd_list);
         $riwayat_stok_sebelumnya = $this->getRiwayatStokCached($tanggalSebelumnya);
         $data_batch_beli_map     = $this->getDataBatchBeliCached($tanggal_awal, $tanggal_akhir, $supplierFilter);
-        $bangsal_kd_list         = $selectedBangsal->pluck('kd_bangsal')->all();
 
         // Bangun baris laporan + map stok per-bangsal dalam satu pass
         $built   = $this->buildRows(
@@ -95,9 +95,11 @@ class Belanja extends Controller
         $rows    = $built['rows'];
         $stokPerBangsalMap = $built['stok_per_bangsal'];
 
-        $hanyaKebutuhan = $request->hanya_kebutuhan == '1';
-        if ($hanyaKebutuhan) {
+        $hanyaKebutuhan = $request->hanya_kebutuhan;
+        if ($hanyaKebutuhan == '1') {
             $rows = array_filter($rows, fn($r) => $r['kebutuhan'] > 0);
+        } elseif ($hanyaKebutuhan == 'ada_stok') {
+            $rows = array_filter($rows, fn($r) => $r['stok'] > 0);
         }
 
         // Hitung ringkasan (top/low + grand total) dalam satu pass
@@ -157,10 +159,10 @@ class Belanja extends Controller
         // Data report (di-cache per-range tanggal)
         $barang                  = $this->getBarang();
         $stok_lokasi             = $this->getStokLokasiCached();
-        $total_pengeluaran       = $this->getTotalPengeluaranCached($tanggal_awal, $tanggal_akhir);
+        $bangsal_kd_list         = $selectedBangsal->pluck('kd_bangsal')->all();
+        $total_pengeluaran       = $this->getTotalPengeluaranCached($tanggal_awal, $tanggal_akhir, $bangsal_kd_list);
         $riwayat_stok_sebelumnya = $this->getRiwayatStokCached($tanggalSebelumnya);
         $data_batch_beli_map     = $this->getDataBatchBeliCached($tanggal_awal, $tanggal_akhir, $supplierFilter);
-        $bangsal_kd_list         = $selectedBangsal->pluck('kd_bangsal')->all();
 
         // Bangun baris laporan + map stok per-bangsal dalam satu pass
         $built   = $this->buildRows(
@@ -174,9 +176,11 @@ class Belanja extends Controller
         $rows    = $built['rows'];
         $stokPerBangsalMap = $built['stok_per_bangsal'];
 
-        $hanyaKebutuhan = $request->hanya_kebutuhan == '1';
-        if ($hanyaKebutuhan) {
+        $hanyaKebutuhan = $request->hanya_kebutuhan;
+        if ($hanyaKebutuhan == '1') {
             $rows = array_filter($rows, fn($r) => $r['kebutuhan'] > 0);
+        } elseif ($hanyaKebutuhan == 'ada_stok') {
+            $rows = array_filter($rows, fn($r) => $r['stok'] > 0);
         }
 
         // Hitung ringkasan (top/low + grand total) dalam satu pass
@@ -211,10 +215,16 @@ class Belanja extends Controller
             return response()->json(['success' => false, 'message' => 'kd_bangsal wajib diisi'], 422);
         }
 
-        DB::table('nonaktif_bangsal')->updateOrInsert(
-            ['kd_bangsal' => $kd],
-            ['keterangan' => $status ? self::STATUS_AKTIF : self::STATUS_NONAKTIF]
-        );
+        if ($status) {
+            DB::table('nonaktif_bangsal')
+                ->where('kd_bangsal', $kd)
+                ->delete();
+        } else {
+            DB::table('nonaktif_bangsal')->updateOrInsert(
+                ['kd_bangsal' => $kd],
+                ['keterangan' => 'nonaktif']
+            );
+        }
 
         // Invalidate cache master karena status gudang berubah
         Cache::forget('belanja.bangsal');
@@ -243,7 +253,6 @@ class Belanja extends Controller
     {
         return Cache::remember('belanja.nonaktif_bangsal', self::CACHE_TTL_MASTER, function () {
             return DB::table('nonaktif_bangsal')
-                ->where('keterangan', self::STATUS_NONAKTIF)
                 ->pluck('kd_bangsal')
                 ->toArray();
         });
@@ -281,12 +290,13 @@ class Belanja extends Controller
             ->keyBy('kode_brng');
     }
 
-    private function getTotalPengeluaranCached(string $tglAwal, string $tglAkhir): Collection
+    private function getTotalPengeluaranCached(string $tglAwal, string $tglAkhir, array $bangsalKdList): Collection
     {
-        $key = "belanja.pengeluaran.{$tglAwal}.{$tglAkhir}";
+        $bangsalKey = md5(json_encode($bangsalKdList));
+        $key = "belanja.pengeluaran.{$tglAwal}.{$tglAkhir}.{$bangsalKey}";
 
-        return Cache::remember($key, self::CACHE_TTL_REPORT, function () use ($tglAwal, $tglAkhir) {
-            $sub = DB::table(function ($q) use ($tglAwal, $tglAkhir) {
+        return Cache::remember($key, self::CACHE_TTL_REPORT, function () use ($tglAwal, $tglAkhir, $bangsalKdList) {
+            $sub = DB::table(function ($q) use ($tglAwal, $tglAkhir, $bangsalKdList) {
                 $q->select(
                     'detail_pengeluaran_obat_bhp.kode_brng',
                     DB::raw('SUM(detail_pengeluaran_obat_bhp.jumlah) as jumlah')
@@ -294,17 +304,20 @@ class Belanja extends Controller
                     ->from('pengeluaran_obat_bhp')
                     ->join('detail_pengeluaran_obat_bhp', 'detail_pengeluaran_obat_bhp.no_keluar', '=', 'pengeluaran_obat_bhp.no_keluar')
                     ->whereBetween('pengeluaran_obat_bhp.tanggal', [$tglAwal, $tglAkhir])
+                    ->whereIn('pengeluaran_obat_bhp.kd_bangsal', $bangsalKdList)
                     ->groupBy('detail_pengeluaran_obat_bhp.kode_brng')
                     ->unionAll(
                         DB::table('detail_pemberian_obat')
                             ->select('kode_brng', DB::raw('SUM(jml) as jumlah'))
                             ->whereBetween('tgl_perawatan', [$tglAwal, $tglAkhir])
+                            ->whereIn('kd_bangsal', $bangsalKdList)
                             ->groupBy('kode_brng')
                     )
                     ->unionAll(
                         DB::table('resep_pulang')
                             ->select('kode_brng', DB::raw('SUM(jml_barang) as jumlah'))
                             ->whereBetween('tanggal', [$tglAwal, $tglAkhir])
+                            ->whereIn('kd_bangsal', $bangsalKdList)
                             ->groupBy('kode_brng')
                     )
                     ->unionAll(
@@ -312,6 +325,7 @@ class Belanja extends Controller
                             ->join('detailjual', 'detailjual.nota_jual', '=', 'penjualan.nota_jual')
                             ->select('detailjual.kode_brng', DB::raw('SUM(detailjual.jumlah) as jumlah'))
                             ->whereBetween('penjualan.tgl_jual', [$tglAwal, $tglAkhir])
+                            ->whereIn('penjualan.kd_bangsal', $bangsalKdList)
                             ->groupBy('detailjual.kode_brng')
                     );
             }, 'x')
@@ -547,6 +561,8 @@ class Belanja extends Controller
             return response()->json([]);
         }
 
+        $nonaktif_bangsal = $this->getNonaktifBangsalCached();
+
         $pengeluaran = DB::table('pengeluaran_obat_bhp')
             ->join('detail_pengeluaran_obat_bhp', 'detail_pengeluaran_obat_bhp.no_keluar', '=', 'pengeluaran_obat_bhp.no_keluar')
             ->join('bangsal', 'pengeluaran_obat_bhp.kd_bangsal', '=', 'bangsal.kd_bangsal')
@@ -560,6 +576,7 @@ class Belanja extends Controller
             )
             ->whereBetween('pengeluaran_obat_bhp.tanggal', [$tglAwal, $tglAkhir])
             ->where('detail_pengeluaran_obat_bhp.kode_brng', $kode_brng)
+            ->whereNotIn('pengeluaran_obat_bhp.kd_bangsal', $nonaktif_bangsal)
             ->groupBy('pengeluaran_obat_bhp.tanggal', 'pengeluaran_obat_bhp.no_keluar', 'bangsal.nm_bangsal');
 
         $pemberian = DB::table('detail_pemberian_obat')
@@ -576,6 +593,7 @@ class Belanja extends Controller
             )
             ->whereBetween('detail_pemberian_obat.tgl_perawatan', [$tglAwal, $tglAkhir])
             ->where('detail_pemberian_obat.kode_brng', $kode_brng)
+            ->whereNotIn('detail_pemberian_obat.kd_bangsal', $nonaktif_bangsal)
             ->groupBy('detail_pemberian_obat.tgl_perawatan', 'detail_pemberian_obat.no_rawat', 'bangsal.nm_bangsal', 'pasien.nm_pasien');
 
         $resep = DB::table('resep_pulang')
@@ -592,6 +610,7 @@ class Belanja extends Controller
             )
             ->whereBetween('resep_pulang.tanggal', [$tglAwal, $tglAkhir])
             ->where('resep_pulang.kode_brng', $kode_brng)
+            ->whereNotIn('resep_pulang.kd_bangsal', $nonaktif_bangsal)
             ->groupBy('resep_pulang.tanggal', 'resep_pulang.no_rawat', 'bangsal.nm_bangsal', 'pasien.nm_pasien');
 
         $penjualan = DB::table('penjualan')
@@ -607,6 +626,7 @@ class Belanja extends Controller
             )
             ->whereBetween('penjualan.tgl_jual', [$tglAwal, $tglAkhir])
             ->where('detailjual.kode_brng', $kode_brng)
+            ->whereNotIn('penjualan.kd_bangsal', $nonaktif_bangsal)
             ->groupBy('penjualan.tgl_jual', 'penjualan.nota_jual', 'bangsal.nm_bangsal', 'penjualan.nm_pasien');
 
         $union = $pengeluaran
