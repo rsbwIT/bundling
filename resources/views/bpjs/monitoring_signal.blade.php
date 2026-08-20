@@ -61,21 +61,65 @@
         50% { opacity: 0.4; }
         100% { opacity: 1; }
     }
+    
+    /* Tambahan efek UI yang lebih modern */
+    .card-endpoint {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background-color: #ffffff;
+        overflow: hidden;
+    }
+    .card-endpoint:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    .border-online { border-bottom: 4px solid #22c55e !important; }
+    .border-offline { border-bottom: 4px solid #ef4444 !important; }
+    .border-loading { border-bottom: 4px solid #f59e0b !important; }
+
+    /* Latency Bar Visualizer */
+    .latency-bar-bg {
+        height: 4px;
+        background: #f1f5f9;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 6px;
+    }
+    .latency-bar-fill {
+        height: 100%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+        width: 0%;
+        background: #22c55e;
+    }
+
+    /* Chart Style */
+    .chart-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .chart-card .card-header {
+        background: transparent;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .chart-title { color: #475569 !important; }
 </style>
 
 <div class="bbm-container">
 
 
 <!-- Chart Section -->
-<div class="card mb-3 border-0 shadow-sm rounded">
-    <div class="card-header bg-white border-bottom-0 pt-2 pb-0 d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold text-secondary mb-0"><i class="fas fa-chart-line me-2"></i> Real-time Latency (Average)</h6>
-        <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="bukaModalGangguan()">
-            <i class="fas fa-history me-1"></i> Riwayat
+<div class="card mb-3 border-0 chart-card">
+    <div class="card-header pt-3 pb-2 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold chart-title mb-0"><i class="fas fa-chart-line me-2 text-primary"></i> Real-time Network Telemetry</h6>
+        <button class="btn btn-sm btn-outline-danger py-1 px-3" style="border-radius: 6px;" onclick="bukaModalGangguan()">
+            <i class="fas fa-history me-1"></i> Riwayat Downtime
         </button>
     </div>
-    <div class="card-body py-1">
-        <canvas id="latencyChart" style="height: 150px; width: 100%;"></canvas>
+    <div class="card-body py-2">
+        <canvas id="latencyChart" style="height: 250px; width: 100%;"></canvas>
     </div>
 </div>
 
@@ -83,26 +127,31 @@
 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-3">
     @foreach($services as $service)
     <div class="col">
-        <div class="card card-endpoint h-100">
+        <div class="card card-endpoint border-loading h-100" id="card-{{ $service['id'] }}">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="bg-light p-1 rounded text-primary">
+                    <div class="bg-light p-2 rounded text-primary shadow-sm" style="background: linear-gradient(145deg, #ffffff, #f0f0f0);">
                         <i class="{{ $service['icon'] }}"></i>
                     </div>
-                    <span class="status-badge status-loading" id="badge-{{ $service['id'] }}" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;">
+                    <span class="status-badge status-loading" id="badge-{{ $service['id'] }}" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;">
                         <span class="status-dot loading" id="dot-{{ $service['id'] }}"></span>
                         <span id="text-{{ $service['id'] }}">Checking</span>
                     </span>
                 </div>
-                <h6 class="fw-bold mb-0 text-truncate" style="font-size: 0.9rem;">{{ $service['name'] }}</h6>
-                <p class="text-muted text-truncate mb-2" style="font-size: 0.7rem;" title="{{ $service['url'] }}">{{ $service['url'] }}</p>
+                <h6 class="fw-bold mb-0 text-truncate mt-1" style="font-size: 0.95rem;">{{ $service['name'] }}</h6>
+                <p class="text-muted text-truncate mb-3" style="font-size: 0.75rem;" title="{{ $service['url'] }}">{{ $service['url'] }}</p>
                 
                 <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-auto">
-                    <div>
-                        <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">Response Time</small>
-                        <strong class="fs-6" id="latency-{{ $service['id'] }}">- ms</strong>
+                    <div class="w-100 me-3">
+                        <div class="d-flex justify-content-between align-items-end">
+                            <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">Response Time</small>
+                            <strong class="fs-6" id="latency-{{ $service['id'] }}">- ms</strong>
+                        </div>
+                        <div class="latency-bar-bg">
+                            <div class="latency-bar-fill" id="bar-{{ $service['id'] }}"></div>
+                        </div>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="checkSingle('{{ $service['id'] }}', '{{ $service['name'] }}', '{{ $service['url'] }}')">
+                    <button class="btn btn-sm btn-light text-secondary rounded-circle shadow-sm" style="width: 32px; height: 32px; padding: 0; background: #f8fafc; border: 1px solid #e2e8f0;" onclick="checkSingle('{{ $service['id'] }}', '{{ $service['name'] }}', '{{ $service['url'] }}')">
                         <i class="fas fa-sync-alt small" id="spin-{{ $service['id'] }}"></i>
                     </button>
                 </div>
@@ -160,31 +209,50 @@
 
     // Initialize Chart.js
     const ctx = document.getElementById('latencyChart').getContext('2d');
+    
+    // Warna untuk setiap service
+    const chartColors = [
+        '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', 
+        '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+    ];
+    
+    const datasets = services.map((s, index) => {
+        return {
+            label: s.name,
+            data: [],
+            borderColor: chartColors[index % chartColors.length],
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0
+        };
+    });
+
     const latencyChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: [], // Time labels
-            datasets: [{
-                label: 'Average Latency (ms)',
-                data: [],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0
-            }]
+            datasets: datasets
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, suggestedMax: 500 },
+                y: { 
+                    beginAtZero: true, 
+                    suggestedMax: 200,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    ticks: { color: '#64748b', font: { size: 10 } }
+                },
                 x: { display: false } // Hide x axis for cleaner look
             },
             animation: { duration: 500, easing: 'linear' },
             plugins: {
-                legend: { display: false }
+                legend: { 
+                    display: true, 
+                    position: 'bottom',
+                    labels: { boxWidth: 10, font: { size: 10, family: 'Inter' }, color: '#475569', padding: 12 }
+                }
             }
         }
     });
@@ -194,23 +262,41 @@
         const now = new Date().toLocaleTimeString();
         if(latencyChart.data.labels.length > 50) {
             latencyChart.data.labels.shift();
-            latencyChart.data.datasets[0].data.shift();
+            latencyChart.data.datasets.forEach(ds => ds.data.shift());
         }
         
-        // Tambahkan sedikit efek fluktuasi/jitter (+- 5ms) agar grafik tampak hidup
-        let jitter = Math.floor(Math.random() * 10) - 5;
-        let displayLatency = currentAvgLatency > 0 ? Math.max(0, currentAvgLatency + jitter) : 0;
-
         latencyChart.data.labels.push(now);
-        latencyChart.data.datasets[0].data.push(displayLatency);
+
+        services.forEach((s, index) => {
+            let lat = serviceStatus[s.id].latency;
+            let status = serviceStatus[s.id].status;
+            
+            // Tambahkan sedikit efek fluktuasi/jitter (+- 5ms) agar grafik tampak hidup
+            let jitter = Math.floor(Math.random() * 10) - 5;
+            let displayLatency = (status === 'online' && lat > 0) ? Math.max(0, lat + jitter) : 0;
+            
+            latencyChart.data.datasets[index].data.push(displayLatency);
+        });
+
         latencyChart.update('none'); // Update tanpa full animasi agar tidak berkedip
 
-        // Animasi (jitter) teks Response Time pada tiap kartu
+        // Animasi (jitter) teks Response Time & Bar pada tiap kartu
         for (const key in serviceStatus) {
-            if (serviceStatus[key].status === 'online' && serviceStatus[key].latency > 0) {
+            let s = serviceStatus[key];
+            if (s.status === 'online' && s.latency > 0) {
                 let cardJitter = Math.floor(Math.random() * 8) - 4; // Fluktuasi +-4 ms per kartu
-                let newLatency = Math.max(0, serviceStatus[key].latency + cardJitter);
+                let newLatency = Math.max(0, s.latency + cardJitter);
                 document.getElementById('latency-' + key).innerHTML = `${newLatency} <small class="text-muted fs-6">ms</small>`;
+                
+                // Animate latency bar
+                const bar = document.getElementById('bar-' + key);
+                if (bar) {
+                    let pct = Math.min(100, (newLatency / 500) * 100);
+                    bar.style.width = pct + '%';
+                    if (newLatency < 100) bar.style.background = '#22c55e'; // Green
+                    else if (newLatency < 300) bar.style.background = '#eab308'; // Yellow
+                    else bar.style.background = '#ef4444'; // Red
+                }
             }
         }
     }
@@ -246,6 +332,8 @@
     function updateUI(id, status, latency) {
         serviceStatus[id] = { status, latency };
 
+        const card = document.getElementById('card-' + id);
+        const bar = document.getElementById('bar-' + id);
         const badge = document.getElementById('badge-' + id);
         const dot = document.getElementById('dot-' + id);
         const text = document.getElementById('text-' + id);
@@ -255,21 +343,41 @@
         spin.classList.remove('fa-spin');
 
         if (status === 'online') {
+            card.className = 'card card-endpoint border-online h-100';
             badge.className = 'status-badge status-online';
             dot.className = 'status-dot online';
             text.textContent = 'Connected';
             latText.innerHTML = `${latency} <small class="text-muted fs-6">ms</small>`;
+            
+            if (bar) {
+                let pct = Math.min(100, (latency / 500) * 100);
+                bar.style.width = pct + '%';
+                if (latency < 100) bar.style.background = '#22c55e';
+                else if (latency < 300) bar.style.background = '#eab308';
+                else bar.style.background = '#ef4444';
+            }
         } else if (status === 'offline') {
+            card.className = 'card card-endpoint border-offline h-100';
             badge.className = 'status-badge status-offline';
             dot.className = 'status-dot offline';
             text.textContent = 'Disconnected';
             latText.textContent = 'Timeout';
+            
+            if (bar) {
+                bar.style.width = '100%';
+                bar.style.background = '#ef4444';
+            }
         } else {
+            card.className = 'card card-endpoint border-loading h-100';
             badge.className = 'status-badge status-loading';
             dot.className = 'status-dot loading';
             text.textContent = 'Checking';
             latText.textContent = '- ms';
             spin.classList.add('fa-spin');
+            
+            if (bar) {
+                bar.style.width = '0%';
+            }
         }
 
         updateGlobalStats();
