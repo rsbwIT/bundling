@@ -3,27 +3,10 @@
 @section('title', 'Antrian Farmasi Baru')
 
 @section('konten')
-{{-- ✅ Bootstrap & Icon --}}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+{{-- Menggunakan CSS bawaan layoutDashboard (AdminLTE/Bootstrap 4) --}}
 
 <style>
-    body {
-        background: #f4f4f4;
-        overflow-anchor: none;
-        font-family: "Poppins", sans-serif;
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #0d6efd, #0a58ca);
-        color: #fff;
-        font-weight: 600;
-        border-bottom: none;
-        padding: 1rem 1.25rem;
-        border-radius: .5rem .5rem 0 0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
-    }
-
+    /* Scoped styles only */
     .filter-section {
         background: #ffffff;
         padding: 1rem;
@@ -31,93 +14,34 @@
         margin-bottom: 1.5rem;
         box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
     }
-
-    .table thead th {
-        background: #f1f3f5;
-        color: #495057;
-        text-transform: uppercase;
-        font-size: .85rem;
-    }
-
-    /* 🔹 Tombol elastis dan lembut */
-    .btn {
-        border: none;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.2s ease-in-out;
-        padding: 0.4rem 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: .25rem;
-    }
-
-    .btn i {
-        font-size: .85rem;
-    }
-
-    .btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
-    }
-
-    .btn:active {
-        transform: scale(0.97);
-    }
-
+    
     .btn-call {
         background: linear-gradient(135deg, #198754, #157347);
         color: #fff;
     }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    .btn-call:hover {
+        background: linear-gradient(135deg, #157347, #198754);
         color: #fff;
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #dc3545, #bb2d3b);
-        color: #fff;
-    }
-
-    .btn-secondary {
-        background: linear-gradient(135deg, #6c757d, #5a6268);
-        color: #fff;
-    }
-
-    .btn-secondary:hover {
-        background: linear-gradient(135deg, #5a6268, #4e555b);
-    }
-
-    .badge {
-        font-size: .8rem;
-        border-radius: .4rem;
-        padding: .35em .6em;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-        transition: 0.2s;
     }
 </style>
 
-<div class="container-fluid px-4 py-4">
+<div class="mt-3">
 
     <!-- Header -->
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card card-primary card-outline shadow-sm mb-4">
         <div class="card-header">
-            <h5 class="mb-0">
+            <h3 class="card-title">
                 <i class="fas fa-capsules"></i> Antrian Farmasi
-            </h5>
+            </h3>
         </div>
         <div class="card-body">
 
             <!-- Filter -->
             <div class="filter-section">
-                <form method="GET" action="{{ route('farmasi.antrian') }}" class="row g-3">
-                    <div class="col-md-3">
-                        <label for="keterangan" class="form-label fw-bold">Keterangan</label>
-                        <select id="keterangan" name="keterangan" class="form-select">
+                <form method="GET" action="{{ route('farmasi.antrian') }}" class="row">
+                    <div class="col-md-3 mb-2">
+                        <label for="keterangan" class="font-weight-bold">Keterangan</label>
+                        <select id="keterangan" name="keterangan" class="form-control">
                             <option value="">-- Semua --</option>
                             @foreach($keterangans as $k)
                                 <option value="{{ $k->keterangan }}" {{ request('keterangan') == $k->keterangan ? 'selected':'' }}>
@@ -127,9 +51,9 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <label for="dokter" class="form-label fw-bold">Dokter</label>
-                        <select id="dokter" name="dokter" class="form-select">
+                    <div class="col-md-3 mb-2">
+                        <label for="dokter" class="font-weight-bold">Dokter</label>
+                        <select id="dokter" name="dokter" class="form-control">
                             <option value="">-- Semua Dokter --</option>
                             @foreach($dokters as $d)
                                 <option value="{{ $d->nm_dokter }}" {{ request('dokter')==$d->nm_dokter ? 'selected':'' }}>
@@ -139,13 +63,13 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-md-2 mb-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-search"></i> Tampilkan
                         </button>
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-md-2 mb-2 d-flex align-items-end">
                         <a href="{{ route('farmasi.antrian', ['tanggal' => $tanggal]) }}" class="btn btn-secondary w-100">
                             <i class="fas fa-sync"></i> Semua Antrian
                         </a>
@@ -170,30 +94,30 @@
                     <tbody>
                         @forelse($antrians as $a)
                         <tr id="row-{{ $a->nomor_antrian }}">
-                            <td class="fw-bold text-primary text-center">{{ $a->nomor_antrian }}</td>
+                            <td class="font-weight-bold text-primary text-center">{{ $a->nomor_antrian }}</td>
                             <td>{{ $a->nama_pasien }}</td>
                             <td>{{ $a->tanggal }}</td>
                             <td class="text-center">
                                 @if(strtoupper($a->keterangan) == 'RACIK')
-                                    <span class="badge bg-danger">RACIK</span>
+                                    <span class="badge badge-danger">RACIK</span>
                                 @elseif(strtoupper($a->keterangan) == 'NON RACIK')
-                                    <span class="badge bg-success">NON RACIK</span>
+                                    <span class="badge badge-success">NON RACIK</span>
                                 @else
-                                    <span class="badge bg-secondary">{{ $a->keterangan ?? '-' }}</span>
+                                    <span class="badge badge-secondary">{{ $a->keterangan ?? '-' }}</span>
                                 @endif
                             </td>
                             <td>{{ $a->nm_dokter }}</td>
                             <td class="text-center status-cell">
                                 @if($a->status == 'MENUNGGU')
-                                    <span class="badge bg-warning text-dark">MENUNGGU</span>
+                                    <span class="badge badge-warning">MENUNGGU</span>
                                 @elseif($a->status == 'SELESAI')
-                                    <span class="badge bg-success">SELESAI</span>
+                                    <span class="badge badge-success">SELESAI</span>
                                 @elseif($a->status == 'TIDAK ADA')
-                                    <span class="badge bg-danger">TIDAK ADA</span>
+                                    <span class="badge badge-danger">TIDAK ADA</span>
                                 @elseif($a->status == 'DIPANGGIL')
-                                    <span class="badge bg-info text-dark">PANGGIL</span>
+                                    <span class="badge badge-info">PANGGIL</span>
                                 @else
-                                    <span class="badge bg-secondary">-</span>
+                                    <span class="badge badge-secondary">-</span>
                                 @endif
                             </td>
                             <td class="text-center">
