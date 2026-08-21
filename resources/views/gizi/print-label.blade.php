@@ -116,8 +116,9 @@
 
         @media print {
             body {
-                width: 78mm;
-                padding: 1mm;
+                width: 76mm;
+                padding: 1mm 2mm 1mm 3mm; /* Tambah padding kiri agar tidak terpotong */
+                margin-left: 0;
             }
             .no-print {
                 display: none !important;
