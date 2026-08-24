@@ -35,7 +35,7 @@ class JMAsuransiController extends Controller
         ['kode' => 'U7', 'nama' => 'Sella Kintania Sari, dr', 'id_khanza' => 'D0000126'],
         ['kode' => 'OK2', 'nama' => 'Dony Marlindo, S.Kep', 'id_khanza' => '1212121'],
         ['kode' => 'SP8', 'nama' => 'Luciana Jeannette Ciptoyuwono, dr', 'id_khanza' => 'D0000132'],
-        ['kode' => 'OK3', 'nama' => 'Dwi Oktariadi', 'id_khanza' => '8994010078'],
+        ['kode' => 'OK3', 'nama' => 'Dwi Oktariadi', 'id_khanza' => '08994010078'],
         ['kode' => 'SP9', 'nama' => 'Muhammad Aljazza Asmarantaka', 'id_khanza' => 'D0000130'],
         ['kode' => 'SP10', 'nama' => 'Eddy Marudut Sitompul, dr, SpOT', 'id_khanza' => 'D0000014'],
         ['kode' => 'SP11', 'nama' => 'Muhammad Aditya, dr, Sp.P.M.Epi', 'id_khanza' => 'D0000109'],
@@ -1520,6 +1520,55 @@ class JMAsuransiController extends Controller
         })
         ->groupBy('operasi.asisten_anestesi', 'petugas.nama');
 
+        // P7. Operasi - Omloop
+        $queryPrOkOmloop = DB::table('operasi')
+        ->select(
+            'operasi.omloop as kd_petugas',
+            'petugas.nama as nm_petugas',
+            DB::raw("SUM(operasi.biaya_omloop) as total_ranap"),
+            DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
+            DB::raw("0 as jml_tindakan_hd_ralan"),
+            DB::raw("0 as jml_tindakan_hd_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('petugas', 'operasi.omloop', '=', 'petugas.nip')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->where(function ($query) use ($kdPenjamin, $tanggl1, $tanggl2) {
+            if ($kdPenjamin) {
+                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            } else {
+                $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
+                      ->where('penjab.png_jawab', 'not like', '%COB%');
+            }
+            $query->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
+                $sub->select(DB::raw(1))
+                    ->from('bayar_piutang')
+                    ->whereColumn('bayar_piutang.no_rawat', 'reg_periksa.no_rawat')
+                    ->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2]);
+            })
+            ->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('piutang_pasien')
+                    ->whereColumn('piutang_pasien.no_rawat', 'reg_periksa.no_rawat')
+                    ->where('piutang_pasien.status', 'Lunas');
+            });
+        })
+        ->where('petugas.nama', '!=', 'Dahyar')
+        ->whereNotNull('operasi.omloop')
+        ->where('operasi.omloop', '!=', '-')
+        ->where('operasi.omloop', '!=', '')
+        ->where(function ($query) use ($cariNomor) {
+            if ($cariNomor) {
+                $query->where(function ($q) use ($cariNomor) {
+                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                      ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                });
+            }
+        })
+        ->groupBy('operasi.omloop', 'petugas.nama');
+
         // Gabungkan ralan paramedis (P1 + P1b)
         $resultsPrRalan = $queryPrRalan
             ->unionAll($queryPrRalanDrPr)
@@ -1538,13 +1587,14 @@ class JMAsuransiController extends Controller
             ];
         })->values();
 
-        // Gabungkan ranap paramedis (P2 + P2b + P3 + P4 + P5 + P6)
+        // Gabungkan ranap paramedis (P2 + P2b + P3 + P4 + P5 + P6 + P7)
         $resultsPrRanap = $queryPrRanapJl
             ->unionAll($queryPrRanapJlDrPr)
             ->unionAll($queryPrRanap)
             ->unionAll($queryPrRanapDrPr)
             ->unionAll($queryPrOkAsistenOp1)
             ->unionAll($queryPrOkAsistenAnestesi)
+            ->unionAll($queryPrOkOmloop)
             ->get();
 
         $dataPrRanap = $resultsPrRanap->groupBy(function($item) {
@@ -1980,6 +2030,19 @@ class JMAsuransiController extends Controller
             ->where('operasi.asisten_anestesi', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q15);
+
+        // 16. operasi (Omloop)
+        $q16 = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+                DB::raw("operasi.biaya_omloop as tarif"),
+                DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('operasi.omloop', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q16);
 
         return view('detail-tindakan-umum.jm-asuransi-detail', [
             'details' => $details,
