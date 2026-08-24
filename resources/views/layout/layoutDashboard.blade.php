@@ -1396,6 +1396,12 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a href="{{ url('kroscek-general-consent') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Kroscek General Consent</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="{{ url('laporan-pasien') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Laporan Pasien</p>

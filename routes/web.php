@@ -124,6 +124,7 @@ use App\Http\Livewire\AntrianFarmasi\PanggilanFarmasiBaru;
 use App\Http\Livewire\AntrianFarmasi\DisplayFarmasiBaru;
 use App\Http\Controllers\Operasi\JadwalOperasi;
 use App\Http\Controllers\Regperiksa\KroscekPasien;
+use App\Http\Controllers\Regperiksa\KroscekGeneralConsent;
 use App\Http\Livewire\AntrianFarmasi\LaporanFarmasi;
 use App\Http\Livewire\InfoKamar\InfoKamarbaru;
 use App\Http\Controllers\Fisioterapi\Fisioterapi;
@@ -730,6 +731,9 @@ Route::group(['middleware' => 'default'], function () {
 
         // KROSCEK PASIEN
         Route::get('/kroscek-pasien', [KroscekPasien::class, 'index'])->name('kroscek.pasien.view');
+
+        // KROSCEK GENERAL CONSENT
+        Route::get('/kroscek-general-consent', [KroscekGeneralConsent::class, 'index'])->name('kroscek.general-consent.view');
 
         // KROSCEK PASIEN - API
         Route::prefix('kroscek-pasien')->name('kroscek.pasien.')->group(function () {
