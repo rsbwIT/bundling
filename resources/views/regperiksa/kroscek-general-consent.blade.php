@@ -111,25 +111,24 @@
             </div>
         </div>
 
-        {{-- Rincian Rawat Wajib GC --}}
+        {{-- GC Terlewat (SEP Ada tapi GC Belum) --}}
         <div class="col-md-3 col-sm-6 col-12 mb-2">
-            <div class="card stat-card border-0 shadow-sm bg-white">
-                <div class="card-body p-3">
-                    <small class="text-muted font-weight-bold">RINCIAN KELENGKAPAN GC</small>
-                    <div class="d-flex justify-content-between text-xs mt-1">
-                        <span>Ralan (Baru):</span>
-                        <span><strong class="text-success">{{ number_format($statistik->total_ralan_baru_sudah_gc) }}</strong> / {{ number_format($statistik->total_ralan_baru) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between text-xs mt-1">
-                        <span>Ranap (Semua):</span>
-                        <span><strong class="text-success">{{ number_format($statistik->total_ranap_sudah_gc) }}</strong> / {{ number_format($statistik->total_ranap) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between text-xs mt-1">
-                        <span>IGD (Baru):</span>
-                        <span><strong class="text-success">{{ number_format($statistik->total_igd_baru_sudah_gc) }}</strong> / {{ number_format($statistik->total_igd_baru) }}</span>
+            <a href="{{ url('kroscek-general-consent') }}?filter_status_gc=belum_sep_ada&tanggal={{ $tanggal }}&tanggal_mulai={{ $tanggalMulai }}&tanggal_selesai={{ $tanggalSelesai }}&filter_lanjut={{ request('filter_lanjut', 'wajib_gc') }}&filter_penjamin={{ $filterPenjamin }}" class="text-decoration-none">
+                <div class="card stat-card border-0 shadow-sm bg-white" title="Klik untuk memfilter pasien yang SEP-nya sudah dibuat tapi General Consent terlewat">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-danger font-weight-bold"><i class="fas fa-exclamation-circle mr-1"></i>TERLEWAT (SEP ADA)</small>
+                                <h3 class="mb-0 font-weight-bold text-danger">{{ number_format($statistik->total_terlewat_sep_ada) }}</h3>
+                                <small class="text-danger font-weight-bold"><i class="fas fa-user-times mr-1"></i>Petugas Pembuat Diketahui</small>
+                            </div>
+                            <div class="rounded-circle bg-light p-3 text-danger">
+                                <i class="fas fa-user-tag fa-2x text-danger"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -187,6 +186,7 @@
                             <option value="semua" {{ request('filter_status_gc', 'semua') == 'semua' ? 'selected' : '' }}>Semua Status</option>
                             <option value="sudah" {{ request('filter_status_gc') == 'sudah' ? 'selected' : '' }}>Sudah General Consent</option>
                             <option value="belum" {{ request('filter_status_gc') == 'belum' ? 'selected' : '' }}>Belum General Consent</option>
+                            <option value="belum_sep_ada" {{ request('filter_status_gc') == 'belum_sep_ada' ? 'selected' : '' }}>⚠️ Terlewat (SEP Ada, GC Belum)</option>
                         </select>
                     </div>
 
@@ -207,7 +207,7 @@
                     <div class="col-md-3 col-12 mb-2">
                         <label class="form-label small text-muted font-weight-bold">Pencarian</label>
                         <input type="text" name="search" class="form-control form-control-sm"
-                            placeholder="Cari No Rawat / RM / Pasien / Dokter..." value="{{ $searchTerm }}">
+                            placeholder="No Rawat / RM / Pasien / Dokter / SEP / Petugas..." value="{{ $searchTerm }}">
                     </div>
 
                     {{-- Per Page --}}
@@ -296,6 +296,7 @@
                             <th>Tgl & Jam Reg</th>
                             <th class="text-center">Status Rawat</th>
                             <th class="text-center">General Consent</th>
+                            <th>SEP & Pembuat SEP</th>
                             <th>No. Surat / Keterangan</th>
                         </tr>
                     </thead>
@@ -346,13 +347,39 @@
                                             <i class="fas fa-check-circle mr-1"></i> Sudah Ada
                                         </span>
                                     @elseif($item->is_wajib_gc == 'Ya')
-                                        <span class="badge badge-danger px-2 py-1">
-                                            <i class="fas fa-times-circle mr-1"></i> Belum Ada
-                                        </span>
+                                        @if($item->sep_no_sep)
+                                            <span class="badge badge-danger px-2 py-1" title="SEP Sudah Dibuat tapi GC Belum Dibuat!">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i> Terlewat (SEP Ada)
+                                            </span>
+                                        @else
+                                            <span class="badge badge-danger px-2 py-1">
+                                                <i class="fas fa-times-circle mr-1"></i> Belum Ada
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="badge badge-light border text-muted px-2 py-1" title="Ralan Pasien Lama tidak wajib General Consent per kunjungan">
                                             <i class="fas fa-minus-circle mr-1"></i> Pasien Lama (Tidak Wajib)
                                         </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($item->sep_no_sep)
+                                        <span class="badge badge-light border text-dark font-weight-bold" title="Nomor SEP BPJS">
+                                            <i class="fas fa-file-invoice text-primary mr-1"></i>{{ $item->sep_no_sep }}
+                                        </span>
+                                        @if($item->status_gc == 'Belum' && $item->is_wajib_gc == 'Ya')
+                                            <div class="mt-1">
+                                                <span class="badge badge-danger px-2 py-1" title="Petugas yang membuat SEP tetapi tidak membuat General Consent">
+                                                    <i class="fas fa-user-times mr-1"></i> Pembuat SEP: <strong>{{ $item->sep_nama_petugas ?? $item->sep_user }}</strong>
+                                                </span>
+                                            </div>
+                                        @else
+                                            <div class="mt-1 text-muted text-xs">
+                                                <i class="fas fa-user-edit text-info mr-1"></i> Pembuat SEP: <strong>{{ $item->sep_nama_petugas ?? $item->sep_user }}</strong>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span class="text-muted text-xs"><i class="fas fa-minus mr-1"></i> Belum Ada SEP</span>
                                     @endif
                                 </td>
                                 <td>
@@ -369,10 +396,11 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
+                                
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="text-center py-4 text-muted">
+                                <td colspan="13" class="text-center py-4 text-muted">
                                     <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
                                     Tidak ada data pasien yang ditemukan untuk filter ini.
                                 </td>
@@ -385,6 +413,9 @@
                             <td class="text-center">
                                 <span class="text-success">{{ $daftarPasien->where('status_gc', 'Sudah')->count() }} Sudah</span> / 
                                 <span class="text-danger">{{ $daftarPasien->where('status_gc', 'Belum')->where('is_wajib_gc', 'Ya')->count() }} Belum</span>
+                            </td>
+                            <td class="text-center text-danger">
+                                {{ $daftarPasien->where('status_gc', 'Belum')->where('is_wajib_gc', 'Ya')->whereNotNull('sep_no_sep')->count() }} Terlewat
                             </td>
                             <td></td>
                         </tr>
