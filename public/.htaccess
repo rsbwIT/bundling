@@ -1,4 +1,7 @@
 <IfModule mod_rewrite.c>
+    # Increase max input vars for large forms/AJAX requests
+    php_value max_input_vars 10000
+
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>

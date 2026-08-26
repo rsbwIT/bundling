@@ -81,6 +81,9 @@ class MonitoringSignalController extends Controller
 
     public function checkSignal(Request $request)
     {
+        // Tutup session agar request AJAX bisa berjalan paralel (tidak saling tunggu)
+        session_write_close();
+        
         $url = $request->input('url');
         
         if (!$url) {
@@ -156,6 +159,22 @@ class MonitoringSignalController extends Controller
                     'updated_at' => now(),
                 ]);
             }
+        } else {
+            // Jika online, cek apakah sebelumnya ada gangguan yang belum normal
+            $unresolvedLog = DB::table('log_monitoring_bpjs')
+                ->where('service_id', $request->input('id'))
+                ->whereNull('waktu_normal')
+                ->orderBy('waktu_gangguan', 'desc')
+                ->first();
+
+            if ($unresolvedLog) {
+                DB::table('log_monitoring_bpjs')
+                    ->where('id', $unresolvedLog->id)
+                    ->update([
+                        'waktu_normal' => now(),
+                        'updated_at' => now(),
+                    ]);
+            }
         }
 
         return response()->json([
@@ -165,13 +184,53 @@ class MonitoringSignalController extends Controller
         ]);
     }
 
-    public function getLogs()
+    public function getLogs(Request $request)
     {
-        $logs = DB::table('log_monitoring_bpjs')
-            ->orderBy('waktu_gangguan', 'desc')
-            ->limit(100)
-            ->get();
+        $query = DB::table('log_monitoring_bpjs')
+            ->orderBy('waktu_gangguan', 'desc');
+
+        if ($request->has('tanggal_awal') && $request->tanggal_awal != '') {
+            $query->whereDate('waktu_gangguan', '>=', $request->tanggal_awal);
             
-        return response()->json($logs);
+            if ($request->has('tanggal_akhir') && $request->tanggal_akhir != '') {
+                $query->whereDate('waktu_gangguan', '<=', $request->tanggal_akhir);
+            } else {
+                // Jika hanya tanggal awal yang diisi, asumsikan filter 1 hari itu saja
+                $query->whereDate('waktu_gangguan', '<=', $request->tanggal_awal);
+            }
+        } else {
+            $query->limit(100);
+        }
+            
+        return response()->json($query->get());
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $tanggal_awal = $request->input('tanggal_awal', date('Y-m-d'));
+        $tanggal_akhir = $request->input('tanggal_akhir', date('Y-m-d'));
+
+        $query = DB::table('log_monitoring_bpjs')->orderBy('waktu_gangguan', 'desc');
+
+        if ($request->filled('tanggal_awal')) {
+            $query->whereDate('waktu_gangguan', '>=', $tanggal_awal);
+            if ($request->filled('tanggal_akhir')) {
+                $query->whereDate('waktu_gangguan', '<=', $tanggal_akhir);
+            } else {
+                $query->whereDate('waktu_gangguan', '<=', $tanggal_awal);
+                $tanggal_akhir = $tanggal_awal;
+            }
+        } else {
+            $query->whereDate('waktu_gangguan', '>=', $tanggal_awal)
+                  ->whereDate('waktu_gangguan', '<=', $tanggal_akhir);
+        }
+
+        $logs = $query->get();
+        $getSetting = DB::table('setting')->first();
+
+        // Gunakan facade barryvdh dompdf
+        $pdf = \PDF::loadView('bpjs.monitoring_signal_pdf', compact('logs', 'getSetting', 'tanggal_awal', 'tanggal_akhir'));
+        
+        return $pdf->stream('Laporan_Riwayat_Gangguan_Koneksi_BPJS_' . $tanggal_awal . '.pdf');
     }
 }

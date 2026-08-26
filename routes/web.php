@@ -210,6 +210,7 @@ Route::group(['middleware' => 'default'], function () {
         // MONITORING SIGNAL BPJS - Log Gangguan
         Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.monitoring.check');
         Route::get('/bpjs/monitoring-signal/logs', [MonitoringSignalController::class, 'getLogs'])->name('bpjs.monitoring.logs');
+        Route::get('/bpjs/monitoring-signal/pdf', [MonitoringSignalController::class, 'exportPdf'])->name('bpjs.monitoring.pdf');
 
         // SURAT
         Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');
@@ -834,6 +835,9 @@ Route::get('/bpjs/monitoring-bridging', [MonitoringBridgingController::class, 'i
 // BPJS Signal Monitoring Route (Status Ping)
 Route::get('/bpjs/monitoring-signal', [MonitoringSignalController::class, 'index'])->name('bpjs.signal');
 Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.signal.check');
+Route::get('/pre-claim-validator', [App\Http\Controllers\Bpjs\PreClaimValidatorController::class, 'index'])->name('bpjs.pre_claim_validator');
+
+// -- MJKN --
 
 // API Routes for INACBG
 Route::get('/api/penyakit', function() { return response()->json(DB::table('penyakit')->select('kd_penyakit as kd', 'nm_penyakit as nm')->get()); });

@@ -210,10 +210,10 @@ document.addEventListener("DOMContentLoaded", function() {
             const row = document.getElementById(`row-${nomor}`);
             if (!row) return;
             let cell = row.querySelector(".status-cell");
-            if (status === "SELESAI") cell.innerHTML = '<span class="badge bg-success">SELESAI</span>';
-            else if (status === "TIDAK ADA") cell.innerHTML = '<span class="badge bg-danger">TIDAK ADA</span>';
-            else if (status === "DIPANGGIL") cell.innerHTML = '<span class="badge bg-info text-dark">PANGGIL</span>';
-            else cell.innerHTML = '<span class="badge bg-warning text-dark">MENUNGGU</span>';
+            if (status === "SELESAI") cell.innerHTML = '<span class="badge badge-success">SELESAI</span>';
+            else if (status === "TIDAK ADA") cell.innerHTML = '<span class="badge badge-danger">TIDAK ADA</span>';
+            else if (status === "DIPANGGIL") cell.innerHTML = '<span class="badge badge-info">PANGGIL</span>';
+            else cell.innerHTML = '<span class="badge badge-warning">MENUNGGU</span>';
         })
         .catch(err => console.error(err));
     }

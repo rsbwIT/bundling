@@ -1116,6 +1116,15 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('pre-claim-validator') }}" class="nav-link">
+                                        <i class="fas fa-clipboard-check nav-icon"></i>
+                                        <p>
+                                            Kroscek Klaim BPJS
+                                            <span class="badge badge-success right">New</span>
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="{{ url('kirim-taskid-bpjs') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>

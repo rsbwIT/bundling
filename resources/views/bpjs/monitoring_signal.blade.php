@@ -172,18 +172,38 @@
                 </button>
             </div>
             <div class="modal-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                <div class="p-3 bg-white border-bottom shadow-sm" style="position: sticky; top: 0; z-index: 10;">
+                    <form class="d-flex flex-wrap justify-content-between align-items-center w-100 m-0" onsubmit="event.preventDefault(); fetchLogs();">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <label for="filterTanggalAwal" class="mb-0 fw-bold text-secondary" style="font-size: 0.85rem; margin-right: 8px;"><i class="far fa-calendar-alt mr-1"></i> Periode:</label>
+                            <input type="date" id="filterTanggalAwal" class="form-control form-control-sm shadow-none" style="width: auto; margin-right: 5px;">
+                            <span class="text-muted" style="margin-right: 5px;">s/d</span>
+                            <input type="date" id="filterTanggalAkhir" class="form-control form-control-sm shadow-none" style="width: auto; margin-right: 10px;">
+                            <button type="submit" class="btn btn-sm btn-primary shadow-sm px-3" style="border-radius: 20px;"><i class="fas fa-search mr-1"></i> Cari</button>
+                        </div>
+                        <div class="mt-2 mt-md-0">
+                            <a href="javascript:void(0)" onclick="cetakPdf()" class="btn btn-sm btn-danger shadow-sm px-3 mr-2" style="border-radius: 20px;">
+                                <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
+                            </a>
+                            <button type="button" class="btn btn-sm btn-light border shadow-sm px-3" style="border-radius: 20px;" onclick="document.getElementById('filterTanggalAwal').value=''; document.getElementById('filterTanggalAkhir').value=''; fetchLogs();">
+                                <i class="fas fa-undo-alt mr-1"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="table-responsive" style="max-height: 50vh; overflow-y: auto;">
+                    <table class="table table-hover table-striped mb-0" style="font-size: 0.85rem;">
+                        <thead class="bg-light text-secondary" style="position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                             <tr>
-                                <th>No</th>
-                                <th>Waktu Gangguan</th>
-                                <th>Layanan</th>
-                                <th>Keterangan</th>
+                                <th class="border-top-0 py-3 text-center" width="5%">No</th>
+                                <th class="border-top-0 py-3">Waktu Gangguan</th>
+                                <th class="border-top-0 py-3">Waktu Normal</th>
+                                <th class="border-top-0 py-3">Layanan</th>
+                                <th class="border-top-0 py-3">Keterangan</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyRiwayatGangguan">
-                            <tr><td colspan="4" class="text-center py-4">Memuat data...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -257,10 +277,10 @@
         }
     });
 
-    // Simulasi chart terus berjalan setiap 2 detik layaknya EKG
-    function animateChart() {
+    // Update Chart with Real Data
+    function updateChartRealData() {
         const now = new Date().toLocaleTimeString();
-        if(latencyChart.data.labels.length > 50) {
+        if(latencyChart.data.labels.length > 20) {
             latencyChart.data.labels.shift();
             latencyChart.data.datasets.forEach(ds => ds.data.shift());
         }
@@ -271,38 +291,17 @@
             let lat = serviceStatus[s.id].latency;
             let status = serviceStatus[s.id].status;
             
-            // Tambahkan sedikit efek fluktuasi/jitter (+- 5ms) agar grafik tampak hidup
-            let jitter = Math.floor(Math.random() * 10) - 5;
-            let displayLatency = (status === 'online' && lat > 0) ? Math.max(0, lat + jitter) : 0;
+            // Gunakan latency asli (real)
+            let displayLatency = (status === 'online' && lat > 0) ? lat : 0;
             
             latencyChart.data.datasets[index].data.push(displayLatency);
         });
 
-        latencyChart.update('none'); // Update tanpa full animasi agar tidak berkedip
-
-        // Animasi (jitter) teks Response Time & Bar pada tiap kartu
-        for (const key in serviceStatus) {
-            let s = serviceStatus[key];
-            if (s.status === 'online' && s.latency > 0) {
-                let cardJitter = Math.floor(Math.random() * 8) - 4; // Fluktuasi +-4 ms per kartu
-                let newLatency = Math.max(0, s.latency + cardJitter);
-                document.getElementById('latency-' + key).innerHTML = `${newLatency} <small class="text-muted fs-6">ms</small>`;
-                
-                // Animate latency bar
-                const bar = document.getElementById('bar-' + key);
-                if (bar) {
-                    let pct = Math.min(100, (newLatency / 500) * 100);
-                    bar.style.width = pct + '%';
-                    if (newLatency < 100) bar.style.background = '#22c55e'; // Green
-                    else if (newLatency < 300) bar.style.background = '#eab308'; // Yellow
-                    else bar.style.background = '#ef4444'; // Red
-                }
-            }
-        }
+        latencyChart.update();
     }
 
-    // Jalankan animasi chart tiap 2 detik
-    setInterval(animateChart, 2000);
+    // Auto refresh ping BPJS every 10 seconds
+    setInterval(checkAll, 10000);
 
     function updateGlobalStats() {
         let connectedCount = 0;
@@ -407,13 +406,25 @@
         }
     }
 
-    function checkAll() {
-        services.forEach(service => {
-            checkSingle(service.id, service.name, service.url);
-        });
+    async function checkAll() {
+        for (let i = 0; i < services.length; i++) {
+            checkSingle(services[i].id, services[i].name, services[i].url);
+            // Jeda 500ms antar request agar Firewall BPJS tidak mengira ini serangan DDoS
+            await new Promise(r => setTimeout(r, 500));
+        }
     }
 
+    // Update grafik setiap 2 detik dengan status/latensi terakhir yang diketahui (tanpa fake jitter)
+    setInterval(updateChartRealData, 2000);
+
     function bukaModalGangguan() {
+        const filterInputAwal = document.getElementById('filterTanggalAwal');
+        if (!filterInputAwal.value) {
+            const today = new Date().toISOString().split('T')[0];
+            filterInputAwal.value = today;
+            document.getElementById('filterTanggalAkhir').value = today;
+        }
+        
         fetchLogs();
         // Coba Bootstrap 4 dulu, fallback ke manual
         if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
@@ -447,24 +458,55 @@
         }
     }
 
+    function cetakPdf() {
+        const tglAwal = document.getElementById('filterTanggalAwal').value;
+        const tglAkhir = document.getElementById('filterTanggalAkhir').value;
+        let url = "{{ url('/bpjs/monitoring-signal/pdf') }}";
+        
+        let params = new URLSearchParams();
+        if (tglAwal) params.append('tanggal_awal', tglAwal);
+        if (tglAkhir) params.append('tanggal_akhir', tglAkhir);
+        
+        if(params.toString()) {
+            url += '?' + params.toString();
+        }
+        
+        // Buka PDF di tab baru
+        window.open(url, '_blank');
+    }
+
     async function fetchLogs() {
         const tbody = document.getElementById('tbodyRiwayatGangguan');
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Memuat data...</td></tr>';
+        const filterTanggalAwal = document.getElementById('filterTanggalAwal').value;
+        const filterTanggalAkhir = document.getElementById('filterTanggalAkhir').value;
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>';
+        
         try {
-            const response = await fetch("{{ url('/bpjs/monitoring-signal/logs') }}");
+            let url = "{{ url('/bpjs/monitoring-signal/logs') }}";
+            let params = new URLSearchParams();
+            if (filterTanggalAwal) params.append('tanggal_awal', filterTanggalAwal);
+            if (filterTanggalAkhir) params.append('tanggal_akhir', filterTanggalAkhir);
+            
+            if(params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            const response = await fetch(url);
             const logs = await response.json();
             
             if(logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Belum ada catatan gangguan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Belum ada catatan gangguan.</td></tr>';
                 return;
             }
 
             let html = '';
             logs.forEach((log, index) => {
+                let waktuNormal = log.waktu_normal ? `<strong>${log.waktu_normal}</strong>` : '<span class="text-warning">Belum Normal</span>';
                 html += `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><strong>${log.waktu_gangguan}</strong></td>
+                        <td><strong class="text-danger">${log.waktu_gangguan}</strong></td>
+                        <td>${waktuNormal}</td>
                         <td>${log.service_name} <br> <small class="text-muted">${log.url}</small></td>
                         <td><span class="badge badge-danger">${log.keterangan}</span></td>
                     </tr>
@@ -472,15 +514,12 @@
             });
             tbody.innerHTML = html;
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data riwayat.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Gagal memuat data riwayat.</td></tr>';
         }
     }
 
     // Initial check
     checkAll();
-
-    // Auto refresh ping BPJS every 30 seconds
-    setInterval(checkAll, 30000);
 
 </script>
 
