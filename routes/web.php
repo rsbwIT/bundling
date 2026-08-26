@@ -216,6 +216,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
         Route::get('/chat/messages/{id}', [App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
         Route::post('/chat/messages', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
+        Route::get('/chat/poll', [App\Http\Controllers\ChatController::class, 'poll'])->name('chat.poll');
 
         // SURAT
         Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');

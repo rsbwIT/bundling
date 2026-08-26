@@ -328,51 +328,174 @@
 
     </div>
 </div>
+
+<!-- Audio element untuk suara notifikasi iPhone -->
+<audio id="chatNotificationSound" src="{{ asset('audio/iphone-notif.mp3') }}" preload="auto"></audio>
 @endsection
 
 @push('scripts')
-<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.0/dist/echo.iife.js"></script>
 <script>
-const AUTH_ID = "{{ $authId }}";
-let activeUserId = null;
-let activeUserName = null;
+// ============================================================
+//  CHAT - Polling Real-time (WhatsApp style)
+// ============================================================
+const AUTH_ID       = "{{ $authId }}";
+let activeUserId    = null;
+let activeUserName  = null;
+let unreadCounts    = {};
+let lastMessageId   = 0;
+let pollTimer       = null;
+let isPolling       = false;
 
-// ---- Search / Filter Contacts ----
+// ── Init: get latest message id so we only track NEW ones ──
+(async function initLastId() {
+    try {
+        const r = await fetch('{{ url("/chat/poll") }}?last_id=0');
+        const d = await r.json();
+        lastMessageId = d.max_id || 0;
+    } catch(e) {}
+})();
+
+// ── Notification permission ──
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// ── iPhone Messenger Sound ──
+function playNotifSound() {
+    let sound = document.getElementById("chatNotificationSound");
+    if(sound) {
+        sound.currentTime = 0; // Reset agar bisa diputar cepat berulang-ulang
+        sound.play().catch(function(error) {
+            console.log("Autoplay diblokir oleh browser: " + error);
+        });
+    }
+}
+
+// ── Browser notification ──
+function showBrowserNotif(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        const n = new Notification(title, {
+            body: body.length > 80 ? body.substring(0, 80) + '...' : body,
+            icon: '/favicon.ico',
+            tag: 'chat-notif',
+            renotify: true,
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+        setTimeout(() => n.close(), 5000);
+    }
+}
+
+// ── Sidebar badge ──
+function updateSidebarBadge() {
+    const total  = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
+    const badge  = document.getElementById('sidebarChatBadge');
+    if (!badge) return;
+    badge.textContent = total > 99 ? '99+' : total;
+    badge.style.display = total > 0 ? 'inline-flex' : 'none';
+}
+
+// ── Move contact to top of list ──
+function moveContactToTop(userId) {
+    const el   = document.querySelector(`.contact-item[data-id="${userId}"]`);
+    const list = document.getElementById('contactList');
+    if (el && list && list.firstChild !== el) list.insertBefore(el, list.firstChild);
+}
+
+// ── POLLING: check for new messages every 3s ──
+async function poll() {
+    if (isPolling) return;
+    isPolling = true;
+    try {
+        const params = new URLSearchParams({ last_id: lastMessageId });
+        if (activeUserId) params.append('active_user', activeUserId);
+
+        const r    = await fetch(`{{ url('/chat/poll') }}?${params}`);
+        const data = await r.json();
+
+        // Update lastMessageId
+        if (data.max_id > lastMessageId) lastMessageId = data.max_id;
+
+        // ── New messages in active chat ──
+        if (data.new_messages && data.new_messages.length > 0) {
+            const area = document.getElementById('chatMessagesArea');
+            data.new_messages.forEach(msg => {
+                if (msg.sender_id != AUTH_ID) {
+                    appendMessage(area, msg.message, 'incoming', msg.created_at);
+                    playNotifSound();
+                }
+            });
+            scrollToBottom();
+        }
+
+        // ── Unread from OTHER conversations ──
+        if (data.unread && data.unread.length > 0) {
+            data.unread.forEach(u => {
+                const senderId = u.sender_id;
+                const count    = parseInt(u.cnt);
+                const preview  = u.last_message;
+                const name     = document.querySelector(`.contact-item[data-id="${senderId}"]`)
+                                    ?.getAttribute('data-name') || 'Seseorang';
+
+                playNotifSound();
+                showBrowserNotif(`💬 ${name}`, preview);
+
+                unreadCounts[senderId] = (unreadCounts[senderId] || 0) + count;
+                const badge = document.getElementById(`badge-${senderId}`);
+                if (badge) {
+                    badge.style.display = 'flex';
+                    badge.textContent   = unreadCounts[senderId] > 99 ? '99+' : unreadCounts[senderId];
+                }
+
+                const prev = document.getElementById(`preview-${senderId}`);
+                if (prev) prev.textContent = preview;
+
+                moveContactToTop(senderId);
+                updateSidebarBadge();
+            });
+        }
+
+    } catch(e) { /* silent */ }
+    finally { isPolling = false; }
+}
+
+// Start polling every 3 seconds
+function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(poll, 3000);
+}
+startPolling();
+
+// ── Search/filter contacts ──
 document.getElementById('searchContact').addEventListener('input', function () {
     const q = this.value.toLowerCase();
     document.querySelectorAll('.contact-item').forEach(el => {
-        const name = el.getAttribute('data-name').toLowerCase();
-        el.style.display = name.includes(q) ? 'flex' : 'none';
+        el.style.display = el.getAttribute('data-name').toLowerCase().includes(q) ? 'flex' : 'none';
     });
 });
 
-// ---- Open Chat ----
+// ── Open chat ──
 function openChat(userId, userName) {
-    activeUserId = userId;
+    activeUserId   = userId;
     activeUserName = userName;
 
-    // UI update
     document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
     const contactEl = document.querySelector(`.contact-item[data-id="${userId}"]`);
     if (contactEl) contactEl.classList.add('active');
 
     document.getElementById('chatEmpty').style.display = 'none';
     document.getElementById('chatArea').classList.add('visible');
-
     document.getElementById('hdAvatar').textContent = userName.charAt(0).toUpperCase();
-    document.getElementById('hdName').textContent = userName;
+    document.getElementById('hdName').textContent   = userName;
     document.getElementById('hdStatus').textContent = 'Staff Rumah Sakit';
 
-    // Reset badge & preview
     const badge = document.getElementById(`badge-${userId}`);
-    if (badge) badge.style.display = 'none';
+    if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
+    if (unreadCounts[userId]) { delete unreadCounts[userId]; updateSidebarBadge(); }
 
-    // Load messages
     fetchMessages(userId);
 }
 
-// ---- Fetch Messages ----
+// ── Fetch full message history ──
 async function fetchMessages(userId) {
     const area = document.getElementById('chatMessagesArea');
     area.innerHTML = `<div style="text-align:center;padding:20px;">
@@ -380,15 +503,16 @@ async function fetchMessages(userId) {
     </div>`;
 
     try {
-        const resp = await fetch(`{{ url('/chat/messages') }}/${userId}`);
-        const messages = await resp.json();
+        const r        = await fetch(`{{ url('/chat/messages') }}/${userId}`);
+        const messages = await r.json();
         area.innerHTML = '';
+
         if (messages.length === 0) {
-            area.innerHTML = '<div style="text-align:center;color:#8696a0;font-size:0.85rem;margin-top:20px;">Belum ada pesan. Mulai percakapan!</div>';
+            area.innerHTML = '<div style="text-align:center;color:#8696a0;font-size:0.85rem;margin-top:20px;">Belum ada pesan. Mulai percakapan! 👋</div>';
         } else {
             let lastDate = null;
             messages.forEach(msg => {
-                const d = new Date(msg.created_at);
+                const d       = new Date(msg.created_at);
                 const dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
                 if (dateStr !== lastDate) {
                     const sep = document.createElement('div');
@@ -398,6 +522,7 @@ async function fetchMessages(userId) {
                     lastDate = dateStr;
                 }
                 appendMessage(area, msg.message, msg.sender_id == AUTH_ID ? 'outgoing' : 'incoming', msg.created_at);
+                if (msg.id > lastMessageId) lastMessageId = msg.id;
             });
         }
         scrollToBottom();
@@ -406,13 +531,14 @@ async function fetchMessages(userId) {
     }
 }
 
-// ---- Append Message ----
+// ── Append bubble ──
 function appendMessage(container, text, type, time) {
-    const bubble = document.createElement('div');
+    const bubble  = document.createElement('div');
     bubble.className = `msg-bubble msg-${type}`;
-    const d = new Date(time);
-    const timeStr = d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
-    bubble.innerHTML = `${escapeHtml(text)}<span class="msg-time">${timeStr}${type === 'outgoing' ? ' <i class="fas fa-check-double" style="color:#53bdeb; font-size:0.65rem;"></i>' : ''}</span>`;
+    const d       = new Date(time);
+    const timeStr = d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    bubble.innerHTML = `${escapeHtml(text)}<span class="msg-time">${timeStr}${type === 'outgoing'
+        ? ' <i class="fas fa-check-double" style="color:#53bdeb;font-size:0.65rem;"></i>' : ''}</span>`;
     container.appendChild(bubble);
 }
 
@@ -427,19 +553,21 @@ function scrollToBottom() {
     area.scrollTop = area.scrollHeight;
 }
 
-// ---- Send Message ----
+// ── Send message ──
 async function sendMessage() {
     const inputEl = document.getElementById('chatInputBox');
-    const text = inputEl.value.trim();
+    const text    = inputEl.value.trim();
     if (!text || !activeUserId) return;
 
     inputEl.value = '';
     inputEl.style.height = 'auto';
 
-    // Optimistic display
     const area = document.getElementById('chatMessagesArea');
     appendMessage(area, text, 'outgoing', new Date().toISOString());
     scrollToBottom();
+
+    const prev = document.getElementById(`preview-${activeUserId}`);
+    if (prev) prev.textContent = '✓ ' + text;
 
     const fd = new FormData();
     fd.append('receiver_id', activeUserId);
@@ -447,16 +575,17 @@ async function sendMessage() {
     fd.append('_token', '{{ csrf_token() }}');
 
     try {
-        await fetch('{{ url("/chat/messages") }}', { method: 'POST', body: fd });
-        // Update preview
-        const prev = document.getElementById(`preview-${activeUserId}`);
-        if (prev) prev.textContent = text;
-    } catch (e) {
+        const r    = await fetch('{{ url("/chat/messages") }}', {method:'POST', body:fd});
+        const data = await r.json();
+        if (data.message && data.message.id > lastMessageId) {
+            lastMessageId = data.message.id;
+        }
+    } catch(e) {
         console.error('Gagal kirim:', e);
     }
 }
 
-// ---- Auto resize textarea ----
+// ── Textarea auto-resize ──
 document.getElementById('chatInputBox').addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
@@ -467,40 +596,6 @@ function handleKeydown(e) {
         e.preventDefault();
         sendMessage();
     }
-}
-
-// ---- Pusher / Real-time ----
-try {
-    window.Pusher = Pusher;
-    window.Echo = new Echo({
-        broadcaster: 'pusher',
-        key: '{{ env("PUSHER_APP_KEY") }}',
-        cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
-        forceTLS: true,
-    });
-
-    window.Echo.private(`chat.${AUTH_ID}`)
-        .listen('MessageSent', (e) => {
-            const msg = e.message;
-            const area = document.getElementById('chatMessagesArea');
-
-            if (msg.sender_id == activeUserId) {
-                // In active chat - show immediately
-                appendMessage(area, msg.message, 'incoming', msg.created_at);
-                scrollToBottom();
-            } else {
-                // Not active chat - update preview + show badge
-                const prev = document.getElementById(`preview-${msg.sender_id}`);
-                if (prev) prev.textContent = msg.message;
-                const badge = document.getElementById(`badge-${msg.sender_id}`);
-                if (badge) {
-                    badge.style.display = 'flex';
-                    badge.textContent = parseInt(badge.textContent || 0) + 1;
-                }
-            }
-        });
-} catch(e) {
-    console.warn('Pusher tidak dikonfigurasi:', e);
 }
 </script>
 @endpush

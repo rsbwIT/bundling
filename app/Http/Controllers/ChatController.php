@@ -4,56 +4,108 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Message;
-use App\Models\User;
 use App\Events\MessageSent;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
-
     public function index()
     {
         $authId = session('auth')['id_user'] ?? 'unknown';
-        // Ambil data user dari tabel pegawai (simrs khanza) atau tabel user.
-        // Di sini saya asumsikan daftar kontak mengambil dari pegawai agar ada namanya.
-        $users = \Illuminate\Support\Facades\DB::table('pegawai')
+        $users = DB::table('pegawai')
                     ->select('nik as id', 'nama as name')
                     ->where('stts_aktif', 'AKTIF')
                     ->where('nik', '!=', $authId)
                     ->get();
-                    
+
         return view('chat.index', compact('users', 'authId'));
     }
 
     public function fetchMessages($userId)
     {
         $authId = session('auth')['id_user'] ?? 'unknown';
-        $messages = Message::where(function ($query) use ($authId, $userId) {
-            $query->where('sender_id', $authId)->where('receiver_id', $userId);
-        })->orWhere(function ($query) use ($authId, $userId) {
-            $query->where('sender_id', $userId)->where('receiver_id', $authId);
+        $messages = Message::where(function ($q) use ($authId, $userId) {
+            $q->where('sender_id', $authId)->where('receiver_id', $userId);
+        })->orWhere(function ($q) use ($authId, $userId) {
+            $q->where('sender_id', $userId)->where('receiver_id', $authId);
         })->orderBy('created_at', 'asc')->get();
 
         return response()->json($messages);
+    }
+
+    /**
+     * Polling endpoint: returns messages after a given ID for active chat,
+     * and unread counts for all other conversations.
+     */
+    public function poll(Request $request)
+    {
+        $authId      = session('auth')['id_user'] ?? 'unknown';
+        $lastId      = (int) $request->get('last_id', 0);
+        $activeUser  = $request->get('active_user', null);
+
+        // New messages in active conversation (after last_id)
+        $newMessages = [];
+        if ($activeUser) {
+            $newMessages = Message::where('id', '>', $lastId)
+                ->where(function ($q) use ($authId, $activeUser) {
+                    $q->where('sender_id', $authId)->where('receiver_id', $activeUser);
+                })->orWhere(function ($q) use ($authId, $activeUser, $lastId) {
+                    $q->where('id', '>', $lastId)
+                      ->where('sender_id', $activeUser)->where('receiver_id', $authId);
+                })->orderBy('created_at', 'asc')->get();
+        }
+
+        // Unread counts: messages sent TO me that are after last_id, grouped by sender
+        $unread = Message::select('sender_id', DB::raw('MAX(id) as max_id'), DB::raw('COUNT(*) as cnt'), DB::raw('MAX(message) as last_message'))
+            ->where('receiver_id', $authId)
+            ->where('id', '>', $lastId)
+            ->when($activeUser, fn($q) => $q->where('sender_id', '!=', $activeUser))
+            ->groupBy('sender_id')
+            ->get();
+
+        // Global max id among all new messages received
+        $maxId = Message::where('receiver_id', $authId)
+            ->where('id', '>', $lastId)
+            ->max('id') ?? $lastId;
+
+        if ($activeUser) {
+            $activeMax = Message::where(function ($q) use ($authId, $activeUser) {
+                    $q->where('sender_id', $authId)->where('receiver_id', $activeUser);
+                })->orWhere(function ($q) use ($authId, $activeUser) {
+                    $q->where('sender_id', $activeUser)->where('receiver_id', $authId);
+                })->max('id') ?? $lastId;
+            $maxId = max($maxId, $activeMax);
+        }
+
+        return response()->json([
+            'new_messages' => $newMessages,
+            'unread'       => $unread,
+            'max_id'       => $maxId,
+        ]);
     }
 
     public function sendMessage(Request $request)
     {
         $request->validate([
             'receiver_id' => 'required|string',
-            'message' => 'required|string'
+            'message'     => 'required|string',
         ]);
 
         $authId = session('auth')['id_user'] ?? 'unknown';
 
         $message = Message::create([
-            'sender_id' => $authId,
+            'sender_id'   => $authId,
             'receiver_id' => $request->receiver_id,
-            'message' => $request->message
+            'message'     => $request->message,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        // Try broadcast (non-critical, won't break chat if fails)
+        try {
+            broadcast(new MessageSent($message))->toOthers();
+        } catch (\Exception $e) {
+            // silently ignore broadcast errors
+        }
 
-        return response()->json(['status' => 'Message Sent!', 'message' => $message]);
+        return response()->json(['status' => 'ok', 'message' => $message]);
     }
 }
