@@ -212,6 +212,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/bpjs/monitoring-signal/logs', [MonitoringSignalController::class, 'getLogs'])->name('bpjs.monitoring.logs');
         Route::get('/bpjs/monitoring-signal/pdf', [MonitoringSignalController::class, 'exportPdf'])->name('bpjs.monitoring.pdf');
 
+        // CHAT
+        Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat/messages/{id}', [App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
+        Route::post('/chat/messages', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
+
         // SURAT
         Route::get('/surat/listnama', [Listnama::class, 'index'])->name('surat.listnama');
         Route::get('/surat/ket-dokter', [Listnama::class, 'suratKeteranganDokter'])->name('surat.ket_dokter');
@@ -381,10 +386,6 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/minimal-stok-obat', [MinimalStokController::class, 'MinimalStokObat']);
         Route::get('/list-pasien-farmasi2', [BundlingResepobat2::class, 'Listpasien2']);
         Route::get('/view-sep-resep2', [ViewSepResepController2::class, 'ViewSepResepController2']);
-
-        // AIChat
-        Route::get('/chat', [ChatController::class, 'index']);
-        Route::post('/chat', [ChatController::class, 'send']);
 
         // LAPORAN / KEUANGAN
         Route::get('/pembayaran-ralan', [PembayaranRalan::class, 'PembayaranRanal']);
@@ -834,7 +835,6 @@ Route::get('/bpjs/monitoring-bridging', [MonitoringBridgingController::class, 'i
 
 // BPJS Signal Monitoring Route (Status Ping)
 Route::get('/bpjs/monitoring-signal', [MonitoringSignalController::class, 'index'])->name('bpjs.signal');
-Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.signal.check');
 Route::get('/pre-claim-validator', [App\Http\Controllers\Bpjs\PreClaimValidatorController::class, 'index'])->name('bpjs.pre_claim_validator');
 
 // -- MJKN --

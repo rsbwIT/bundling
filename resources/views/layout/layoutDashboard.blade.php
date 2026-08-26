@@ -1674,6 +1674,14 @@
                         </li>
 
                         <li class="nav-header user-panel"></li>
+                        <li class="nav-header">Komunikasi</li>
+                        <li class="nav-item">
+                            <a href="{{ url('/chat') }}" class="nav-link">
+                                <i class="nav-icon fas fa-comments"></i>
+                                <p>Real-time Chat</p>
+                            </a>
+                        </li>
+                        <li class="nav-header user-panel"></li>
                         <li class="nav-header">Tools - Keperawatan</li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
