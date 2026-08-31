@@ -122,6 +122,7 @@ class CesmikController extends Controller
             $getInacbg = DB::table('berkas_digital_perawatan')
                 ->where('no_rawat', $noRawat)
                 ->where('kode', $kodeInacbg)
+                ->where('lokasi_file', 'like', '%' . $noSep . '%')
                 ->first();
 
             // 16 SEMUA BERKAS DIGITAL LAINNYA
