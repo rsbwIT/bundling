@@ -18,6 +18,7 @@
                 'SAL' => 'RUANG BERSALIN',
                 'HCU' => 'HCU',
                 'ISO' => 'RUANG ISOLASI',
+                'NICNON' => 'NICNON',
             ];
         @endphp
         <div class="row mb-2">
@@ -46,14 +47,14 @@
                     {{-- <div class="row"> --}}
                     <div class="col-4">
                         <div class="shadow p-1 card rounded-md" style="border: 1px solid">
-                            <h4>{{ $namakelas[$item->kd_kelas_bpjs] }}</h4>
+                            <h4>{{ $namakelas[$item->kd_kelas_bpjs] ?? $item->kd_kelas_bpjs }}</h4>
                             @foreach ($item->getkamar as $kamar)
                                 <div class="card m-2">
                                     <div class="row ">
                                         <div class="col-4 d-flex align-items-center justify-content-center"
                                             style="background-color: rgb(101, 194, 82)">
                                             <div class="m-0">
-                                                <span class="text-bold">{{ $namakelas[$item->kd_kelas_bpjs] }}</span>
+                                                <span class="text-bold">{{ $namakelas[$item->kd_kelas_bpjs] ?? $item->kd_kelas_bpjs }}</span>
                                             </div>
                                         </div>
                                         <div class="col-8">
