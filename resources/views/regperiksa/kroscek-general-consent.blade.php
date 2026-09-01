@@ -296,6 +296,7 @@
                             <th>Tgl & Jam Reg</th>
                             <th class="text-center">Status Rawat</th>
                             <th class="text-center">General Consent</th>
+                            <th class="text-center">Lihat Form</th>
                             <th>SEP & Pembuat SEP</th>
                             <th>No. Surat / Keterangan</th>
                         </tr>
@@ -362,6 +363,25 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td class="text-center">
+                                    @if($item->spu_no_surat)
+                                        <button type="button" class="btn btn-primary btn-xs px-2 py-1 shadow-sm btn-lihat-form"
+                                                data-url="{{ route('kroscek.general-consent.lihat-form', $item->spu_no_surat) }}"
+                                                data-title="General Consent - {{ $item->nm_pasien }} ({{ $item->no_rawat }})"
+                                                title="Lihat Formulir General Consent">
+                                            <i class="fas fa-file-signature mr-1"></i> Lihat Form
+                                        </button>
+                                    @elseif(!empty($item->bdp_file))
+                                        <button type="button" class="btn btn-info btn-xs px-2 py-1 shadow-sm btn-lihat-form"
+                                                data-url="{{ rtrim(env('URL_KHANZA', 'http://192.168.5.88'), '/') }}/webapps/berkasrawat/{{ $item->bdp_file }}"
+                                                data-title="Berkas General Consent (PDF) - {{ $item->nm_pasien }} ({{ $item->no_rawat }})"
+                                                title="Lihat Berkas General Consent PDF">
+                                            <i class="fas fa-file-pdf mr-1"></i> Lihat PDF
+                                        </button>
+                                    @else
+                                        <span class="text-muted small"><i class="fas fa-minus mr-1"></i> Belum Dibuat</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($item->sep_no_sep)
                                         <span class="badge badge-light border text-dark font-weight-bold" title="Nomor SEP BPJS">
@@ -400,7 +420,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="13" class="text-center py-4 text-muted">
+                                <td colspan="14" class="text-center py-4 text-muted">
                                     <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
                                     Tidak ada data pasien yang ditemukan untuk filter ini.
                                 </td>
@@ -413,6 +433,9 @@
                             <td class="text-center">
                                 <span class="text-success">{{ $daftarPasien->where('status_gc', 'Sudah')->count() }} Sudah</span> / 
                                 <span class="text-danger">{{ $daftarPasien->where('status_gc', 'Belum')->where('is_wajib_gc', 'Ya')->count() }} Belum</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-primary">{{ $daftarPasien->filter(fn($i) => !empty($i->spu_no_surat) || !empty($i->bdp_file))->count() }} Form</span>
                             </td>
                             <td class="text-center text-danger">
                                 {{ $daftarPasien->where('status_gc', 'Belum')->where('is_wajib_gc', 'Ya')->whereNotNull('sep_no_sep')->count() }} Terlewat
@@ -433,6 +456,42 @@
                 </div>
             </div>
         @endif
+    </div>
+</div>
+
+{{-- MODAL PREVIEW GENERAL CONSENT --}}
+<div class="modal fade" id="modalPreviewGC" tabindex="-1" role="dialog" aria-labelledby="modalPreviewGCLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 950px; height: 90vh; margin: 1.75rem auto;">
+        <div class="modal-content shadow-lg" style="height: 90vh; border-radius: 8px; overflow: hidden; border: none;">
+            <div class="modal-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                <h6 class="modal-title font-weight-bold text-dark mb-0 text-truncate mr-2" id="modalPreviewGCLabel">
+                    <i class="fas fa-file-signature text-primary mr-2"></i>
+                    <span id="modalPreviewTitle">Pratinjau General Consent</span>
+                </h6>
+                <div class="d-flex align-items-center flex-shrink-0">
+                    <a href="#" target="_blank" id="btnOpenNewTab" class="btn btn-sm btn-outline-primary mr-1" title="Buka di Tab Baru">
+                        <i class="fas fa-external-link-alt mr-1"></i> Buka di Tab Baru
+                    </a>
+                    <button type="button" id="btnPrintModal" class="btn btn-sm btn-primary mr-2" title="Cetak Formulir">
+                        <i class="fas fa-print mr-1"></i> Cetak
+                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body p-0 position-relative" style="background-color: #525659; height: calc(90vh - 56px);">
+                <div id="modalLoadingSpinner" class="d-flex justify-content-center align-items-center position-absolute w-100 h-100 bg-white" style="z-index: 10; top: 0; left: 0;">
+                    <div class="text-center text-primary">
+                        <div class="spinner-border mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="sr-only">Memuat form...</span>
+                        </div>
+                        <div class="small font-weight-bold text-dark">Memuat Formulir General Consent...</div>
+                    </div>
+                </div>
+                <iframe id="iframePreviewGC" src="" style="width: 100%; height: 100%; border: none; display: block;"></iframe>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -467,6 +526,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     dateMode.addEventListener('change', toggleDateInputs);
     toggleDateInputs();
+
+    // Modal Preview General Consent Handler
+    const modalEl = $('#modalPreviewGC');
+    const iframeEl = document.getElementById('iframePreviewGC');
+    const spinnerEl = document.getElementById('modalLoadingSpinner');
+    const modalTitleEl = document.getElementById('modalPreviewTitle');
+    const btnOpenNewTab = document.getElementById('btnOpenNewTab');
+    const btnPrintModal = document.getElementById('btnPrintModal');
+
+    document.querySelectorAll('.btn-lihat-form').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('data-url');
+            const title = this.getAttribute('data-title') || 'Pratinjau General Consent';
+
+            modalTitleEl.innerText = title;
+            btnOpenNewTab.setAttribute('href', url);
+
+            // Tampilkan spinner dan muat iframe
+            spinnerEl.style.display = 'flex';
+            iframeEl.src = url;
+
+            iframeEl.onload = function() {
+                spinnerEl.style.display = 'none';
+            };
+
+            modalEl.modal('show');
+        });
+    });
+
+    // Reset iframe saat modal ditutup
+    modalEl.on('hidden.bs.modal', function () {
+        iframeEl.src = 'about:blank';
+    });
+
+    // Print dari dalam iframe
+    if (btnPrintModal) {
+        btnPrintModal.addEventListener('click', function() {
+            try {
+                if (iframeEl && iframeEl.contentWindow) {
+                    iframeEl.contentWindow.focus();
+                    iframeEl.contentWindow.print();
+                }
+            } catch (err) {
+                // Fallback jika iframe di domain berbeda
+                window.open(btnOpenNewTab.getAttribute('href'), '_blank');
+            }
+        });
+    }
 
     // Salin Tabel ke Clipboard (Format Excel Tab-delimited)
     document.getElementById("copyButton").addEventListener("click", function() {

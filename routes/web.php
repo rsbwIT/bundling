@@ -737,6 +737,8 @@ Route::group(['middleware' => 'default'], function () {
 
         // KROSCEK GENERAL CONSENT
         Route::get('/kroscek-general-consent', [KroscekGeneralConsent::class, 'index'])->name('kroscek.general-consent.view');
+        Route::get('/kroscek-general-consent/lihat-form/{no_surat}', [KroscekGeneralConsent::class, 'lihatForm'])->name('kroscek.general-consent.lihat-form');
+        Route::get('/kroscek-general-consent/lihat-form-rawat/{no_rawat}', [KroscekGeneralConsent::class, 'lihatFormByNoRawat'])->name('kroscek.general-consent.lihat-form-rawat');
 
         // KROSCEK PASIEN - API
         Route::prefix('kroscek-pasien')->name('kroscek.pasien.')->group(function () {

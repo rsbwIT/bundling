@@ -132,6 +132,14 @@ class KroscekGeneralConsent extends Controller
                 $query->leftJoin('persetujuan_umum as pu', 'rp.no_rawat', '=', 'pu.no_rawat');
             }
 
+            // Join Berkas Digital (kode 023 = General Consent) jika ada
+            if ($gcInfo['has_bdp']) {
+                $query->leftJoin('berkas_digital_perawatan as bdp', function ($join) {
+                    $join->on('rp.no_rawat', '=', 'bdp.no_rawat')
+                        ->where('bdp.kode', '=', '023');
+                });
+            }
+
             // Join SEP jika ada
             if ($gcInfo['has_sep']) {
                 $query->leftJoin('bridging_sep as sep', 'rp.no_rawat', '=', 'sep.no_rawat');
@@ -155,14 +163,17 @@ class KroscekGeneralConsent extends Controller
             }
 
             // Kondisi General Consent
-            $gcCondition = "0";
-            if ($gcInfo['has_spu'] && $gcInfo['has_pu']) {
-                $gcCondition = "(spu.no_surat IS NOT NULL OR pu.no_rawat IS NOT NULL)";
-            } elseif ($gcInfo['has_spu']) {
-                $gcCondition = "spu.no_surat IS NOT NULL";
-            } elseif ($gcInfo['has_pu']) {
-                $gcCondition = "pu.no_rawat IS NOT NULL";
+            $gcParts = [];
+            if ($gcInfo['has_spu']) {
+                $gcParts[] = "spu.no_surat IS NOT NULL";
             }
+            if ($gcInfo['has_pu']) {
+                $gcParts[] = "pu.no_rawat IS NOT NULL";
+            }
+            if ($gcInfo['has_bdp']) {
+                $gcParts[] = "bdp.lokasi_file IS NOT NULL";
+            }
+            $gcCondition = !empty($gcParts) ? "(" . implode(" OR ", $gcParts) . ")" : "0";
 
             // Kondisi SEP
             $sepCondition = $gcInfo['has_sep'] ? "sep.no_sep IS NOT NULL" : "0";
@@ -259,6 +270,14 @@ class KroscekGeneralConsent extends Controller
                 $query->leftJoin('persetujuan_umum as pu', 'rp.no_rawat', '=', 'pu.no_rawat');
             }
 
+            // Join Berkas Digital (kode 023 = General Consent) jika ada
+            if ($gcInfo['has_bdp']) {
+                $query->leftJoin('berkas_digital_perawatan as bdp', function ($join) {
+                    $join->on('rp.no_rawat', '=', 'bdp.no_rawat')
+                        ->where('bdp.kode', '=', '023');
+                });
+            }
+
             // Join SEP & Petugas Pembuat SEP (pencarian nama pegawai/petugas/dokter)
             if ($gcInfo['has_sep']) {
                 $query->leftJoin('bridging_sep as sep', 'rp.no_rawat', '=', 'sep.no_rawat');
@@ -331,14 +350,17 @@ class KroscekGeneralConsent extends Controller
             }
 
             // Kondisi GC SQL
-            $gcCondition = "0";
-            if ($gcInfo['has_spu'] && $gcInfo['has_pu']) {
-                $gcCondition = "(spu.no_surat IS NOT NULL OR pu.no_rawat IS NOT NULL)";
-            } elseif ($gcInfo['has_spu']) {
-                $gcCondition = "spu.no_surat IS NOT NULL";
-            } elseif ($gcInfo['has_pu']) {
-                $gcCondition = "pu.no_rawat IS NOT NULL";
+            $gcParts = [];
+            if ($gcInfo['has_spu']) {
+                $gcParts[] = "spu.no_surat IS NOT NULL";
             }
+            if ($gcInfo['has_pu']) {
+                $gcParts[] = "pu.no_rawat IS NOT NULL";
+            }
+            if ($gcInfo['has_bdp']) {
+                $gcParts[] = "bdp.lokasi_file IS NOT NULL";
+            }
+            $gcCondition = !empty($gcParts) ? "(" . implode(" OR ", $gcParts) . ")" : "0";
 
             // Kondisi SEP SQL
             $sepCondition = $gcInfo['has_sep'] ? "sep.no_sep IS NOT NULL" : "0";
@@ -453,6 +475,12 @@ class KroscekGeneralConsent extends Controller
                 $selectFields[] = DB::raw("NULL as spu_no_surat");
                 $selectFields[] = DB::raw("NULL as spu_tanggal");
                 $selectFields[] = DB::raw("NULL as spu_nama_pj");
+            }
+
+            if ($gcInfo['has_bdp']) {
+                $selectFields[] = 'bdp.lokasi_file as bdp_file';
+            } else {
+                $selectFields[] = DB::raw("NULL as bdp_file");
             }
 
             if ($gcInfo['has_sep']) {
@@ -629,4 +657,107 @@ class KroscekGeneralConsent extends Controller
             );
         }
     }
+
+    /**
+     * Menampilkan view formulir persetujuan umum (General Consent)
+     */
+    public function lihatForm(Request $request, $no_surat)
+    {
+        // 1. Ambil data surat_persetujuan_umum
+        $spu = DB::table('surat_persetujuan_umum')->where('no_surat', $no_surat)->first();
+        if (!$spu) {
+            return abort(404, 'Formulir General Consent dengan Nomor Surat ' . $no_surat . ' tidak ditemukan.');
+        }
+
+        // 2. Ambil data reg_periksa & pasien lengkap
+        $pasien = DB::table('reg_periksa as rp')
+            ->join('pasien as p', 'rp.no_rkm_medis', '=', 'p.no_rkm_medis')
+            ->leftJoin('kelurahan as kel', 'p.kd_kel', '=', 'kel.kd_kel')
+            ->leftJoin('kecamatan as kec', 'p.kd_kec', '=', 'kec.kd_kec')
+            ->leftJoin('kabupaten as kab', 'p.kd_kab', '=', 'kab.kd_kab')
+            ->where('rp.no_rawat', $spu->no_rawat)
+            ->select(
+                'rp.no_rawat',
+                'rp.tgl_registrasi',
+                'rp.jam_reg',
+                'p.no_rkm_medis',
+                'p.nm_pasien',
+                'p.jk',
+                'p.umur',
+                'p.tgl_lahir',
+                'p.no_tlp',
+                'p.alamat',
+                'kel.nm_kel',
+                'kec.nm_kec',
+                'kab.nm_kab',
+                DB::raw("CONCAT(p.alamat, ', ', IFNULL(kel.nm_kel, '-'), ', ', IFNULL(kec.nm_kec, '-'), ', ', IFNULL(kab.nm_kab, '-')) as alamat_lengkap")
+            )
+            ->first();
+
+        // 3. Ambil setting instansi RS
+        $setting = DB::table('setting')->first();
+
+        // 4. Ambil tambahan teks & hak kelas
+        $tambahan = DB::table('surat_persetujuan_umum_tambahan_teks')->where('no_surat', $no_surat)->first();
+
+        // 5. Ambil pelepasan informasi medis
+        $pelepasan = DB::table('surat_persetujuan_umum_pelepasan_informasi')->where('no_surat', $no_surat)->first();
+        $pelepasan1 = ($pelepasan && !empty($pelepasan->pelepasan1)) ? $pelepasan->pelepasan1 : ($pasien->nm_pasien ?? '');
+        $pelepasan2 = ($pelepasan && !empty($pelepasan->pelepasan2)) ? $pelepasan->pelepasan2 : ($spu->nama_pj ?? '');
+
+        // 6. Ambil nama petugas admisi / pembuat surat
+        $namaPetugas = '';
+        if (!empty($spu->nip) && $spu->nip != '-') {
+            $namaPetugas = DB::table('petugas')->where('nip', $spu->nip)->value('nama');
+            if (empty($namaPetugas)) {
+                $namaPetugas = DB::table('pegawai')->where('nik', $spu->nip)->value('nama');
+            }
+        }
+
+        // 7. Ambil photo tanda tangan pembuat pernyataan
+        $photoRow = DB::table('surat_persetujuan_umum_pembuat_pernyataan')->where('no_surat', $no_surat)->first();
+        $photoUrl = null;
+        if ($photoRow && !empty($photoRow->photo)) {
+            $khanzaUrl = rtrim(env('URL_KHANZA', 'http://192.168.5.88'), '/');
+            // Photo biasanya tersimpan 'pages/upload/PSU....jpeg'
+            $photoUrl = $khanzaUrl . '/webapps/persetujuanumum/' . ltrim($photoRow->photo, '/');
+        }
+
+        return view('regperiksa.cetak-general-consent', compact(
+            'spu',
+            'pasien',
+            'setting',
+            'tambahan',
+            'pelepasan1',
+            'pelepasan2',
+            'namaPetugas',
+            'photoUrl'
+        ));
+    }
+
+    /**
+     * Helper redirect / lihat form via no_rawat
+     */
+    public function lihatFormByNoRawat(Request $request, $no_rawat)
+    {
+        // Cari no_surat di surat_persetujuan_umum
+        $spu = DB::table('surat_persetujuan_umum')->where('no_rawat', $no_rawat)->first();
+        if ($spu) {
+            return $this->lihatForm($request, $spu->no_surat);
+        }
+
+        // Jika tidak ada di spu, cek di berkas_digital_perawatan
+        $bdp = DB::table('berkas_digital_perawatan')
+            ->where('no_rawat', $no_rawat)
+            ->where('kode', '023')
+            ->first();
+
+        if ($bdp && !empty($bdp->lokasi_file)) {
+            $khanzaUrl = rtrim(env('URL_KHANZA', 'http://192.168.5.88'), '/');
+            return redirect($khanzaUrl . '/webapps/berkasrawat/' . ltrim($bdp->lokasi_file, '/'));
+        }
+
+        return abort(404, 'Formulir General Consent untuk No. Rawat ' . $no_rawat . ' belum tersedia.');
+    }
 }
+
