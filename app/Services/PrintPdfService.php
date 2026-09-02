@@ -19,7 +19,7 @@ class PrintPdfService
         $cariNoSep = $no_sep;
         $noRawat = $no_rawat;
         $cekNorawat = DB::table('reg_periksa')
-            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli')
+            ->select('reg_periksa.status_lanjut', 'pasien.nm_pasien', 'reg_periksa.no_rkm_medis', 'reg_periksa.kd_poli', 'reg_periksa.tgl_registrasi')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
@@ -52,6 +52,12 @@ class PrintPdfService
                 $getKamarInap = '';
                 
                 // Ambil data fisioterapi
+                // Cari lembar berdasarkan tanggal registrasi dan nomor RM
+                $lembarFisio = DB::table('fisioterapi_kunjungan')
+                    ->where('no_rkm_medis', $statusLanjut->no_rkm_medis)
+                    ->whereDate('tanggal', $statusLanjut->tgl_registrasi)
+                    ->value('lembar');
+
                 $dataFisio = DB::table('fisioterapi_kunjungan as fk')
                     ->join('fisioterapi_form as ff', function ($join) {
                         $join->on('fk.no_rkm_medis', '=', 'ff.no_rkm_medis')
@@ -73,7 +79,9 @@ class PrintPdfService
                         'ff.ft',
                         'ff.st'
                     )
-                    ->where('fk.no_rawat', $noRawat)
+                    ->where('fk.no_rkm_medis', $statusLanjut->no_rkm_medis)
+                    ->where('fk.lembar', $lembarFisio)
+                    ->whereDate('fk.tanggal', '<=', $statusLanjut->tgl_registrasi)
                     ->orderBy('fk.kunjungan', 'ASC')
                     ->get();
 

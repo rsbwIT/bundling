@@ -23,7 +23,7 @@ class CesmikController extends Controller
         $noSep = $request->cariNoSep;
 
         $cekNorawat = DB::table('reg_periksa')
-            ->select('status_lanjut', 'kd_poli', 'kd_dokter', 'no_rkm_medis')
+            ->select('status_lanjut', 'kd_poli', 'kd_dokter', 'no_rkm_medis', 'tgl_registrasi')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
@@ -54,8 +54,10 @@ class CesmikController extends Controller
                 $getKamarInap = '';
                 $cekPasienKmrInap = '';
                 
+                // Cari lembar berdasarkan tanggal registrasi dan nomor RM
                 $lembarFisio = DB::table('fisioterapi_kunjungan')
-                    ->where('no_rawat', $noRawat)
+                    ->where('no_rkm_medis', $statusLanjut->no_rkm_medis)
+                    ->whereDate('tanggal', $statusLanjut->tgl_registrasi)
                     ->value('lembar');
                     
                 // Ambil data fisioterapi untuk ditampilkan di web
@@ -80,7 +82,9 @@ class CesmikController extends Controller
                         'ff.ft',
                         'ff.st'
                     )
-                    ->where('fk.no_rawat', $noRawat)
+                    ->where('fk.no_rkm_medis', $statusLanjut->no_rkm_medis)
+                    ->where('fk.lembar', $lembarFisio)
+                    ->whereDate('fk.tanggal', '<=', $statusLanjut->tgl_registrasi)
                     ->orderBy('fk.kunjungan', 'ASC')
                     ->get();
 
