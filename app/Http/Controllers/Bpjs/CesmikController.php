@@ -23,7 +23,7 @@ class CesmikController extends Controller
         $noSep = $request->cariNoSep;
 
         $cekNorawat = DB::table('reg_periksa')
-            ->select('status_lanjut', 'kd_poli', 'kd_dokter')
+            ->select('status_lanjut', 'kd_poli', 'kd_dokter', 'no_rkm_medis')
             ->where('no_rawat', '=', $noRawat);
         $jumlahData = $cekNorawat->count();
         $statusLanjut = $cekNorawat->first();
@@ -37,6 +37,7 @@ class CesmikController extends Controller
         if ($jumlahData > 0) {
             // INITIAL DATA
             $resume_ralan = '';
+            $lembarFisio = null;
 
             // 1 BERKAS SEP
             $getSEP = QueryResumeDll::getSEP($noRawat, $noSep);
@@ -52,6 +53,55 @@ class CesmikController extends Controller
                 }
                 $getKamarInap = '';
                 $cekPasienKmrInap = '';
+                
+                $lembarFisio = DB::table('fisioterapi_kunjungan')
+                    ->where('no_rawat', $noRawat)
+                    ->value('lembar');
+                    
+                // Ambil data fisioterapi untuk ditampilkan di web
+                $dataFisio = DB::table('fisioterapi_kunjungan as fk')
+                    ->join('fisioterapi_form as ff', function ($join) {
+                        $join->on('fk.no_rkm_medis', '=', 'ff.no_rkm_medis')
+                             ->on('fk.lembar', '=', 'ff.lembar');
+                    })
+                    ->join('pasien as p', 'fk.no_rkm_medis', '=', 'p.no_rkm_medis')
+                    ->select(
+                        'p.nm_pasien',
+                        'fk.no_rawat',
+                        'fk.no_rkm_medis',
+                        'fk.kunjungan',
+                        'fk.program',
+                        'fk.tanggal',
+                        'fk.ttd_pasien',
+                        'fk.ttd_dokter',
+                        'fk.ttd_terapis',
+                        'fk.lembar',
+                        'ff.diagnosa',
+                        'ff.ft',
+                        'ff.st'
+                    )
+                    ->where('fk.no_rawat', $noRawat)
+                    ->orderBy('fk.kunjungan', 'ASC')
+                    ->get();
+
+                if ($dataFisio->isNotEmpty()) {
+                    $firstFisio = $dataFisio->first();
+                    $dokterPJFisio = DB::table('reg_periksa')
+                        ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+                        ->where('reg_periksa.no_rawat', $firstFisio->no_rawat)
+                        ->select('dokter.nm_dokter', 'dokter.kd_dokter')
+                        ->first();
+                    $tanggalPertamaFisio = $firstFisio->tanggal;
+                    
+                    $getFisioData = [
+                        'data' => $dataFisio,
+                        'first' => $firstFisio,
+                        'dokterPJ' => $dokterPJFisio,
+                        'tanggalPertama' => $tanggalPertamaFisio
+                    ];
+                } else {
+                    $getFisioData = null;
+                }
             } else {
                 if ($statusLanjut->status_lanjut === 'Ranap') {
                     // 4 BERKAS RESUME RANAP
@@ -165,6 +215,8 @@ class CesmikController extends Controller
             $resume_ralan = '';
             $getInacbg = '';
             $semuaBerkasDigital = [];
+            $lembarFisio = null;
+            $getFisioData = null;
         }
 
         // VIEW
@@ -189,6 +241,9 @@ class CesmikController extends Controller
             'resume_ralan' => $resume_ralan,
             'getInacbg' => $getInacbg,
             'semuaBerkasDigital' => $semuaBerkasDigital,
+            'lembarFisio' => $lembarFisio,
+            'getFisioData' => $getFisioData ?? null,
+            'getSetting' => $getSetting, // Also make sure getSetting is passed (it already is but I'll leave it as is if it's there)
         ]);
     }
 }

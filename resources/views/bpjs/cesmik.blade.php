@@ -133,6 +133,31 @@
                             @endforeach
                         @endif
                         {{--  --}}
+                        
+                        {{-- BERKAS FISIOTERAPI (PALING BAWAH) --}}
+                        @if (isset($getFisioData) && $getFisioData !== null)
+                            <div class="card-body">
+                                <div class="card py-3 p-4" style="background-color: #f4f6f9; border: none;">
+                                    <style>
+                                        .a4-container {
+                                            max-width: 210mm;
+                                            min-height: 297mm;
+                                            padding: 15mm;
+                                            margin: 0 auto;
+                                            background: white;
+                                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                                            border: 1px solid #ddd;
+                                            box-sizing: border-box;
+                                            font-family: Arial, sans-serif;
+                                            font-size: 14px;
+                                        }
+                                    </style>
+                                    <div class="a4-container">
+                                        @include('bpjs.component.print.berkas-fisioterapi')
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @else
                         <div class="card-body">
                             <div class="card p-4 d-flex justify-content-center align-items-center">

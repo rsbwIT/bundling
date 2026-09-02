@@ -91,6 +91,11 @@
                 @include('bpjs.component.print.' . $item->nama_berkas)
             @endif
         @endforeach
+
+        {{-- FISIOTERAPI (IF EXISTS) --}}
+        @if (isset($getFisioData) && $getFisioData !== null)
+            @include('bpjs.component.print.berkas-fisioterapi')
+        @endif
     @else
         <div class="card-body">
             <div class="card p-4 d-flex justify-content-center align-items-center">

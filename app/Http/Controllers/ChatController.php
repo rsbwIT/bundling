@@ -88,15 +88,35 @@ class ChatController extends Controller
     {
         $request->validate([
             'receiver_id' => 'required|string',
-            'message'     => 'required|string',
+            'message'     => 'nullable|string',
+            'attachment'  => 'nullable|file|max:10240', // 10MB max
         ]);
 
         $authId = session('auth')['id_user'] ?? 'unknown';
 
+        $attachmentPath = null;
+        $attachmentType = null;
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            if (strpos($file->getMimeType(), 'image') !== false) {
+                $attachmentType = 'image';
+            } else {
+                $attachmentType = 'document';
+            }
+            $attachmentPath = $file->store('chat_attachments', 'public');
+        }
+
+        if (empty($request->message) && !$attachmentPath) {
+            return response()->json(['error' => 'Pesan atau lampiran tidak boleh kosong'], 400);
+        }
+
         $message = Message::create([
-            'sender_id'   => $authId,
-            'receiver_id' => $request->receiver_id,
-            'message'     => $request->message,
+            'sender_id'       => $authId,
+            'receiver_id'     => $request->receiver_id,
+            'message'         => $request->message,
+            'attachment_path' => $attachmentPath,
+            'attachment_type' => $attachmentType,
         ]);
 
         // Try broadcast (non-critical, won't break chat if fails)
