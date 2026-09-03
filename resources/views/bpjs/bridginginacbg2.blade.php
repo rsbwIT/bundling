@@ -516,15 +516,24 @@ textarea:focus{
                     <tr>
                         <td class="label">Diagnosa</td>
                         <td>
-                            <textarea name="diagnosa" rows="3">{{ $diagnosa }}</textarea>
+                            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                                <textarea name="diagnosa" rows="3" style="flex: 1;">{{ $diagnosa }}</textarea>
+                                <button type="button" class="btn-eklaim btn-dark" data-toggle="modal" data-target="#modalEditDiagnosa" onclick="$('#modalEditDiagnosa .nav-tabs a[href=\'#tabDiagnosa\']').tab('show')" style="white-space: nowrap;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="label">Prosedur</td>
                         <td>
-                            <textarea name="procedure" rows="3">{{ $procedure }}</textarea>
-                        </td>
+                            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                                <textarea name="procedure" rows="3" style="flex: 1;">{{ $procedure }}</textarea>
+                                <button type="button" class="btn-eklaim btn-dark" data-toggle="modal" data-target="#modalEditDiagnosa" onclick="$('#modalEditDiagnosa .nav-tabs a[href=\'#tabProsedur\']').tab('show')" style="white-space: nowrap;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </div>
                     </tr>
 
                     <tr>
@@ -568,10 +577,12 @@ textarea:focus{
 
                 <div class="btn-area d-flex flex-wrap" style="gap: 10px;">
 
-                    <!-- Tombol Edit Diagnosa -->
-                    <button type="button" class="btn-eklaim btn-dark" data-toggle="modal" data-target="#modalEditDiagnosa">
-                        <i class="fas fa-edit"></i> Edit Diagnosa
+                    <!-- Tombol Lihat Resume -->
+                    @if($resume)
+                    <button type="button" class="btn-eklaim btn-info" data-toggle="modal" data-target="#modalLihatResume" style="color:white;">
+                        <i class="fas fa-file-medical"></i> Lihat Resume
                     </button>
+                    @endif
 
                     <!-- Tombol Simpan -->
                     <button type="submit" class="btn-eklaim btn-success">
@@ -596,6 +607,263 @@ textarea:focus{
         </div>
     </div>
 </div>
+
+<!-- MODAL LIHAT RESUME -->
+@if($resume)
+<div class="modal fade" id="modalLihatResume" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-medical"></i> Resume Medis Pasien
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; background: #fff; color: #000; font-family: Arial, sans-serif; font-size: 11px;">
+                
+                <!-- KOP SURAT -->
+                <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; position: relative;">
+                    <!-- Logo -->
+                    <div style="position: absolute; left: 10px; top: 0;">
+                        @if(isset($getSetting) && $getSetting->logo)
+                            <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="70" height="70">
+                        @else
+                            <i class="fas fa-hospital-alt fa-3x" style="color: #28a745;"></i>
+                        @endif
+                    </div>
+                    <h4 style="margin: 0; font-weight: bold; font-size: 16px;">{{ $getSetting->nama_instansi ?? 'RS. BUMI WARAS' }}</h4>
+                    <p style="margin: 0; font-size: 11px;">{{ $getSetting->alamat_instansi ?? 'Jln. Wolter Monginsidi No. 235' }}, {{ $getSetting->kabupaten ?? 'Bandar Lampung' }}, {{ $getSetting->propinsi ?? 'Lampung' }}</p>
+                    <p style="margin: 0; font-size: 11px;">{{ $getSetting->kontak ?? '(0721) 254589' }}</p>
+                    <p style="margin: 0; font-size: 11px;">E-mail : {{ $getSetting->email ?? 'www.rsbumiwaras.co.id' }}</p>
+                </div>
+
+                <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 15px;">RESUME MEDIS PASIEN</div>
+                <hr style="border-top: 1px solid #000; margin: 5px 0;">
+
+                <!-- DATA PASIEN -->
+                <table style="width: 100%; font-size: 11px; margin-bottom: 10px;">
+                    <tr>
+                        <td width="15%">Nama Pasien</td><td width="2%">:</td><td width="33%">{{ $pasien->nm_pasien }}</td>
+                        <td width="15%">No. Rekam Medis</td><td width="2%">:</td><td width="33%">{{ $pasien->no_rkm_medis }}</td>
+                    </tr>
+                    <tr>
+                        <td>Umur</td><td>:</td><td>{{ $pasien->umurdaftar ?? '-' }} {{ $pasien->sttsumur ?? '-' }}</td>
+                        <td>Ruang</td><td>:</td><td>{{ $pasien->status_lanjut == 'Ranap' ? ($pasien->kelas ?? '-') : ($pasien->nm_poli ?? '-') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tgl Lahir</td><td>:</td><td>{{ date('d-m-Y', strtotime($pasien->tgl_lahir)) }}</td>
+                        <td>Jenis Kelamin</td><td>:</td><td>{{ $pasien->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pekerjaan</td><td>:</td><td>{{ $pasien->pekerjaan ?? '-' }}</td>
+                        <td>Tanggal Masuk</td><td>:</td><td>{{ date('d-m-Y', strtotime($pasien->tgl_registrasi)) }}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;">Alamat</td><td style="vertical-align: top;">:</td><td style="vertical-align: top;">{{ $pasien->alamat ?? '-' }}</td>
+                        <td style="vertical-align: top;">Tanggal Keluar</td><td style="vertical-align: top;">:</td><td style="vertical-align: top;">{{ $pasien->tgl_keluar ? date('d-m-Y', strtotime($pasien->tgl_keluar)) : date('d-m-Y') }}</td>
+                    </tr>
+                </table>
+                <hr style="border-top: 1px solid #000; margin: 5px 0 15px 0;">
+
+                <!-- CLINICAL INFO -->
+                <div style="margin-bottom: 10px;">
+                    <div>Keluhan utama dari riwayat penyakit yang positif :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_keluhan_utama">{!! nl2br(e($resume->keluhan_utama ?? '-')) !!}</div>
+                </div>
+
+                @if(isset($resume->pemeriksaan_fisik))
+                <div style="margin-bottom: 10px;">
+                    <div>Pemeriksaan Fisik :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_pemeriksaan_fisik">{!! nl2br(e($resume->pemeriksaan_fisik ?? '-')) !!}</div>
+                </div>
+                @endif
+
+                <div style="margin-bottom: 10px;">
+                    <div>Jalannya penyakit selama perawatan :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_jalannya_penyakit">{!! nl2br(e($resume->jalannya_penyakit ?? '-')) !!}</div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <div>Pemeriksaan penunjang yang positif :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_pemeriksaan_penunjang">{!! nl2br(e($resume->pemeriksaan_penunjang ?? '-')) !!}</div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <div>Hasil laboratorium yang positif :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_hasil_laborat">{!! nl2br(e($resume->hasil_laborat ?? '-')) !!}</div>
+                </div>
+
+                @if(isset($resume->tindakan_dan_operasi))
+                <div style="margin-bottom: 10px;">
+                    <div>Tindakan dan operasi :</div>
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_tindakan_dan_operasi">{!! nl2br(e($resume->tindakan_dan_operasi ?? '-')) !!}</div>
+                </div>
+                @endif
+
+                <!-- DIAGNOSA & PROSEDUR -->
+                <table style="width: 100%; font-size: 11px; margin-top: 20px;">
+                    <tr>
+                        <td colspan="2" style="width: 85%;">Diagnosa Akhir :</td>
+                        <td style="width: 15%; text-align: center;">Kode ICD</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 25%; padding-left: 10px;">- Diagnosa Utama</td>
+                        <td style="width: 60%;"><span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_diagnosa_utama">{{ $resume->diagnosa_utama ?? '' }}</span></td>
+                        <td style="width: 15%; white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_diagnosa_utama">{{ $resume->kd_diagnosa_utama ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 10px;">- Diagnosa Sekunder</td>
+                        <td>1. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_diagnosa_sekunder">{{ $resume->diagnosa_sekunder ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_diagnosa_sekunder">{{ $resume->kd_diagnosa_sekunder ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>2. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_diagnosa_sekunder2">{{ $resume->diagnosa_sekunder2 ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_diagnosa_sekunder2">{{ $resume->kd_diagnosa_sekunder2 ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>3. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_diagnosa_sekunder3">{{ $resume->diagnosa_sekunder3 ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_diagnosa_sekunder3">{{ $resume->kd_diagnosa_sekunder3 ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>4. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_diagnosa_sekunder4">{{ $resume->diagnosa_sekunder4 ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_diagnosa_sekunder4">{{ $resume->kd_diagnosa_sekunder4 ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 10px; padding-top: 10px;">- Prosedur/Tindakan Utama</td>
+                        <td style="padding-top: 10px;"><span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_prosedur_utama">{{ $resume->prosedur_utama ?? '' }}</span></td>
+                        <td style="padding-top: 10px; white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_prosedur_utama">{{ $resume->kd_prosedur_utama ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 10px;">- Prosedur/Tindakan Sekunder</td>
+                        <td>1. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_prosedur_sekunder">{{ $resume->prosedur_sekunder ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_prosedur_sekunder">{{ $resume->kd_prosedur_sekunder ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>2. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_prosedur_sekunder2">{{ $resume->prosedur_sekunder2 ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_prosedur_sekunder2">{{ $resume->kd_prosedur_sekunder2 ?? '' }}</span> )</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>3. <span style="display:inline-block; border-bottom: 1px dotted #ccc; outline: none; min-width: 90%;" contenteditable="true" id="edit_prosedur_sekunder3">{{ $resume->prosedur_sekunder3 ?? '' }}</span></td>
+                        <td style="white-space: nowrap;">( <span style="display: inline-block; width: 45px; text-align: center; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_kd_prosedur_sekunder3">{{ $resume->kd_prosedur_sekunder3 ?? '' }}</span> )</td>
+                    </tr>
+                </table>
+
+                <!-- OTHERS -->
+                <div style="margin-top: 15px;">
+                    Kondisi pasien pulang : {{ $resume->kondisi_pulang ?? '-' }}
+                </div>
+                <div style="margin-top: 5px;">
+                    Obat-obatan waktu pulang/nasihat :
+                    <div style="padding-left: 15px; border-bottom: 1px dotted #ccc; outline: none;" contenteditable="true" id="edit_obat_pulang">{!! nl2br(e($resume->obat_pulang ?? '-')) !!}</div>
+                </div>
+
+                <!-- TTD -->
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                    <div style="text-align: center; width: 250px;">
+                        <div>Dokter Penanggung Jawab</div>
+                        <!-- Barcode QR Code -->
+                        <div style="height: 65px; margin: 5px 0;">
+                            @if(isset($getSetting) && isset($pasien))
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $pasien->nm_dokter . ' ID ' . $pasien->kd_dokter . ' ' . date('Y-m-d'), 'QRCODE') }}"
+                                    alt="barcode" width="60px" height="60px" />
+                            @else
+                                <i class="fas fa-qrcode fa-3x" style="opacity: 0.2;"></i>
+                            @endif
+                        </div>
+                        <div style="text-decoration: underline;">{{ $pasien->nm_dokter ?? 'Nama Dokter' }}</div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="simpanResume()">
+                    <i class="fas fa-save"></i> Simpan Resume
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function simpanResume() {
+    var btn = event.currentTarget;
+    var originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+    btn.disabled = true;
+
+    var data = {
+        _token: '{{ csrf_token() }}',
+        no_rawat: '{{ $pasien->no_rawat }}',
+        keluhan_utama: document.getElementById('edit_keluhan_utama') ? document.getElementById('edit_keluhan_utama').innerText.trim() : '',
+        jalannya_penyakit: document.getElementById('edit_jalannya_penyakit') ? document.getElementById('edit_jalannya_penyakit').innerText.trim() : '',
+        pemeriksaan_penunjang: document.getElementById('edit_pemeriksaan_penunjang') ? document.getElementById('edit_pemeriksaan_penunjang').innerText.trim() : '',
+        hasil_laborat: document.getElementById('edit_hasil_laborat') ? document.getElementById('edit_hasil_laborat').innerText.trim() : '',
+        obat_pulang: document.getElementById('edit_obat_pulang') ? document.getElementById('edit_obat_pulang').innerText.trim() : '',
+        
+        diagnosa_utama: document.getElementById('edit_diagnosa_utama') ? document.getElementById('edit_diagnosa_utama').innerText.trim() : '',
+        kd_diagnosa_utama: document.getElementById('edit_kd_diagnosa_utama') ? document.getElementById('edit_kd_diagnosa_utama').innerText.trim() : '',
+        diagnosa_sekunder: document.getElementById('edit_diagnosa_sekunder') ? document.getElementById('edit_diagnosa_sekunder').innerText.trim() : '',
+        kd_diagnosa_sekunder: document.getElementById('edit_kd_diagnosa_sekunder') ? document.getElementById('edit_kd_diagnosa_sekunder').innerText.trim() : '',
+        diagnosa_sekunder2: document.getElementById('edit_diagnosa_sekunder2') ? document.getElementById('edit_diagnosa_sekunder2').innerText.trim() : '',
+        kd_diagnosa_sekunder2: document.getElementById('edit_kd_diagnosa_sekunder2') ? document.getElementById('edit_kd_diagnosa_sekunder2').innerText.trim() : '',
+        diagnosa_sekunder3: document.getElementById('edit_diagnosa_sekunder3') ? document.getElementById('edit_diagnosa_sekunder3').innerText.trim() : '',
+        kd_diagnosa_sekunder3: document.getElementById('edit_kd_diagnosa_sekunder3') ? document.getElementById('edit_kd_diagnosa_sekunder3').innerText.trim() : '',
+        diagnosa_sekunder4: document.getElementById('edit_diagnosa_sekunder4') ? document.getElementById('edit_diagnosa_sekunder4').innerText.trim() : '',
+        kd_diagnosa_sekunder4: document.getElementById('edit_kd_diagnosa_sekunder4') ? document.getElementById('edit_kd_diagnosa_sekunder4').innerText.trim() : '',
+        
+        prosedur_utama: document.getElementById('edit_prosedur_utama') ? document.getElementById('edit_prosedur_utama').innerText.trim() : '',
+        kd_prosedur_utama: document.getElementById('edit_kd_prosedur_utama') ? document.getElementById('edit_kd_prosedur_utama').innerText.trim() : '',
+        prosedur_sekunder: document.getElementById('edit_prosedur_sekunder') ? document.getElementById('edit_prosedur_sekunder').innerText.trim() : '',
+        kd_prosedur_sekunder: document.getElementById('edit_kd_prosedur_sekunder') ? document.getElementById('edit_kd_prosedur_sekunder').innerText.trim() : '',
+        prosedur_sekunder2: document.getElementById('edit_prosedur_sekunder2') ? document.getElementById('edit_prosedur_sekunder2').innerText.trim() : '',
+        kd_prosedur_sekunder2: document.getElementById('edit_kd_prosedur_sekunder2') ? document.getElementById('edit_kd_prosedur_sekunder2').innerText.trim() : '',
+        prosedur_sekunder3: document.getElementById('edit_prosedur_sekunder3') ? document.getElementById('edit_prosedur_sekunder3').innerText.trim() : '',
+        kd_prosedur_sekunder3: document.getElementById('edit_kd_prosedur_sekunder3') ? document.getElementById('edit_kd_prosedur_sekunder3').innerText.trim() : ''
+    };
+
+    if (document.getElementById('edit_pemeriksaan_fisik')) {
+        data.pemeriksaan_fisik = document.getElementById('edit_pemeriksaan_fisik').innerText.trim();
+    }
+    if (document.getElementById('edit_tindakan_dan_operasi')) {
+        data.tindakan_dan_operasi = document.getElementById('edit_tindakan_dan_operasi').innerText.trim();
+    }
+
+    $.ajax({
+        url: '{{ route("inacbg.updateResumeData") }}',
+        type: 'POST',
+        data: data,
+        success: function(response) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            if(response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: response.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire('Gagal', response.message, 'error');
+            }
+        },
+        error: function(xhr) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            Swal.fire('Error', 'Terjadi kesalahan sistem', 'error');
+        }
+    });
+}
+</script>
+@endif
 
 <div class="modal fade" id="modalEditDiagnosa" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -735,8 +1003,19 @@ textarea:focus{
         if(e.target.classList.contains('pilih')) {
             let container = e.target.closest('.tab-pane');
             let input = container.querySelector('textarea');
-            let checked = container.querySelectorAll('.pilih:checked');
-            input.value = Array.from(checked).map(c => c.value).filter(Boolean).join('#');
+            
+            let val = e.target.value;
+            let currentSelected = input.value ? input.value.split('#').filter(Boolean) : [];
+            
+            if (e.target.checked) {
+                if (!currentSelected.includes(val)) {
+                    currentSelected.push(val);
+                }
+            } else {
+                currentSelected = currentSelected.filter(item => item !== val);
+            }
+            
+            input.value = currentSelected.join('#');
         }
     });
 

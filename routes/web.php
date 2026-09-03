@@ -305,6 +305,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/bpjs/inacbg/update-diagnosa', [App\Http\Controllers\bpjs\bridginginacbg2::class, 'updateDiagnosa'])
             ->name('inacbg.updateDiagnosa');
 
+        Route::post('/bpjs/inacbg/update-resume', [App\Http\Controllers\bpjs\bridginginacbg2::class, 'updateResumeData'])
+            ->name('inacbg.updateResumeData');
+
         Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('bpjs.updateDiagnosa');
 

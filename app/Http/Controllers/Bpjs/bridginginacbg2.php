@@ -221,6 +221,8 @@ class bridginginacbg2 extends Controller
                 'pasien.tgl_lahir',
                 'pasien.no_peserta',
                 'pasien.no_ktp',
+                'pasien.alamat',
+                'pasien.pekerjaan',
                 'poliklinik.nm_poli',
                 'penjab.png_jawab',
                 'kamar.kelas',
@@ -293,7 +295,6 @@ class bridginginacbg2 extends Controller
         $diagnosainacbg = DB::table('diagnosa_pasien')
             ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
             ->where('diagnosa_pasien.no_rawat', $norawat)
-            ->where('penyakit.im', '0')
             ->orderBy('diagnosa_pasien.prioritas')
             ->pluck('diagnosa_pasien.kd_penyakit')
             ->implode('#');
@@ -301,7 +302,6 @@ class bridginginacbg2 extends Controller
         $procedureinacbg = DB::table('prosedur_pasien')
             ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
             ->where('prosedur_pasien.no_rawat', $norawat)
-            ->where('icd9.im', '0')
             ->orderBy('prosedur_pasien.prioritas')
             ->get()
             ->map(function ($item) {
@@ -422,6 +422,15 @@ class bridginginacbg2 extends Controller
             ->whereIn('status', ['Harian', 'Service'])
             ->sum('totalbiaya');
 
+        $resume = null;
+        if ($pasien->status_lanjut == 'Ranap') {
+            $resume = DB::table('resume_pasien_ranap')->where('no_rawat', $norawat)->first();
+        } else {
+            $resume = DB::table('resume_pasien')->where('no_rawat', $norawat)->first();
+        }
+
+        $getSetting = DB::table('setting')->first();
+
         return view('bpjs.bridginginacbg2', compact(
             'pasien',
             'nosep',
@@ -450,7 +459,9 @@ class bridginginacbg2 extends Controller
             'coder',
             'status_kirim',
             'diagnosainacbg',
-            'procedureinacbg'
+            'procedureinacbg',
+            'resume',
+            'getSetting'
         ));
     }
 
@@ -483,6 +494,70 @@ class bridginginacbg2 extends Controller
             if (!$pasien) {
                 throw new Exception('Pasien tidak ditemukan');
             }
+
+            // --- PROSES UPDATE DIAGNOSA DARI FORM ---
+            $arrDiag = [];
+            if ($request->filled('diagnosa')) {
+                DB::table('diagnosa_pasien')->where('no_rawat', $norawat)->delete();
+                $items = explode('#', $request->diagnosa);
+                $prioritas = 1;
+                foreach ($items as $diag) {
+                    $diag = trim($diag);
+                    if ($diag === '' || !DB::table('penyakit')->where('kd_penyakit', $diag)->exists()) continue;
+                    DB::table('diagnosa_pasien')->insert([
+                        'no_rawat'    => $norawat,
+                        'kd_penyakit' => $diag,
+                        'status'      => 'R',
+                        'prioritas'   => $prioritas++
+                    ]);
+                    $arrDiag[] = $diag;
+                }
+            }
+
+            // --- PROSES UPDATE PROSEDUR DARI FORM ---
+            $arrProc = [];
+            DB::table('prosedur_pasien')->where('no_rawat', $norawat)->delete();
+            if ($request->filled('procedure')) {
+                $procs = explode('#', $request->procedure);
+                foreach ($procs as $proc) {
+                    $proc = trim($proc);
+                    // Jika ada format jumlah (misal 39.95+2) ambil kodenya saja untuk dicek
+                    $procCode = $proc;
+                    if (str_contains($proc, '+')) {
+                        $parts = explode('+', $proc);
+                        $procCode = trim($parts[0]);
+                    }
+                    if ($procCode === '' || !DB::table('icd9')->where('kode', $procCode)->exists()) continue;
+                    
+                    DB::table('prosedur_pasien')->insert([
+                        'no_rawat' => $norawat,
+                        'kode'     => $procCode
+                    ]);
+                    $arrProc[] = $procCode;
+                }
+            }
+
+            $this->updateResumePasien($norawat, $arrDiag, $arrProc);
+
+            // --- RE-CALCULATE DIAGNOSA INACBG & PROCEDURE INACBG ---
+            $newDiagnosainacbg = DB::table('diagnosa_pasien')
+                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+                ->where('diagnosa_pasien.no_rawat', $norawat)
+                ->orderBy('diagnosa_pasien.prioritas')
+                ->pluck('diagnosa_pasien.kd_penyakit')
+                ->implode('#');
+
+            $newProcedureinacbg = DB::table('prosedur_pasien')
+                ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
+                ->where('prosedur_pasien.no_rawat', $norawat)
+                ->orderBy('prosedur_pasien.prioritas')
+                ->get()
+                ->map(function ($item) {
+                    return $item->jumlah > 1
+                        ? $item->kode . '+' . $item->jumlah
+                        : $item->kode;
+                })
+                ->implode('#');
 
             //  1. NEW CLAIM
 
@@ -649,10 +724,10 @@ class bridginginacbg2 extends Controller
                     "nomor_sep" => $request->nosep,
 
                     // override diagnosa INACBG
-                    "diagnosa" => $request->diagnosainacbg,
+                    "diagnosa" => $newDiagnosainacbg,
 
                     // override prosedur INACBG
-                    "procedure" => $request->procedureinacbg ?? ""
+                    "procedure" => $newProcedureinacbg ?? ""
                 ]
             ];
 
@@ -672,7 +747,7 @@ class bridginginacbg2 extends Controller
             // OVERRIDE PROCEDURE INACBG
             $this->setProcedureInacbg(
                 $request->nosep,
-                $request->procedureinacbg
+                $newProcedureinacbg
             );
 
             $resInacbg1 = $this->requestInacbg($grouperInacbg1);
@@ -1086,6 +1161,7 @@ class bridginginacbg2 extends Controller
         DB::beginTransaction();
 
         try {
+            $arrDiag = [];
             // --- PROSES DIAGNOSA ---
             // Selalu hapus dulu semua diagnosa lama
             DB::table('diagnosa_pasien')->where('no_rawat', $request->no_rawat)->delete();
@@ -1104,9 +1180,11 @@ class bridginginacbg2 extends Controller
                         'status'      => 'R',
                         'prioritas'   => $prioritas++
                     ]);
+                    $arrDiag[] = $diag;
                 }
             }
 
+            $arrProc = [];
             // --- PROSES PROSEDUR ---
             DB::table('prosedur_pasien')->where('no_rawat', $request->no_rawat)->delete();
 
@@ -1121,8 +1199,11 @@ class bridginginacbg2 extends Controller
                         'no_rawat' => $request->no_rawat,
                         'kode'     => $proc
                     ]);
+                    $arrProc[] = $proc;
                 }
             }
+
+            $this->updateResumePasien($request->no_rawat, $arrDiag, $arrProc);
 
             DB::commit();
             return back()->with('success', 'Data diagnosa dan prosedur berhasil diperbarui.');
@@ -1130,6 +1211,100 @@ class bridginginacbg2 extends Controller
             DB::rollBack();
             Log::error('UPDATE DIAGNOSA/PROSEDUR ERROR: ' . $e->getMessage());
             return back()->with('error', 'Gagal update: ' . $e->getMessage());
+        }
+    }
+    
+    private function updateResumePasien($no_rawat, $diagnosaCodes, $prosedurCodes)
+    {
+        $resumeData = [
+            'kd_diagnosa_utama' => '', 'diagnosa_utama' => '',
+            'kd_diagnosa_sekunder' => '', 'diagnosa_sekunder' => '',
+            'kd_diagnosa_sekunder2' => '', 'diagnosa_sekunder2' => '',
+            'kd_diagnosa_sekunder3' => '', 'diagnosa_sekunder3' => '',
+            'kd_diagnosa_sekunder4' => '', 'diagnosa_sekunder4' => '',
+            'kd_prosedur_utama' => '', 'prosedur_utama' => '',
+            'kd_prosedur_sekunder' => '', 'prosedur_sekunder' => '',
+            'kd_prosedur_sekunder2' => '', 'prosedur_sekunder2' => '',
+            'kd_prosedur_sekunder3' => '', 'prosedur_sekunder3' => '',
+        ];
+
+        $diagFields = [
+            ['kd' => 'kd_diagnosa_utama', 'nm' => 'diagnosa_utama'],
+            ['kd' => 'kd_diagnosa_sekunder', 'nm' => 'diagnosa_sekunder'],
+            ['kd' => 'kd_diagnosa_sekunder2', 'nm' => 'diagnosa_sekunder2'],
+            ['kd' => 'kd_diagnosa_sekunder3', 'nm' => 'diagnosa_sekunder3'],
+            ['kd' => 'kd_diagnosa_sekunder4', 'nm' => 'diagnosa_sekunder4'],
+        ];
+
+        foreach ($diagnosaCodes as $index => $kd) {
+            if ($index >= count($diagFields)) break;
+            $penyakit = DB::table('penyakit')->where('kd_penyakit', $kd)->first();
+            if ($penyakit) {
+                $resumeData[$diagFields[$index]['kd']] = $penyakit->kd_penyakit;
+                $resumeData[$diagFields[$index]['nm']] = $penyakit->nm_penyakit;
+            }
+        }
+
+        $procFields = [
+            ['kd' => 'kd_prosedur_utama', 'nm' => 'prosedur_utama'],
+            ['kd' => 'kd_prosedur_sekunder', 'nm' => 'prosedur_sekunder'],
+            ['kd' => 'kd_prosedur_sekunder2', 'nm' => 'prosedur_sekunder2'],
+            ['kd' => 'kd_prosedur_sekunder3', 'nm' => 'prosedur_sekunder3'],
+        ];
+
+        foreach ($prosedurCodes as $index => $kd) {
+            if ($index >= count($procFields)) break;
+            if (str_contains($kd, '+')) {
+                $kd = trim(explode('+', $kd)[0]);
+            }
+            $icd9 = DB::table('icd9')->where('kode', $kd)->first();
+            if ($icd9) {
+                $resumeData[$procFields[$index]['kd']] = $icd9->kode;
+                $resumeData[$procFields[$index]['nm']] = $icd9->deskripsi_panjang ?: ($icd9->deskripsi_pendek ?: '');
+            }
+        }
+
+        $reg = DB::table('reg_periksa')->where('no_rawat', $no_rawat)->first();
+        if (!$reg) return;
+
+        $tableName = $reg->status_lanjut == 'Ranap' ? 'resume_pasien_ranap' : 'resume_pasien';
+
+        if (DB::table($tableName)->where('no_rawat', $no_rawat)->exists()) {
+            DB::table($tableName)->where('no_rawat', $no_rawat)->update($resumeData);
+        } else {
+            $insertData = array_merge([
+                'no_rawat' => $no_rawat,
+                'kd_dokter' => $reg->kd_dokter,
+                'keluhan_utama' => '',
+                'jalannya_penyakit' => '',
+                'pemeriksaan_penunjang' => '',
+                'hasil_laborat' => '',
+            ], $resumeData);
+
+            if ($tableName == 'resume_pasien') {
+                $insertData['kondisi_pulang'] = 'Hidup';
+                $insertData['obat_pulang'] = '';
+            } else {
+                $insertData['diagnosa_awal'] = '';
+                $insertData['alasan'] = '';
+                $insertData['pemeriksaan_fisik'] = '';
+                $insertData['tindakan_dan_operasi'] = '';
+                $insertData['obat_di_rs'] = '';
+                $insertData['alergi'] = '';
+                $insertData['diet'] = '';
+                $insertData['lab_belum'] = '';
+                $insertData['edukasi'] = '';
+                $insertData['cara_keluar'] = 'Sembuh';
+                $insertData['ket_keluar'] = '';
+                $insertData['keadaan'] = 'Sehat';
+                $insertData['ket_keadaan'] = '';
+                $insertData['dilanjutkan'] = 'Poliklinik';
+                $insertData['ket_dilanjutkan'] = '';
+                $insertData['kontrol'] = date('Y-m-d');
+                $insertData['obat_pulang'] = '';
+            }
+
+            DB::table($tableName)->insert($insertData);
         }
     }
     public function sitbValidate(Request $request)
@@ -1245,6 +1420,59 @@ class bridginginacbg2 extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function updateResumeData(Request $request)
+    {
+        try {
+            $no_rawat = $request->no_rawat;
+            $reg = DB::table('reg_periksa')->where('no_rawat', $no_rawat)->first();
+            if (!$reg) {
+                return response()->json(['success' => false, 'message' => 'Data pendaftaran tidak ditemukan.']);
+            }
+
+            $tableName = $reg->status_lanjut == 'Ranap' ? 'resume_pasien_ranap' : 'resume_pasien';
+            
+            $updateData = [
+                'keluhan_utama' => $request->keluhan_utama ?? '',
+                'jalannya_penyakit' => $request->jalannya_penyakit ?? '',
+                'pemeriksaan_penunjang' => $request->pemeriksaan_penunjang ?? '',
+                'hasil_laborat' => $request->hasil_laborat ?? '',
+                'obat_pulang' => $request->obat_pulang ?? '',
+            ];
+
+            if ($request->has('pemeriksaan_fisik')) {
+                $updateData['pemeriksaan_fisik'] = $request->pemeriksaan_fisik;
+            }
+            if ($request->has('tindakan_dan_operasi')) {
+                $updateData['tindakan_dan_operasi'] = $request->tindakan_dan_operasi;
+            }
+
+            // Diagnosa & Prosedur fields
+            $diagProcFields = [
+                'diagnosa_utama', 'kd_diagnosa_utama',
+                'diagnosa_sekunder', 'kd_diagnosa_sekunder',
+                'diagnosa_sekunder2', 'kd_diagnosa_sekunder2',
+                'diagnosa_sekunder3', 'kd_diagnosa_sekunder3',
+                'diagnosa_sekunder4', 'kd_diagnosa_sekunder4',
+                'prosedur_utama', 'kd_prosedur_utama',
+                'prosedur_sekunder', 'kd_prosedur_sekunder',
+                'prosedur_sekunder2', 'kd_prosedur_sekunder2',
+                'prosedur_sekunder3', 'kd_prosedur_sekunder3'
+            ];
+
+            foreach ($diagProcFields as $f) {
+                if ($request->has($f)) {
+                    $updateData[$f] = $request->$f;
+                }
+            }
+
+            DB::table($tableName)->where('no_rawat', $no_rawat)->update($updateData);
+
+            return response()->json(['success' => true, 'message' => 'Resume berhasil disimpan']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }
