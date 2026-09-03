@@ -858,7 +858,13 @@ function simpanResume() {
         error: function(xhr) {
             btn.innerHTML = originalText;
             btn.disabled = false;
-            Swal.fire('Error', 'Terjadi kesalahan sistem', 'error');
+            var errMsg = 'Terjadi kesalahan sistem';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errMsg = xhr.responseJSON.message;
+            } else if (xhr.status == 419) {
+                errMsg = 'Sesi Anda telah habis (419). Silakan refresh halaman dan coba lagi.';
+            }
+            Swal.fire('Error', errMsg, 'error');
         }
     });
 }

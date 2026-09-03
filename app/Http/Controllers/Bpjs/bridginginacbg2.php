@@ -1490,6 +1490,7 @@ class bridginginacbg2 extends Controller
 
             return response()->json(['success' => true, 'message' => 'Resume berhasil disimpan']);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('UPDATE RESUME ERROR: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
