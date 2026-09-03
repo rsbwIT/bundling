@@ -1461,10 +1461,10 @@ class bridginginacbg2 extends Controller
             ];
 
             if ($request->has('pemeriksaan_fisik')) {
-                $updateData['pemeriksaan_fisik'] = $request->pemeriksaan_fisik;
+                $updateData['pemeriksaan_fisik'] = $request->pemeriksaan_fisik ?? '';
             }
             if ($request->has('tindakan_dan_operasi')) {
-                $updateData['tindakan_dan_operasi'] = $request->tindakan_dan_operasi;
+                $updateData['tindakan_dan_operasi'] = $request->tindakan_dan_operasi ?? '';
             }
 
             // Diagnosa & Prosedur fields
@@ -1482,7 +1482,7 @@ class bridginginacbg2 extends Controller
 
             foreach ($diagProcFields as $f) {
                 if ($request->has($f)) {
-                    $updateData[$f] = $request->$f;
+                    $updateData[$f] = $request->$f ?? '';
                 }
             }
 
