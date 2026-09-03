@@ -302,10 +302,10 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/laporan/klaim', [LaporanKlaimIndividual::class, 'index'])->name('klaim.index');
         Route::get('/laporan/klaim/data', [LaporanKlaimIndividual::class, 'data'])->name('klaim.data');
-        Route::post('/bpjs/inacbg/update-diagnosa', [App\Http\Controllers\bpjs\bridginginacbg2::class, 'updateDiagnosa'])
+        Route::post('/bpjs/inacbg/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('inacbg.updateDiagnosa');
 
-        Route::post('/bpjs/inacbg/update-resume', [App\Http\Controllers\bpjs\bridginginacbg2::class, 'updateResumeData'])
+        Route::post('/bpjs/inacbg/update-resume', [bridginginacbg2::class, 'updateResumeData'])
             ->name('inacbg.updateResumeData');
 
         Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
