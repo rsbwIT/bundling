@@ -236,13 +236,15 @@ class bridginginacbg2 extends Controller
             abort(404, 'Pasien tidak ditemukan');
         }
 
+        $idUser = session('auth')['id_user'] ?? null;
         $namaUser = session('user')->nama ?? null;
 
-        if (!$namaUser) {
+        if (!$idUser || !$namaUser) {
             return redirect('/')
                 ->with('error', 'Session user tidak ditemukan.');
         }
 
+        // Coba cari berdasarkan nama (cara lama)
         $coder = DB::table('petugas')
             ->join('inacbg_coder_nik', 'petugas.nip', '=', 'inacbg_coder_nik.nik')
             ->where('petugas.nama', $namaUser)
@@ -253,6 +255,22 @@ class bridginginacbg2 extends Controller
                 'inacbg_coder_nik.nik'
             )
             ->first();
+
+        // Jika tidak ketemu berdasarkan nama, coba berdasarkan NIK/ID User
+        if (!$coder) {
+            $coderNik = DB::table('inacbg_coder_nik')
+                ->where('nik', $idUser)
+                ->first();
+                
+            if ($coderNik) {
+                $coder = (object) [
+                    'nip' => $coderNik->nik,
+                    'nama' => $namaUser, // Gunakan nama dari session
+                    'no_ik' => $coderNik->no_ik,
+                    'nik' => $coderNik->nik
+                ];
+            }
+        }
 
         if (!$coder) {
             return redirect()->back()
