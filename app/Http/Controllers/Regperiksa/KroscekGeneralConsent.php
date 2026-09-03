@@ -183,34 +183,34 @@ class KroscekGeneralConsent extends Controller
 
             $selectRaw = "
                 COUNT(DISTINCT rp.no_rawat) as total_semua_reg,
-                SUM(CASE WHEN rp.stts = 'Batal' THEN 1 ELSE 0 END) as total_batal,
-                SUM(CASE WHEN rp.stts != 'Batal' THEN 1 ELSE 0 END) as total_aktif,
+                COUNT(DISTINCT CASE WHEN rp.stts = 'Batal' THEN rp.no_rawat ELSE NULL END) as total_batal,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' THEN rp.no_rawat ELSE NULL END) as total_aktif,
                 
                 -- Pasien yang wajib GC (Ralan Baru & Ranap)
-                SUM(CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} THEN 1 ELSE 0 END) as total_wajib_gc,
-                SUM(CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND {$gcCondition} THEN 1 ELSE 0 END) as total_sudah_gc,
-                SUM(CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND NOT ({$gcCondition}) THEN 1 ELSE 0 END) as total_belum_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} THEN rp.no_rawat ELSE NULL END) as total_wajib_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND {$gcCondition} THEN rp.no_rawat ELSE NULL END) as total_sudah_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND NOT ({$gcCondition}) THEN rp.no_rawat ELSE NULL END) as total_belum_gc,
                 
                 -- GC Terlewat: Wajib GC, Belum GC, tetapi SEP Sudah Dibuat
-                SUM(CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND NOT ({$gcCondition}) AND {$sepCondition} THEN 1 ELSE 0 END) as total_terlewat_sep_ada,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND {$isWajibGc} AND NOT ({$gcCondition}) AND {$sepCondition} THEN rp.no_rawat ELSE NULL END) as total_terlewat_sep_ada,
 
                 -- Ralan Baru (Khusus Baru)
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' THEN 1 ELSE 0 END) as total_ralan_baru,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' AND {$gcCondition} THEN 1 ELSE 0 END) as total_ralan_baru_sudah_gc,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' AND NOT ({$gcCondition}) THEN 1 ELSE 0 END) as total_ralan_baru_belum_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' THEN rp.no_rawat ELSE NULL END) as total_ralan_baru,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' AND {$gcCondition} THEN rp.no_rawat ELSE NULL END) as total_ralan_baru_sudah_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar = 'Baru' AND NOT ({$gcCondition}) THEN rp.no_rawat ELSE NULL END) as total_ralan_baru_belum_gc,
                 
                 -- Ralan Lama (Tidak wajib GC per kunjungan)
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar != 'Baru' THEN 1 ELSE 0 END) as total_ralan_lama,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ralan' AND rp.kd_poli != 'IGDK' AND rp.stts_daftar != 'Baru' THEN rp.no_rawat ELSE NULL END) as total_ralan_lama,
                 
                 -- Ranap (Semua pasien Ranap)
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' THEN 1 ELSE 0 END) as total_ranap,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' AND {$gcCondition} THEN 1 ELSE 0 END) as total_ranap_sudah_gc,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' AND NOT ({$gcCondition}) THEN 1 ELSE 0 END) as total_ranap_belum_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' THEN rp.no_rawat ELSE NULL END) as total_ranap,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' AND {$gcCondition} THEN rp.no_rawat ELSE NULL END) as total_ranap_sudah_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.status_lanjut = 'Ranap' AND NOT ({$gcCondition}) THEN rp.no_rawat ELSE NULL END) as total_ranap_belum_gc,
                 
                 -- IGD Baru
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' THEN 1 ELSE 0 END) as total_igd_baru,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' AND {$gcCondition} THEN 1 ELSE 0 END) as total_igd_baru_sudah_gc,
-                SUM(CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' AND NOT ({$gcCondition}) THEN 1 ELSE 0 END) as total_igd_baru_belum_gc
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' THEN rp.no_rawat ELSE NULL END) as total_igd_baru,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' AND {$gcCondition} THEN rp.no_rawat ELSE NULL END) as total_igd_baru_sudah_gc,
+                COUNT(DISTINCT CASE WHEN rp.stts != 'Batal' AND rp.kd_poli = 'IGDK' AND rp.stts_daftar = 'Baru' AND NOT ({$gcCondition}) THEN rp.no_rawat ELSE NULL END) as total_igd_baru_belum_gc
             ";
 
             return $query->selectRaw($selectRaw)->first();
@@ -278,59 +278,13 @@ class KroscekGeneralConsent extends Controller
                 });
             }
 
-            // Join SEP & Petugas Pembuat SEP (pencarian nama pegawai/petugas/dokter)
+            // Join SEP jika ada
             if ($gcInfo['has_sep']) {
                 $query->leftJoin('bridging_sep as sep', 'rp.no_rawat', '=', 'sep.no_rawat');
-
-                // 1. Join langsung NIK / NIP / Kode Dokter dengan TRIM (Exact & Prefix match)
-                if ($gcInfo['has_pegawai']) {
-                    $query->leftJoin('pegawai as sep_peg1', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_peg1.nik)"), '=', DB::raw("TRIM(sep.user)"));
-                    });
-                    $query->leftJoin('pegawai as sep_peg_like', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_peg_like.nik)"), 'like', DB::raw("CONCAT(TRIM(sep.user), '%')"));
-                    });
-                    $query->leftJoin('pegawai as sep_peg2', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_peg2.nik)"), '=', DB::raw("TRIM(CAST(AES_DECRYPT(sep.user, 'nur') AS CHAR(50)))"));
-                    });
-                }
-                if ($gcInfo['has_petugas']) {
-                    $query->leftJoin('petugas as sep_pet1', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_pet1.nip)"), '=', DB::raw("TRIM(sep.user)"));
-                    });
-                    $query->leftJoin('petugas as sep_pet_like', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_pet_like.nip)"), 'like', DB::raw("CONCAT(TRIM(sep.user), '%')"));
-                    });
-                    $query->leftJoin('petugas as sep_pet2', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_pet2.nip)"), '=', DB::raw("TRIM(CAST(AES_DECRYPT(sep.user, 'nur') AS CHAR(50)))"));
-                    });
-                }
-                if ($gcInfo['has_dokter']) {
-                    $query->leftJoin('dokter as sep_dok1', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_dok1.kd_dokter)"), '=', DB::raw("TRIM(sep.user)"));
-                    });
-                    $query->leftJoin('dokter as sep_dok2', function ($join) {
-                        $join->on(DB::raw("TRIM(sep_dok2.kd_dokter)"), '=', DB::raw("TRIM(CAST(AES_DECRYPT(sep.user, 'nur') AS CHAR(50)))"));
-                    });
-                }
-
-                // 2. Join via tabel User Khanza jika sep.user mencocokkan id_user yang terenkripsi
-                if ($gcInfo['has_user']) {
-                    $query->leftJoin('user as sep_usr', function ($join) {
-                        $join->on(DB::raw("TRIM(CAST(AES_DECRYPT(sep_usr.id_user, 'nur') AS CHAR(50)))"), '=', DB::raw("TRIM(sep.user)"));
-                    });
-                    if ($gcInfo['has_pegawai']) {
-                        $query->leftJoin('pegawai as sep_peg3', function ($join) {
-                            $join->on(DB::raw("TRIM(sep_peg3.nik)"), '=', DB::raw("TRIM(CAST(AES_DECRYPT(sep_usr.id_user, 'nur') AS CHAR(50)))"));
-                        });
-                    }
-                    if ($gcInfo['has_petugas']) {
-                        $query->leftJoin('petugas as sep_pet3', function ($join) {
-                            $join->on(DB::raw("TRIM(sep_pet3.nip)"), '=', DB::raw("TRIM(CAST(AES_DECRYPT(sep_usr.id_user, 'nur') AS CHAR(50)))"));
-                        });
-                    }
-                }
             }
+
+            // Group by no_rawat agar setiap registrasi pasien tepat 1 baris
+            $query->groupBy('rp.no_rawat');
 
             // Filter tanggal
             if ($tanggalMulai && $tanggalSelesai) {
@@ -348,22 +302,6 @@ class KroscekGeneralConsent extends Controller
             if (!empty($filterPenjamin)) {
                 $query->where('rp.kd_pj', $filterPenjamin);
             }
-
-            // Kondisi GC SQL
-            $gcParts = [];
-            if ($gcInfo['has_spu']) {
-                $gcParts[] = "spu.no_surat IS NOT NULL";
-            }
-            if ($gcInfo['has_pu']) {
-                $gcParts[] = "pu.no_rawat IS NOT NULL";
-            }
-            if ($gcInfo['has_bdp']) {
-                $gcParts[] = "bdp.lokasi_file IS NOT NULL";
-            }
-            $gcCondition = !empty($gcParts) ? "(" . implode(" OR ", $gcParts) . ")" : "0";
-
-            // Kondisi SEP SQL
-            $sepCondition = $gcInfo['has_sep'] ? "sep.no_sep IS NOT NULL" : "0";
 
             // Filter status rawat lanjut & kategori pasien
             switch ($filterLanjut) {
@@ -403,14 +341,13 @@ class KroscekGeneralConsent extends Controller
                     break;
             }
 
-            // Filter status GC
+            // Filter status GC (menggunakan having karena status_gc dihitung secara agregat)
             if ($filterStatusGc == 'sudah') {
-                $query->whereRaw($gcCondition)->where('rp.stts', '!=', 'Batal');
+                $query->havingRaw("status_gc = 'Sudah'")->where('rp.stts', '!=', 'Batal');
             } elseif ($filterStatusGc == 'belum') {
-                $query->whereRaw("NOT ({$gcCondition})")->where('rp.stts', '!=', 'Batal');
+                $query->havingRaw("status_gc = 'Belum'")->where('rp.stts', '!=', 'Batal');
             } elseif ($filterStatusGc == 'belum_sep_ada') {
-                $query->whereRaw("NOT ({$gcCondition})")
-                      ->whereRaw($sepCondition)
+                $query->havingRaw("status_gc = 'Belum' AND COUNT(sep.no_sep) > 0")
                       ->where('rp.stts', '!=', 'Batal');
             }
 
@@ -427,23 +364,36 @@ class KroscekGeneralConsent extends Controller
                     if ($gcInfo['has_sep']) {
                         $q->orWhere('sep.no_sep', 'like', "%{$searchTerm}%")
                           ->orWhere('sep.user', 'like', "%{$searchTerm}%");
+
+                        // Pencarian nama pembuat SEP via lookup cepat pegawai/petugas/dokter
+                        $matchingUserIds = [];
                         if ($gcInfo['has_pegawai']) {
-                            $q->orWhere('sep_peg1.nama', 'like', "%{$searchTerm}%")
-                              ->orWhere('sep_peg_like.nama', 'like', "%{$searchTerm}%")
-                              ->orWhere('sep_peg2.nama', 'like', "%{$searchTerm}%");
+                            $pegIds = DB::table('pegawai')->where('nama', 'like', "%{$searchTerm}%")->pluck('nik')->toArray();
+                            $matchingUserIds = array_merge($matchingUserIds, $pegIds);
                         }
                         if ($gcInfo['has_petugas']) {
-                            $q->orWhere('sep_pet1.nama', 'like', "%{$searchTerm}%")
-                              ->orWhere('sep_pet_like.nama', 'like', "%{$searchTerm}%")
-                              ->orWhere('sep_pet2.nama', 'like', "%{$searchTerm}%");
+                            $petIds = DB::table('petugas')->where('nama', 'like', "%{$searchTerm}%")->pluck('nip')->toArray();
+                            $matchingUserIds = array_merge($matchingUserIds, $petIds);
                         }
                         if ($gcInfo['has_dokter']) {
-                            $q->orWhere('sep_dok1.nm_dokter', 'like', "%{$searchTerm}%")
-                              ->orWhere('sep_dok2.nm_dokter', 'like', "%{$searchTerm}%");
+                            $dokIds = DB::table('dokter')->where('nm_dokter', 'like', "%{$searchTerm}%")->pluck('kd_dokter')->toArray();
+                            $matchingUserIds = array_merge($matchingUserIds, $dokIds);
+                        }
+                        if (!empty($matchingUserIds)) {
+                            $prefixes = array_map(fn($id) => substr(trim($id), 0, 9), $matchingUserIds);
+                            $allPossible = array_unique(array_merge($matchingUserIds, $prefixes));
+                            $q->orWhereIn('sep.user', $allPossible);
                         }
                     }
                 });
             }
+
+            // Kondisi GC Agregat
+            $gcCheckParts = [];
+            if ($gcInfo['has_spu']) $gcCheckParts[] = "COUNT(spu.no_surat) > 0";
+            if ($gcInfo['has_pu'])  $gcCheckParts[] = "COUNT(pu.no_rawat) > 0";
+            if ($gcInfo['has_bdp']) $gcCheckParts[] = "COUNT(bdp.lokasi_file) > 0";
+            $gcCheckStr = !empty($gcCheckParts) ? implode(" OR ", $gcCheckParts) : "0";
 
             $selectFields = [
                 'rp.no_rawat',
@@ -464,54 +414,41 @@ class KroscekGeneralConsent extends Controller
                     WHEN rp.status_lanjut = 'Ranap' OR rp.stts_daftar = 'Baru' THEN 'Ya' 
                     ELSE 'Tidak' 
                 END as is_wajib_gc"),
-                DB::raw("CASE WHEN {$gcCondition} THEN 'Sudah' ELSE 'Belum' END as status_gc"),
+                DB::raw("CASE WHEN {$gcCheckStr} THEN 'Sudah' ELSE 'Belum' END as status_gc"),
             ];
 
             if ($gcInfo['has_spu']) {
-                $selectFields[] = 'spu.no_surat as spu_no_surat';
-                $selectFields[] = 'spu.tanggal as spu_tanggal';
-                $selectFields[] = 'spu.nama_pj as spu_nama_pj';
+                $selectFields[] = DB::raw("MAX(spu.no_surat) as spu_no_surat");
+                $selectFields[] = DB::raw("MAX(spu.tanggal) as spu_tanggal");
+                $selectFields[] = DB::raw("MAX(spu.nama_pj) as spu_nama_pj");
+                $selectFields[] = DB::raw("MAX(spu.nip) as spu_nip");
+                $selectFields[] = DB::raw("NULL as spu_nama_petugas");
             } else {
                 $selectFields[] = DB::raw("NULL as spu_no_surat");
                 $selectFields[] = DB::raw("NULL as spu_tanggal");
                 $selectFields[] = DB::raw("NULL as spu_nama_pj");
+                $selectFields[] = DB::raw("NULL as spu_nip");
+                $selectFields[] = DB::raw("NULL as spu_nama_petugas");
             }
 
             if ($gcInfo['has_bdp']) {
-                $selectFields[] = 'bdp.lokasi_file as bdp_file';
+                $selectFields[] = DB::raw("MAX(bdp.lokasi_file) as bdp_file");
             } else {
                 $selectFields[] = DB::raw("NULL as bdp_file");
             }
 
             if ($gcInfo['has_sep']) {
-                $selectFields[] = 'sep.no_sep as sep_no_sep';
-                $selectFields[] = 'sep.user as sep_user';
-                $selectFields[] = 'sep.tglsep as sep_tglsep';
-                
-                $coalesceArgs = [];
-                if ($gcInfo['has_pegawai']) $coalesceArgs[] = 'sep_peg1.nama';
-                if ($gcInfo['has_petugas']) $coalesceArgs[] = 'sep_pet1.nama';
-                if ($gcInfo['has_dokter'])  $coalesceArgs[] = 'sep_dok1.nm_dokter';
-
-                if ($gcInfo['has_pegawai']) $coalesceArgs[] = 'sep_peg_like.nama';
-                if ($gcInfo['has_petugas']) $coalesceArgs[] = 'sep_pet_like.nama';
-
-                if ($gcInfo['has_pegawai']) $coalesceArgs[] = 'sep_peg2.nama';
-                if ($gcInfo['has_petugas']) $coalesceArgs[] = 'sep_pet2.nama';
-                if ($gcInfo['has_dokter'])  $coalesceArgs[] = 'sep_dok2.nm_dokter';
-
-                if ($gcInfo['has_user']) {
-                    if ($gcInfo['has_pegawai']) $coalesceArgs[] = 'sep_peg3.nama';
-                    if ($gcInfo['has_petugas']) $coalesceArgs[] = 'sep_pet3.nama';
-                }
-
-                $coalesceArgs[] = 'sep.user';
-                $petugasExpr = "COALESCE(" . implode(', ', $coalesceArgs) . ")";
-                $selectFields[] = DB::raw("{$petugasExpr} as sep_nama_petugas");
+                // Utamakan SEP Ranap (jnspelayanan=1) jika ada, atau SEP terbaru
+                $selectFields[] = DB::raw("SUBSTRING_INDEX(GROUP_CONCAT(sep.no_sep ORDER BY sep.jnspelayanan ASC, sep.tglsep DESC), ',', 1) as sep_no_sep");
+                $selectFields[] = DB::raw("SUBSTRING_INDEX(GROUP_CONCAT(sep.user ORDER BY sep.jnspelayanan ASC, sep.tglsep DESC), ',', 1) as sep_user");
+                $selectFields[] = DB::raw("SUBSTRING_INDEX(GROUP_CONCAT(sep.tglsep ORDER BY sep.jnspelayanan ASC, sep.tglsep DESC), ',', 1) as sep_tglsep");
+                $selectFields[] = DB::raw("COUNT(DISTINCT sep.no_sep) as total_sep");
+                $selectFields[] = DB::raw("NULL as sep_nama_petugas");
             } else {
                 $selectFields[] = DB::raw("NULL as sep_no_sep");
                 $selectFields[] = DB::raw("NULL as sep_user");
                 $selectFields[] = DB::raw("NULL as sep_tglsep");
+                $selectFields[] = DB::raw("0 as total_sep");
                 $selectFields[] = DB::raw("NULL as sep_nama_petugas");
             }
 
@@ -520,7 +457,7 @@ class KroscekGeneralConsent extends Controller
                 ->paginate($perPage);
 
             // Layer 2: Post-processing fallback resolution (Memastikan ID angka terpotong seperti NIK/NIP 180811560 terkonversi ke nama)
-            if ($gcInfo['has_sep'] && $paginated->count() > 0) {
+            if (($gcInfo['has_sep'] || $gcInfo['has_spu']) && $paginated->count() > 0) {
                 $rawUserIds = [];
                 foreach ($paginated as $item) {
                     $val = trim($item->sep_nama_petugas ?? $item->sep_user ?? '');
@@ -530,6 +467,10 @@ class KroscekGeneralConsent extends Controller
                     $userVal = trim($item->sep_user ?? '');
                     if (!empty($userVal)) {
                         $rawUserIds[] = $userVal;
+                    }
+                    $spuNipVal = trim($item->spu_nip ?? '');
+                    if (!empty($spuNipVal) && $spuNipVal != '-') {
+                        $rawUserIds[] = $spuNipVal;
                     }
                 }
 
@@ -606,17 +547,38 @@ class KroscekGeneralConsent extends Controller
                         $rawIdClean = trim($rawId);
                         if (strlen($rawIdClean) >= 5) {
                             if ($gcInfo['has_pegawai']) {
-                                $pNama = DB::table('pegawai')
+                                // Prioritaskan departemen Rekam Medis (RM) / inisial Pendaftaran (PDF)
+                                $pRows = DB::table('pegawai')
+                                    ->select('nik', 'nama', 'departemen')
                                     ->where(DB::raw("TRIM(nik)"), 'like', $rawIdClean . '%')
-                                    ->value('nama');
-                                if ($pNama) {
-                                    $map[$rawIdClean] = $pNama;
+                                    ->orderByRaw("CASE 
+                                        WHEN departemen = 'RM' OR nama LIKE '%(PDF)%' OR nama LIKE '%PENDAFTARAN%' THEN 1 
+                                        WHEN departemen IN ('RJ', 'IGD', 'RNAP') THEN 2 
+                                        ELSE 3 
+                                    END ASC")
+                                    ->get();
+
+                                if ($pRows->isNotEmpty()) {
+                                    $pdfMatches = $pRows->filter(function($p) {
+                                        return $p->departemen == 'RM' || str_contains($p->nama, '(PDF)');
+                                    });
+
+                                    if ($pdfMatches->count() > 1) {
+                                        // Jika ada lebih dari 1 kandidat petugas pendaftaran
+                                        $primary = $pdfMatches->first();
+                                        $otherNames = $pdfMatches->slice(1)->pluck('nama')->map(fn($n) => trim(preg_replace('/\([A-Z]+\)\s*/', '', $n)))->implode(' / ');
+                                        $map[$rawIdClean] = $primary->nama;
+                                        $candidatesMap[$rawIdClean] = "Opsi lain: " . $otherNames . " (" . $rawIdClean . ")";
+                                    } else {
+                                        $map[$rawIdClean] = $pRows->first()->nama;
+                                    }
                                     continue;
                                 }
                             }
                             if ($gcInfo['has_petugas']) {
                                 $ptNama = DB::table('petugas')
                                     ->where(DB::raw("TRIM(nip)"), 'like', $rawIdClean . '%')
+                                    ->orderByRaw("CASE WHEN nama LIKE '%(PDF)%' THEN 1 ELSE 2 END ASC")
                                     ->value('nama');
                                 if ($ptNama) {
                                     $map[$rawIdClean] = $ptNama;
@@ -639,11 +601,19 @@ class KroscekGeneralConsent extends Controller
                     foreach ($paginated as $item) {
                         $curPetugas = trim($item->sep_nama_petugas ?? '');
                         $curUser = trim($item->sep_user ?? '');
+                        $curSpuNip = trim($item->spu_nip ?? '');
 
-                        if (isset($map[$curPetugas])) {
-                            $item->sep_nama_petugas = $map[$curPetugas];
-                        } elseif (isset($map[$curUser])) {
-                            $item->sep_nama_petugas = $map[$curUser];
+                        $resolvedKey = isset($map[$curPetugas]) ? $curPetugas : (isset($map[$curUser]) ? $curUser : null);
+
+                        if ($resolvedKey) {
+                            $item->sep_nama_petugas = $map[$resolvedKey];
+                            if (isset($candidatesMap[$resolvedKey])) {
+                                $item->sep_user_candidates = $candidatesMap[$resolvedKey];
+                            }
+                        }
+
+                        if (!empty($curSpuNip) && isset($map[$curSpuNip])) {
+                            $item->spu_nama_petugas = $map[$curSpuNip];
                         }
                     }
                 }

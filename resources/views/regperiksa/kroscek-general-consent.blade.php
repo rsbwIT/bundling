@@ -387,15 +387,26 @@
                                         <span class="badge badge-light border text-dark font-weight-bold" title="Nomor SEP BPJS">
                                             <i class="fas fa-file-invoice text-primary mr-1"></i>{{ $item->sep_no_sep }}
                                         </span>
+                                        @if(isset($item->total_sep) && $item->total_sep > 1)
+                                            <span class="badge badge-info ml-1" title="Pasien memiliki total {{ $item->total_sep }} SEP terdaftar (misal SEP Ralan & Ranap)">+{{ $item->total_sep - 1 }} SEP</span>
+                                        @endif
                                         @if($item->status_gc == 'Belum' && $item->is_wajib_gc == 'Ya')
                                             <div class="mt-1">
-                                                <span class="badge badge-danger px-2 py-1" title="Petugas yang membuat SEP tetapi tidak membuat General Consent">
+                                                <span class="badge badge-danger px-2 py-1" title="Petugas yang membuat SEP tetapi tidak membuat General Consent (ID BPJS: {{ $item->sep_user }})">
                                                     <i class="fas fa-user-times mr-1"></i> Pembuat SEP: <strong>{{ $item->sep_nama_petugas ?? $item->sep_user }}</strong>
                                                 </span>
+                                                @if(!empty($item->sep_user_candidates))
+                                                    <div class="text-muted text-xs mt-1" style="font-size: 10px;" title="Beberapa petugas memiliki awalan NIP/NIK yang sama di BPJS">
+                                                        <i class="fas fa-info-circle text-warning mr-1"></i>{{ $item->sep_user_candidates }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @else
                                             <div class="mt-1 text-muted text-xs">
                                                 <i class="fas fa-user-edit text-info mr-1"></i> Pembuat SEP: <strong>{{ $item->sep_nama_petugas ?? $item->sep_user }}</strong>
+                                                @if(!empty($item->sep_user_candidates))
+                                                    <span class="text-muted ml-1" style="font-size: 10px;" title="{{ $item->sep_user_candidates }}"><i class="fas fa-info-circle text-secondary"></i></span>
+                                                @endif
                                             </div>
                                         @endif
                                     @else
@@ -404,14 +415,21 @@
                                 </td>
                                 <td>
                                     @if($item->spu_no_surat)
-                                        <span class="text-dark">{{ $item->spu_no_surat }}</span>
+                                        <span class="text-dark font-weight-bold">{{ $item->spu_no_surat }}</span>
+                                        @if($item->spu_nama_petugas || $item->spu_nip)
+                                            <div class="mt-1">
+                                                <span class="badge badge-success px-2 py-1" title="Petugas Admisi yang membuat formulir General Consent (NIP: {{ $item->spu_nip }})">
+                                                    <i class="fas fa-user-check mr-1"></i> Pembuat GC: <strong>{{ $item->spu_nama_petugas ?? $item->spu_nip }}</strong>
+                                                </span>
+                                            </div>
+                                        @endif
                                         @if($item->spu_nama_pj)
-                                            <small class="text-muted d-block">PJ: {{ $item->spu_nama_pj }}</small>
+                                            <small class="text-muted d-block mt-1"><i class="fas fa-user-friends mr-1"></i>PJ: {{ $item->spu_nama_pj }}</small>
                                         @endif
                                     @elseif($item->status_gc == 'Sudah')
-                                        <span class="text-success"><i class="fas fa-check"></i> Terdata</span>
+                                        <span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Terdata (Digital)</span>
                                     @elseif($item->is_wajib_gc == 'Ya')
-                                        <span class="text-danger small"><i class="fas fa-exclamation-triangle"></i> Wajib Lengkapi</span>
+                                        <span class="badge badge-light border text-danger small"><i class="fas fa-exclamation-triangle mr-1"></i> Wajib Lengkapi</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
