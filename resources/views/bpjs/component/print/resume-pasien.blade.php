@@ -4,7 +4,7 @@
         $suhuTubuh = \Illuminate\Support\Facades\DB::table('pemeriksaan_ralan')
             ->where('no_rawat', $getResume->no_rawat)
             ->value('suhu_tubuh');
-        if (in_array($suhuTubuh, ['2', '3', '5', '7'])) {
+        if (in_array($suhuTubuh, ['2', '3', '5', '6', '7'])) {
             $isFisio = true;
         }
     @endphp

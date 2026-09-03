@@ -44,7 +44,7 @@ class CesmikController extends Controller
 
             // 2 BERKAS RESUME
             $suhuTubuh = DB::table('pemeriksaan_ralan')->where('no_rawat', $noRawat)->value('suhu_tubuh');
-            $isFisio = in_array($suhuTubuh, ['2', '3', '5', '7']);
+            $isFisio = in_array($suhuTubuh, ['2', '3', '5', '6', '7']);
 
             if ($isFisio) {
                 // 3 BERKAS RESUME FISO
