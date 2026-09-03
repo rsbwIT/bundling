@@ -977,7 +977,7 @@ function simpanResume() {
             .catch(e => console.error('Gagal memuat prosedur:', e));
     });
 
-    // 2. Fungsi Render Ringan (Limit 30 item saat tidak dicari)
+    // 2. Fungsi Render Ringan (Limit maksimal 100 item)
     function render(data, bodyId, inputId, filter = "") {
         let selected = document.getElementById(inputId).value.split('#');
         let html = "";
@@ -989,7 +989,7 @@ function simpanResume() {
                     <td>${item.kd}</td>
                     <td>${item.nm}</td>
                 </tr>`;
-                if (++count >= 30 && filter === "") break;
+                if (++count >= 100) break; // Selalu batasi max 100 agar DOM tidak berat
             }
         }
         document.getElementById(bodyId).innerHTML = html;
@@ -999,10 +999,18 @@ function simpanResume() {
     render(dataPenyakit, 'bodyPenyakit', 'diag_input');
     render(dataProsedur, 'bodyProsedur', 'proc_input');
 
-
-    // 4. Event Pencarian
-    document.getElementById('cariPenyakit').addEventListener('keyup', e => render(dataPenyakit, 'bodyPenyakit', 'diag_input', e.target.value.toLowerCase()));
-    document.getElementById('cariProsedur').addEventListener('keyup', e => render(dataProsedur, 'bodyProsedur', 'proc_input', e.target.value.toLowerCase()));
+    // 4. Event Pencarian (menggunakan sedikit debounce)
+    let timerDiag;
+    document.getElementById('cariPenyakit').addEventListener('keyup', e => {
+        clearTimeout(timerDiag);
+        timerDiag = setTimeout(() => render(dataPenyakit, 'bodyPenyakit', 'diag_input', e.target.value.toLowerCase()), 200);
+    });
+    
+    let timerProc;
+    document.getElementById('cariProsedur').addEventListener('keyup', e => {
+        clearTimeout(timerProc);
+        timerProc = setTimeout(() => render(dataProsedur, 'bodyProsedur', 'proc_input', e.target.value.toLowerCase()), 200);
+    });
 
     // 5. Update Otomatis saat Checkbox diklik
     document.addEventListener('change', function(e) {
