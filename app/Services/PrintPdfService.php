@@ -42,13 +42,12 @@ class PrintPdfService
             $getSEP = QueryResumeDll::getSEP($noRawat, $cariNoSep);
 
             // 2 BERKAS RESUME
-            if ($statusLanjut->kd_poli === 'FIS') {
+            $suhuTubuh = DB::table('pemeriksaan_ralan')->where('no_rawat', $noRawat)->value('suhu_tubuh');
+            $isFisio = in_array($suhuTubuh, ['2', '3', '5', '7']);
+
+            if ($isFisio) {
                 $resume_ralan = QueryResumeDll::getResumeRalan($noRawat);
-                if ($resume_ralan) {
-                    $getResume = QueryResumeDll::getResumeRalan($noRawat);
-                } else {
-                    $getResume = QueryResumeDll::getResumeFiso($noRawat);
-                }
+                $getResume = QueryResumeDll::getResumeFiso($noRawat) ?: $resume_ralan;
                 $getKamarInap = '';
                 
                 // Ambil data fisioterapi
@@ -124,9 +123,11 @@ class PrintPdfService
                     } else {
                         $getKamarInap = '';
                     }
-                } else {
+                } else if (!$isFisio) {
+                    // 5 BERKAS RESUME RALAN
                     $getResume = QueryResumeDll::getResumeRalan($noRawat);
                     $getKamarInap = '';
+                    $cekPasienKmrInap = '';
                 }
             }
 
