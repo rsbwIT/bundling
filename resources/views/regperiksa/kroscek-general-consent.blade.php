@@ -297,7 +297,7 @@
                             <th class="text-center">Status Rawat</th>
                             <th class="text-center">General Consent</th>
                             <th class="text-center">Lihat Form</th>
-                            <th>SEP & Pembuat SEP</th>
+                            <th>SEP & Petugas Loket / Pembuat</th>
                             <th>No. Surat / Keterangan</th>
                         </tr>
                     </thead>
@@ -410,7 +410,23 @@
                                             </div>
                                         @endif
                                     @else
-                                        <span class="text-muted text-xs"><i class="fas fa-minus mr-1"></i> Belum Ada SEP</span>
+                                        <span class="badge badge-light border text-secondary" title="Pasien Non-BPJS (Umum/Asuransi Lain) tidak menerbitkan SEP">
+                                            <i class="fas fa-id-card-alt mr-1"></i> Non-BPJS / Tanpa SEP
+                                        </span>
+                                        @if($item->status_gc == 'Belum' && $item->is_wajib_gc == 'Ya')
+                                            <div class="mt-1">
+                                                <span class="badge badge-warning text-dark px-2 py-1" title="Pasien Baru / Ranap wajib dibuatkan General Consent saat registrasi di loket">
+                                                    <i class="fas fa-clock mr-1"></i> Jam Daftar: <strong>{{ $item->jam_reg }}</strong>
+                                                </span>
+                                                <small class="text-danger d-block mt-1 font-weight-bold" style="font-size: 10.5px;">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i>Cek Petugas Loket Shift Jam Ini
+                                                </small>
+                                            </div>
+                                        @else
+                                            <div class="mt-1 text-muted text-xs">
+                                                <i class="far fa-clock mr-1"></i> Daftar: {{ $item->jam_reg }}
+                                            </div>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>
