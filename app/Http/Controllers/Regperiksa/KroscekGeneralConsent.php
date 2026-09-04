@@ -547,12 +547,12 @@ class KroscekGeneralConsent extends Controller
                         $rawIdClean = trim($rawId);
                         if (strlen($rawIdClean) >= 5) {
                             if ($gcInfo['has_pegawai']) {
-                                // Prioritaskan departemen Rekam Medis (RM) / inisial Pendaftaran (PDF)
+                                // Prioritaskan departemen Rekam Medis (RM), PRT, atau Pendaftaran (PDF)
                                 $pRows = DB::table('pegawai')
                                     ->select('nik', 'nama', 'departemen')
                                     ->where(DB::raw("TRIM(nik)"), 'like', $rawIdClean . '%')
                                     ->orderByRaw("CASE 
-                                        WHEN departemen = 'RM' OR nama LIKE '%(PDF)%' OR nama LIKE '%PENDAFTARAN%' THEN 1 
+                                        WHEN departemen = 'RM' OR departemen = 'PRT' OR UPPER(departemen) LIKE '%REKAM MEDIS%' OR UPPER(departemen) LIKE '%PENDAFTARAN%' OR UPPER(nama) LIKE '%(PDF)%' OR UPPER(nama) LIKE '%PENDAFTARAN%' OR UPPER(nama) LIKE '%(PRT)%' THEN 1 
                                         WHEN departemen IN ('RJ', 'IGD', 'RNAP') THEN 2 
                                         ELSE 3 
                                     END ASC")
@@ -560,7 +560,9 @@ class KroscekGeneralConsent extends Controller
 
                                 if ($pRows->isNotEmpty()) {
                                     $pdfMatches = $pRows->filter(function($p) {
-                                        return $p->departemen == 'RM' || str_contains($p->nama, '(PDF)');
+                                        $dept = strtoupper($p->departemen ?? '');
+                                        $nama = strtoupper($p->nama ?? '');
+                                        return $dept == 'RM' || $dept == 'PRT' || str_contains($dept, 'REKAM MEDIS') || str_contains($dept, 'PENDAFTARAN') || str_contains($nama, '(PDF)') || str_contains($nama, 'PENDAFTARAN') || str_contains($nama, '(PRT)');
                                     });
 
                                     if ($pdfMatches->count() > 1) {
