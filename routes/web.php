@@ -21,6 +21,7 @@ use App\Http\Controllers\JM\JMBpjsController;
 use App\Http\Controllers\JM\JMAsuransiController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
+use App\Http\Controllers\Bpjs\ListPasienRanap2;
 use App\Http\Controllers\Laporan\BayarPiutang;
 use App\Http\Controllers\Laporan\PiutangRalan;
 use App\Http\Controllers\Laporan\PiutangRanap;
@@ -236,6 +237,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-list-pasein-ralan', [ListPasienRalan::class, 'cariListPaseinRalan']);
         Route::get('/list-pasein-ralan2', [ListPasienRalan2::class, 'lisPaseinRalan2']);
         Route::get('/list-pasein-ranap', [ListPasienRanap::class, 'lisPaseinRanap']);
+        Route::get('/list-pasein-ranap2', [ListPasienRanap2::class, 'lisPaseinRanap2']);
         Route::get('/cari-list-pasein-ranap', [ListPasienRanap::class, 'cariListPaseinRanap']);
         Route::get('/casemix-home', [HomeCasemix::class, 'casemixHome']);
         Route::get('/casemix-home-cari', [HomeCasemix::class, 'casemixHomeCari']);
@@ -307,6 +309,9 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::post('/bpjs/inacbg/update-resume', [bridginginacbg2::class, 'updateResumeData'])
             ->name('inacbg.updateResumeData');
+
+        Route::post('/bpjs/inacbg/update-triase', [bridginginacbg2::class, 'updateTriaseData'])
+            ->name('inacbg.updateTriaseData');
 
         Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('bpjs.updateDiagnosa');

@@ -1028,6 +1028,14 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    <a href="{{ url('/list-pasein-ranap2') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>List Pasien Ranap 2</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
                                     <a href="{{ url('/data-inacbg') }}" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Inacbg</p>

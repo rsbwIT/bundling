@@ -447,7 +447,62 @@ class bridginginacbg2 extends Controller
             $resume = DB::table('resume_pasien')->where('no_rawat', $norawat)->first();
         }
 
+        if ($resume && isset($resume->kd_dokter)) {
+            $dokterResume = DB::table('pegawai')->where('nik', $resume->kd_dokter)->first();
+            if ($dokterResume) {
+                $pasien->nm_dokter = $dokterResume->nama;
+                $pasien->kd_dokter = $resume->kd_dokter; // Override to match resume DPJP
+            }
+        }
+
         $getSetting = DB::table('setting')->first();
+
+        // Triase data (only for Ranap patients coming from IGD)
+        $triase = null;
+        $triasePrimer = null;
+        $triaseSekunder = null;
+        $triaseDetailSkala = collect();
+        $masterKasus = DB::table('master_triase_macam_kasus')->get();
+        $masterSkala = collect();
+        $petugasTriase = null;
+        $infoPasienTriase = null;
+
+        if ($pasien->status_lanjut == 'Ranap') {
+            $triase = DB::table('data_triase_igd')->where('no_rawat', $norawat)->first();
+            $triasePrimer = DB::table('data_triase_igdprimer')->where('no_rawat', $norawat)->first();
+            $triaseSekunder = DB::table('data_triase_igdsekunder')->where('no_rawat', $norawat)->first();
+
+            if ($triase) {
+                // Find which skala is used (check each table)
+                for ($i = 1; $i <= 5; $i++) {
+                    $detail = DB::table("data_triase_igddetail_skala$i")->where('no_rawat', $norawat)->get();
+                    if ($detail->count() > 0) {
+                        // Join with master to get pengkajian labels
+                        $withLabel = $detail->map(function($d) use ($i) {
+                            $kodeField = "kode_skala$i";
+                            $pengkajianField = "pengkajian_skala$i";
+                            $master = DB::table("master_triase_skala$i")
+                                ->join('master_triase_pemeriksaan', "master_triase_skala$i.kode_pemeriksaan", '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                                ->where("master_triase_skala$i.$kodeField", $d->$kodeField)
+                                ->select("master_triase_pemeriksaan.nama_pemeriksaan", "master_triase_skala$i.$pengkajianField as urgensi")
+                                ->first();
+                            return $master;
+                        })->filter();
+                        $triaseDetailSkala = $withLabel;
+                        break;
+                    }
+                }
+            }
+
+            // Get petugas triase
+            $nikPetugas = $triaseSekunder->nik ?? ($triasePrimer->nik ?? null);
+            if ($nikPetugas) {
+                $petugasTriase = DB::table('pegawai')->where('nik', $nikPetugas)->first();
+            }
+
+            // Get extra pasien info
+            $infoPasienTriase = DB::table('pasien')->where('no_rkm_medis', $pasien->no_rkm_medis ?? '')->first();
+        }
 
         return view('bpjs.bridginginacbg2', compact(
             'pasien',
@@ -479,7 +534,14 @@ class bridginginacbg2 extends Controller
             'diagnosainacbg',
             'procedureinacbg',
             'resume',
-            'getSetting'
+            'getSetting',
+            'triase',
+            'triasePrimer',
+            'triaseSekunder',
+            'triaseDetailSkala',
+            'masterKasus',
+            'petugasTriase',
+            'infoPasienTriase'
         ));
     }
 
@@ -627,10 +689,20 @@ class bridginginacbg2 extends Controller
                         ? $pasien->tgl_registrasi
                         : ($pasien->tgl_keluar ?? $pasien->tgl_registrasi)
                     ) . " 00:00:00",
+                    "cara_masuk" => $request->cara_masuk ?? 'gp',
                     "jenis_rawat" => $pasien->status_lanjut == 'Ranap' ? '1' : '2',
                     "kelas_rawat" => $pasien->kelas ?? '3',
-                    "adl_sub_acute" => "0",
-                    "adl_chronic" => "0",
+                    "adl_sub_acute" => $request->adl_sub_acute ?? "",
+                    "adl_chronic" => $request->adl_chronic ?? "",
+                    "icu_indikator" => $request->icu_indikator ?? "0",
+                    "icu_los" => $request->icu_los ?? "",
+                    "ventilator_hour" => $request->ventilator_hour ?? "",
+                    "upgrade_class_ind" => $request->upgrade_class_ind ?? "0",
+                    "upgrade_class_class" => $request->upgrade_class_class ?? "",
+                    "upgrade_class_los" => $request->upgrade_class_los ?? "",
+                    "upgrade_class_payor" => $request->upgrade_class_payor ?? "",
+                    "add_payment_pct" => $request->add_payment_pct ?? "",
+                    "birth_weight" => $request->birth_weight ?? "",
                     "nama_dokter" => $pasien->nm_dokter,
 
                     "sistole"  => (string) $request->sistole,
@@ -1466,6 +1538,17 @@ class bridginginacbg2 extends Controller
             if ($request->has('tindakan_dan_operasi')) {
                 $updateData['tindakan_dan_operasi'] = $request->tindakan_dan_operasi ?? '';
             }
+            
+            $ranapFields = [
+                'diagnosa_awal', 'alasan', 'obat_di_rs', 'alergi', 'diet', 'lab_belum', 
+                'edukasi', 'cara_keluar', 'ket_keluar', 'keadaan', 'ket_keadaan', 
+                'dilanjutkan', 'ket_dilanjutkan', 'kontrol'
+            ];
+            foreach ($ranapFields as $field) {
+                if ($request->has($field)) {
+                    $updateData[$field] = $request->$field ?? '';
+                }
+            }
 
             // Diagnosa & Prosedur fields
             $diagProcFields = [
@@ -1491,6 +1574,49 @@ class bridginginacbg2 extends Controller
             return response()->json(['success' => true, 'message' => 'Resume berhasil disimpan']);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('UPDATE RESUME ERROR: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateTriaseData(Request $request)
+    {
+        try {
+            $no_rawat = $request->no_rawat;
+
+            // Update data_triase_igd (tanda vital)
+            $triaseData = [
+                'cara_masuk'            => $request->cara_masuk ?? '',
+                'alat_transportasi'     => $request->alat_transportasi ?? '',
+                'alasan_kedatangan'     => $request->alasan_kedatangan ?? '',
+                'keterangan_kedatangan' => $request->keterangan_kedatangan ?? '',
+                'kode_kasus'            => $request->kode_kasus ?? '',
+                'tekanan_darah'         => $request->tekanan_darah ?? '',
+                'nadi'                  => $request->nadi ?? '',
+                'pernapasan'            => $request->pernapasan ?? '',
+                'suhu'                  => $request->suhu ?? '',
+                'saturasi_o2'           => $request->saturasi_o2 ?? '',
+                'nyeri'                 => $request->nyeri ?? '',
+            ];
+
+            if (DB::table('data_triase_igd')->where('no_rawat', $no_rawat)->exists()) {
+                DB::table('data_triase_igd')->where('no_rawat', $no_rawat)->update($triaseData);
+            }
+
+            // Update data_triase_igdsekunder (anamnesa)
+            if ($request->has('anamnesa_singkat')) {
+                $sekunderData = [
+                    'anamnesa_singkat' => $request->anamnesa_singkat ?? '',
+                    'catatan'          => $request->catatan ?? '',
+                    'plan'             => $request->plan ?? '',
+                ];
+                if (DB::table('data_triase_igdsekunder')->where('no_rawat', $no_rawat)->exists()) {
+                    DB::table('data_triase_igdsekunder')->where('no_rawat', $no_rawat)->update($sekunderData);
+                }
+            }
+
+            return response()->json(['success' => true, 'message' => 'Data triase berhasil disimpan']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('UPDATE TRIASE ERROR: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
