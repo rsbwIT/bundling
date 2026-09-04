@@ -1,3 +1,4 @@
+@if(isset($getFisioData) && $getFisioData !== null)
 <div class="card-body">
     <style>
         .fisio-header-box { border:1px solid #000; padding:15px; margin-bottom:15px; }
@@ -168,3 +169,4 @@
         </table>
     </div>
 </div>
+@endif

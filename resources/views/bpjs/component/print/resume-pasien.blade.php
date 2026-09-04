@@ -113,10 +113,10 @@
                         </table>
                     </div>
                     <table width="700px" class="mt-1">
-                        <tr>
+                    <tr>
                             <td width="250px" class="text-center">
 
-                            </td>
+                        </td>
                             <td width="150px"></td>
                             <td width="250px" class="text-center">
                                 Penanggung Jawab
@@ -127,13 +127,13 @@
                                 </div>
                                 {{-- {{$getResume->dokter_fiso}} --}}
                                 {{ $getResume->dokter_fisio_dokter->nama ?? ($getResume->dokter_fisio_petugas->nama ?? '-') }}
-                            </td>
-                        </tr>
-                    </table>
+                        </td>
+                    </tr>
+            </table>
                 </div>
             </div>
     @else
-        @if ($statusLanjut->status_lanjut == 'Ranap')
+    @if ($statusLanjut->status_lanjut == 'Ranap')
             {{-- BERKAS RESUME RANAP --}}
             <div class="card-body">
                 <div class="">

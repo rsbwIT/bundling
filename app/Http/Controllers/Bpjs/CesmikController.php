@@ -52,59 +52,6 @@ class CesmikController extends Controller
                 $getResume = QueryResumeDll::getResumeFiso($noRawat) ?: $resume_ralan;
                 $getKamarInap = '';
                 $cekPasienKmrInap = '';
-                
-                // Cari lembar berdasarkan tanggal registrasi dan nomor RM
-                $lembarFisio = DB::table('fisioterapi_kunjungan')
-                    ->where('no_rkm_medis', $statusLanjut->no_rkm_medis)
-                    ->whereDate('tanggal', $statusLanjut->tgl_registrasi)
-                    ->value('lembar');
-                    
-                // Ambil data fisioterapi untuk ditampilkan di web
-                $dataFisio = DB::table('fisioterapi_kunjungan as fk')
-                    ->join('fisioterapi_form as ff', function ($join) {
-                        $join->on('fk.no_rkm_medis', '=', 'ff.no_rkm_medis')
-                             ->on('fk.lembar', '=', 'ff.lembar');
-                    })
-                    ->join('pasien as p', 'fk.no_rkm_medis', '=', 'p.no_rkm_medis')
-                    ->select(
-                        'p.nm_pasien',
-                        'fk.no_rawat',
-                        'fk.no_rkm_medis',
-                        'fk.kunjungan',
-                        'fk.program',
-                        'fk.tanggal',
-                        'fk.ttd_pasien',
-                        'fk.ttd_dokter',
-                        'fk.ttd_terapis',
-                        'fk.lembar',
-                        'ff.diagnosa',
-                        'ff.ft',
-                        'ff.st'
-                    )
-                    ->where('fk.no_rkm_medis', $statusLanjut->no_rkm_medis)
-                    ->where('fk.lembar', $lembarFisio)
-                    ->whereDate('fk.tanggal', '<=', $statusLanjut->tgl_registrasi)
-                    ->orderBy('fk.kunjungan', 'ASC')
-                    ->get();
-
-                if ($dataFisio->isNotEmpty()) {
-                    $firstFisio = $dataFisio->first();
-                    $dokterPJFisio = DB::table('reg_periksa')
-                        ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
-                        ->where('reg_periksa.no_rawat', $firstFisio->no_rawat)
-                        ->select('dokter.nm_dokter', 'dokter.kd_dokter')
-                        ->first();
-                    $tanggalPertamaFisio = $firstFisio->tanggal;
-                    
-                    $getFisioData = [
-                        'data' => $dataFisio,
-                        'first' => $firstFisio,
-                        'dokterPJ' => $dokterPJFisio,
-                        'tanggalPertama' => $tanggalPertamaFisio
-                    ];
-                } else {
-                    $getFisioData = null;
-                }
             } else {
                 if ($statusLanjut->status_lanjut === 'Ranap') {
                     // 4 BERKAS RESUME RANAP
@@ -137,6 +84,60 @@ class CesmikController extends Controller
                     $getKamarInap = '';
                     $cekPasienKmrInap = '';
                 }
+            }
+
+            // SELALU CEK DATA KUNJUNGAN FISIO UNTUK LEMBAR FISIOTERAPI (tanpa bergantung pada suhu_tubuh)
+            // Cari lembar berdasarkan tanggal registrasi dan nomor RM
+            $lembarFisio = DB::table('fisioterapi_kunjungan')
+                ->where('no_rkm_medis', $statusLanjut->no_rkm_medis)
+                ->whereDate('tanggal', $statusLanjut->tgl_registrasi)
+                ->value('lembar');
+                
+            // Ambil data fisioterapi untuk ditampilkan di web
+            $dataFisio = DB::table('fisioterapi_kunjungan as fk')
+                ->join('fisioterapi_form as ff', function ($join) {
+                    $join->on('fk.no_rkm_medis', '=', 'ff.no_rkm_medis')
+                            ->on('fk.lembar', '=', 'ff.lembar');
+                })
+                ->join('pasien as p', 'fk.no_rkm_medis', '=', 'p.no_rkm_medis')
+                ->select(
+                    'p.nm_pasien',
+                    'fk.no_rawat',
+                    'fk.no_rkm_medis',
+                    'fk.kunjungan',
+                    'fk.program',
+                    'fk.tanggal',
+                    'fk.ttd_pasien',
+                    'fk.ttd_dokter',
+                    'fk.ttd_terapis',
+                    'fk.lembar',
+                    'ff.diagnosa',
+                    'ff.ft',
+                    'ff.st'
+                )
+                ->where('fk.no_rkm_medis', $statusLanjut->no_rkm_medis)
+                ->where('fk.lembar', $lembarFisio)
+                ->whereDate('fk.tanggal', '<=', $statusLanjut->tgl_registrasi)
+                ->orderBy('fk.kunjungan', 'ASC')
+                ->get();
+
+            if ($dataFisio->isNotEmpty()) {
+                $firstFisio = $dataFisio->first();
+                $dokterPJFisio = DB::table('reg_periksa')
+                    ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+                    ->where('reg_periksa.no_rawat', $firstFisio->no_rawat)
+                    ->select('dokter.nm_dokter', 'dokter.kd_dokter')
+                    ->first();
+                $tanggalPertamaFisio = $firstFisio->tanggal;
+                
+                $getFisioData = [
+                    'data' => $dataFisio,
+                    'first' => $firstFisio,
+                    'dokterPJ' => $dokterPJFisio,
+                    'tanggalPertama' => $tanggalPertamaFisio
+                ];
+            } else {
+                $getFisioData = null;
             }
 
             // 6 RIANCIAN BIAYA
@@ -246,6 +247,7 @@ class CesmikController extends Controller
             'semuaBerkasDigital' => $semuaBerkasDigital,
             'lembarFisio' => $lembarFisio,
             'getFisioData' => $getFisioData ?? null,
+            'isFisio' => $isFisio ?? false,
             'getSetting' => $getSetting, // Also make sure getSetting is passed (it already is but I'll leave it as is if it's there)
         ]);
     }
