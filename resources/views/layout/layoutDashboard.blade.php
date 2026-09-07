@@ -499,7 +499,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/returObat') }}" class="nav-link">
+                                    <a href="{{ url('/returObat') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Retur Obat</p>
                                     </a>
@@ -507,7 +507,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/pembayaran-ralan') }}" class="nav-link">
+                                    <a href="{{ url('/pembayaran-ralan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pembayaran Ralan</p>
                                     </a>
@@ -515,7 +515,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cari-piutang-ralan') }}" class="nav-link">
+                                    <a href="{{ url('/cari-piutang-ralan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Piutang Ralan</p>
                                     </a>
@@ -523,7 +523,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cari-piutang-ranap') }}" class="nav-link">
+                                    <a href="{{ url('/cari-piutang-ranap') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Piutang Ranap</p>
                                     </a>
@@ -531,7 +531,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cari-bayar-piutang') }}" class="nav-link">
+                                    <a href="{{ url('/cari-bayar-piutang') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Piutang</p>
                                     </a>
@@ -539,7 +539,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/bayar-piutang-khanza') }}" class="nav-link">
+                                    <a href="{{ url('/bayar-piutang-khanza') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Piutang <span class="text-xs">(Khanza)</span></p>
                                     </a>
@@ -547,7 +547,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cari-cob-bayar-piutang') }}" class="nav-link">
+                                    <a href="{{ url('/cari-cob-bayar-piutang') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>COB</p>
                                     </a>
@@ -555,7 +555,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cob-harian') }}" class="nav-link">
+                                    <a href="{{ url('/cob-harian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien COB <span class="text-xs">(Harian)</span></p>
                                     </a>
@@ -563,7 +563,7 @@
                             </ul>
                             <ul class="nav nav-treeview"> 
                                 <li class="nav-item">
-                                    <a href="{{ url('/piutang-harian') }}" class="nav-link">
+                                    <a href="{{ url('/piutang-harian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Piutang <span class="text-xs">(Harian)</span></p>
                                     </a>
@@ -571,7 +571,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/cari-bayar-umum') }}" class="nav-link">
+                                    <a href="{{ url('/cari-bayar-umum') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Umum</p>
                                     </a>
@@ -579,7 +579,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/bayar-piutang-karyawan') }}" class="nav-link">
+                                    <a href="{{ url('/bayar-piutang-karyawan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bayar Piutang Karyawan</p>
                                     </a>
@@ -587,7 +587,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/invoice-asuransi') }}" class="nav-link">
+                                    <a href="{{ url('/invoice-asuransi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Invoice Asuransi</p>
                                     </a>
@@ -595,7 +595,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/pasien-terdaftar') }}" class="nav-link">
+                                    <a href="{{ url('/pasien-terdaftar') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Terdaftar</p>
                                     </a>
@@ -613,7 +613,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
@@ -621,7 +621,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-paramedis') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-paramedis') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
@@ -629,7 +629,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter-paramedis') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter-paramedis') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
@@ -637,7 +637,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/operasi-and-vk') }}" class="nav-link">
+                                    <a href="{{ url('/operasi-and-vk') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Operasi & VK</p>
                                     </a>
@@ -645,7 +645,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/operasi-and-vk-kso') }}" class="nav-link">
+                                    <a href="{{ url('/operasi-and-vk-kso') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Operasi & VK (KSO)</p>
                                     </a>
@@ -653,7 +653,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
@@ -661,7 +661,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-paramedis') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-paramedis') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
@@ -669,7 +669,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-paramedis') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter-paramedis') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
@@ -677,7 +677,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksa-radiologi') }}" class="nav-link">
+                                    <a href="{{ url('/periksa-radiologi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
@@ -685,7 +685,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksalabpa') }}" class="nav-link">
+                                    <a href="{{ url('/periksalabpa') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Periksa LAB PA
@@ -696,7 +696,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/jm-asuransi') }}" class="nav-link">
+                                    <a href="{{ url('/jm-asuransi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             JM Medis (Asuransi)
@@ -715,7 +715,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter2') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
@@ -723,7 +723,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-paramedis2') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-paramedis2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
@@ -731,7 +731,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter-paramedis2') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter-paramedis2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
@@ -739,7 +739,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter4') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter4') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
@@ -747,7 +747,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-paramedis2') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-paramedis2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
@@ -755,7 +755,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-paramedis2') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter-paramedis2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
@@ -763,7 +763,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksa-radiologi2') }}" class="nav-link">
+                                    <a href="{{ url('/periksa-radiologi2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
@@ -771,7 +771,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/operasi-and-vk1') }}" class="nav-link">
+                                    <a href="{{ url('/operasi-and-vk1') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Operasi & VK</p>
                                     </a>
@@ -779,7 +779,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksalabpabulanan') }}" class="nav-link">
+                                    <a href="{{ url('/periksalabpabulanan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Periksa LAB PA
@@ -790,7 +790,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             JM Medis (BPJS)
@@ -811,7 +811,7 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ralan-dokter-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ralan-dokter-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ralan Dokter <span class="text-xs">(um)</span></p>
                                         </a>
@@ -819,7 +819,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ralan-paramedis-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ralan-paramedis-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ralan Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
@@ -827,7 +827,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ralan-dokter-paramedis-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ralan-dokter-paramedis-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ralan Dokter Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
@@ -835,7 +835,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/operasi-and-vk-umum') }}" class="nav-link">
+                                        <a href="{{ url('/operasi-and-vk-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Operasi & VK <span class="text-xs">(um)</span></p>
                                         </a>
@@ -843,7 +843,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ranap-dokter-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ranap-dokter-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ranap Dokter <span class="text-xs">(um)</span></p>
                                         </a>
@@ -851,7 +851,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ranap-paramedis-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ranap-paramedis-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ranap Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
@@ -859,7 +859,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/ranap-dokter-paramedis-umum') }}" class="nav-link">
+                                        <a href="{{ url('/ranap-dokter-paramedis-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Ranap Dokter Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
@@ -867,7 +867,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/periksa-radiologi-umum') }}" class="nav-link">
+                                        <a href="{{ url('/periksa-radiologi-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Periksa Radiologi <span class="text-xs">(um)</span></p>
                                         </a>
@@ -875,7 +875,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksalabpaumum') }}" class="nav-link">
+                                    <a href="{{ url('/periksalabpaumum') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Periksa LAB PA (um)
@@ -886,7 +886,7 @@
                             </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/jm-umum') }}" class="nav-link">
+                                        <a href="{{ url('/jm-umum') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>
                                                 JM Medis (Umum)
@@ -907,7 +907,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
@@ -915,7 +915,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-paramedis-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-paramedis-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
@@ -923,7 +923,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ralan-dokter-paramedis-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ralan-dokter-paramedis-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
@@ -931,7 +931,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
@@ -939,7 +939,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-paramedis-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-paramedis-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
@@ -947,7 +947,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/ranap-dokter-paramedis-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/ranap-dokter-paramedis-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
@@ -955,7 +955,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksa-radiologi-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/periksa-radiologi-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
@@ -963,7 +963,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/operasi-and-vk-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/operasi-and-vk-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Operasi & VK</p>
                                     </a>
@@ -971,7 +971,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/periksalabpabpjs') }}" class="nav-link">
+                                    <a href="{{ url('/periksalabpabpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Periksa LAB PA
@@ -982,7 +982,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('/jm-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             JM Medis (BPJS)
@@ -1004,7 +1004,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/list-pasein-ralan') }}" class="nav-link">
+                                    <a href="{{ url('/list-pasein-ralan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Pasien Ralan</p>
                                     </a>
@@ -1012,7 +1012,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/list-pasein-ralan2') }}" class="nav-link">
+                                    <a href="{{ url('/list-pasein-ralan2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Pasien Ralan 2</p>
                                     </a>
@@ -1020,7 +1020,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/list-pasein-ranap') }}" class="nav-link">
+                                    <a href="{{ url('/list-pasein-ranap') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Pasien Ranap</p>
                                     </a>
@@ -1028,7 +1028,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/list-pasein-ranap2') }}" class="nav-link">
+                                    <a href="{{ url('/list-pasein-ranap2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Pasien Ranap 2</p>
                                     </a>
@@ -1036,7 +1036,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/data-inacbg') }}" class="nav-link">
+                                    <a href="{{ url('/data-inacbg') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Inacbg</p>
                                     </a>
@@ -1044,7 +1044,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/casemix-home') }}" class="nav-link">
+                                    <a href="{{ url('/casemix-home') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Gabung Berkas</p>
                                     </a>
@@ -1052,7 +1052,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/bpjs/croscek-pasien-pulang') }}" class="nav-link">
+                                    <a href="{{ url('/bpjs/croscek-pasien-pulang') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Croscek Pasien Pulang</p>
                                     </a>
@@ -1060,7 +1060,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/croscheck-coding') }}" class="nav-link">
+                                    <a href="{{ url('/croscheck-coding') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Cross Check Coding</p>
                                     </a>
@@ -1069,7 +1069,7 @@
                             @if (session('obat') === 'true')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link">
+                                        <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Setting Casemix</p>
                                         </a>
@@ -1089,7 +1089,7 @@
                             @if (session('obat') === 'true')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('list-pasien-farmasi') }}" class="nav-link">
+                                        <a href="{{ url('list-pasien-farmasi') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Piutang Obat & Alkes</p>
                                         </a>
@@ -1097,7 +1097,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('list-pasien-farmasi2') }}" class="nav-link">
+                                        <a href="{{ url('list-pasien-farmasi2') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Piutang Obat & Alkes 2</p>
                                         </a>
@@ -1105,7 +1105,7 @@
                                 </ul>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('minimal-stok-obat') }}" class="nav-link">
+                                        <a href="{{ url('minimal-stok-obat') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Stok Minimal Obat</p>
                                         </a>
@@ -1124,7 +1124,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('pre-claim-validator') }}" class="nav-link">
+                                    <a href="{{ url('pre-claim-validator') }}" class="nav-link" target="_blank">
                                         <i class="fas fa-clipboard-check nav-icon"></i>
                                         <p>
                                             Kroscek Klaim BPJS
@@ -1133,7 +1133,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('kirim-taskid-bpjs') }}" class="nav-link">
+                                    <a href="{{ url('kirim-taskid-bpjs') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Cekin / Kirim TaskID
@@ -1144,7 +1144,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('kirim-taskid-bpjs2') }}" class="nav-link">
+                                    <a href="{{ url('kirim-taskid-bpjs2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Kirim TaskID 2
@@ -1155,7 +1155,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('update-jadwal-dokter') }}" class="nav-link">
+                                    <a href="{{ url('update-jadwal-dokter') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             HFIS
@@ -1166,7 +1166,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('sep-vclaim') }}" class="nav-link">
+                                    <a href="{{ url('sep-vclaim') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Simpan SEP Vclaim
@@ -1177,7 +1177,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('icare') }}" class="nav-link">
+                                    <a href="{{ url('icare') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Icare
@@ -1201,7 +1201,7 @@
                             @if (session('registrasi') === 'true')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{{ url('anjungan-mandiri') }}" class="nav-link">
+                                        <a href="{{ url('anjungan-mandiri') }}" class="nav-link" target="_blank">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Anjungan Mandiri</p>
                                         </a>
@@ -1210,7 +1210,7 @@
                             @endif
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-pendaftaran') }}" class="nav-link">
+                                    <a href="{{ url('antrian-pendaftaran') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Pendaftaran</p>
                                     </a>
@@ -1218,7 +1218,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian') }}" class="nav-link">
+                                    <a href="{{ url('antrian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Panggil Pasien <span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1226,7 +1226,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian/tv') }}" class="nav-link">
+                                    <a href="{{ url('antrian/tv') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display TV Baru <span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1234,7 +1234,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('regperiksabilling') }}" class="nav-link">
+                                    <a href="{{ url('regperiksabilling') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Reg Periksa</p>
                                     </a>
@@ -1242,7 +1242,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('info-kamar-ruangan') }}" class="nav-link">
+                                    <a href="{{ url('info-kamar-ruangan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Setting Ruangan/Kamar</p>
                                     </a>
@@ -1250,7 +1250,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('info-kamar') }}" class="nav-link">
+                                    <a href="{{ url('info-kamar') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar</p>
                                     </a>
@@ -1258,7 +1258,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('info-kamar2') }}" class="nav-link">
+                                    <a href="{{ url('info-kamar2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar 2</p>
                                     </a>
@@ -1266,7 +1266,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/info-kamar3') }}" class="nav-link">
+                                    <a href="{{ url('/info-kamar3') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar 3 <span class="text-xs">(MJKN)</span></p>
                                     </a>
@@ -1274,7 +1274,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('info-kamar-baru') }}" class="nav-link">
+                                    <a href="{{ url('info-kamar-baru') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar 4<span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1282,7 +1282,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('setting-antrian') }}" class="nav-link">
+                                    <a href="{{ url('setting-antrian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Setting Antrian</p>
                                     </a>
@@ -1301,7 +1301,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-poli') }}" class="nav-link">
+                                    <a href="{{ url('antrian-poli') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Display</p>
                                     </a>
@@ -1309,7 +1309,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('setting-antrian-poli') }}" class="nav-link">
+                                    <a href="{{ url('setting-antrian-poli') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Setting Poli</p>
                                     </a>
@@ -1317,7 +1317,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('jadwal-dokter') }}" class="nav-link">
+                                    <a href="{{ url('jadwal-dokter') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Jadwal Dokter</p>
                                     </a>
@@ -1335,7 +1335,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ambil Antrian</p>
                                     </a>
@@ -1343,7 +1343,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('farmasi/antrian') }}" class="nav-link">
+                                    <a href="{{ url('farmasi/antrian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Panggil Antrian</p>
                                     </a>
@@ -1351,7 +1351,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi/panggil') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi/panggil') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Panggil Antrian<span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1359,7 +1359,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi-baru') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi-baru') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display Farmasi<span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1367,7 +1367,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('antrian-farmasi/display-v2') }}" class="nav-link">
+                                    <a href="{{ url('antrian-farmasi/display-v2') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display Farmasi V2<span class="badge bg-success">Baru</span></p>
                                     </a>
@@ -1375,7 +1375,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('display-farmasi') }}" class="nav-link">
+                                    <a href="{{ url('display-farmasi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display TV</p>
                                     </a>
@@ -1383,7 +1383,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/waktu-tunggu-farmasi') }}" class="nav-link">
+                                    <a href="{{ url('/waktu-tunggu-farmasi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Waktu Tunggu Farmasi</p>
                                     </a>
@@ -1401,31 +1401,31 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('laporan-borlosetc') }}" class="nav-link">
+                                    <a href="{{ url('laporan-borlosetc') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Sensus Bulanan</p>
                                     </a>
                                 </li>
                                    <li class="nav-item">
-                                    <a href="{{ url('kroscek-pasien') }}" class="nav-link">
+                                    <a href="{{ url('kroscek-pasien') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kroscek Pasien</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('kroscek-general-consent') }}" class="nav-link">
+                                    <a href="{{ url('kroscek-general-consent') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kroscek General Consent</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('laporan-pasien') }}" class="nav-link">
+                                    <a href="{{ url('laporan-pasien') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Laporan Pasien</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('rm/diagnosa') }}" class="nav-link">
+                                    <a href="{{ url('rm/diagnosa') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Diagnosa Pasien</p>
                                     </a>
@@ -1433,7 +1433,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('berkas-rm') }}" class="nav-link">
+                                    <a href="{{ url('berkas-rm') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Berkas Pasien BPJS</p>
                                     </a>
@@ -1441,7 +1441,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('waktu-tunggu-pasien-bayar') }}" class="nav-link">
+                                    <a href="{{ url('waktu-tunggu-pasien-bayar') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Bayar</p>
                                     </a>
@@ -1449,7 +1449,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('rawat-jalan') }}" class="nav-link">
+                                    <a href="{{ url('rawat-jalan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Rawat Jalan</p>
                                     </a>
@@ -1457,7 +1457,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('kunjungan-ralan') }}" class="nav-link">
+                                    <a href="{{ url('kunjungan-ralan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kunjungan Ralan</p>
                                     </a>
@@ -1465,7 +1465,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('status-data-rm') }}" class="nav-link">
+                                    <a href="{{ url('status-data-rm') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Status Data RM</p>
                                     </a>
@@ -1473,7 +1473,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('pasien-pulang-ranap') }}" class="nav-link">
+                                    <a href="{{ url('pasien-pulang-ranap') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Pulang Ranap</p>
                                     </a>
@@ -1481,7 +1481,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('pasien-ranap-igd') }}" class="nav-link">
+                                    <a href="{{ url('pasien-ranap-igd') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Ranap IGD</p>
                                     </a>
@@ -1489,7 +1489,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('pasien-per-episode') }}" class="nav-link">
+                                    <a href="{{ url('pasien-per-episode') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Per Episode</p>
                                     </a>
@@ -1497,7 +1497,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('tabulasi-igd') }}" class="nav-link">
+                                    <a href="{{ url('tabulasi-igd') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Tabulasi Pasien IGD</p>
                                     </a>
@@ -1505,7 +1505,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('pasien-meninggal') }}" class="nav-link">
+                                    <a href="{{ url('pasien-meninggal') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Meninggal</p>
                                     </a>
@@ -1513,7 +1513,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('jumlah-pasien') }}" class="nav-link">
+                                    <a href="{{ url('jumlah-pasien') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Jumlah Pasien</p>
                                     </a>
@@ -1521,7 +1521,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('skrining-ispa') }}" class="nav-link">
+                                    <a href="{{ url('skrining-ispa') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Skrining ISPA</p>
                                     </a>
@@ -1539,7 +1539,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('rawat-inap') }}" class="nav-link">
+                                    <a href="{{ url('rawat-inap') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Rawat Inap</p>
                                     </a>
@@ -1547,7 +1547,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('infokamarinap') }}" class="nav-link">
+                                    <a href="{{ url('infokamarinap') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Info Kamar Inap</p>
                                     </a>
@@ -1555,7 +1555,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('kamar-inap-dr') }}" class="nav-link">
+                                    <a href="{{ url('kamar-inap-dr') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Rawat Inap DPJP</p>
                                     </a>
@@ -1573,7 +1573,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('inventaris-barang') }}" class="nav-link">
+                                    <a href="{{ url('inventaris-barang') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Cetak Inventaris</p>
                                     </a>
@@ -1590,7 +1590,7 @@
                                 </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('laboratorium') }}" class="nav-link">
+                                    <a href="{{ url('laboratorium') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemeriksaan LAB</p>
                                     </a>
@@ -1660,19 +1660,19 @@
                             <ul class="nav nav-treeview">
 
                                 <li class="nav-item">
-                                    <a href="{{ url('/mjkn') }}" class="nav-link">
+                                    <a href="{{ url('/mjkn') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Ambil Antrean M-JKN</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('/mjkn/taskid') }}" class="nav-link">
+                                    <a href="{{ url('/mjkn/taskid') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Task ID BPJS</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('/bpjs/mjkn/antrean') }}" class="nav-link">
+                                    <a href="{{ url('/bpjs/mjkn/antrean') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kirim Task Id M-JKN</p>
                                     </a>
@@ -1701,7 +1701,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/gizi') }}" class="nav-link">
+                                    <a href="{{ url('/gizi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Data Diet Pasien</p>
                                     </a>
@@ -1719,7 +1719,7 @@
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/urologi') }}" class="nav-link">
+                                    <a href="{{ url('/urologi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Urologi USG</p>
                                     </a>
@@ -1738,13 +1738,13 @@
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/skriningtbc') }}" class="nav-link">
+                                    <a href="{{ url('/skriningtbc') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Skrining TBC</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('/skrining-tbc') }}" class="nav-link">
+                                    <a href="{{ url('/skrining-tbc') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Data Skrining TBC</p>
                                     </a>
@@ -1762,7 +1762,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('home-keperawatan') }}" class="nav-link">
+                                    <a href="{{ url('home-keperawatan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kegiatan Keperawtan</p>
                                     </a>
@@ -1770,7 +1770,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/pasien-lebih-dari-1') }}" class="nav-link">
+                                    <a href="{{ url('/pasien-lebih-dari-1') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien >1 Berobat</p>
                                     </a>
@@ -1789,7 +1789,7 @@
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/fisioterapi') }}" class="nav-link">
+                                    <a href="{{ url('/fisioterapi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien Fisioterapi</p>
                                     </a>
@@ -1797,7 +1797,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/antrian-fisioterapi') }}" class="nav-link">
+                                    <a href="{{ url('/antrian-fisioterapi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Panggil Pasien</p>
                                     </a>
@@ -1805,7 +1805,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/display-fisioterapi') }}" class="nav-link">
+                                    <a href="{{ url('/display-fisioterapi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display Panggilan</p>
                                     </a>
@@ -1822,7 +1822,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/laporan-lab/anti-hiv') }}" class="nav-link">
+                                    <a href="{{ url('/laporan-lab/anti-hiv') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pasien HIV</p>
                                     </a>
@@ -1840,7 +1840,7 @@
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/pemesanan-farmasi') }}" class="nav-link">
+                                    <a href="{{ url('/pemesanan-farmasi') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan Farmasi</p>
                                     </a>
@@ -1849,7 +1849,7 @@
 
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/belanja') }}" class="nav-link">
+                                    <a href="{{ url('/belanja') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Rencana Belanja Farmasi</p>
                                     </a>
@@ -1884,7 +1884,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/listnama') }}" class="nav-link">
+                                    <a href="{{ url('/listnama') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List Nama Pasien</p>
                                     </a>
@@ -1914,7 +1914,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ url('/berkas-pegawai') }}" class="nav-link">
+                                    <a href="{{ url('/berkas-pegawai') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Upload Berkas Pegawai
                                             <span class="badge badge-danger right">NEW</span>
