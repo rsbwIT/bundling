@@ -5,5 +5,5 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 use Illuminate\Support\Facades\DB;
 
-print_r(DB::select("SHOW COLUMNS FROM penyakit")); 
-print_r(DB::select("SHOW COLUMNS FROM icd9"));
+print_r(DB::select("SHOW COLUMNS FROM diagnosa_pasien"));
+print_r(DB::select("SHOW COLUMNS FROM prosedur_pasien"));

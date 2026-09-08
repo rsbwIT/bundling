@@ -57,13 +57,16 @@
                 <thead class="bg-info text-white text-center">
                     <tr>
                         <th width="3%">No</th>
-                        <th width="15%">No. Rawat / RM</th>
-                        <th width="20%">Nama Pasien</th>
-                        <th width="12%">Tgl / Poli</th>
-                        <th width="8%">Status</th>
-                        <th width="15%">ICD-10 (Diagnosa)</th>
-                        <th width="15%">ICD-9 (Prosedur)</th>
-                        <th width="10%">Aksi</th>
+                        <th width="12%">No. Rawat / RM</th>
+                        <th width="15%">Nama Pasien</th>
+                        <th width="8%">Tgl / Poli</th>
+                        <th width="8%">Bayar</th>
+                        <th width="6%">Status</th>
+                        <th width="10%">ICD-10 (Dokter)</th>
+                        <th width="10%">ICD-9 (Dokter)</th>
+                        <th width="10%">ICD-10 (RM)</th>
+                        <th width="10%">ICD-9 (RM)</th>
+                        <th width="8%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,19 +83,28 @@
                                 <small class="badge badge-secondary">{{ $rp->nm_poli }}</small>
                             </td>
                             <td class="align-middle text-center">
+                                <span class="text-success font-weight-bold">{{ $rp->png_jawab }}</span>
+                            </td>
+                            <td class="align-middle text-center">
                                 <span class="badge {{ $rp->status_lanjut == 'Ranap' ? 'badge-primary' : 'badge-success' }}">
                                     {{ $rp->status_lanjut }}
                                 </span>
                             </td>
-                            <td class="align-middle" id="td_icd10_{{ str_replace('/', '', $rp->no_rawat) }}">
+                            <td class="align-middle text-muted">
+                                {{ $rp->icd10_dokter ?: '-' }}
+                            </td>
+                            <td class="align-middle text-muted">
+                                {{ $rp->icd9_dokter ?: '-' }}
+                            </td>
+                            <td class="align-middle text-primary font-weight-bold" id="td_icd10_{{ str_replace('/', '', $rp->no_rawat) }}">
                                 {{ $rp->icd10 ?: '-' }}
                             </td>
-                            <td class="align-middle" id="td_icd9_{{ str_replace('/', '', $rp->no_rawat) }}">
+                            <td class="align-middle text-primary font-weight-bold" id="td_icd9_{{ str_replace('/', '', $rp->no_rawat) }}">
                                 {{ $rp->icd9 ?: '-' }}
                             </td>
                             <td class="align-middle text-center">
                                 <button class="btn btn-sm btn-info w-100" onclick="bukaModalKodingan('{{ $rp->no_rawat }}', '{{ $rp->icd10 }}', '{{ $rp->icd9 }}', '{{ addslashes($rp->nm_pasien) }}')">
-                                    <i class="fas fa-edit"></i> Input ICD
+                                    <i class="fas fa-edit"></i> Koding
                                 </button>
                             </td>
                         </tr>

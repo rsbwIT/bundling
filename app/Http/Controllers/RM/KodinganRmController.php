@@ -20,7 +20,10 @@ class KodinganRmController extends Controller
         $query = DB::table('reg_periksa as rp')
             ->join('pasien as p', 'rp.no_rkm_medis', '=', 'p.no_rkm_medis')
             ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli')
-            ->leftJoin('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat');
+            ->leftJoin('penjab as pj', 'rp.kd_pj', '=', 'pj.kd_pj')
+            ->leftJoin('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat')
+            ->leftJoin(DB::raw('(SELECT no_rawat, GROUP_CONCAT(kd_penyakit SEPARATOR ", ") as icd10_dokter FROM diagnosa_pasien GROUP BY no_rawat) as dp'), 'rp.no_rawat', '=', 'dp.no_rawat')
+            ->leftJoin(DB::raw('(SELECT no_rawat, GROUP_CONCAT(kode SEPARATOR ", ") as icd9_dokter FROM prosedur_pasien GROUP BY no_rawat) as pp'), 'rp.no_rawat', '=', 'pp.no_rawat');
 
         $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
 
@@ -47,9 +50,12 @@ class KodinganRmController extends Controller
             'rp.status_lanjut',
             'rp.tgl_registrasi',
             'pol.nm_poli',
+            'pj.png_jawab',
             'rp.stts',
             'krm.icd10',
-            'krm.icd9'
+            'krm.icd9',
+            'dp.icd10_dokter',
+            'pp.icd9_dokter'
         ]);
 
         $dataPasien = $query->orderBy('rp.tgl_registrasi', 'DESC')->paginate($perPage);
