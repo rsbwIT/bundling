@@ -89,6 +89,7 @@ use App\Http\Controllers\RM\PasienRanapIgd;
 use App\Http\Controllers\RM\PasienMeninggal;
 use App\Http\Controllers\RM\TabulasiIGD;
 use App\Http\Controllers\RM\SkriningIspa;
+use App\Http\Controllers\RM\KodinganRmController;
 // use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
 use App\Http\Controllers\AntrianFarmasi\DisplayController;
 use App\Http\Controllers\AntrianFarmasi\AntrianFarmasiController;
@@ -775,6 +776,12 @@ Route::group(['middleware' => 'default'], function () {
         // skrining ispa
         Route::get('/skrining-ispa', [SkriningIspa::class, 'index'])
             ->name('skrining.ispa');
+
+        // Kodingan RM
+        Route::get('/kodingan-rm', [KodinganRmController::class, 'index'])->name('kodingan.rm');
+        Route::get('/kodingan-rm/cari-icd10', [KodinganRmController::class, 'cariIcd10']);
+        Route::get('/kodingan-rm/cari-icd9', [KodinganRmController::class, 'cariIcd9']);
+        Route::post('/kodingan-rm/store', [KodinganRmController::class, 'store'])->name('kodingan.rm.store');
 
         //LAPORAN LAB
         Route::get('/laporan-lab/anti-hiv', [LaporanLab::class, 'index']);

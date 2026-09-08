@@ -1527,6 +1527,14 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('kodingan-rm') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Kodingan Versi RM</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         {{-- Pasien --}}
                         <li class="nav-item">
