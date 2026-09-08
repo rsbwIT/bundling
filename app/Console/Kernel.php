@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('bed:update-times')->everyFiveMinutes();
         $schedule->command('mjkn:kirim-antrean')->everyMinute();
+        $schedule->command('mjkn:auto-task')->everyMinute();
     }
 
     /**

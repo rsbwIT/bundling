@@ -227,35 +227,40 @@ class KirimAntreanMjkn extends Command
             }
             $this->info("    - [DEBUG] lastTaskWaktu: " . $lastTaskWaktu);
             
-            // Task 1 & 2 dari reg_periksa
+            // Task 1, 2, & 3 dari reg_periksa
             $loket = DB::table('reg_periksa')
                 ->where('no_rawat', $no_rawat)
                 ->first();
                 
             if ($loket) {
                 $waktuReg = strtotime($loket->tgl_registrasi . ' ' . $loket->jam_reg) * 1000;
-                if ($waktuReg <= $lastTaskWaktu) $waktuReg = $lastTaskWaktu + 1000;
-                $this->kirimTask($baseUrl, $consId, $secretKey, $userKey, $kodebooking, 1, $waktuReg);
-                $lastTaskWaktu = $waktuReg;
                 
-                $waktuTask2 = $waktuReg + 60000;
+                // Task 1: jam_reg - 2 menit
+                $waktuTask1 = $waktuReg - 120000;
+                if ($waktuTask1 <= $lastTaskWaktu) $waktuTask1 = $lastTaskWaktu + 1000;
+                $this->kirimTask($baseUrl, $consId, $secretKey, $userKey, $kodebooking, 1, $waktuTask1);
+                $lastTaskWaktu = $waktuTask1;
+                
+                // Task 2: jam_reg - 1 menit
+                $waktuTask2 = $waktuReg - 60000;
                 if ($waktuTask2 <= $lastTaskWaktu) $waktuTask2 = $lastTaskWaktu + 1000;
                 $this->kirimTask($baseUrl, $consId, $secretKey, $userKey, $kodebooking, 2, $waktuTask2);
                 $lastTaskWaktu = $waktuTask2;
+                
+                // Task 3: jam_reg (karena pasien sudah selesai admisi & SEP)
+                $waktuTask3 = $waktuReg;
+                if ($waktuTask3 <= $lastTaskWaktu) $waktuTask3 = $lastTaskWaktu + 1000;
+                $this->kirimTask($baseUrl, $consId, $secretKey, $userKey, $kodebooking, 3, $waktuTask3);
+                $lastTaskWaktu = $waktuTask3;
             }
             
-            // Task 3 & 4 dari mutasi_berkas
+            // Task 4 dari mutasi_berkas
             $mutasi = DB::table('mutasi_berkas')
                 ->where('no_rawat', $no_rawat)
                 ->where('dikirim', '>', '1970-01-01 00:00:00')
                 ->first();
                 
             if ($mutasi) {
-                $waktuTask3 = strtotime($mutasi->dikirim) * 1000;
-                if ($waktuTask3 <= $lastTaskWaktu) $waktuTask3 = $lastTaskWaktu + 1000;
-                $this->kirimTask($baseUrl, $consId, $secretKey, $userKey, $kodebooking, 3, $waktuTask3);
-                $lastTaskWaktu = $waktuTask3;
-                
                 if ($mutasi->diterima > '1970-01-01 00:00:00') {
                     $waktuTask4 = strtotime($mutasi->diterima) * 1000;
                     if ($waktuTask4 <= $lastTaskWaktu) $waktuTask4 = $lastTaskWaktu + 1000;
