@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Kodingan Versi RM')
+@section('title', 'Codingan ICD 10 & ICD 9')
 
 @section('konten')
 <section class="content pt-3">

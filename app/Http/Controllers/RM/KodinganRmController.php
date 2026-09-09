@@ -22,8 +22,17 @@ class KodinganRmController extends Controller
             ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli')
             ->leftJoin('penjab as pj', 'rp.kd_pj', '=', 'pj.kd_pj')
             ->leftJoin('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat')
-            ->leftJoin(DB::raw('(SELECT no_rawat, GROUP_CONCAT(kd_penyakit SEPARATOR ", ") as icd10_dokter FROM diagnosa_pasien GROUP BY no_rawat) as dp'), 'rp.no_rawat', '=', 'dp.no_rawat')
-            ->leftJoin(DB::raw('(SELECT no_rawat, GROUP_CONCAT(kode SEPARATOR ", ") as icd9_dokter FROM prosedur_pasien GROUP BY no_rawat) as pp'), 'rp.no_rawat', '=', 'pp.no_rawat');
+            ->leftJoin(DB::raw('(
+                SELECT no_rawat, 
+                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder4), ""), "-")) as icd10_dokter,
+                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder3), ""), "-")) as icd9_dokter
+                FROM resume_pasien
+                UNION
+                SELECT no_rawat, 
+                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder4), ""), "-")) as icd10_dokter,
+                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder3), ""), "-")) as icd9_dokter
+                FROM resume_pasien_ranap
+            ) as resume'), 'rp.no_rawat', '=', 'resume.no_rawat');
 
         $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
 
@@ -54,8 +63,8 @@ class KodinganRmController extends Controller
             'rp.stts',
             'krm.icd10',
             'krm.icd9',
-            'dp.icd10_dokter',
-            'pp.icd9_dokter'
+            'resume.icd10_dokter',
+            'resume.icd9_dokter'
         ]);
 
         $dataPasien = $query->orderBy('rp.tgl_registrasi', 'DESC')->paginate($perPage);
