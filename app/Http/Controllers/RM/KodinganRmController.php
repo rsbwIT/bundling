@@ -22,6 +22,7 @@ class KodinganRmController extends Controller
             ->leftJoin('poliklinik as pol', 'rp.kd_poli', '=', 'pol.kd_poli')
             ->leftJoin('penjab as pj', 'rp.kd_pj', '=', 'pj.kd_pj')
             ->leftJoin('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat')
+            ->leftJoin('kamar_inap as ki', 'rp.no_rawat', '=', 'ki.no_rawat')
             ->leftJoin(DB::raw('(
                 SELECT no_rawat, 
                        CONCAT_WS(", ", NULLIF(NULLIF(TRIM(diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder4), ""), "-")) as icd10_dokter,
@@ -34,15 +35,19 @@ class KodinganRmController extends Controller
                 FROM resume_pasien_ranap
             ) as resume'), 'rp.no_rawat', '=', 'resume.no_rawat');
 
-        $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
-
-        if ($filterStatus != 'semua') {
-            if ($filterStatus == 'ranap') {
-                $query->where('rp.status_lanjut', 'Ranap');
-            } elseif ($filterStatus == 'ralan') {
-                $query->where('rp.status_lanjut', 'Ralan');
-            }
+        // Filter berdasarkan tanggal: ranap pakai tgl_keluar (kamar_inap), lainnya pakai tgl_registrasi
+        if ($filterStatus == 'ranap') {
+            $query->where('rp.status_lanjut', 'Ranap')
+                  ->whereBetween('ki.tgl_keluar', [$tanggalMulai, $tanggalSelesai]);
+        } elseif ($filterStatus == 'ralan') {
+            $query->where('rp.status_lanjut', 'Ralan')
+                  ->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
+        } else {
+            $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
         }
+
+        // Exclude pasien dengan status Batal
+        $query->where('rp.stts', '!=', 'Batal');
 
         if (!empty($searchTerm)) {
             $query->where(function($q) use ($searchTerm) {
@@ -58,6 +63,7 @@ class KodinganRmController extends Controller
             'p.nm_pasien',
             'rp.status_lanjut',
             'rp.tgl_registrasi',
+            'ki.tgl_keluar as tgl_pulang',
             'pol.nm_poli',
             'pj.png_jawab',
             'rp.stts',
@@ -67,7 +73,12 @@ class KodinganRmController extends Controller
             'resume.icd9_dokter'
         ]);
 
-        $dataPasien = $query->orderBy('rp.tgl_registrasi', 'DESC')->paginate($perPage);
+        // Untuk ranap, urutkan berdasarkan tgl_keluar (tanggal pulang)
+        if ($filterStatus == 'ranap') {
+            $dataPasien = $query->orderBy('ki.tgl_keluar', 'DESC')->paginate($perPage);
+        } else {
+            $dataPasien = $query->orderBy('rp.tgl_registrasi', 'DESC')->paginate($perPage);
+        }
 
         return view('rm.kodingan-rm', compact(
             'dataPasien', 'tanggalMulai', 'tanggalSelesai', 'searchTerm', 'filterStatus', 'perPage'
@@ -105,6 +116,71 @@ class KodinganRmController extends Controller
         }
         $data = $query->limit(50)->get();
         return response()->json($data);
+    }
+
+    public function top10(Request $request)
+    {
+        $tanggalMulai = $request->get('tanggal_mulai', Carbon::now()->format('Y-m-d'));
+        $tanggalSelesai = $request->get('tanggal_selesai', Carbon::now()->format('Y-m-d'));
+        $filterStatus = $request->get('filter_status', 'semua');
+
+        $query = DB::table('reg_periksa as rp')
+            ->join('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat')
+            ->leftJoin('kamar_inap as ki', 'rp.no_rawat', '=', 'ki.no_rawat')
+            ->whereNotNull('krm.icd10')
+            ->where('krm.icd10', '!=', '');
+
+        // Filter berdasarkan tanggal: ranap pakai tgl_keluar (kamar_inap), lainnya pakai tgl_registrasi
+        if ($filterStatus == 'ranap') {
+            $query->where('rp.status_lanjut', 'Ranap')
+                  ->whereBetween('ki.tgl_keluar', [$tanggalMulai, $tanggalSelesai]);
+        } elseif ($filterStatus == 'ralan') {
+            $query->where('rp.status_lanjut', 'Ralan')
+                  ->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
+        } else {
+            $query->whereBetween('rp.tgl_registrasi', [$tanggalMulai, $tanggalSelesai]);
+        }
+
+        // Exclude pasien dengan status Batal
+        $query->where('rp.stts', '!=', 'Batal');
+
+        $data = $query->pluck('krm.icd10');
+        
+        $counts = [];
+        foreach ($data as $icd10Str) {
+            $codes = explode(',', $icd10Str);
+            foreach ($codes as $code) {
+                $code = trim($code);
+                if (!empty($code)) {
+                    if (!isset($counts[$code])) {
+                        $counts[$code] = 0;
+                    }
+                    $counts[$code]++;
+                }
+            }
+        }
+
+        arsort($counts);
+        $top10Codes = array_slice($counts, 0, 10, true);
+        
+        $result = [];
+        if (!empty($top10Codes)) {
+            $penyakit = DB::table('penyakit')
+                ->whereIn('kd_penyakit', array_keys($top10Codes))
+                ->pluck('nm_penyakit', 'kd_penyakit');
+                
+            $no = 1;
+            foreach ($top10Codes as $code => $count) {
+                $result[] = [
+                    'no' => $no++,
+                    'kode' => $code,
+                    'nama' => isset($penyakit[$code]) ? $penyakit[$code] : '-',
+                    'jumlah' => $count
+                ];
+            }
+        }
+
+        return response()->json($result);
     }
 
     public function store(Request $request)

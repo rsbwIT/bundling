@@ -781,6 +781,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/kodingan-rm', [KodinganRmController::class, 'index'])->name('kodingan.rm');
         Route::get('/kodingan-rm/cari-icd10', [KodinganRmController::class, 'cariIcd10']);
         Route::get('/kodingan-rm/cari-icd9', [KodinganRmController::class, 'cariIcd9']);
+        Route::get('/kodingan-rm/top10', [KodinganRmController::class, 'top10']);
         Route::post('/kodingan-rm/store', [KodinganRmController::class, 'store'])->name('kodingan.rm.store');
 
         //LAPORAN LAB

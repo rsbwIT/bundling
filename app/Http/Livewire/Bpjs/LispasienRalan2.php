@@ -47,26 +47,21 @@ class LispasienRalan2 extends Component
                 'pasien.nm_pasien',
                 'bridging_sep.tglsep',
                 'poliklinik.nm_poli',
-                'bw_file_casemix_hasil.file',
-                DB::raw('CASE WHEN resume_pasien.no_rawat IS NOT NULL THEN 1 ELSE 0 END as sudah_resume'),
-                DB::raw('CASE WHEN data_triase_igd.no_rawat IS NOT NULL THEN 1 ELSE 0 END as sudah_triase'),
-                DB::raw('CASE WHEN pemeriksaan_ralan.no_rawat IS NOT NULL THEN 1 ELSE 0 END as sudah_pemeriksaan'),
-                DB::raw('CASE WHEN pasien_mati.no_rkm_medis IS NOT NULL THEN 1 ELSE 0 END as sudah_mati')
+                DB::raw('(SELECT file FROM bw_file_casemix_hasil WHERE bw_file_casemix_hasil.no_rawat = reg_periksa.no_rawat LIMIT 1) as file'),
+                DB::raw('EXISTS(SELECT 1 FROM resume_pasien WHERE resume_pasien.no_rawat = reg_periksa.no_rawat) as sudah_resume'),
+                DB::raw('EXISTS(SELECT 1 FROM data_triase_igd WHERE data_triase_igd.no_rawat = reg_periksa.no_rawat) as sudah_triase'),
+                DB::raw('EXISTS(SELECT 1 FROM pemeriksaan_ralan WHERE pemeriksaan_ralan.no_rawat = reg_periksa.no_rawat) as sudah_pemeriksaan'),
+                DB::raw('EXISTS(SELECT 1 FROM pasien_mati WHERE pasien_mati.no_rkm_medis = reg_periksa.no_rkm_medis) as sudah_mati')
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('bw_file_casemix_hasil', 'bw_file_casemix_hasil.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('resume_pasien', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('data_triase_igd', 'data_triase_igd.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('pemeriksaan_ralan', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('pasien_mati', 'pasien_mati.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 if ($cariKode) {
-                    $query->where('reg_periksa.no_rkm_medis', $cariKode)
-                        ->orWhere('pasien.nm_pasien', $cariKode)
+                    $query->where('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                        ->orWhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
                         ->orWhere('bridging_sep.no_sep', $cariKode);
                 }
             })
@@ -76,8 +71,6 @@ class LispasienRalan2 extends Component
             })
             ->whereNotIn('reg_periksa.stts', ['Batal'])
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->distinct()
-            ->groupBy('reg_periksa.no_rkm_medis', 'reg_periksa.no_rawat')
             ->get();
     }
 

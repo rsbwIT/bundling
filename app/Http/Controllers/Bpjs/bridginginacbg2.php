@@ -1307,39 +1307,38 @@ class bridginginacbg2 extends Controller
     private function updateResumePasien($no_rawat, $diagnosaCodes, $prosedurCodes)
     {
         $resumeData = [
-            'kd_diagnosa_utama' => '', 'diagnosa_utama' => '',
-            'kd_diagnosa_sekunder' => '', 'diagnosa_sekunder' => '',
-            'kd_diagnosa_sekunder2' => '', 'diagnosa_sekunder2' => '',
-            'kd_diagnosa_sekunder3' => '', 'diagnosa_sekunder3' => '',
-            'kd_diagnosa_sekunder4' => '', 'diagnosa_sekunder4' => '',
-            'kd_prosedur_utama' => '', 'prosedur_utama' => '',
-            'kd_prosedur_sekunder' => '', 'prosedur_sekunder' => '',
-            'kd_prosedur_sekunder2' => '', 'prosedur_sekunder2' => '',
-            'kd_prosedur_sekunder3' => '', 'prosedur_sekunder3' => '',
+            'kd_diagnosa_utama' => '',
+            'kd_diagnosa_sekunder' => '',
+            'kd_diagnosa_sekunder2' => '',
+            'kd_diagnosa_sekunder3' => '',
+            'kd_diagnosa_sekunder4' => '',
+            'kd_prosedur_utama' => '',
+            'kd_prosedur_sekunder' => '',
+            'kd_prosedur_sekunder2' => '',
+            'kd_prosedur_sekunder3' => '',
         ];
 
         $diagFields = [
-            ['kd' => 'kd_diagnosa_utama', 'nm' => 'diagnosa_utama'],
-            ['kd' => 'kd_diagnosa_sekunder', 'nm' => 'diagnosa_sekunder'],
-            ['kd' => 'kd_diagnosa_sekunder2', 'nm' => 'diagnosa_sekunder2'],
-            ['kd' => 'kd_diagnosa_sekunder3', 'nm' => 'diagnosa_sekunder3'],
-            ['kd' => 'kd_diagnosa_sekunder4', 'nm' => 'diagnosa_sekunder4'],
+            'kd_diagnosa_utama',
+            'kd_diagnosa_sekunder',
+            'kd_diagnosa_sekunder2',
+            'kd_diagnosa_sekunder3',
+            'kd_diagnosa_sekunder4',
         ];
 
         foreach ($diagnosaCodes as $index => $kd) {
             if ($index >= count($diagFields)) break;
             $penyakit = DB::table('penyakit')->where('kd_penyakit', $kd)->first();
             if ($penyakit) {
-                $resumeData[$diagFields[$index]['kd']] = $penyakit->kd_penyakit;
-                $resumeData[$diagFields[$index]['nm']] = $penyakit->nm_penyakit;
+                $resumeData[$diagFields[$index]] = $penyakit->kd_penyakit;
             }
         }
 
         $procFields = [
-            ['kd' => 'kd_prosedur_utama', 'nm' => 'prosedur_utama'],
-            ['kd' => 'kd_prosedur_sekunder', 'nm' => 'prosedur_sekunder'],
-            ['kd' => 'kd_prosedur_sekunder2', 'nm' => 'prosedur_sekunder2'],
-            ['kd' => 'kd_prosedur_sekunder3', 'nm' => 'prosedur_sekunder3'],
+            'kd_prosedur_utama',
+            'kd_prosedur_sekunder',
+            'kd_prosedur_sekunder2',
+            'kd_prosedur_sekunder3',
         ];
 
         foreach ($prosedurCodes as $index => $kd) {
@@ -1349,8 +1348,7 @@ class bridginginacbg2 extends Controller
             }
             $icd9 = DB::table('icd9')->where('kode', $kd)->first();
             if ($icd9) {
-                $resumeData[$procFields[$index]['kd']] = $icd9->kode;
-                $resumeData[$procFields[$index]['nm']] = $icd9->deskripsi_panjang ?: ($icd9->deskripsi_pendek ?: '');
+                $resumeData[$procFields[$index]] = $icd9->kode;
             }
         }
 

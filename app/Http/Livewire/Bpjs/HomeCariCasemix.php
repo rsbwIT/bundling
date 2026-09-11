@@ -90,10 +90,13 @@ class HomeCariCasemix extends Component
                          ->where('bridging_ralan.no_sep', '>', 2);
                 })
                 ->where(function ($query) {
-                    $query->orWhere('reg_periksa.no_rawat', '=', $this->cariNorawat)
+                    $query->where('reg_periksa.no_rawat', '=', $this->cariNorawat)
                         ->orWhere('reg_periksa.no_rkm_medis', '=', $this->cariNorawat)
-                        ->orWhere('bridging_ranap.no_sep', '=', $this->cariNorawat)
-                        ->orWhere('bridging_ralan.no_sep', '=', $this->cariNorawat);
+                        ->orWhereIn('reg_periksa.no_rawat', function ($q) {
+                            $q->select('no_rawat')
+                              ->from('bridging_sep')
+                              ->where('no_sep', '=', $this->cariNorawat);
+                        });
                 })
                 ->whereIn('reg_periksa.status_lanjut', ['Ranap', 'Ralan'])
                 ->orderBy('reg_periksa.tgl_registrasi', 'desc')

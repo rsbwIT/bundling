@@ -9,12 +9,22 @@
             <form method="GET" action="{{ url('kodingan-rm') }}">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-2">
-                        <label class="form-label small font-weight-bold">Dari Tanggal</label>
+                        <label class="form-label small font-weight-bold">
+                            Dari Tanggal
+                            @if($filterStatus == 'ranap')
+                                <span class="text-danger">(Tgl Pulang)</span>
+                            @endif
+                        </label>
                         <input type="date" name="tanggal_mulai" class="form-control form-control-sm" value="{{ $tanggalMulai }}">
                     </div>
                     
                     <div class="col-md-2">
-                        <label class="form-label small font-weight-bold">Sampai Tanggal</label>
+                        <label class="form-label small font-weight-bold">
+                            Sampai Tanggal
+                            @if($filterStatus == 'ranap')
+                                <span class="text-danger">(Tgl Pulang)</span>
+                            @endif
+                        </label>
                         <input type="date" name="tanggal_selesai" class="form-control form-control-sm" value="{{ $tanggalSelesai }}">
                     </div>
 
@@ -43,9 +53,15 @@
                     </div>
 
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary btn-sm btn-block mt-2">
-                            <i class="fas fa-search"></i> Cari
-                        </button>
+                        <label class="form-label small font-weight-bold">&nbsp;</label>
+                        <div class="d-flex" style="gap: 5px;">
+                            <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                                <i class="fas fa-search"></i> Cari
+                            </button>
+                            <button type="button" class="btn btn-warning btn-sm flex-fill" onclick="bukaModalTop10()" title="10 Besar Penyakit">
+                                <i class="fas fa-chart-bar"></i> Top 10
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -79,7 +95,12 @@
                             </td>
                             <td class="align-middle font-weight-bold">{{ $rp->nm_pasien }}</td>
                             <td class="align-middle text-center">
-                                {{ \Carbon\Carbon::parse($rp->tgl_registrasi)->format('d/m/Y') }}<br>
+                                @if($filterStatus == 'ranap' && $rp->tgl_pulang)
+                                    <small class="text-muted d-block">Masuk: {{ \Carbon\Carbon::parse($rp->tgl_registrasi)->format('d/m/Y') }}</small>
+                                    <strong class="text-danger">Pulang: {{ \Carbon\Carbon::parse($rp->tgl_pulang)->format('d/m/Y') }}</strong><br>
+                                @else
+                                    {{ \Carbon\Carbon::parse($rp->tgl_registrasi)->format('d/m/Y') }}<br>
+                                @endif
                                 <small class="badge badge-secondary">{{ $rp->nm_poli }}</small>
                             </td>
                             <td class="align-middle text-center">
@@ -211,6 +232,41 @@
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-primary" onclick="simpanKodinganModal()">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Top 10 -->
+<div class="modal fade" id="modalTop10" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h6 class="modal-title text-dark"><i class="fas fa-chart-bar"></i> 10 Besar Penyakit (Berdasarkan Kodingan RM)</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="p-3 bg-light border-bottom text-sm">
+                    <strong>Periode:</strong> <span id="lbl_periode_top10"></span> <br>
+                    <strong>Status:</strong> <span id="lbl_status_top10"></span>
+                </div>
+                <div class="table-responsive" style="height: 400px; border: 1px solid #dee2e6; margin: 10px;">
+                    <table class="table table-sm table-bordered table-striped text-sm mb-0">
+                        <thead class="bg-light text-center" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="15%">Kode ICD-10</th>
+                                <th>Deskripsi Penyakit</th>
+                                <th width="15%">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_top10">
+                            <tr><td colspan="4" class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i><br>Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -366,6 +422,49 @@
                     title: 'Terjadi Kesalahan',
                     text: 'Tidak dapat terhubung ke server.'
                 });
+            }
+        });
+    }
+
+    function bukaModalTop10() {
+        let tglMulai = $('input[name="tanggal_mulai"]').val();
+        let tglSelesai = $('input[name="tanggal_selesai"]').val();
+        let status = $('select[name="filter_status"]').val();
+        
+        let statusText = $('select[name="filter_status"] option:selected').text();
+        
+        $('#lbl_periode_top10').text(tglMulai + ' s/d ' + tglSelesai);
+        $('#lbl_status_top10').text(statusText);
+        
+        $('#table_top10').html('<tr><td colspan="4" class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i><br>Memuat data...</td></tr>');
+        $('#modalTop10').modal('show');
+        
+        $.ajax({
+            url: "{{ url('kodingan-rm/top10') }}",
+            type: "GET",
+            data: {
+                tanggal_mulai: tglMulai,
+                tanggal_selesai: tglSelesai,
+                filter_status: status
+            },
+            success: function(data) {
+                let html = '';
+                if(data.length > 0) {
+                    data.forEach(function(item) {
+                        html += `<tr>
+                            <td class="text-center align-middle">${item.no}</td>
+                            <td class="align-middle font-weight-bold text-primary">${item.kode}</td>
+                            <td class="align-middle">${item.nama}</td>
+                            <td class="text-center align-middle font-weight-bold h6 m-0">${item.jumlah}</td>
+                        </tr>`;
+                    });
+                } else {
+                    html = '<tr><td colspan="4" class="text-center text-muted py-4">Belum ada data penyakit di periode ini</td></tr>';
+                }
+                $('#table_top10').html(html);
+            },
+            error: function() {
+                $('#table_top10').html('<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data top 10 penyakit</td></tr>');
             }
         });
     }

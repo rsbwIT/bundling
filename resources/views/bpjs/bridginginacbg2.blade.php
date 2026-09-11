@@ -1136,6 +1136,77 @@ textarea:focus{
 </div>
 
 <script>
+// Saat modal resume dibuka, update kode ICD dan isi nama jika belum ada
+$('#modalLihatResume').on('show.bs.modal', function () {
+    // Data diagnosa aktual dari DB (dirender saat page load, selalu fresh karena edit diagnosa = page reload)
+    @php
+        $diagnosaData = DB::table('diagnosa_pasien')
+            ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
+            ->where('diagnosa_pasien.no_rawat', $pasien->no_rawat)
+            ->orderBy('diagnosa_pasien.prioritas')
+            ->select('diagnosa_pasien.kd_penyakit', 'penyakit.nm_penyakit')
+            ->get();
+            
+        $prosedurData = DB::table('prosedur_pasien')
+            ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
+            ->where('prosedur_pasien.no_rawat', $pasien->no_rawat)
+            ->orderBy('prosedur_pasien.prioritas')
+            ->select('prosedur_pasien.kode', 'icd9.deskripsi_panjang as deskripsi')
+            ->get();
+    @endphp
+    var diagnosaData = {!! json_encode($diagnosaData) !!};
+    var prosedurData = {!! json_encode($prosedurData) !!};
+
+    var nameFields = [
+        'edit_diagnosa_utama',
+        'edit_diagnosa_sekunder',
+        'edit_diagnosa_sekunder2',
+        'edit_diagnosa_sekunder3',
+        'edit_diagnosa_sekunder4'
+    ];
+    var kdFields = [
+        'edit_kd_diagnosa_utama',
+        'edit_kd_diagnosa_sekunder',
+        'edit_kd_diagnosa_sekunder2',
+        'edit_kd_diagnosa_sekunder3',
+        'edit_kd_diagnosa_sekunder4'
+    ];
+
+    kdFields.forEach(function(kdId, idx) {
+        var kdEl   = document.getElementById(kdId);
+        var nameEl = document.getElementById(nameFields[idx]);
+        var row    = diagnosaData[idx] || null;
+
+        if (kdEl) {
+            kdEl.innerText = row ? row.kd_penyakit : '';
+        }
+    });
+
+    var procNameFields = [
+        'edit_prosedur_utama',
+        'edit_prosedur_sekunder',
+        'edit_prosedur_sekunder2',
+        'edit_prosedur_sekunder3'
+    ];
+    var procKdFields = [
+        'edit_kd_prosedur_utama',
+        'edit_kd_prosedur_sekunder',
+        'edit_kd_prosedur_sekunder2',
+        'edit_kd_prosedur_sekunder3'
+    ];
+
+    procKdFields.forEach(function(kdId, idx) {
+        var kdEl   = document.getElementById(kdId);
+        var nameEl = document.getElementById(procNameFields[idx]);
+        var row    = prosedurData[idx] || null;
+
+        if (kdEl) {
+            kdEl.innerText = row ? row.kode : '';
+        }
+    });
+});
+
+
 function simpanResume() {
     var btn = event.currentTarget;
     var originalText = btn.innerHTML;

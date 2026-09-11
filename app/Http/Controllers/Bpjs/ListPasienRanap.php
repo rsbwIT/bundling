@@ -25,12 +25,12 @@ class ListPasienRanap extends Controller
             ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->leftJoin('bridging_sep','bridging_sep.no_rawat','=','reg_periksa.no_rawat')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
-            ->leftJoin('kamar_inap','kamar_inap.no_rawat','=','reg_periksa.no_rawat')
+            ->join('kamar_inap','kamar_inap.no_rawat','=','reg_periksa.no_rawat')
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
             ->where('bridging_sep.jnspelayanan', '1')
-            ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
+            ->orderBy('reg_periksa.no_rawat', 'DESC')
             ->get();
 
         session(['tgl1' => $tanggl1]);
@@ -61,12 +61,12 @@ class ListPasienRanap extends Controller
             ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->leftJoin('bridging_sep','bridging_sep.no_rawat','=','reg_periksa.no_rawat')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
-            ->leftJoin('kamar_inap','kamar_inap.no_rawat','=','reg_periksa.no_rawat')
+            ->join('kamar_inap','kamar_inap.no_rawat','=','reg_periksa.no_rawat')
             ->leftJoin('bw_file_casemix_hasil','bw_file_casemix_hasil.no_rawat','=','reg_periksa.no_rawat')
             ->whereBetween('kamar_inap.tgl_keluar',[$tanggl1, $tanggl2])
             ->where('reg_periksa.status_lanjut','=','Ranap')
             ->where('bridging_sep.jnspelayanan', '1')
-            ->orderBy('bw_file_casemix_hasil.no_rawat', 'DESC')
+            ->orderBy('reg_periksa.no_rawat', 'DESC')
             ->get();
 
         session(['tgl1' => $request->tgl1]);

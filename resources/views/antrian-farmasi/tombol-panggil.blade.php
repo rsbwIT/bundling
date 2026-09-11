@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antrian Farmasi - RS Bumi Waras</title>
     <link rel="icon" href="{{ asset('img/bw2.png') }}" type="image/png"> <!-- Favicon logo -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
 </head>
 <body class="bg-white">
     <header class="bg-white p-6 shadow-lg">

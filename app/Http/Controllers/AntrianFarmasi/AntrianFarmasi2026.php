@@ -92,12 +92,22 @@ class AntrianFarmasi2026 extends Controller
         // =============================
         // 2. BUAT NOMOR (SEKALI SAJA)
         // =============================
+        
+        // Cek data existing dalam 1x query untuk menghindari N+1 query yang bikin lambat
+        $existing = DB::table('antrian_farmasi_panggil')
+            ->where('tanggal', $tanggal)
+            ->pluck('no_rawat')
+            ->flip()
+            ->toArray();
+
         DB::beginTransaction();
         foreach ($data as $row) {
-            $this->buatNomorJikaBelumAda($row, $tanggal);
+            if (!isset($existing[$row->no_rawat])) {
+                $this->buatNomorJikaBelumAda($row, $tanggal);
+                $existing[$row->no_rawat] = true;
+            }
         }
         DB::commit();
-
         // =============================
         // 3. AMBIL FINAL (NOMOR TETAP)
         // =============================
@@ -151,12 +161,6 @@ class AntrianFarmasi2026 extends Controller
     // ============================================================
     private function buatNomorJikaBelumAda($row, $tanggal)
     {
-        $ada = DB::table('antrian_farmasi_panggil')
-            ->where('no_rawat', $row->no_rawat)
-            ->exists();
-
-        if ($ada) return;
-
         $last = DB::table('antrian_farmasi_panggil')
             ->where('tanggal', $tanggal)
             ->where('jalur', $row->jalur)
