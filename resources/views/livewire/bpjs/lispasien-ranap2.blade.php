@@ -195,13 +195,19 @@
                                     </div>
 
                                     {{-- KIRIM INACBG --}}
-                                    <div class="btn-group ml-1">
-                                        <a href="{{ route('bpjs.inacbg', ['norawat' => $item->no_rawat]) }}"
-                                            target="_blank"
-                                            class="btn btn-block btn-outline-danger btn-xs btn-flat">
-                                            <i class="fas fa-paper-plane"></i> Kirim
-                                        </a>
-                                    </div>
+                                      <div class="btn-group ml-1">
+                                          <button type="button" class="btn btn-outline-success btn-xs btn-flat" title="Lihat Resume" onclick="openResumeModal('{{ $item->no_rawat }}')">
+                                              <i class="fas fa-file-medical"></i> Resume
+                                          </button>
+                                          <button type="button" class="btn btn-outline-info btn-xs btn-flat" title="Data Triase" onclick="openTriaseModal('{{ $item->no_rawat }}')">
+                                              <i class="fas fa-heartbeat"></i> Triase
+                                          </button>
+                                          <a href="{{ route('bpjs.inacbg', ['norawat' => $item->no_rawat]) }}"
+                                              target="_blank"
+                                              class="btn btn-outline-danger btn-xs btn-flat">
+                                              <i class="fas fa-paper-plane"></i> Kirim
+                                          </a>
+                                      </div>
                                 </div>
                             </td>
                             <td>{{ $item->no_rkm_medis }}</td>
@@ -452,12 +458,66 @@
                                 modal.modal('hide');
                                 modal.find('input[type="file"]').val(''); // reset input file
                             });
+                            
+                            function openTriaseModal(norawat) {
+                                let url = '{{ route("inacbg.triaseModalHtml") }}?norawat=' + encodeURIComponent(norawat);
+                                
+                                $.ajax({
+                                    url: url,
+                                    type: 'GET',
+                                    success: function(response) {
+                                        if (response.html) {
+                                            $('#triase-modal-container').html(response.html);
+                                            $('#modalTriase').modal('show');
+                                        } else {
+                                            Swal.fire({ icon: 'warning', title: 'Belum Ada Data', text: 'Data Triase belum dibuat untuk pasien ini.', confirmButtonText: 'OK' });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        var msg = 'Terjadi kesalahan sistem.';
+                                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                                            msg = xhr.responseJSON.error;
+                                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            msg = xhr.responseJSON.message;
+                                        }
+                                        Swal.fire({ icon: xhr.status === 404 ? 'warning' : 'error', title: xhr.status === 404 ? 'Belum Ada Data' : 'Error', text: msg, confirmButtonText: 'OK' });
+                                    }
+                                });
+                            }
+                            
+                            function openResumeModal(norawat) {
+                                let url = '{{ route("inacbg.resumeModalHtml") }}?norawat=' + encodeURIComponent(norawat);
+                                
+                                $.ajax({
+                                    url: url,
+                                    type: 'GET',
+                                    success: function(response) {
+                                        if (response.html) {
+                                            $('#resume-modal-container').html(response.html);
+                                            $('#modalLihatResume').modal('show');
+                                        } else {
+                                            Swal.fire({ icon: 'warning', title: 'Belum Ada Data', text: 'Resume Medis belum dibuat untuk pasien ini.', confirmButtonText: 'OK' });
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        var msg = 'Terjadi kesalahan sistem.';
+                                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                                            msg = xhr.responseJSON.error;
+                                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            msg = xhr.responseJSON.message;
+                                        }
+                                        Swal.fire({ icon: xhr.status === 404 ? 'warning' : 'error', title: xhr.status === 404 ? 'Belum Ada Data' : 'Error', text: msg, confirmButtonText: 'OK' });
+                                    }
+                                });
+                            }
                         </script>
                     @endpush
 
 
 
                     {{-- // MODAL --}}
+                    <div id="triase-modal-container"></div>
+                    <div id="resume-modal-container"></div>
                 </tbody>
             </table>
         </div>

@@ -1618,4 +1618,202 @@ class bridginginacbg2 extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function getTriaseModalHtml(\Illuminate\Http\Request $request, $norawatParam = null)
+    {
+        $norawat = $request->query('norawat') ?? $norawatParam;
+        $pasien = DB::table('reg_periksa')
+            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+            ->where('reg_periksa.no_rawat', $norawat)
+            ->select(
+                'reg_periksa.*',
+                'dokter.nm_dokter',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'reg_periksa.tgl_registrasi',
+                'pasien.tgl_lahir',
+                'pasien.no_peserta',
+                'pasien.no_ktp',
+                'pasien.alamat',
+                'pasien.pekerjaan',
+                'poliklinik.nm_poli',
+                'penjab.png_jawab',
+                'kamar.kelas',
+                'kamar_inap.tgl_masuk',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar'
+            )
+            ->first();
+
+        if (!$pasien) {
+            return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
+        }
+
+        $getSetting = DB::table('setting')->first();
+        $masterKasus = DB::table('master_triase_macam_kasus')->get();
+
+        $triase = null;
+        $triasePrimer = null;
+        $triaseSekunder = null;
+        $triaseDetailSkala = collect();
+        $masterSkala = collect();
+        $petugasTriase = null;
+        $infoPasienTriase = null;
+
+        if ($pasien->status_lanjut == 'Ranap') {
+            $triase = DB::table('data_triase_igd')->where('no_rawat', $norawat)->first();
+            $triasePrimer = DB::table('data_triase_igdprimer')->where('no_rawat', $norawat)->first();
+            $triaseSekunder = DB::table('data_triase_igdsekunder')->where('no_rawat', $norawat)->first();
+
+            if ($triase) {
+                // Find which skala is used
+                for ($i = 1; $i <= 5; $i++) {
+                    $detail = DB::table("data_triase_igddetail_skala$i")->where('no_rawat', $norawat)->get();
+                    if ($detail->count() > 0) {
+                        $withLabel = $detail->map(function($d) use ($i) {
+                            $kodeField = "kode_skala$i";
+                            $pengkajianField = "pengkajian_skala$i";
+                            $master = DB::table("master_triase_skala$i")
+                                ->join('master_triase_pemeriksaan', "master_triase_skala$i.kode_pemeriksaan", '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                                ->where("master_triase_skala$i.$kodeField", $d->$kodeField)
+                                ->select("master_triase_pemeriksaan.nama_pemeriksaan", "master_triase_skala$i.$pengkajianField as urgensi")
+                                ->first();
+                            return $master;
+                        })->filter();
+                        $triaseDetailSkala = $withLabel;
+                        break;
+                    }
+                }
+            }
+
+            // Get petugas triase
+            $nikPetugas = $triaseSekunder->nik ?? ($triasePrimer->nik ?? null);
+            if ($nikPetugas) {
+                $petugasTriase = DB::table('pegawai')->where('nik', $nikPetugas)->first();
+            }
+
+            // Info Pasien dari IGD
+            $infoPasienTriase = DB::table('pasien')
+                ->where('no_rkm_medis', $pasien->no_rkm_medis)
+                ->select('nm_pasien', 'tgl_lahir', 'jk')
+                ->first();
+        }
+
+        if (!$triase) {
+            return response()->json(['error' => 'Data Triase belum dibuat untuk pasien ini.'], 404);
+        }
+        
+        $html = view('bpjs.component._modal_triase', compact(
+            'pasien',
+            'getSetting',
+            'masterKasus',
+            'triase',
+            'triasePrimer',
+            'triaseSekunder',
+            'triaseDetailSkala',
+            'masterSkala',
+            'petugasTriase',
+            'infoPasienTriase'
+        ))->render();
+
+        return response()->json(['html' => $html]);
+    }
+
+    public function getResumeModalHtml(\Illuminate\Http\Request $request, $norawatParam = null)
+    {
+        $norawat = $request->query('norawat') ?? $norawatParam;
+        $pasien = DB::table('reg_periksa')
+            ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->leftJoin('kamar_inap', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
+            ->where('reg_periksa.no_rawat', $norawat)
+            ->select(
+                'reg_periksa.*',
+                'dokter.nm_dokter',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'reg_periksa.tgl_registrasi',
+                'pasien.tgl_lahir',
+                'pasien.no_peserta',
+                'pasien.no_ktp',
+                'pasien.alamat',
+                'pasien.pekerjaan',
+                'poliklinik.nm_poli',
+                'penjab.png_jawab',
+                'kamar.kelas',
+                'kamar_inap.tgl_masuk',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.diagnosa_akhir',
+                'kamar_inap.kd_kamar'
+            )
+            ->first();
+
+        if (!$pasien) {
+            return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
+        }
+
+        $resume = DB::table('resume_pasien_ranap')->where('no_rawat', $norawat)->first();
+        if (!$resume) {
+            $resume = (object) [
+                'keluhan_utama' => '',
+                'jalannya_penyakit' => '',
+                'pemeriksaan_fisik' => '',
+                'pemeriksaan_penunjang' => '',
+                'tindakan_dan_operasi' => '',
+                'hasil_laborat' => '',
+                'diagnosa_utama' => '',
+                'kd_diagnosa_utama' => '',
+                'diagnosa_sekunder' => '',
+                'kd_diagnosa_sekunder' => '',
+                'diagnosa_sekunder2' => '',
+                'kd_diagnosa_sekunder2' => '',
+                'diagnosa_sekunder3' => '',
+                'kd_diagnosa_sekunder3' => '',
+                'diagnosa_sekunder4' => '',
+                'kd_diagnosa_sekunder4' => '',
+                'prosedur_utama' => '',
+                'kd_prosedur_utama' => '',
+                'prosedur_sekunder' => '',
+                'kd_prosedur_sekunder' => '',
+                'prosedur_sekunder2' => '',
+                'kd_prosedur_sekunder2' => '',
+                'prosedur_sekunder3' => '',
+                'kd_prosedur_sekunder3' => '',
+                'obat_pulang' => '',
+                'diagnosa_awal' => '',
+                'alasan' => '',
+                'obat_di_rs' => '',
+                'alergi' => '',
+                'diet' => '',
+                'lab_belum' => '',
+                'edukasi' => '',
+                'cara_keluar' => '',
+                'ket_keluar' => '',
+                'keadaan' => '',
+                'ket_keadaan' => '',
+                'dilanjutkan' => '',
+                'ket_dilanjutkan' => '',
+                'kontrol' => '',
+                'kondisi_pulang' => ''
+            ];
+        }
+        
+        $getSetting = DB::table('setting')->first();
+
+        if (!$resume) {
+            return response()->json(['error' => 'Resume Medis belum dibuat untuk pasien ini.'], 404);
+        }
+        
+        $html = view('bpjs.component._modal_resume', compact('pasien', 'resume', 'getSetting'))->render();
+        return response()->json(['html' => $html]);
+    }
 }
+

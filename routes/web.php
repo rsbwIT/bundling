@@ -257,6 +257,14 @@ Route::group(['middleware' => 'default'], function () {
         // Route::post('/bpjs/inacbg/{norawat}', [bridginginacbg2::class, 'simpan'])
         //     ->name('bpjs.inacbg.simpan');
 
+        Route::get('/bpjs/inacbg/triase-modal/{norawat?}', [bridginginacbg2::class, 'getTriaseModalHtml'])
+            ->where('norawat', '.*')
+            ->name('inacbg.triaseModalHtml');
+            
+        Route::get('/bpjs/inacbg/resume-modal/{norawat?}', [bridginginacbg2::class, 'getResumeModalHtml'])
+            ->where('norawat', '.*')
+            ->name('inacbg.resumeModalHtml');
+
         Route::get(
             '/bpjs/inacbg/{norawat}',
             [bridginginacbg2::class, 'index']
@@ -313,7 +321,7 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::post('/bpjs/inacbg/update-triase', [bridginginacbg2::class, 'updateTriaseData'])
             ->name('inacbg.updateTriaseData');
-
+            
         Route::post('/bpjs/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('bpjs.updateDiagnosa');
 
@@ -884,5 +892,6 @@ Route::get('/livewire/upload-file', function () {
 // Route Pelayanan Gizi / Diet Pasien
 Route::get('/gizi', [GiziController::class, 'index'])->name('gizi.index');
 Route::get('/gizi/print-label', [GiziController::class, 'printLabel'])->name('gizi.printLabel');
+
 
 
