@@ -7,18 +7,27 @@
                     $value =
                         count($item->triasePrimer) > 0 ? $item->triasePrimer->first() : $item->triaseSekender->first();
 
-                    $bgStyles = match ($value->plan) {
-                        'Ruang Kritis' => 'rgb(255, 0, 0)',
-                        'Ruang Resusitasi' => 'rgb(135, 1, 1)',
-                        'Zona Hijau' => 'rgb(57, 202, 0)',
-                        'Zona Kuning' => 'rgb(241, 217, 0)',
-                        default => 'rgb(204, 204, 204)',
-                    };
-                    $catatan = $value->catatan;
-                    $keluhan_utama = $value->keluhan_utama;
-                    $nama = $value->nama;
-                    $nik = $value->nik;
-                    $tanggaltriase = $value->tanggaltriase;
+                    if ($value) {
+                        $bgStyles = match ($value->plan) {
+                            'Ruang Kritis' => 'rgb(255, 0, 0)',
+                            'Ruang Resusitasi' => 'rgb(135, 1, 1)',
+                            'Zona Hijau' => 'rgb(57, 202, 0)',
+                            'Zona Kuning' => 'rgb(241, 217, 0)',
+                            default => 'rgb(204, 204, 204)',
+                        };
+                        $catatan = $value->catatan;
+                        $keluhan_utama = $value->keluhan_utama;
+                        $nama = $value->nama;
+                        $nik = $value->nik;
+                        $tanggaltriase = $value->tanggaltriase;
+                    } else {
+                        $bgStyles = 'rgb(204, 204, 204)';
+                        $catatan = '';
+                        $keluhan_utama = '';
+                        $nama = '';
+                        $nik = '';
+                        $tanggaltriase = '';
+                    }
                 @endphp
 
                 <table border="0px" width="1000px">
@@ -144,10 +153,12 @@
                         <td>Catatan</td>
                         <td>: {{ $catatan }}</td>
                     </tr>
+                    @if($value)
                     <tr style="vertical-align: top;">
                         <td>Dokter / Petugas Jaga IGD</td>
                         <td>: {{ $nama }}</td>
                     </tr>
+                    @endif
                 </table>
                 <table border="0px" width="1000px" class="mt-3" class="">
                     <tr>
@@ -156,7 +167,9 @@
                         </td>
                         <td width="150px"></td>
                         <td width="250px" class="text-center">
+                            @if($value)
                             Dokter / Petugas Jaga
+                            @endif
                             <div class="barcode mt-1">
                                 <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $nama . ' ID ' . $nik . ' ' . $item->tgl_kunjungan, 'QRCODE') }}"
                                     alt="barcode" width="80px" height="75px" />
