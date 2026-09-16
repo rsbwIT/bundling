@@ -291,7 +291,7 @@
                                         wire:click="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
                                         wire:loading.attr="disabled"
                                         wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                        @if (!isset($upload_file_inacbg[$keyModal])) disabled @endif>
+                                        @if (empty($upload_file_inacbg[$keyModal])) disabled @endif>
                                         Submit
                                         <span wire:loading
                                             wire:target="UploadInacbg('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
@@ -406,7 +406,7 @@
                                     {{-- 🔹 Pilih Jenis Berkas --}}
                                     <div class="form-group">
                                         <label>Jenis Berkas</label>
-                                        <select class="form-control" wire:model="kode_berkas.{{ $keyModal }}">
+                                        <select class="form-control" wire:model.defer="kode_berkas.{{ $keyModal }}">
                                             <option value="">-- Pilih Jenis Berkas --</option>
                                             @foreach(DB::table('master_berkas_digital')->orderBy('nama')->get() as $berkas)
                                                 <option value="{{ $berkas->kode }}">{{ $berkas->nama }}</option>
@@ -430,9 +430,8 @@
                                 <div class="modal-footer justify-content-between">
                                     <button type="button" class="btn btn-primary"
                                         wire:click="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                        wire:loading.attr="disabled"
                                         wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')"
-                                        @if (!isset($upload_file_scan[$keyModal]) || !isset($kode_berkas[$keyModal])) disabled @endif>
+                                        @if (empty($upload_file_scan[$keyModal]) || empty($kode_berkas[$keyModal])) disabled @endif>
                                         Submit
                                         <span wire:loading
                                             wire:target="UploadScan('{{ $keyModal }}', '{{ $no_rawat }}', '{{ $no_rkm_medis }}')">
