@@ -23,21 +23,22 @@ class LispasienRanap2 extends Component
     {
         $this->tanggal1 = date('Y-m-d');
         $this->tanggal2 = date('Y-m-d');
+        $this->getListPasienRanap();
     }
     public function render()
     {
-        return view('livewire.bpjs.lispasien-ranap2', [
-            'getPasien' => $this->getListPasienRanap()
-        ]);
+        $this->getListPasienRanap();
+        return view('livewire.bpjs.lispasien-ranap2');
     }
 
     public $carinomor;
+    public $getPasien;
     // 1 Get Pasien Ranap ==================================================================================
     function getListPasienRanap()
     {
         $cariKode = $this->carinomor;
 
-        return DB::table('reg_periksa')
+        $this->getPasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -84,17 +85,19 @@ class LispasienRanap2 extends Component
 
     // 2 PROSES UPLOAD ==================================================================================
     // A
+    public $keyModal;
     public $no_rawat;
     public $no_rkm_medis;
     public $nm_pasien;
     use WithFileUploads;
-    public function SetmodalInacbg($no_rawat, $no_rkm_medis, $nm_pasien)
+    public function SetmodalInacbg($key)
     {
-        $this->no_rawat = $no_rawat;
-        $this->no_rkm_medis = $no_rkm_medis;
-        $this->nm_pasien = $nm_pasien;
+        $this->keyModal = $key;
+        $this->no_rawat = $this->getPasien[$key]['no_rawat'];
+        $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
+        $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
     }
-    public $upload_file_inacbg;
+    public $upload_file_inacbg = [];
     // public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
     // {
     //     try {
@@ -121,16 +124,16 @@ class LispasienRanap2 extends Component
     // }
 
 
-    public function UploadInacbg($no_rawat, $no_rkm_medis)
+    public function UploadInacbg($key, $no_rawat, $no_rkm_medis)
     {
         try {
-            if (!$this->upload_file_inacbg || !$this->upload_file_inacbg->isValid()) {
+            if (!isset($this->upload_file_inacbg[$key]) || !$this->upload_file_inacbg[$key]->isValid()) {
                 session()->flash('errorBundling', 'Gagal!! File tidak ditemukan atau tidak valid.');
                 return;
             }
 
             $no_rawatSTR = str_replace('/', '', $no_rawat);
-            $extension   = $this->upload_file_inacbg->getClientOriginalExtension();
+            $extension   = $this->upload_file_inacbg[$key]->getClientOriginalExtension();
             $file_name   = 'INACBG-' . $no_rawatSTR . '.' . $extension;
 
             // hapus lama jika ada
@@ -143,7 +146,7 @@ class LispasienRanap2 extends Component
             }
 
             // Simpan file baru
-            $this->upload_file_inacbg->storeAs('file_inacbg', $file_name, 'public');
+            $this->upload_file_inacbg[$key]->storeAs('file_inacbg', $file_name, 'public');
 
             // Simpan ke DB
             DB::table('bw_file_casemix_inacbg')->updateOrInsert(
@@ -165,7 +168,7 @@ class LispasienRanap2 extends Component
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadInacbg']);
 
             // Reset input file
-            $this->upload_file_inacbg = null;
+            $this->upload_file_inacbg[$key] = null;
         } catch (\Throwable $th) {
             // log dihapus
             session()->flash('errorBundling', 'Gagal!! Upload file INACBG: ' . $th->getMessage());
@@ -251,21 +254,22 @@ class LispasienRanap2 extends Component
 
     //BARU UPLOAD KE BERKAS DIGITAL
 
-    public function SetmodalScan($no_rawat, $no_rkm_medis, $nm_pasien)
+    public function SetmodalScan($key)
     {
-        $this->no_rawat = $no_rawat;
-        $this->no_rkm_medis = $no_rkm_medis;
-        $this->nm_pasien = $nm_pasien;
+        $this->keyModal = $key;
+        $this->no_rawat = $this->getPasien[$key]['no_rawat'];
+        $this->no_rkm_medis = $this->getPasien[$key]['no_rkm_medis'];
+        $this->nm_pasien = $this->getPasien[$key]['nm_pasien'];
     }
 
-    public $upload_file_scan;
-    public $kode_berkas;
+    public $upload_file_scan = [];
+    public $kode_berkas = [];
 
 
-    public function UploadScan($no_rawat, $no_rkm_medis)
+    public function UploadScan($key, $no_rawat, $no_rkm_medis)
     {
-        $file = $this->upload_file_scan ?? null;
-        $kode = $this->kode_berkas ?? null;
+        $file = $this->upload_file_scan[$key] ?? null;
+        $kode = $this->kode_berkas[$key] ?? null;
 
         if (!$kode) {
             session()->flash('errorBundling', 'Pilih jenis berkas terlebih dahulu!');
@@ -364,8 +368,8 @@ class LispasienRanap2 extends Component
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'UploadScan']);
 
             // Reset input
-            $this->upload_file_scan = null;
-            $this->kode_berkas = null;
+            $this->upload_file_scan[$key] = null;
+            $this->kode_berkas[$key] = null;
         } catch (\Throwable $th) {
             Log::error('UploadScan SFTP Error: ' . $th->getMessage());
             session()->flash('errorBundling', 'Gagal!! Upload file Scan: ' . $th->getMessage());

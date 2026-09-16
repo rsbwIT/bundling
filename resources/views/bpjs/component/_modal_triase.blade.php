@@ -12,8 +12,8 @@
                 <div style="display:flex;align-items:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px;">
                     {{-- Logo kiri --}}
                     <div style="flex:0 0 80px;margin-right:15px;">
-                        @if(isset($getSetting->logo) && $getSetting->logo)
-                        <img src="data:image/jpeg;base64,{{ base64_encode($getSetting->logo) }}" style="width:80px;height:auto;">
+                        @if(isset($getSetting))
+                        <img src="{{ route('hospital.logo') }}" style="width:80px;height:auto;" onerror="this.style.display='none'">
                         @endif
                     </div>
                     {{-- Teks tengah --}}

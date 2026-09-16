@@ -196,6 +196,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
+        
+        Route::get('/hospital-logo', function() {
+            $logo = \Illuminate\Support\Facades\DB::table('setting')->value('logo');
+            return response($logo)->header('Content-Type', 'image/jpeg');
+        })->name('hospital.logo');
         Route::get('/laporan-pasien', [PasienController::class, 'Pasien']);
 
         // Profile photo upload

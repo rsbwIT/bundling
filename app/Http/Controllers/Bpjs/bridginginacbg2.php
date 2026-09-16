@@ -1654,7 +1654,7 @@ class bridginginacbg2 extends Controller
             return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
         }
 
-        $getSetting = DB::table('setting')->first();
+        $getSetting = DB::table('setting')->select('nama_instansi', 'alamat_instansi', 'kabupaten', 'propinsi', 'kontak', 'email')->first();
         $masterKasus = DB::table('master_triase_macam_kasus')->get();
 
         $triase = null;
@@ -1675,15 +1675,19 @@ class bridginginacbg2 extends Controller
                 for ($i = 1; $i <= 5; $i++) {
                     $detail = DB::table("data_triase_igddetail_skala$i")->where('no_rawat', $norawat)->get();
                     if ($detail->count() > 0) {
-                        $withLabel = $detail->map(function($d) use ($i) {
-                            $kodeField = "kode_skala$i";
-                            $pengkajianField = "pengkajian_skala$i";
-                            $master = DB::table("master_triase_skala$i")
-                                ->join('master_triase_pemeriksaan', "master_triase_skala$i.kode_pemeriksaan", '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
-                                ->where("master_triase_skala$i.$kodeField", $d->$kodeField)
-                                ->select("master_triase_pemeriksaan.nama_pemeriksaan", "master_triase_skala$i.$pengkajianField as urgensi")
-                                ->first();
-                            return $master;
+                        $kodeField = "kode_skala$i";
+                        $pengkajianField = "pengkajian_skala$i";
+                        $kodes = $detail->pluck($kodeField)->toArray();
+                        
+                        $masters = DB::table("master_triase_skala$i")
+                            ->join('master_triase_pemeriksaan', "master_triase_skala$i.kode_pemeriksaan", '=', 'master_triase_pemeriksaan.kode_pemeriksaan')
+                            ->whereIn("master_triase_skala$i.$kodeField", $kodes)
+                            ->select("master_triase_skala$i.$kodeField as kode", "master_triase_pemeriksaan.nama_pemeriksaan", "master_triase_skala$i.$pengkajianField as urgensi")
+                            ->get()
+                            ->keyBy('kode');
+
+                        $withLabel = $detail->map(function($d) use ($kodeField, $masters) {
+                            return $masters->get($d->$kodeField);
                         })->filter();
                         $triaseDetailSkala = $withLabel;
                         break;
@@ -1760,7 +1764,11 @@ class bridginginacbg2 extends Controller
             return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
         }
 
-        $resume = DB::table('resume_pasien_ranap')->where('no_rawat', $norawat)->first();
+        $resume = DB::table('resume_pasien_ranap')
+            ->leftJoin('dokter', 'resume_pasien_ranap.kd_dokter', '=', 'dokter.kd_dokter')
+            ->select('resume_pasien_ranap.*', 'dokter.nm_dokter as nm_dokter_ranap')
+            ->where('resume_pasien_ranap.no_rawat', $norawat)
+            ->first();
         if (!$resume) {
             $resume = (object) [
                 'keluhan_utama' => '',
@@ -1806,7 +1814,7 @@ class bridginginacbg2 extends Controller
             ];
         }
         
-        $getSetting = DB::table('setting')->first();
+        $getSetting = DB::table('setting')->select('nama_instansi', 'alamat_instansi', 'kabupaten', 'propinsi', 'kontak', 'email')->first();
 
         if (!$resume) {
             return response()->json(['error' => 'Resume Medis belum dibuat untuk pasien ini.'], 404);

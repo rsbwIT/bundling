@@ -17,8 +17,8 @@
                 <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; position: relative;">
                     <!-- Logo -->
                     <div style="position: absolute; left: 10px; top: 0;">
-                        @if(isset($getSetting) && $getSetting->logo)
-                            <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="70" height="70">
+                        @if(isset($getSetting))
+                            <img src="{{ route('hospital.logo') }}" width="70" height="70" onerror="this.outerHTML='<i class=\'fas fa-hospital-alt fa-3x\' style=\'color: #28a745;\'></i>'">
                         @else
                             <i class="fas fa-hospital-alt fa-3x" style="color: #28a745;"></i>
                         @endif
@@ -231,13 +231,13 @@
                         <!-- Barcode QR Code -->
                         <div style="height: 65px; margin: 5px 0;">
                             @if(isset($getSetting) && isset($pasien))
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . $getSetting->nama_instansi . ', Kabupaten/Kota ' . $getSetting->kabupaten . ' Ditandatangani secara elektronik oleh ' . $pasien->nm_dokter . ' ID ' . $pasien->kd_dokter . ' ' . date('Y-m-d'), 'QRCODE') }}"
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG('Dikeluarkan di ' . ($getSetting->nama_instansi ?? '') . ', Kabupaten/Kota ' . ($getSetting->kabupaten ?? '') . ' Ditandatangani secara elektronik oleh ' . ($resume->nm_dokter_ranap ?? $pasien->nm_dokter ?? 'Nama Dokter') . ' ID ' . ($resume->kd_dokter ?? $pasien->kd_dokter ?? '') . ' ' . date('Y-m-d'), 'QRCODE') }}"
                                     alt="barcode" width="60px" height="60px" />
                             @else
                                 <i class="fas fa-qrcode fa-3x" style="opacity: 0.2;"></i>
                             @endif
                         </div>
-                        <div style="text-decoration: underline;">{{ $pasien->nm_dokter ?? 'Nama Dokter' }}</div>
+                        <div style="text-decoration: underline;">{{ $resume->nm_dokter_ranap ?? $pasien->nm_dokter ?? 'Nama Dokter' }}</div>
                     </div>
                 </div>
 
