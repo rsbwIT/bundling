@@ -264,7 +264,7 @@ class BundlingFarmasi extends Controller
         ]);
 
         $no_rawatSTR = str_replace('/', '', $noRawat);
-        $pdfFilename = 'SEP-RESEP-' . substr($noSep, -5) . '.pdf';
+        $pdfFilename = substr($noSep, -5) . '.pdf';
 
         Storage::disk('public')->put('file_sepresep_farmasi/' . $pdfFilename, $pdf->output());
 
