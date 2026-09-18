@@ -1764,11 +1764,19 @@ class bridginginacbg2 extends Controller
             return response()->json(['error' => 'Pasien tidak ditemukan'], 404);
         }
 
-        $resume = DB::table('resume_pasien_ranap')
-            ->leftJoin('dokter', 'resume_pasien_ranap.kd_dokter', '=', 'dokter.kd_dokter')
-            ->select('resume_pasien_ranap.*', 'dokter.nm_dokter as nm_dokter_ranap')
-            ->where('resume_pasien_ranap.no_rawat', $norawat)
-            ->first();
+        if ($pasien->status_lanjut == 'Ranap') {
+            $resume = DB::table('resume_pasien_ranap')
+                ->leftJoin('dokter', 'resume_pasien_ranap.kd_dokter', '=', 'dokter.kd_dokter')
+                ->select('resume_pasien_ranap.*', 'dokter.nm_dokter as nm_dokter_ranap')
+                ->where('resume_pasien_ranap.no_rawat', $norawat)
+                ->first();
+        } else {
+            $resume = DB::table('resume_pasien')
+                ->leftJoin('dokter', 'resume_pasien.kd_dokter', '=', 'dokter.kd_dokter')
+                ->select('resume_pasien.*', 'dokter.nm_dokter as nm_dokter_ranap')
+                ->where('resume_pasien.no_rawat', $norawat)
+                ->first();
+        }
         if (!$resume) {
             $resume = (object) [
                 'keluhan_utama' => '',
