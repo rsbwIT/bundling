@@ -186,6 +186,7 @@ Route::group(['middleware' => 'default'], function () {
     Route::post('/mesinlogin', [AuthController::class, 'mesinLogin']);
 
     Route::group(['middleware' => 'auth-rsbw'], function () {
+        Route::get('/monitoring-performa', [\App\Http\Controllers\LogPerformaController::class, 'index']);
         Route::get('/test', [TestController::class, 'Test']);
         Route::get('/jm-umum', [JMUmumController::class, 'index']);
         Route::get('/jm-umum/detail', [JMUmumController::class, 'detail']);
@@ -898,5 +899,7 @@ Route::get('/livewire/upload-file', function () {
 Route::get('/gizi', [GiziController::class, 'index'])->name('gizi.index');
 Route::get('/gizi/print-label', [GiziController::class, 'printLabel'])->name('gizi.printLabel');
 
-
-
+// Laporan Pengeluaran Harian & Mapping
+Route::get('/laporan-pengeluaran-harian', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'index'])->name('laporan.pengeluaran-harian');
+Route::get('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'mapping'])->name('laporan.mapping-suplier');
+Route::post('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'simpanMapping'])->name('laporan.mapping-suplier.simpan');

@@ -469,6 +469,14 @@
                             </a>
                         </li>
                         
+                        {{-- MENU MONITORING PERFORMA --}}
+                        <li class="nav-item">
+                            <a href="{{ url('/monitoring-performa') }}" class="nav-link">
+                                <i class="fas fa-tachometer-alt nav-icon text-danger"></i>
+                                <p>Monitoring Performa</p>
+                            </a>
+                        </li>
+                        
                         {{-- MENU BRIDGING LIS (EX-HOME) --}}
                         <li class="nav-item">
                             <a href="{{ url('/bridging-lis') }}" class="nav-link">
@@ -497,6 +505,14 @@
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/laporan-pengeluaran-harian') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pengeluaran Harian</p>
+                                    </a>
+                                </li>
+                            </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/returObat') }}" class="nav-link" target="_blank">
