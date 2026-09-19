@@ -506,12 +506,14 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
+                                @if(\App\Helpers\AksesHelper::cek('/laporan-pengeluaran-harian'))
+<li class="nav-item">
                                     <a href="{{ url('/laporan-pengeluaran-harian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pengeluaran Harian</p>
                                     </a>
                                 </li>
+@endif
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
