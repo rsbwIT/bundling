@@ -18,6 +18,10 @@ class PiutangHarian extends Controller
         $tglLunas2  = $request->tgl_lunas2;
         $filterType = $request->filter_type ?? 'tempo';
         $stsLanjut  = $request->stsLanjut;
+        $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
+
+
+        $penjab = DB::table('penjab')->get();
 
 
 
@@ -49,7 +53,8 @@ class PiutangHarian extends Controller
                 'laporan.piutangharian',
                 [
                     'getPiutangHarian' => collect(),
-                    'akunBayar' => $akunBayar
+                    'akunBayar' => $akunBayar,
+                    'penjab' => $penjab
                 ]
             );
         }
@@ -225,6 +230,15 @@ class PiutangHarian extends Controller
                 $stsLanjut
             );
         }
+        
+        
+        // FILTER PENJAMIN
+        if ($kdPenjamin) {
+            $query->whereIn(
+                'rp.kd_pj',
+                $kdPenjamin
+            );
+        }
 
 
 
@@ -279,7 +293,8 @@ class PiutangHarian extends Controller
                 'laporan.piutangharian',
                 [
                     'getPiutangHarian' => collect(),
-                    'akunBayar' => $akunBayar
+                    'akunBayar' => $akunBayar,
+                    'penjab' => $penjab
                 ]
             );
         }
@@ -550,6 +565,13 @@ class PiutangHarian extends Controller
 
 
 
+        // LUNAS COB MASSAL
+        $lunasCobMassal = DB::table('detail_lunas_cob')
+            ->select('no_rawat', 'tgl_lunas', 'nominal_cob', 'akun_bayar')
+            ->whereIn('no_rawat', $noRawats)
+            ->get()
+            ->keyBy('no_rawat');
+
         $getPiutangHarian->transform(
 
             function ($item) use (
@@ -557,7 +579,8 @@ class PiutangHarian extends Controller
                 $penjabMassal,
                 $lunasMassal,
                 $notaJalanMassal,
-                $notaInapMassal
+                $notaInapMassal,
+                $lunasCobMassal
             ) {
 
                 $billings = $billingMassal->get(
@@ -633,22 +656,7 @@ class PiutangHarian extends Controller
                     )->nota_inap;
 
                 // LUNAS COB
-                $item->getLunasCob = DB::table(
-                    'detail_lunas_cob'
-                )
-
-                    ->select(
-                        'tgl_lunas',
-                        'nominal_cob',
-                        'akun_bayar'
-                    )
-
-                    ->where(
-                        'no_rawat',
-                        $item->no_rawat
-                    )
-
-                    ->first();
+                $item->getLunasCob = optional($lunasCobMassal->get($item->no_rawat));
 
 
                 // GABUNG NOTA
@@ -666,7 +674,8 @@ class PiutangHarian extends Controller
             'laporan.piutangharian',
             [
                 'getPiutangHarian' => $getPiutangHarian,
-                'akunBayar' => $akunBayar
+                'akunBayar' => $akunBayar,
+                'penjab' => $penjab
             ]
         );
     }

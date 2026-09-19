@@ -26,7 +26,7 @@ class PengeluaranHarianController extends Controller
         $querySekarang = DB::table('bayar_pemesanan_non_medis')
             ->join('ipsrspemesanan', 'bayar_pemesanan_non_medis.no_faktur', '=', 'ipsrspemesanan.no_faktur')
             ->join('ipsrssuplier', 'ipsrspemesanan.kode_suplier', '=', 'ipsrssuplier.kode_suplier')
-            ->leftJoin('mapping_suplier_non_medis', 'ipsrssuplier.nama_suplier', '=', 'mapping_suplier_non_medis.nama_suplier');
+            ->leftJoin('mapping_suplier_non_medis', DB::raw('TRIM(ipsrssuplier.nama_suplier)'), '=', DB::raw('TRIM(mapping_suplier_non_medis.nama_suplier)'));
 
         if ($filter_type == 'tanggal') {
             $querySekarang->whereBetween('bayar_pemesanan_non_medis.tgl_bayar', [$tglAwal, $tglAkhir]);
@@ -60,7 +60,7 @@ class PengeluaranHarianController extends Controller
             $querySebelumnya = DB::table('bayar_pemesanan_non_medis')
                 ->join('ipsrspemesanan', 'bayar_pemesanan_non_medis.no_faktur', '=', 'ipsrspemesanan.no_faktur')
                 ->join('ipsrssuplier', 'ipsrspemesanan.kode_suplier', '=', 'ipsrssuplier.kode_suplier')
-                ->leftJoin('mapping_suplier_non_medis', 'ipsrssuplier.nama_suplier', '=', 'mapping_suplier_non_medis.nama_suplier');
+                ->leftJoin('mapping_suplier_non_medis', DB::raw('TRIM(ipsrssuplier.nama_suplier)'), '=', DB::raw('TRIM(mapping_suplier_non_medis.nama_suplier)'));
 
             if ($filter_type == 'tanggal') {
                 $querySebelumnya->whereBetween('bayar_pemesanan_non_medis.tgl_bayar', [$tglAwalSebelumnya, $tglAkhirSebelumnya]);

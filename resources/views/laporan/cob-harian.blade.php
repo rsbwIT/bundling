@@ -93,7 +93,7 @@
         @endif
 
         <form action="{{ url('cob-harian') }}"
-            method="GET">
+            method="GET" id="formFilter">
 
             @csrf
 
@@ -104,7 +104,7 @@
             <div class="row">
 
                         {{-- CARI --}}
-    <div class="col-md-4">
+    <div class="col-md-3">
 
         <div class="form-group">
 
@@ -148,6 +148,55 @@
 
         </div>
 
+    </div>
+
+
+
+                        {{-- PENJAMIN --}}
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="small font-weight-bold mb-1">
+                Penjamin
+            </label>
+                                <button type="button"
+                                    class="btn btn-default form-control form-control-sm d-flex justify-content-between align-items-center"
+                                    data-toggle="modal" data-target="#modal-penjamin">
+                                    <span>Pilih Penjamin</span>
+                                    <i class="nav-icon fas fa-credit-card"></i>
+                                </button>
+                                
+                                <div class="modal fade" id="modal-penjamin" style="text-align: left;">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Pilih Penjamin</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <select multiple="multiple" size="10" name="duallistbox[]">
+                                                    @foreach ($penjab as $item)
+                                                        <option value="{{ $item->kd_pj }}">{{ $item->png_jawab }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="kdPenjamin">
+                                                <script>
+                                                    $(function() {
+                                                        $('select[name="duallistbox[]"]').bootstrapDualListbox();
+                                                        $('#formFilter').submit(function(e) {
+                                                            $('input[name="kdPenjamin"]').val($('select[name="duallistbox[]"]').val().join(','));
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+        </div>
     </div>
 
                         {{-- FILTER --}}
@@ -204,7 +253,7 @@
     </div>
 
                         {{-- BUTTON --}}
-    <div class="col-md-3">
+    <div class="col-md-2">
 
         <div class="form-group">
 
