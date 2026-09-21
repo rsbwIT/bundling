@@ -495,8 +495,10 @@
                         </li> --}}
 
                         {{-- MENU KEUANGAN --}}
+                        @if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar', '/ralan-dokter', '/ralan-paramedis', '/ralan-dokter-paramedis', '/operasi-and-vk', '/operasi-and-vk-kso', '/ranap-dokter', '/ranap-paramedis', '/ranap-dokter-paramedis', '/periksa-radiologi', '/periksalabpa', '/jm-asuransi', '/ralan-dokter2', '/ralan-paramedis2', '/ralan-dokter-paramedis2', '/ranap-dokter4', '/ranap-paramedis2', '/ranap-dokter-paramedis2', '/periksa-radiologi2', '/operasi-and-vk1', '/periksalabpabulanan', '/jm-bpjs', '/ralan-dokter-umum', '/ralan-paramedis-umum', '/ralan-dokter-paramedis-umum', '/operasi-and-vk-umum', '/ranap-dokter-umum', '/ranap-paramedis-umum', '/ranap-dokter-paramedis-umum', '/periksa-radiologi-umum', '/periksalabpaumum', '/jm-umum', '/ralan-dokter-bpjs', '/ralan-paramedis-bpjs', '/ralan-dokter-paramedis-bpjs', '/ranap-dokter-bpjs', '/ranap-paramedis-bpjs', '/ranap-dokter-paramedis-bpjs', '/periksa-radiologi-bpjs', '/operasi-and-vk-bpjs', '/periksalabpabpjs']))
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Transaksi</li>
+                        @endif
 @if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
