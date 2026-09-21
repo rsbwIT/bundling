@@ -463,6 +463,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/ai/user/akses/copy', [User::class, 'copyAkses']);
         Route::post('/ai/user/destroy', [User::class, 'destroy']);
 
+        // HAK AKSES BUNDLING
+        Route::get('/akses-bundling', [App\Http\Controllers\AI\UserAksesBundlingController::class, 'index'])->name('akses.bundling');
+        Route::get('/akses-bundling/{username}', [App\Http\Controllers\AI\UserAksesBundlingController::class, 'getAkses']);
+        Route::post('/akses-bundling/update', [App\Http\Controllers\AI\UserAksesBundlingController::class, 'updateAkses']);
+
         // belanja
         Route::get('/belanja', [belanja::class, 'index'])->name('belanja.index');
         Route::post('/belanja/toggle-bangsal', [belanja::class, 'toggleBangsal'])

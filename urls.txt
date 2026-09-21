@@ -1,0 +1,150 @@
+{{ url('/') }}
+{{ url('/chat') }}
+{{ url('/returObat') }}
+{{ url('/pembayaran-ralan') }}
+{{ url('/cari-piutang-ralan') }}
+{{ url('/cari-piutang-ranap') }}
+{{ url('/cari-bayar-piutang') }}
+{{ url('/bayar-piutang-khanza') }}
+{{ url('/cari-cob-bayar-piutang') }}
+{{ url('/cob-harian') }}
+{{ url('/piutang-harian') }}
+{{ url('/cari-bayar-umum') }}
+{{ url('/bayar-piutang-karyawan') }}
+{{ url('/invoice-asuransi') }}
+{{ url('/pasien-terdaftar') }}
+{{ url('/ralan-dokter') }}
+{{ url('/ralan-paramedis') }}
+{{ url('/ralan-dokter-paramedis') }}
+{{ url('/operasi-and-vk') }}
+{{ url('/operasi-and-vk-kso') }}
+{{ url('/ranap-dokter') }}
+{{ url('/ranap-paramedis') }}
+{{ url('/ranap-dokter-paramedis') }}
+{{ url('/periksa-radiologi') }}
+{{ url('/periksalabpa') }}
+{{ url('/jm-asuransi') }}
+{{ url('/ralan-dokter2') }}
+{{ url('/ralan-paramedis2') }}
+{{ url('/ralan-dokter-paramedis2') }}
+{{ url('/ranap-dokter4') }}
+{{ url('/ranap-paramedis2') }}
+{{ url('/ranap-dokter-paramedis2') }}
+{{ url('/periksa-radiologi2') }}
+{{ url('/operasi-and-vk1') }}
+{{ url('/periksalabpabulanan') }}
+{{ url('/jm-bpjs') }}
+{{ url('/ralan-dokter-umum') }}
+{{ url('/ralan-paramedis-umum') }}
+{{ url('/ralan-dokter-paramedis-umum') }}
+{{ url('/operasi-and-vk-umum') }}
+{{ url('/ranap-dokter-umum') }}
+{{ url('/ranap-paramedis-umum') }}
+{{ url('/ranap-dokter-paramedis-umum') }}
+{{ url('/periksa-radiologi-umum') }}
+{{ url('/periksalabpaumum') }}
+{{ url('/jm-umum') }}
+{{ url('/ralan-dokter-bpjs') }}
+{{ url('/ralan-paramedis-bpjs') }}
+{{ url('/ralan-dokter-paramedis-bpjs') }}
+{{ url('/ranap-dokter-bpjs') }}
+{{ url('/ranap-paramedis-bpjs') }}
+{{ url('/ranap-dokter-paramedis-bpjs') }}
+{{ url('/periksa-radiologi-bpjs') }}
+{{ url('/operasi-and-vk-bpjs') }}
+{{ url('/periksalabpabpjs') }}
+{{ url('/jm-bpjs') }}
+{{ url('/list-pasein-ralan') }}
+{{ url('/list-pasein-ralan2') }}
+{{ url('/list-pasein-ranap') }}
+{{ url('/data-inacbg') }}
+{{ url('/casemix-home') }}
+{{ url('/bpjs/croscek-pasien-pulang') }}
+{{ url('/croscheck-coding') }}
+{{ url('/setting-bpjs-casemix') }}
+{{ url('list-pasien-farmasi') }}
+{{ url('list-pasien-farmasi2') }}
+{{ url('minimal-stok-obat') }}
+{{ url('kirim-taskid-bpjs') }}
+{{ url('kirim-taskid-bpjs2') }}
+{{ url('update-jadwal-dokter') }}
+{{ url('sep-vclaim') }}
+{{ url('icare') }}
+{{ url('anjungan-mandiri') }}
+{{ url('antrian-pendaftaran') }}
+{{ url('antrian') }}
+{{ url('antrian/tv') }}
+{{ url('regperiksabilling') }}
+{{ url('info-kamar-ruangan') }}
+{{ url('info-kamar') }}
+{{ url('info-kamar2') }}
+{{ url('/info-kamar3') }}
+{{ url('info-kamar-baru') }}
+{{ url('setting-antrian') }}
+{{ url('antrian-poli') }}
+{{ url('setting-antrian-poli') }}
+{{ url('jadwal-dokter') }}
+#
+{{ url('antrian-farmasi') }}
+{{ url('farmasi/antrian') }}
+{{ url('antrian-farmasi/panggil') }}
+{{ url('antrian-farmasi-baru') }}
+{{ url('antrian-farmasi/display-v2') }}
+{{ url('display-farmasi') }}
+{{ url('/waktu-tunggu-farmasi') }}
+{{ url('laporan-borlosetc') }}
+{{ url('kroscek-pasien') }}
+{{ url('laporan-pasien') }}
+{{ url('rm/diagnosa') }}
+{{ url('berkas-rm') }}
+{{ url('waktu-tunggu-pasien-bayar') }}
+{{ url('rawat-jalan') }}
+{{ url('kunjungan-ralan') }}
+{{ url('status-data-rm') }}
+{{ url('pasien-pulang-ranap') }}
+{{ url('pasien-ranap-igd') }}
+{{ url('pasien-per-episode') }}
+{{ url('tabulasi-igd') }}
+{{ url('pasien-meninggal') }}
+{{ url('jumlah-pasien') }}
+{{ url('skrining-ispa') }}
+#
+{{ url('rawat-inap') }}
+{{ url('infokamarinap') }}
+{{ url('kamar-inap-dr') }}
+#
+{{ url('inventaris-barang') }}
+#
+{{ url('laboratorium') }}
+#
+{{ route('biometrik.rajal.index') }}
+{{ route('biometrik.ranap.index') }}
+{{ route('biometrik.rajal.listSuratRj') }}
+{{ route('biometrik.rajal.create') }}
+{{ route('biometrik.ranap.listSuratRi') }}
+{{ route('biometrik.ranap.create') }}
+#
+{{ url('/mjkn') }}
+#
+{{ url('/urologi') }}
+#
+{{ url('/skriningtbc') }}
+{{ url('/skrining-tbc') }}
+{{ url('home-keperawatan') }}
+{{ url('/pasien-lebih-dari-1') }}
+#
+{{ url('/fisioterapi') }}
+#
+{{ url('/laporan-lab/anti-hiv') }}
+#
+{{ url('/pemesanan-farmasi') }}
+{{ url('/belanja') }}
+#
+{{ route('pkpa.monitoring') }}
+#
+{{ url('/listnama') }}
+{{ url('/list-nama-kasir') }}
+#
+{{ url('/berkas-pegawai') }}
+{{ route('berkas.pegawai.semua') }}
+/user-bundling

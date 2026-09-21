@@ -495,10 +495,8 @@
                         </li> --}}
 
                         {{-- MENU KEUANGAN --}}
-                        @if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar', '/ralan-dokter', '/ralan-paramedis', '/ralan-dokter-paramedis', '/operasi-and-vk', '/operasi-and-vk-kso', '/ranap-dokter', '/ranap-paramedis', '/ranap-dokter-paramedis', '/periksa-radiologi', '/periksalabpa', '/jm-asuransi', '/ralan-dokter2', '/ralan-paramedis2', '/ralan-dokter-paramedis2', '/ranap-dokter4', '/ranap-paramedis2', '/ranap-dokter-paramedis2', '/periksa-radiologi2', '/operasi-and-vk1', '/periksalabpabulanan', '/jm-bpjs', '/ralan-dokter-umum', '/ralan-paramedis-umum', '/ralan-dokter-paramedis-umum', '/operasi-and-vk-umum', '/ranap-dokter-umum', '/ranap-paramedis-umum', '/ranap-dokter-paramedis-umum', '/periksa-radiologi-umum', '/periksalabpaumum', '/jm-umum', '/ralan-dokter-bpjs', '/ralan-paramedis-bpjs', '/ralan-dokter-paramedis-bpjs', '/ranap-dokter-bpjs', '/ranap-paramedis-bpjs', '/ranap-dokter-paramedis-bpjs', '/periksa-radiologi-bpjs', '/operasi-and-vk-bpjs', '/periksalabpabpjs']))
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Transaksi</li>
-                        @endif
 @if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
@@ -1110,6 +1108,7 @@
                         </li>
 @endif
                         {{-- MENU FARMASI --}}
+@if(\App\Helpers\AksesHelper::cekAny(['list-pasien-farmasi', 'list-pasien-farmasi2', 'minimal-stok-obat']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-mortar-pestle"></i>
@@ -1145,7 +1144,9 @@
                                 </ul>
                             @endif
                         </li>
+@endif
                         {{-- MENU BRIGING BPJS --}}
+@if(\App\Helpers\AksesHelper::cekAny(['pre-claim-validator', 'kirim-taskid-bpjs', 'kirim-taskid-bpjs2', 'update-jadwal-dokter', 'sep-vclaim', 'icare']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-file"></i>
@@ -1219,9 +1220,11 @@
                                 </li>
                             </ul>
                         </li>
+@endif
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Pelayanan - RM</li>
                         {{-- MENU ANTRIAN --}}
+@if(\App\Helpers\AksesHelper::cekAny(['anjungan-mandiri', 'antrian-pendaftaran', 'antrian', 'antrian/tv', 'regperiksabilling', 'info-kamar-ruangan', 'info-kamar', 'info-kamar2', '/info-kamar3', 'info-kamar-baru', 'setting-antrian']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-user"></i>
@@ -1322,7 +1325,9 @@
                             </ul>
 
                         </li>
+@endif
                         {{-- ANTRIAN POLI --}}
+@if(\App\Helpers\AksesHelper::cekAny(['antrian-poli', 'setting-antrian-poli', 'jadwal-dokter']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-layer-group"></i>
@@ -1356,7 +1361,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
                         {{-- ANTRIAN FARMASI --}}
+@if(\App\Helpers\AksesHelper::cekAny(['antrian-farmasi', 'farmasi/antrian', 'antrian-farmasi/panggil', 'antrian-farmasi-baru', 'antrian-farmasi/display-v2', 'display-farmasi', '/waktu-tunggu-farmasi']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-pills"></i>
@@ -1422,7 +1429,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
                             {{-- MENU RM --}}
+@if(\App\Helpers\AksesHelper::cekAny(['laporan-borlosetc', 'kroscek-pasien', 'kroscek-general-consent', 'laporan-pasien', 'rm/diagnosa', 'berkas-rm', 'waktu-tunggu-pasien-bayar', 'rawat-jalan', 'kunjungan-ralan', 'status-data-rm', 'pasien-pulang-ranap', 'pasien-ranap-igd', 'pasien-per-episode', 'tabulasi-igd', 'pasien-meninggal', 'jumlah-pasien', 'skrining-ispa', 'kodingan-rm']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-file"></i>
@@ -1568,7 +1577,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
                         {{-- Pasien --}}
+@if(\App\Helpers\AksesHelper::cekAny(['rawat-inap', 'infokamarinap', 'kamar-inap-dr']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-procedures"></i>
@@ -1602,7 +1613,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
+@if(\App\Helpers\AksesHelper::cekAny(['inventaris-barang']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-boxes-stacked"></i>
@@ -1620,7 +1633,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
+@if(\App\Helpers\AksesHelper::cekAny(['laboratorium']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-microscope"></i>
@@ -1637,6 +1652,7 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
                        <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
@@ -1731,6 +1747,7 @@
                         </li>
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Tools - Keperawatan</li>
+@if(\App\Helpers\AksesHelper::cekAny(['/gizi']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-utensils"></i>
@@ -1748,6 +1765,8 @@
                                 </li>
                             </ul>
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['/urologi']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-user-md"></i>
@@ -1766,7 +1785,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
+@if(\App\Helpers\AksesHelper::cekAny(['/skriningtbc', '/skrining-tbc']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-lungs"></i>
@@ -1791,7 +1812,9 @@
                                 </li>
                             </ul>
                         </li>
+@endif
                         {{-- MENU KEPERAWATAN --}}
+@if(\App\Helpers\AksesHelper::cekAny(['home-keperawatan', '/pasien-lebih-dari-1']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-user-nurse"></i>
@@ -1818,6 +1841,8 @@
                             </ul>
                             
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['/fisioterapi', '/antrian-fisioterapi', '/display-fisioterapi']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-diagnoses"></i>
@@ -1852,6 +1877,8 @@
                                 </li>
                             </ul>
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['/laporan-lab/anti-hiv']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-flask"></i>
@@ -1869,6 +1896,8 @@
                                 </li>
                             </ul>
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['/pemesanan-farmasi', '/belanja']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-file-invoice"></i>
@@ -1896,6 +1925,8 @@
                                 </li>
                             </ul>
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['pkpa.monitoring']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-user-graduate"></i>
@@ -1914,6 +1945,8 @@
                                 </li>
                             </ul>
                         </li>
+@endif
+@if(\App\Helpers\AksesHelper::cekAny(['/listnama']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-envelope-open-text"></i>
@@ -1931,6 +1964,7 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
                         {{-- MENU KASIR --}}
                         <li class="nav-header">Kasir</li>
@@ -1944,6 +1978,7 @@
                         {{-- MENU KEPEGAWAIAN --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Kepegawaian</li>
+@if(\App\Helpers\AksesHelper::cekAny(['/berkas-pegawai', 'berkas.pegawai.semua']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-users-cog"></i>
@@ -1969,27 +2004,10 @@
                                 </li>
                             </ul>
                         </li>
+@endif
 
                         <li class="nav-item mt-5">
                         </li>
-
-                        @if(session('user') && session('user')->nik == '01091999')
-                        <li class="nav-header user-panel"></li>
-                        <li class="nav-header">Pengaturan Admin</li>
-                        <li class="nav-item">
-                            <a href="{{ route('akses.bundling') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-shield"></i>
-                                <p>Akses Bundling</p>
-                            </a>
-                        </li>
-                        <!-- <li class="nav-item">
-                            <a href="{{ route('ai.user') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>User Bundling</p>
-                            </a>
-                        </li> -->
-                        @endif
-
                         <li class="nav-item mt-5">
                         </li>
                     </ul>

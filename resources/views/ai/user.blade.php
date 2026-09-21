@@ -86,11 +86,13 @@
                                     <i class="fas fa-magic"></i> Perbaiki
                                 </button>
                             @endif
+                            @if(session('user') && session('user')->nik == '01091999')
                             <button type="button"
                                     class="btn btn-sm btn-warning lihatAkses"
                                     data-id="{{ $item->username_asli }}" title="Edit Akses">
                                 ⚙
                             </button>
+                            @endif
                             <button type="button"
                                     class="btn btn-sm btn-danger btnHapusUser"
                                     data-id="{{ $item->username_asli }}" title="Hapus User">

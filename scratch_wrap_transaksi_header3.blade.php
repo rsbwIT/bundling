@@ -1972,24 +1972,6 @@
 
                         <li class="nav-item mt-5">
                         </li>
-
-                        @if(session('user') && session('user')->nik == '01091999')
-                        <li class="nav-header user-panel"></li>
-                        <li class="nav-header">Pengaturan Admin</li>
-                        <li class="nav-item">
-                            <a href="{{ route('akses.bundling') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-shield"></i>
-                                <p>Akses Bundling</p>
-                            </a>
-                        </li>
-                        <!-- <li class="nav-item">
-                            <a href="{{ route('ai.user') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>User Bundling</p>
-                            </a>
-                        </li> -->
-                        @endif
-
                         <li class="nav-item mt-5">
                         </li>
                     </ul>

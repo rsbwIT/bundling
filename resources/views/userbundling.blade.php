@@ -79,12 +79,14 @@
                         </td>
 
                         <td class="text-center">
+                            @if(session('user') && session('user')->nik == '01091999')
                             <button type="button"
                                     class="btn btn-sm btn-success btnCopyAkses"
                                     data-id="{{ $item->username_asli }}"
                                     data-nama="{{ $item->nama_petugas ?? $item->username_asli }}">
                                 📋 Copy
                             </button>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
