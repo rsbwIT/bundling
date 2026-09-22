@@ -24,8 +24,8 @@ class PeriksaLabPABulanan extends Controller
         $petugas = $this->cacheService->getPetugas();
         $dokter  = $this->cacheService->getDokter();
 
-        $tgl1 = $request->tgl1;
-        $tgl2 = $request->tgl2;
+        $tgl1 = $request->tgl1 ?: date('Y-m-d');
+        $tgl2 = $request->tgl2 ?: date('Y-m-d');
 
         // JANGAN TAMPILKAN DATA SAAT PERTAMA BUKA
         if (!$request->filled('tgl1') || !$request->filled('tgl2')) {

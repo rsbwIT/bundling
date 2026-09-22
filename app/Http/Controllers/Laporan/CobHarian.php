@@ -12,8 +12,8 @@ class CobHarian extends Controller
     public function CobHarian(Request $request)
     {
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $tglLunas1 = $request->tgl_lunas1;
         $tglLunas2 = $request->tgl_lunas2;
         $filterType = $request->filter_type ?? 'tempo';
@@ -54,9 +54,13 @@ class CobHarian extends Controller
                     ->whereBetween('detail_lunas_cob.tgl_lunas', [$tglLunas1, $tglLunas2]);
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->groupBy('detail_piutang_pasien.no_rawat')
             ->having(DB::raw('COUNT(detail_piutang_pasien.no_rawat)'), '>', 1)

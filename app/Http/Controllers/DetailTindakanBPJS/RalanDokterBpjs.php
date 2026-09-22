@@ -22,8 +22,8 @@ class RalanDokterBpjs extends Controller
         $dokter = $this->cacheService->getDokter();
 
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
         $kdDokter = ($request->input('kdDokter')  == null) ? "" : explode(',', $request->input('kdDokter'));
 
@@ -75,9 +75,13 @@ class RalanDokterBpjs extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->orderBy('rawat_jl_dr.no_rawat', 'desc')
             ->get();

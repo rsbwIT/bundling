@@ -45,8 +45,8 @@ class ListPasienRanap extends Controller
     }
 
     function cariListPaseinRanap(Request $request){
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
 
         $daftarPasien = DB::table('reg_periksa')
             ->select('reg_periksa.no_rkm_medis',

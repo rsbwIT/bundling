@@ -25,8 +25,8 @@ class PeriksaRadiologi2 extends Controller
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
         $kdDokter = ($request->input('kdDokter')  == null) ? "" : explode(',', $request->input('kdDokter'));
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $status_lanjut = $request->statusLanjut ?? null;
         $statusLunas = $request->statusLunas;
         $jenisTanggal = $request->jenisTanggal;
@@ -87,11 +87,15 @@ class PeriksaRadiologi2 extends Controller
         //                 ->where('piutang_pasien.status', 'Belum Lunas');
         //         }
         //     })
-        //     ->where(function($query) use ($cariNomor) {
-        //         $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-        //         $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-        //         $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-        //     })
+        //     ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+        //         $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+        //         $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+        //         $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+        //                         });
+                }
+            })
         //     ->groupBy('periksa_radiologi.no_rawat','periksa_radiologi.kd_jenis_prw','periksa_radiologi.tgl_periksa','periksa_radiologi.jam','periksa_radiologi.tarif_tindakan_dokter','periksa_radiologi.tarif_tindakan_petugas')
         //     ->get();
 
@@ -205,9 +209,13 @@ class PeriksaRadiologi2 extends Controller
             })
 
             ->where(function ($query) use ($cariNomor) {
-                $query->where('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->where('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                     ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                     ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
 
             ->groupBy('periksa_radiologi.no_rawat', 'periksa_radiologi.kd_jenis_prw', 'periksa_radiologi.tgl_periksa', 'periksa_radiologi.jam', 'periksa_radiologi.tarif_tindakan_dokter', 'periksa_radiologi.tarif_tindakan_petugas')

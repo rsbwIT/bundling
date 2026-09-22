@@ -40,8 +40,8 @@ class ListPasienRalan extends Controller
     }
 
     function cariListPaseinRalan(Request $request){
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $penjamnin = 'BPJ';
 
         $daftarPasien = DB::table('reg_periksa')

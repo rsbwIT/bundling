@@ -22,8 +22,8 @@ class RanapParamedisBpjs extends Controller
         $petugas = $this->cacheService->getPetugas();
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
 
         $getRanapParamedis = DB::table('pasien')
@@ -82,9 +82,13 @@ class RanapParamedisBpjs extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->orderByDesc('rawat_inap_pr.no_rawat')
             ->get();
@@ -137,9 +141,13 @@ class RanapParamedisBpjs extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->orderBy('rawat_jl_pr.no_rawat', 'desc')
             ->get();

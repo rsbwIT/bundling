@@ -202,13 +202,17 @@ class JMAsuransiController extends Controller
                 $query->whereIn('rawat_jl_dr.kd_dokter', $kdDokter);
             }
         })
-        ->where(function($query) use ($cariNomor) {
+        ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function($q) use ($cariNomor) {
+                $q->where(function($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_dr.kd_dokter', 'dokter.nm_dokter');
@@ -253,13 +257,17 @@ class JMAsuransiController extends Controller
                 $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
             }
         })
-        ->where(function($query) use ($cariNomor) {
+        ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function($q) use ($cariNomor) {
+                $q->where(function($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_drpr.kd_dokter', 'dokter.nm_dokter');
@@ -300,12 +308,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
@@ -347,12 +359,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_radiologi.dokter_perujuk', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_radiologi.dokter_perujuk', 'dokter.nm_dokter');
@@ -399,12 +415,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
@@ -450,12 +470,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
@@ -517,12 +541,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_inap_dr.kd_dokter', 'dokter.nm_dokter');
@@ -567,12 +595,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_inap_drpr.kd_dokter', 'dokter.nm_dokter');
@@ -614,12 +646,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.operator1', 'dokter.nm_dokter');
@@ -661,12 +697,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.dokter_anestesi', 'dokter.nm_dokter');
@@ -706,12 +746,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('operasi.dokter_anak', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.dokter_anak', 'dokter.nm_dokter');
@@ -751,12 +795,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('operasi.dokter_umum', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.dokter_umum', 'dokter.nm_dokter');
@@ -801,12 +849,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_dr.kd_dokter', 'dokter.nm_dokter');
@@ -852,12 +904,16 @@ class JMAsuransiController extends Controller
             }
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_drpr.kd_dokter', 'dokter.nm_dokter');
@@ -898,12 +954,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_radiologi.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_radiologi.kd_dokter', 'dokter.nm_dokter');
@@ -945,12 +1005,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_radiologi.dokter_perujuk', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_radiologi.dokter_perujuk', 'dokter.nm_dokter');
@@ -1009,12 +1073,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_lab.dokter_perujuk', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_lab.dokter_perujuk', 'dokter.nm_dokter');
@@ -1060,12 +1128,16 @@ class JMAsuransiController extends Controller
             if ($kdDokter) $query->whereIn('periksa_lab.kd_dokter', $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('periksa_lab.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('periksa_lab.kd_dokter', 'dokter.nm_dokter');
@@ -1158,12 +1230,16 @@ class JMAsuransiController extends Controller
         })
         // ... (rest of where filters)
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_pr.nip', 'petugas.nama');
@@ -1210,12 +1286,16 @@ class JMAsuransiController extends Controller
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_drpr.nip', 'petugas.nama');
@@ -1262,12 +1342,16 @@ class JMAsuransiController extends Controller
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_pr.nip', 'petugas.nama');
@@ -1314,12 +1398,16 @@ class JMAsuransiController extends Controller
             })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_jl_drpr.nip', 'petugas.nama');
@@ -1366,12 +1454,16 @@ class JMAsuransiController extends Controller
             })->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%');
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_inap_pr.nip', 'petugas.nama');
@@ -1418,12 +1510,16 @@ class JMAsuransiController extends Controller
             })->orWhere('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%');
         })
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('rawat_inap_drpr.nip', 'petugas.nama');
@@ -1464,12 +1560,16 @@ class JMAsuransiController extends Controller
         })
         ->where('petugas.nama', '!=', 'Dahyar')
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.asisten_operator1', 'petugas.nama');
@@ -1510,12 +1610,16 @@ class JMAsuransiController extends Controller
         })
         ->where('petugas.nama', '!=', 'Dahyar')
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.asisten_anestesi', 'petugas.nama');
@@ -1559,12 +1663,16 @@ class JMAsuransiController extends Controller
         ->where('operasi.omloop', '!=', '-')
         ->where('operasi.omloop', '!=', '')
         ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
-                $query->where(function ($q) use ($cariNomor) {
+                $q->where(function ($q) use ($cariNomor) {
                     $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                });
+                                    });
+                }
+            });
             }
         })
         ->groupBy('operasi.omloop', 'petugas.nama');

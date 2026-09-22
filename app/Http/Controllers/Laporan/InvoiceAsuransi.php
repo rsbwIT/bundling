@@ -21,8 +21,8 @@ class InvoiceAsuransi extends Controller
         $penjab = $this->cacheService->getPenjab();
         $url = 'invoice-asuransi';
 
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $tgl_cetak = $request->tgl_cetak;
         $status_lanjut = $request->status_lanjut;
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));

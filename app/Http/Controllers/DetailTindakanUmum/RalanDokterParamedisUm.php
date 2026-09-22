@@ -22,8 +22,8 @@ class RalanDokterParamedisUm extends Controller
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
         $kdDokter = ($request->input('kdDokter')  == null) ? "" : explode(',', $request->input('kdDokter'));
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
 
         $RalanDrPrUmum = DB::table('pasien')
             ->select('rawat_jl_drpr.no_rawat',
@@ -70,10 +70,14 @@ class RalanDokterParamedisUm extends Controller
                     $query->whereIn('rawat_jl_drpr.kd_dokter', $kdDokter);
                 }
             })
-            ->where(function($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+            ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->orderBy('rawat_jl_drpr.no_rawat','desc')
             ->get();

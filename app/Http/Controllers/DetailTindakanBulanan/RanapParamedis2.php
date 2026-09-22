@@ -31,8 +31,8 @@ class RanapParamedis2 extends Controller
             : [];
 
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
 
         // ===================== RANAP =====================
         $getRanapParamedis2 = DB::table('pasien')
@@ -92,9 +92,13 @@ class RanapParamedis2 extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cariNomor%")
                       ->orWhere('pasien.nm_pasien', 'like', "%$cariNomor%");
+                                });
+                }
             })
             ->orderByDesc('rawat_inap_pr.no_rawat')
             ->get();
@@ -152,9 +156,13 @@ class RanapParamedis2 extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
                       ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cariNomor%")
                       ->orWhere('pasien.nm_pasien', 'like', "%$cariNomor%");
+                                });
+                }
             })
             ->orderByDesc('rawat_jl_pr.no_rawat')
             ->get();

@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 
 class AksesHelper
 {
+    private static $semuaMenu = null;
+    private static $userAkses = null;
+
     public static function cekAny(array $urls)
     {
         foreach ($urls as $url) {
@@ -27,7 +30,6 @@ class AksesHelper
         
         // Admin utama selalu memiliki akses
         if ($nik == '01091999') {
-            \Illuminate\Support\Facades\Log::info("AksesHelper: SUPER ADMIN BYPASS for " . $url);
             return true;
         }
 
@@ -36,38 +38,50 @@ class AksesHelper
             return true;
         }
 
-        // Cari menu di database daftar_menu_bundling
         // Jika url berbentuk absolute (misal dari fungsi route()), ambil path-nya saja
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             $parsed = parse_url($url);
             $url = $parsed['path'] ?? $url;
         }
 
-        // Bersihkan url dari prefix/slash berlebih untuk mempermudah LIKE
+        // Bersihkan url dari prefix/slash berlebih
         $cleanUrl = ltrim($url, '/');
         
-        $menu = DB::table('daftar_menu_bundling')
-            ->where('url', 'LIKE', '%' . $cleanUrl . '%')
-            ->first();
+        // --- OPTIMASI: Load data dari database HANYA SEKALI per request (menghindari ratusan query berulang) ---
+        if (self::$semuaMenu === null) {
+            self::$semuaMenu = DB::table('daftar_menu_bundling')->pluck('url')->toArray();
+        }
+        
+        if (self::$userAkses === null) {
+            self::$userAkses = DB::table('user_akses_bundling')
+                ->join('daftar_menu_bundling', 'user_akses_bundling.menu_id', '=', 'daftar_menu_bundling.id')
+                ->where('user_akses_bundling.username', $nik)
+                ->where('user_akses_bundling.status', 'true')
+                ->pluck('daftar_menu_bundling.url')
+                ->toArray();
+        }
 
-        // Jika menu belum terdaftar di database, kita loloskan agar tidak menghilangkan fitur
-        if (!$menu) {
-            \Illuminate\Support\Facades\Log::info("AksesHelper: Menu not found for url: " . $url . " (cleanUrl: " . $cleanUrl . ")");
+        // Cari menu di database daftar_menu_bundling (mirip dengan LIKE %cleanUrl%)
+        $isMenuTerdaftar = false;
+        foreach (self::$semuaMenu as $dbUrl) {
+            if (stripos($dbUrl ?? '', $cleanUrl) !== false) {
+                $isMenuTerdaftar = true;
+                break;
+            }
+        }
+
+        // Jika menu belum terdaftar di database, kita loloskan
+        if (!$isMenuTerdaftar) {
             return true;
         }
 
-        // Cek hak akses di tabel user_akses_bundling
-        $akses = DB::table('user_akses_bundling')
-            ->where('username', $nik)
-            ->where('menu_id', $menu->id)
-            ->first();
-
-        if ($akses && $akses->status == 'true') {
-            \Illuminate\Support\Facades\Log::info("AksesHelper: Access GRANTED for " . $nik . " on " . $url);
-            return true;
+        // Cek hak akses dari data userAkses
+        foreach (self::$userAkses as $aksesUrl) {
+            if (stripos($aksesUrl ?? '', $cleanUrl) !== false) {
+                return true;
+            }
         }
 
-        \Illuminate\Support\Facades\Log::info("AksesHelper: Access DENIED for " . $nik . " on " . $url);
         return false;
     }
 }

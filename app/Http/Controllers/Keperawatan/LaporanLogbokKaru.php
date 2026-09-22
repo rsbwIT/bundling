@@ -18,8 +18,8 @@ class LaporanLogbokKaru extends Controller
     {
         $petugas = $this->cacheService->getPetugas();
         $kdPetugas = ($request->input('kdPetugas') == null) ? explode(',', session('auth')['id_user']) : explode(',', $request->input('kdPetugas'));
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
 
         $getPetugas = DB::table('petugas')
             ->select('petugas.nip', 'petugas.nama')

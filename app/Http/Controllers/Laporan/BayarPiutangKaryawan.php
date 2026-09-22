@@ -19,8 +19,8 @@ class BayarPiutangKaryawan extends Controller
     {
         $url = 'bayar-piutang-karyawan';
         $cariNomor = $request->cariNomor;
-        $tanggl1 = $request->tgl1;
-        $tanggl2 = $request->tgl2;
+        $tanggl1 = $request->tgl1 ?: date('Y-m-d');
+        $tanggl2 = $request->tgl2 ?: date('Y-m-d');
 
         $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
         $kdPetugas = ($request->input('kdPetugas') == null) ? "" : explode(',', $request->input('kdPetugas'));
@@ -55,8 +55,12 @@ class BayarPiutangKaryawan extends Controller
                 }
             })
             ->where(function ($query) use ($cariNomor) {
-                $query->orWhere('piutang.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                $q->orWhere('piutang.no_rkm_medis', 'like', '%' . $cariNomor . '%')
                 ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                                });
+                }
             })
             ->whereNull('reg_periksa.no_rawat')
             ->get();
