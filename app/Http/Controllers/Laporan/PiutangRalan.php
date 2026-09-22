@@ -60,8 +60,8 @@ class PiutangRalan extends Controller
                 if ($status) {
                     $query->where('piutang_pasien.status', $status);
                 }
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
             ->orderBy('reg_periksa.tgl_registrasi', 'asc')

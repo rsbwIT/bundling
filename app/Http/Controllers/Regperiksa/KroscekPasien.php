@@ -203,9 +203,9 @@ class KroscekPasien extends Controller
             // Apply search filter
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
-                    $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
+                    $q->where('rp.no_rawat', 'like', "{$searchTerm}%")
                         ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
-                        ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
+                        ->orWhere('rp.no_rkm_medis', 'like', "{$searchTerm}%")
                         ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
                 });
             }
@@ -466,9 +466,9 @@ class KroscekPasien extends Controller
             // Apply search filter
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
-                    $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
+                    $q->where('rp.no_rawat', 'like', "{$searchTerm}%")
                         ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
-                        ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
+                        ->orWhere('rp.no_rkm_medis', 'like', "{$searchTerm}%")
                         ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%");
                 });
             }

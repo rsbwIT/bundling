@@ -49,9 +49,9 @@ class BundlingResepobat2 extends Component
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             // ->where(function ($query) use ($cariKode) {
-            //     $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+            //     $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
             //         ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-            //         ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
+            //         ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%")
             //         ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             // })
 
@@ -60,9 +60,9 @@ class BundlingResepobat2 extends Component
             })
             ->when(empty($sepList) && !empty($input), function ($query) use ($input) {
                 $query->where(function ($q) use ($input) {
-                    $q->where('reg_periksa.no_rkm_medis', 'LIKE', "%$input%")
+                    $q->where('reg_periksa.no_rkm_medis', 'LIKE', "$input%")
                         ->orWhere('pasien.nm_pasien', 'LIKE', "%$input%")
-                        ->orWhere('reg_periksa.no_rawat', 'LIKE', "%$input%");
+                        ->orWhere('reg_periksa.no_rawat', 'LIKE', "$input%");
                 });
             })
 

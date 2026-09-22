@@ -88,8 +88,8 @@ class BayarPiutangKhanza extends Controller
             // 🔹 Filter pencarian umum
             ->when($cariNomor, function ($q) use ($cariNomor) {
                 $q->where(function ($sub) use ($cariNomor) {
-                    $sub->where('bayar_piutang.no_rawat', 'like', "%{$cariNomor}%")
-                        ->orWhere('bayar_piutang.no_rkm_medis', 'like', "%{$cariNomor}%")
+                    $sub->where('bayar_piutang.no_rawat', 'like', "{$cariNomor}%")
+                        ->orWhere('bayar_piutang.no_rkm_medis', 'like', "{$cariNomor}%")
                         ->orWhere('pasien.nm_pasien', 'like', "%{$cariNomor}%");
                 });
             });

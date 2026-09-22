@@ -102,8 +102,8 @@ class PeriksaLabPA extends Controller
 
             ->where(function ($query) use ($cari) {
                 if ($cari) {
-                    $query->where('reg_periksa.no_rawat', 'like', "%$cari%")
-                          ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cari%")
+                    $query->where('reg_periksa.no_rawat', 'like', "$cari%")
+                          ->orWhere('reg_periksa.no_rkm_medis', 'like', "$cari%")
                           ->orWhere('pasien.nm_pasien', 'like', "%$cari%");
                 }
             })

@@ -209,8 +209,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -266,8 +266,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -318,8 +318,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -362,8 +362,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -589,8 +589,8 @@ class JMBpjsController extends Controller
 
         if ($cariNomor) {
             $searchClosure = function ($q) use ($cariNomor) {
-                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                  ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                  ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                   ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             };
             $rawRanapDr->where($searchClosure);
@@ -1016,8 +1016,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1070,8 +1070,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1134,8 +1134,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1184,8 +1184,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1240,8 +1240,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1284,8 +1284,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1335,8 +1335,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1379,8 +1379,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1448,8 +1448,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1492,8 +1492,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1670,8 +1670,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1711,8 +1711,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1752,8 +1752,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1793,8 +1793,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1834,8 +1834,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1875,8 +1875,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1940,8 +1940,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -1983,8 +1983,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -2046,8 +2046,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -2087,8 +2087,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -2146,8 +2146,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }
@@ -2188,8 +2188,8 @@ class JMBpjsController extends Controller
                     $query->where(function($q) use ($cariNomor) {
             if ($cariNomor) {
                 $q->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                     });
                 }

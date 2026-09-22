@@ -254,13 +254,13 @@ class PiutangHarian extends Controller
                     $q->where(
                         'rp.no_rawat',
                         'like',
-                        "%$cariNomor%"
+                        "$cariNomor%"
                     )
 
                         ->orWhere(
                             'rp.no_rkm_medis',
                             'like',
-                            "%$cariNomor%"
+                            "$cariNomor%"
                         )
 
                         ->orWhere(

@@ -56,10 +56,10 @@ class Icare extends Component
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
                     ->orwhere('pasien.no_ktp', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
             })
             ->get();
             $this->getPasien->map(function ($item) {

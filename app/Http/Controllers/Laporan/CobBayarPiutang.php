@@ -55,8 +55,8 @@ class CobBayarPiutang extends Controller
                 if ($kdPenjamin) {
                     $query->whereIn('penjab.kd_pj', $kdPenjamin);
                 }
-                $query->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $query->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
+                $query->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
                 $query->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
             })
             ->groupBy('bayar_piutang.no_rawat')

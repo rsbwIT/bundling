@@ -57,7 +57,7 @@ class BayarPiutangKaryawan extends Controller
             ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
-                $q->orWhere('piutang.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                $q->orWhere('piutang.no_rkm_medis', 'like', $cariNomor . '%')
                 ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                 });
                 }

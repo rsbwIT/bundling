@@ -59,9 +59,9 @@ class BerkasRM extends Component
                 return $query->where('reg_periksa.status_lanjut', $this->status_lanjut);
             })
             ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
             })
             ->get()
             ->map(function ($item) use ($folder, $nama_file) {

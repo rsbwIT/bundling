@@ -54,9 +54,9 @@ class Listpasien extends Component
             ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%")
                     ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
@@ -94,9 +94,9 @@ class Listpasien extends Component
             })
             ->where(function ($query) use ($cariKode) {
 
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%")
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%")
                     ->orwhere('bridging_sep.no_sep', 'LIKE', "%$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ranap')

@@ -48,9 +48,9 @@ class CrosscheckCoding extends Component
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('kamar_inap','kamar_inap.no_rawat','=','reg_periksa.no_rawat')
             ->where(function ($query) use ($cariKode) {
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                 ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
+                ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
             })
             ->where(function ($query) {
                 if ($this->penjamin == "Bpjs") {

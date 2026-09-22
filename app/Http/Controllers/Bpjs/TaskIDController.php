@@ -95,7 +95,7 @@ class TaskIDController extends Controller
         if (!empty($keyword)) {
             $query->where(function($q) use ($keyword) {
                 $q->where('referensi_mobilejkn_bpjs.nobooking', 'LIKE', "%$keyword%")
-                  ->orWhere('reg_periksa.no_rkm_medis', 'LIKE', "%$keyword%")
+                  ->orWhere('reg_periksa.no_rkm_medis', 'LIKE', "$keyword%")
                   ->orWhere('pasien.nm_pasien', 'LIKE', "%$keyword%")
                   ->orWhere('referensi_mobilejkn_bpjs.nohp', 'LIKE', "%$keyword%")
                   ->orWhere('referensi_mobilejkn_bpjs.nomorkartu', 'LIKE', "%$keyword%")

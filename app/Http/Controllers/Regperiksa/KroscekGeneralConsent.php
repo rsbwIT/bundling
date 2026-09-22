@@ -354,9 +354,9 @@ class KroscekGeneralConsent extends Controller
             // Search filter
             if ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm, $gcInfo) {
-                    $q->where('rp.no_rawat', 'like', "%{$searchTerm}%")
+                    $q->where('rp.no_rawat', 'like', "{$searchTerm}%")
                         ->orWhere('p.nm_pasien', 'like', "%{$searchTerm}%")
-                        ->orWhere('rp.no_rkm_medis', 'like', "%{$searchTerm}%")
+                        ->orWhere('rp.no_rkm_medis', 'like', "{$searchTerm}%")
                         ->orWhere('pol.nm_poli', 'like', "%{$searchTerm}%")
                         ->orWhere('d.nm_dokter', 'like', "%{$searchTerm}%")
                         ->orWhere('pj.png_jawab', 'like', "%{$searchTerm}%");

@@ -51,8 +51,8 @@ class KodinganRmController extends Controller
 
         if (!empty($searchTerm)) {
             $query->where(function($q) use ($searchTerm) {
-                $q->where('rp.no_rawat', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('rp.no_rkm_medis', 'LIKE', "%{$searchTerm}%")
+                $q->where('rp.no_rawat', 'LIKE', "{$searchTerm}%")
+                  ->orWhere('rp.no_rkm_medis', 'LIKE', "{$searchTerm}%")
                   ->orWhere('p.nm_pasien', 'LIKE', "%{$searchTerm}%");
             });
         }

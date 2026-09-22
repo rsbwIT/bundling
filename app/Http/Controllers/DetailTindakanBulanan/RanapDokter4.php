@@ -96,8 +96,8 @@ class RanapDokter4 extends Controller
             ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
-                $q->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cariNomor%")
+                $q->orWhere('reg_periksa.no_rawat', 'like', "$cariNomor%")
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', "$cariNomor%")
                       ->orWhere('pasien.nm_pasien', 'like', "%$cariNomor%");
                                 });
                 }
@@ -160,8 +160,8 @@ class RanapDokter4 extends Controller
             ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
-                $q->orWhere('reg_periksa.no_rawat', 'like', "%$cariNomor%")
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cariNomor%")
+                $q->orWhere('reg_periksa.no_rawat', 'like', "$cariNomor%")
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', "$cariNomor%")
                       ->orWhere('pasien.nm_pasien', 'like', "%$cariNomor%");
                                 });
                 }

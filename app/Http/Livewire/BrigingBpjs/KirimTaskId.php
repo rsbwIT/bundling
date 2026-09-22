@@ -60,7 +60,7 @@ class KirimTaskId extends Component
             ->whereBetween('referensi_mobilejkn_bpjs.tanggalperiksa', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 $query->orwhere('referensi_mobilejkn_bpjs.nobooking', 'LIKE', "%$cariKode%")
-                    ->orwhere('referensi_mobilejkn_bpjs.no_rawat', 'LIKE', "%$cariKode%")
+                    ->orwhere('referensi_mobilejkn_bpjs.no_rawat', 'LIKE', "$cariKode%")
                     ->orwhere('referensi_mobilejkn_bpjs.norm', 'LIKE', "%$cariKode%");
             })
             ->get();

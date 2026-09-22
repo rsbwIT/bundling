@@ -115,8 +115,8 @@ class PeriksaLabPABulanan extends Controller
         // FILTER PENCARIAN
         if ($cari) {
             $query->where(function ($q) use ($cari) {
-                $q->where('reg_periksa.no_rawat', 'like', "%$cari%")
-                  ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cari%")
+                $q->where('reg_periksa.no_rawat', 'like', "$cari%")
+                  ->orWhere('reg_periksa.no_rkm_medis', 'like', "$cari%")
                   ->orWhere('pasien.nm_pasien', 'like', "%$cari%");
             });
         }

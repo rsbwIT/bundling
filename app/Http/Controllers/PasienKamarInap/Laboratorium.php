@@ -45,8 +45,8 @@ class Laboratorium extends Controller
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('pasien.nm_pasien', 'LIKE', "%{$search}%")
-                  ->orWhere('reg_periksa.no_rawat', 'LIKE', "%{$search}%")
-                  ->orWhere('pasien.no_rkm_medis', 'LIKE', "%{$search}%")
+                  ->orWhere('reg_periksa.no_rawat', 'LIKE', "{$search}%")
+                  ->orWhere('pasien.no_rkm_medis', 'LIKE', "{$search}%")
                   ->orWhere('jns_perawatan_lab.nm_perawatan', 'LIKE', "%{$search}%"); // tambahkan pencarian berdasarkan nama pemeriksaan
             });
         }

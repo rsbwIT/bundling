@@ -95,7 +95,7 @@ class GiziController extends Controller
                         $query->where(function($q) use ($table, $search, $hasKdDiet) {
                             $q->where("{$table}.no_rawat", 'like', "%{$search}%")
                               ->orWhere('pasien.nm_pasien', 'like', "%{$search}%")
-                              ->orWhere('pasien.no_rkm_medis', 'like', "%{$search}%");
+                              ->orWhere('pasien.no_rkm_medis', 'like', "{$search}%");
                             if ($hasKdDiet) {
                                 $q->orWhere('diet.nama_diet', 'like', "%{$search}%");
                             }
@@ -206,7 +206,7 @@ class GiziController extends Controller
                     $query->where(function($q) use ($table, $search, $hasKdDiet) {
                         $q->where("{$table}.no_rawat", 'like', "%{$search}%")
                           ->orWhere('pasien.nm_pasien', 'like', "%{$search}%")
-                          ->orWhere('pasien.no_rkm_medis', 'like', "%{$search}%");
+                          ->orWhere('pasien.no_rkm_medis', 'like', "{$search}%");
                         if ($hasKdDiet) {
                             $q->orWhere('diet.nama_diet', 'like', "%{$search}%");
                         }

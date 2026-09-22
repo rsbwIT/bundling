@@ -97,8 +97,8 @@ class BayarPiutang extends Controller
             })
             ->when(!empty($cariNomor), function ($query) use ($cariNomor) {
                 $query->where(function ($q) use ($cariNomor) {
-                    $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%')
-                      ->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%')
+                    $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                      ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
                       ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                 });
             })

@@ -62,8 +62,8 @@ class RekapPendapatanBulanan extends Controller
                 $cariNomor,
                 fn($q) =>
                 $q->where(function ($x) use ($cariNomor) {
-                    $x->where('reg_periksa.no_rawat', 'like', "%$cariNomor%")
-                        ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$cariNomor%");
+                    $x->where('reg_periksa.no_rawat', 'like', "$cariNomor%")
+                        ->orWhere('reg_periksa.no_rkm_medis', 'like', "$cariNomor%");
                 })
             )
             ->groupBy('reg_periksa.no_rawat')

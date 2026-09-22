@@ -245,7 +245,7 @@ class Listnama extends Controller
         if ($cari) {
             $query->where(function($q) use ($cari) {
                 $q->where('nss.no_surat', 'like', "%{$cari}%")
-                  ->orWhere('nss.no_rawat', 'like', "%{$cari}%")
+                  ->orWhere('nss.no_rawat', 'like', "{$cari}%")
                   ->orWhere('p.nm_pasien', 'like', "%{$cari}%");
             });
         }

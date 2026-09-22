@@ -72,7 +72,7 @@ class SkriningIspa extends Controller
                     $sub->where('pasien.alamat', 'like', "%$keyword%")
                         ->orWhere('pasien.nm_pasien', 'like', "%$keyword%")
                         ->orWhere('dokter.nm_dokter', 'like', "%$keyword%")
-                        ->orWhere('reg_periksa.no_rkm_medis', 'like', "%$keyword%")
+                        ->orWhere('reg_periksa.no_rkm_medis', 'like', "$keyword%")
                         ->orWhere('kamar_inap.kd_kamar', 'like', "%$keyword%");
                 });
             })

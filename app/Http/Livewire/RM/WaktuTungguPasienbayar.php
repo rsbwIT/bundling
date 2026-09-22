@@ -64,9 +64,9 @@ class WaktuTungguPasienbayar extends Component
             })
             ->where(function ($query) use ($cariKode) {
 
-                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                $query->orwhere('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                     ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "%$cariKode%");
+                    ->orwhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
             })
             ->where('reg_periksa.status_lanjut', '=', 'Ranap')
             ->where('reg_periksa.kd_pj', '=', 'UMU')

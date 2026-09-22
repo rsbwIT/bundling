@@ -36,7 +36,7 @@ class InvoceAsuransi extends Component
                 )
                 ->leftJoin('bw_peserta_asuransi','pasien.no_rkm_medis','=','bw_peserta_asuransi.no_rkm_medis')
                 ->where(function ($query) use ($cariKode) {
-                    $query->orwhere('pasien.no_rkm_medis', 'LIKE', "%$cariKode%")
+                    $query->orwhere('pasien.no_rkm_medis', 'LIKE', "$cariKode%")
                         ->orwhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
                         ->orwhere('pasien.no_tlp', 'LIKE', "%$cariKode%");
                 })

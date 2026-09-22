@@ -78,8 +78,8 @@ class PeriksaRadiologiUm extends Controller
             ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
-                $q->orWhere('reg_periksa.no_rawat', 'like', '%' . $cariNomor . '%');
-                $q->orWhere('reg_periksa.no_rkm_medis', 'like', '%' . $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
+                $q->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
                 $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
                                 });
                 }

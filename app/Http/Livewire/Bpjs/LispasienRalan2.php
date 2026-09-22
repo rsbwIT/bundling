@@ -60,7 +60,7 @@ class LispasienRalan2 extends Component
             ->whereBetween('reg_periksa.tgl_registrasi', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 if ($cariKode) {
-                    $query->where('reg_periksa.no_rkm_medis', 'LIKE', "%$cariKode%")
+                    $query->where('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                         ->orWhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
                         ->orWhere('bridging_sep.no_sep', $cariKode);
                 }
