@@ -58,14 +58,14 @@ class PiutangRanap extends Controller
         //         }
         //     })
         //     ->where(function ($query) use ($cariNomor) {
-                if (!empty($cariNomor)) {
-                    $query->where(function($q) use ($cariNomor) {
-        //         $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
-        //         $q->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
-        //         $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-        //                         });
-                }
-            })
+        //         if (!empty($cariNomor)) {
+        //             $query->where(function($q) use ($cariNomor) {
+        //                 $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
+        //                 $q->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
+        //                 $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+        //             });
+        //         }
+        //     })
         //     ->orderBy('kamar_inap.tgl_keluar')
         //     ->orderBy('kamar_inap.jam_keluar')
         //     ->groupBy('kamar_inap.no_rawat')
@@ -106,15 +106,13 @@ class PiutangRanap extends Controller
                     }
                 })
                 ->where(function ($query) use ($cariNomor) {
-                if (!empty($cariNomor)) {
-                    $query->where(function($q) use ($cariNomor) {
-                    $q->where(function ($sub) use ($cariNomor) {
-                        $sub->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
-                            ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
-                            ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
-                                        });
-                }
-            });
+                    if (!empty($cariNomor)) {
+                        $query->where(function($q) use ($cariNomor) {
+                            $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%')
+                              ->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%')
+                              ->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
+                        });
+                    }
                 })
                 ->orderBy('billing.tgl_byr') // 🔹 Urutkan berdasarkan tanggal cetak billing
                 ->orderBy('kamar_inap.jam_keluar')
