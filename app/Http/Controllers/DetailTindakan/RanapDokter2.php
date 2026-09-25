@@ -89,11 +89,13 @@ class RanapDokter2 extends Controller
             ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'rawat_inap_dr.kd_jenis_prw', 'rawat_inap_dr.jam_rawat', 'rawat_inap_dr.tarif_tindakandr', 'rawat_inap_dr.tgl_perawatan')
             ->orderByDesc('rawat_inap_dr.no_rawat')
             ->get();
-        $ranapDokter->map(function ($item) {
-            $item->dpjpRanap =  DB::table('dpjp_ranap')
-                ->select('no_rawat', 'kd_dokter as dpjp')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
+            
+        $noRawats = $ranapDokter->pluck('no_rawat')->toArray();
+        $dpjpDb = DB::table('dpjp_ranap')->select('no_rawat', 'kd_dokter as dpjp')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+
+        $ranapDokter->map(function ($item) use ($dpjpDb) {
+            $item->dpjpRanap = isset($dpjpDb[$item->no_rawat]) ? $dpjpDb[$item->no_rawat] : collect();
+            return $item;
         });
 
         // RALAN DR

@@ -156,7 +156,7 @@
 </section>
 
 <!-- Modal Kodingan -->
-<div class="modal fade" id="modalKodingan" tabindex="-1" role="dialog" aria-labelledby="modalKodinganLabel" aria-hidden="true">
+<div class="modal" id="modalKodingan" tabindex="-1" role="dialog" aria-labelledby="modalKodinganLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -238,7 +238,7 @@
 </div>
 
 <!-- Modal Top 10 -->
-<div class="modal fade" id="modalTop10" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="modalTop10" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning">
@@ -289,27 +289,53 @@
         $('#modalKodingan').modal('show');
     }
 
-    // Event listener search ICD-10
-    $('#search_icd10').on('keypress', function(e) {
-        if(e.which == 13) {
-            e.preventDefault();
-            cariIcd(10, $(this).val());
-        }
+    let timeoutIcd10 = null;
+    $('#search_icd10').on('input', function(e) {
+        let val = $(this).val();
+        clearTimeout(timeoutIcd10);
+        timeoutIcd10 = setTimeout(function() {
+            if(val.length >= 3 || val.length === 0) {
+                cariIcd(10, val);
+            }
+        }, 500);
     });
 
-    // Event listener search ICD-9
-    $('#search_icd9').on('keypress', function(e) {
+    let timeoutIcd9 = null;
+    $('#search_icd9').on('input', function(e) {
+        let val = $(this).val();
+        clearTimeout(timeoutIcd9);
+        timeoutIcd9 = setTimeout(function() {
+            if(val.length >= 3 || val.length === 0) {
+                cariIcd(9, val);
+            }
+        }, 500);
+    });
+
+    // Tetap pertahankan event Enter (langsung cari tanpa delay)
+    $('#search_icd10, #search_icd9').on('keypress', function(e) {
         if(e.which == 13) {
             e.preventDefault();
-            cariIcd(9, $(this).val());
+            let type = $(this).attr('id') === 'search_icd10' ? 10 : 9;
+            let val = $(this).val();
+            if (type === 10) clearTimeout(timeoutIcd10); else clearTimeout(timeoutIcd9);
+            cariIcd(type, val);
         }
     });
 
     function cariIcd(type, keyword) {
-        if (keyword.length < 2) return;
+        let targetTable = type === 10 ? '#table_icd10' : '#table_icd9';
+        
+        if (keyword.length > 0 && keyword.length < 3) {
+            $(targetTable).html('<tr><td colspan="3" class="text-center text-muted py-3">Ketik minimal 3 karakter untuk mencari</td></tr>');
+            return;
+        }
+
+        if (keyword.length === 0) {
+            $(targetTable).html('<tr><td colspan="3" class="text-center text-muted py-3">Ketik kata kunci untuk mencari</td></tr>');
+            return;
+        }
         
         let url = type === 10 ? "{{ url('kodingan-rm/cari-icd10') }}" : "{{ url('kodingan-rm/cari-icd9') }}";
-        let targetTable = type === 10 ? '#table_icd10' : '#table_icd9';
         
         $(targetTable).html('<tr><td colspan="3" class="text-center py-3"><i class="fas fa-spinner fa-spin"></i> Mencari...</td></tr>');
         

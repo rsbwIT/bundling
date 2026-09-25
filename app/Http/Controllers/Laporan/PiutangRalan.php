@@ -66,90 +66,48 @@ class PiutangRalan extends Controller
             })
             ->orderBy('reg_periksa.tgl_registrasi', 'asc')
             ->get();
-        $piutangRalan->map(function ($item) {
-            // NOMOR SEP
-            $item->getNoSep = DB::table('bridging_sep')
-                ->select('no_sep')
-                ->where('no_rawat', $item->no_rawat)
-                ->where(function ($query) use ($item) {
-                    if ($item->status_lanjut == 'Ralan') {
-                        $query->where('jnspelayanan', '=', '2');
-                    } else {
-                        $query->where('jnspelayanan', '=', '1');
-                    }
-                })
-                ->get();
-            // NOMOR NOTA
-            $item->getNomorNota = DB::table('nota_jalan')
-                ->select('no_nota')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
-            // LABORAT
-            $item->getLaborat = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Laborat')
-                ->get();
-            // RADIOLOGI
-            $item->getRadiologi = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Radiologi')
-                ->get();
+        $noRawats = $piutangRalan->pluck('no_rawat')->toArray();
 
-            // Obat+Emb+Tsl / OBAT
-            $item->getObat = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Obat')
-                ->get();
-            // RALAN DOKTER / 1 Paket Tindakan
-            $item->getRalanDokter = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Dokter')
-                ->get();
-            // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-            $item->getRalanDrParamedis = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Dokter Paramedis')
-                ->get();
-            // RALAN PARAMEDIS / 3  Paket Tindakan
-            $item->getRalanParamedis = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Ralan Paramedis')
-                ->get();
-            // TAMBAHAN
-            $item->getTambahan = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Tambahan')
-                ->get();
-            // POTONGAN
-            $item->getPotongan = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Potongan')
-                ->get();
-            // REGISTRASI
-            $item->getRegistrasi = DB::table('billing')
-                ->select('totalbiaya')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Registrasi')
-                ->get();
-            // OPERASI
-            $item->getOprasi = DB::table('billing')
-                ->select('nm_perawatan', 'totalbiaya', 'status')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('status', '=', 'Operasi')
-                ->get();
+        $bridgingSep = DB::table('bridging_sep')->select('no_rawat', 'no_sep', 'jnspelayanan')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $notaJalan = DB::table('nota_jalan')->select('no_rawat', 'no_nota')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $billings = DB::table('billing')->select('no_rawat', 'nm_perawatan', 'totalbiaya', 'status')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $bayarPiutang = DB::table('bayar_piutang')->select('no_rawat', 'besar_cicilan', 'diskon_piutang', 'tidak_terbayar')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+
+        $piutangRalan->map(function ($item) use ($bridgingSep, $notaJalan, $billings, $bayarPiutang) {
+            // NOMOR SEP
+            $itemSeps = isset($bridgingSep[$item->no_rawat]) ? $bridgingSep[$item->no_rawat] : collect();
+            $item->getNoSep = $itemSeps->filter(function($sep) use ($item) {
+                if ($item->status_lanjut == 'Ralan') {
+                    return $sep->jnspelayanan == '2';
+                } else {
+                    return $sep->jnspelayanan == '1';
+                }
+            })->values();
+
+            // NOMOR NOTA
+            $item->getNomorNota = isset($notaJalan[$item->no_rawat]) ? $notaJalan[$item->no_rawat] : collect();
+
+            // BILLING
+            $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
+            $filterBilling = function($status) use ($itemBillings) {
+                return $itemBillings->where('status', $status)->values();
+            };
+
+            $item->getLaborat = $filterBilling('Laborat');
+            $item->getRadiologi = $filterBilling('Radiologi');
+            $item->getObat = $filterBilling('Obat');
+            $item->getRalanDokter = $filterBilling('Ralan Dokter');
+            $item->getRalanDrParamedis = $filterBilling('Ralan Dokter Paramedis');
+            $item->getRalanParamedis = $filterBilling('Ralan Paramedis');
+            $item->getTambahan = $filterBilling('Tambahan');
+            $item->getPotongan = $filterBilling('Potongan');
+            $item->getRegistrasi = $filterBilling('Registrasi');
+            $item->getOprasi = $filterBilling('Operasi');
+
             // SUDAH DIBAYAR / DISKON / TIDAK TERBAYAR
-            $item->getSudahBayar = DB::table('bayar_piutang')
-                ->select('besar_cicilan', 'diskon_piutang', 'tidak_terbayar')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
+            $item->getSudahBayar = isset($bayarPiutang[$item->no_rawat]) ? $bayarPiutang[$item->no_rawat] : collect();
+
+            return $item;
         });
 
         return view('laporan.piutangRalan', [

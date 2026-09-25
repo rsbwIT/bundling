@@ -21,7 +21,8 @@ class User extends Controller
                 TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) as username_asli,
                 TRIM(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50))) as password_asli,
                 IF(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)) LIKE '% %', 1, 0) as username_ada_spasi,
-                IF(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50)) LIKE '% %', 1, 0) as password_ada_spasi
+                IF(CAST(AES_DECRYPT(u.password,'windi') AS CHAR(50)) LIKE '% %', 1, 0) as password_ada_spasi,
+                COALESCE(s.nm_sps, j.nm_jbtn) as jabatan
             ")
             ->leftJoin('petugas as p', function ($join) {
                 $join->on(
@@ -37,10 +38,14 @@ class User extends Controller
                     DB::raw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50)))")
                 );
             })
+            ->leftJoin('jabatan as j', 'p.kd_jbtn', '=', 'j.kd_jbtn')
+            ->leftJoin('spesialis as s', 'd.kd_sps', '=', 's.kd_sps')
             ->when($cari, function ($q) use ($cari) {
                 $q->where(function($query) use ($cari) {
                     $query->where('p.nama', 'like', "%{$cari}%")
                           ->orWhere('d.nm_dokter', 'like', "%{$cari}%")
+                          ->orWhere('j.nm_jbtn', 'like', "%{$cari}%")
+                          ->orWhere('s.nm_sps', 'like', "%{$cari}%")
                           ->orWhereRaw("TRIM(CAST(AES_DECRYPT(u.id_user,'nur') AS CHAR(50))) LIKE ?", ["%{$cari}%"]);
                 });
             })

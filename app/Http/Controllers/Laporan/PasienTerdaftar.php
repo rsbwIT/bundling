@@ -21,6 +21,8 @@ class PasienTerdaftar extends Controller
                 'reg_periksa.kd_dokter',
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'reg_periksa.stts',
                 'pasien.nm_pasien',
                 'reg_periksa.status_lanjut',
                 'poliklinik.nm_poli'
@@ -39,41 +41,27 @@ class PasienTerdaftar extends Controller
             })
             ->orderBy('reg_periksa.jam_reg', 'asc')
             ->get();
-        $getPasien->map(function ($item) use($tanggl1, $tanggl2){
-            $item->getPasienUmum = DB::table('reg_periksa')
-                ->select('reg_periksa.no_rawat')
-                ->where('reg_periksa.no_rawat', '=', $item->no_rawat)
-                ->where('reg_periksa.kd_pj', '=', 'UMU')
-                ->get();
-            $item->getPasienBpjs = DB::table('reg_periksa')
-                ->select('reg_periksa.no_rawat')
-                ->where('reg_periksa.no_rawat', '=', $item->no_rawat)
-                ->where('reg_periksa.kd_pj', '=', 'BPJ')
-                ->get();
-            $item->getPasienAsuransi = DB::table('reg_periksa')
-                ->select('reg_periksa.no_rawat')
-                ->where('reg_periksa.no_rawat', '=', $item->no_rawat)
-                ->whereNotIn('reg_periksa.kd_pj', ['UMU', 'BPJ'])
-                ->get();
-            $item->getPiutangPasien = DB::table('piutang_pasien')
-                ->select('piutang_pasien.no_rawat')
-                ->where('piutang_pasien.no_rawat', '=', $item->no_rawat)
-                ->get();
-            $item->getBilling = DB::table('billing')
-                ->select('nm_perawatan')
-                ->where('no_rawat', $item->no_rawat)
-                ->where('no', '=', 'No.Nota')
-                // ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
-                ->get();
-            $item->getPasienBatal = DB::table('reg_periksa')
-                ->select('reg_periksa.no_rawat')
-                ->where('reg_periksa.no_rawat', '=', $item->no_rawat)
-                ->where('reg_periksa.stts', '=', 'Batal')
-                ->get();
-            $item->getPasienOpname= DB::table('kamar_inap')
-                ->select('kamar_inap.no_rawat')
-                ->where('kamar_inap.no_rawat', '=', $item->no_rawat)
-                ->get();
+            
+        $noRawats = $getPasien->pluck('no_rawat')->toArray();
+        $piutangPasien = DB::table('piutang_pasien')->select('no_rawat')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $billing = DB::table('billing')->select('no_rawat', 'nm_perawatan')->where('no', 'No.Nota')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $kamarInap = DB::table('kamar_inap')->select('no_rawat')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+
+        $getPasien->map(function ($item) use($piutangPasien, $billing, $kamarInap) {
+            $obj = new \stdClass();
+            $obj->no_rawat = $item->no_rawat;
+            $itemArr = collect([$obj]);
+            $emptyArr = collect();
+
+            $item->getPasienUmum = ($item->kd_pj == 'UMU') ? $itemArr : $emptyArr;
+            $item->getPasienBpjs = ($item->kd_pj == 'BPJ') ? $itemArr : $emptyArr;
+            $item->getPasienAsuransi = (!in_array($item->kd_pj, ['UMU', 'BPJ'])) ? $itemArr : $emptyArr;
+            $item->getPasienBatal = ($item->stts == 'Batal') ? $itemArr : $emptyArr;
+            
+            $item->getPiutangPasien = isset($piutangPasien[$item->no_rawat]) ? $piutangPasien[$item->no_rawat] : collect();
+            $item->getBilling = isset($billing[$item->no_rawat]) ? $billing[$item->no_rawat] : collect();
+            $item->getPasienOpname = isset($kamarInap[$item->no_rawat]) ? $kamarInap[$item->no_rawat] : collect();
+            return $item;
         });
 
         return view('laporan.pasien-terdaftar', [

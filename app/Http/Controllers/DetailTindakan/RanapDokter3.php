@@ -99,11 +99,13 @@ class RanapDokter3 extends Controller
             ->groupBy('rawat_inap_dr.no_rawat', 'rawat_inap_dr.kd_dokter', 'rawat_inap_dr.kd_jenis_prw')
             ->orderByDesc('rawat_inap_dr.no_rawat')
             ->get();
-        $ranapDokter->map(function ($item) {
-            $item->dpjpRanap =  DB::table('dpjp_ranap')
-                ->select('no_rawat', 'kd_dokter as dpjp')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
+            
+        $noRawatsRanap = $ranapDokter->pluck('no_rawat')->toArray();
+        $dpjpDbRanap = DB::table('dpjp_ranap')->select('no_rawat', 'kd_dokter as dpjp')->whereIn('no_rawat', $noRawatsRanap)->get()->groupBy('no_rawat');
+
+        $ranapDokter->map(function ($item) use ($dpjpDbRanap) {
+            $item->dpjpRanap = isset($dpjpDbRanap[$item->no_rawat]) ? $dpjpDbRanap[$item->no_rawat] : collect();
+            return $item;
         });
 
         // RALAN DR
@@ -180,11 +182,13 @@ class RanapDokter3 extends Controller
             ->groupBy('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_jenis_prw', 'rawat_jl_dr.jam_rawat', 'rawat_jl_dr.tarif_tindakandr', 'rawat_jl_dr.tgl_perawatan')
             ->orderBy('rawat_jl_dr.no_rawat', 'desc')
             ->get();
-        $RalanDokter->map(function ($item) {
-            $item->dpjpRanap =  DB::table('dpjp_ranap')
-                ->select('no_rawat', 'kd_dokter as dpjp')
-                ->where('no_rawat', $item->no_rawat)
-                ->get();
+            
+        $noRawatsRalan = $RalanDokter->pluck('no_rawat')->toArray();
+        $dpjpDbRalan = DB::table('dpjp_ranap')->select('no_rawat', 'kd_dokter as dpjp')->whereIn('no_rawat', $noRawatsRalan)->get()->groupBy('no_rawat');
+
+        $RalanDokter->map(function ($item) use ($dpjpDbRalan) {
+            $item->dpjpRanap = isset($dpjpDbRalan[$item->no_rawat]) ? $dpjpDbRalan[$item->no_rawat] : collect();
+            return $item;
         });
 
         return view('detail-tindakan.ranap-dokter3', [

@@ -195,9 +195,17 @@
 
                                     {{-- KIRIM INACBG --}}
                                     <div class="btn-group ml-1">
+                                        <button type="button" class="btn btn-outline-success btn-xs btn-flat"
+                                            title="Lihat Resume Medis" onclick="openResumeModal(this, '{{ $item->no_rawat }}')">
+                                            <i class="fas fa-file-medical"></i> Resume
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-xs btn-flat"
+                                            title="Data Triase" onclick="openTriaseModal(this, '{{ $item->no_rawat }}')">
+                                            <i class="fas fa-heartbeat"></i> Triase
+                                        </button>
                                         <a href="{{ route('bpjs.inacbg', ['norawat' => $item->no_rawat]) }}"
                                             target="_blank"
-                                            class="btn btn-block btn-outline-danger btn-xs btn-flat">
+                                            class="btn btn-outline-danger btn-xs btn-flat">
                                             <i class="fas fa-paper-plane"></i> Kirim
                                         </a>
                                     </div>
@@ -456,6 +464,70 @@
 
 
                     {{-- // MODAL --}}
+                    <div id="modalContainer"></div>
+                    @push('scripts')
+                        <script>
+                            function openTriaseModal(btn, norawat) {
+                                var originalHtml = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                btn.disabled = true;
+
+                                $.ajax({
+                                    url: '{{ route("inacbg.triaseModalHtml") }}',
+                                    type: 'GET',
+                                    data: { norawat: norawat },
+                                    success: function(response) {
+                                        btn.innerHTML = originalHtml;
+                                        btn.disabled = false;
+                                        
+                                        $('#modalContainer').html(response.html);
+                                        $('#modalTriase').modal('show');
+                                    },
+                                    error: function(xhr) {
+                                        btn.innerHTML = originalHtml;
+                                        btn.disabled = false;
+                                        var errMsg = 'Terjadi kesalahan sistem';
+                                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            errMsg = xhr.responseJSON.message;
+                                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                                            errMsg = xhr.responseJSON.error;
+                                        }
+                                        Swal.fire('Error', errMsg, 'error');
+                                    }
+                                });
+                            }
+
+                            function openResumeModal(btn, norawat) {
+                                var originalHtml = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                btn.disabled = true;
+
+                                $.ajax({
+                                    url: '{{ route("inacbg.resumeModalHtml") }}',
+                                    type: 'GET',
+                                    data: { norawat: norawat },
+                                    success: function(response) {
+                                        btn.innerHTML = originalHtml;
+                                        btn.disabled = false;
+                                        
+                                        $('#modalContainer').html(response.html);
+                                        $('#modalLihatResume').modal('show');
+                                    },
+                                    error: function(xhr) {
+                                        btn.innerHTML = originalHtml;
+                                        btn.disabled = false;
+                                        var errMsg = 'Terjadi kesalahan sistem';
+                                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            errMsg = xhr.responseJSON.message;
+                                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                                            errMsg = xhr.responseJSON.error;
+                                        }
+                                        Swal.fire('Error', errMsg, 'error');
+                                    }
+                                });
+                            }
+                        </script>
+                    @endpush
                 </tbody>
             </table>
         </div>

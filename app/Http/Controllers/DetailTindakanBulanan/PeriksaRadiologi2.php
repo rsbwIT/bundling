@@ -88,14 +88,14 @@ class PeriksaRadiologi2 extends Controller
         //         }
         //     })
         //     ->where(function ($query) use ($cariNomor) {
-                if (!empty($cariNomor)) {
-                    $query->where(function($q) use ($cariNomor) {
+        //         if (!empty($cariNomor)) {
+        //             $query->where(function($q) use ($cariNomor) {
         //         $q->orWhere('reg_periksa.no_rawat', 'like', $cariNomor . '%');
         //         $q->orWhere('reg_periksa.no_rkm_medis', 'like', $cariNomor . '%');
         //         $q->orWhere('pasien.nm_pasien', 'like', '%' . $cariNomor . '%');
         //                         });
-                }
-            })
+        //         }
+        //     })
         //     ->groupBy('periksa_radiologi.no_rawat','periksa_radiologi.kd_jenis_prw','periksa_radiologi.tgl_periksa','periksa_radiologi.jam','periksa_radiologi.tarif_tindakan_dokter','periksa_radiologi.tarif_tindakan_petugas')
         //     ->get();
 

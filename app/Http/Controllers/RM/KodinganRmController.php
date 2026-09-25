@@ -15,7 +15,7 @@ class KodinganRmController extends Controller
         $tanggalSelesai = $request->get('tanggal_selesai', Carbon::now()->format('Y-m-d'));
         $searchTerm = $request->get('search', '');
         $filterStatus = $request->get('filter_status', 'semua');
-        $perPage = $request->get('per_page', 10000);
+        $perPage = $request->get('per_page', 50);
 
         $query = DB::table('reg_periksa as rp')
             ->join('pasien as p', 'rp.no_rkm_medis', '=', 'p.no_rkm_medis')
@@ -23,17 +23,8 @@ class KodinganRmController extends Controller
             ->leftJoin('penjab as pj', 'rp.kd_pj', '=', 'pj.kd_pj')
             ->leftJoin('kodingan_versi_rm as krm', 'rp.no_rawat', '=', 'krm.no_rawat')
             ->leftJoin('kamar_inap as ki', 'rp.no_rawat', '=', 'ki.no_rawat')
-            ->leftJoin(DB::raw('(
-                SELECT no_rawat, 
-                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder4), ""), "-")) as icd10_dokter,
-                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder3), ""), "-")) as icd9_dokter
-                FROM resume_pasien
-                UNION
-                SELECT no_rawat, 
-                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(diagnosa_sekunder4), ""), "-")) as icd10_dokter,
-                       CONCAT_WS(", ", NULLIF(NULLIF(TRIM(prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(prosedur_sekunder3), ""), "-")) as icd9_dokter
-                FROM resume_pasien_ranap
-            ) as resume'), 'rp.no_rawat', '=', 'resume.no_rawat');
+            ->leftJoin('resume_pasien as rr', 'rp.no_rawat', '=', 'rr.no_rawat')
+            ->leftJoin('resume_pasien_ranap as rrr', 'rp.no_rawat', '=', 'rrr.no_rawat');
 
         // Filter berdasarkan tanggal: ranap pakai tgl_keluar (kamar_inap), lainnya pakai tgl_registrasi
         if ($filterStatus == 'ranap') {
@@ -69,8 +60,14 @@ class KodinganRmController extends Controller
             'rp.stts',
             'krm.icd10',
             'krm.icd9',
-            'resume.icd10_dokter',
-            'resume.icd9_dokter'
+            DB::raw('COALESCE(
+                NULLIF(CONCAT_WS(", ", NULLIF(NULLIF(TRIM(rr.diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(rr.diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(rr.diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(rr.diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(rr.diagnosa_sekunder4), ""), "-")), ""),
+                NULLIF(CONCAT_WS(", ", NULLIF(NULLIF(TRIM(rrr.diagnosa_utama), ""), "-"), NULLIF(NULLIF(TRIM(rrr.diagnosa_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(rrr.diagnosa_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(rrr.diagnosa_sekunder3), ""), "-"), NULLIF(NULLIF(TRIM(rrr.diagnosa_sekunder4), ""), "-")), "")
+            ) as icd10_dokter'),
+            DB::raw('COALESCE(
+                NULLIF(CONCAT_WS(", ", NULLIF(NULLIF(TRIM(rr.prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(rr.prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(rr.prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(rr.prosedur_sekunder3), ""), "-")), ""),
+                NULLIF(CONCAT_WS(", ", NULLIF(NULLIF(TRIM(rrr.prosedur_utama), ""), "-"), NULLIF(NULLIF(TRIM(rrr.prosedur_sekunder), ""), "-"), NULLIF(NULLIF(TRIM(rrr.prosedur_sekunder2), ""), "-"), NULLIF(NULLIF(TRIM(rrr.prosedur_sekunder3), ""), "-")), "")
+            ) as icd9_dokter')
         ]);
 
         // Untuk ranap, urutkan berdasarkan tgl_keluar (tanggal pulang)

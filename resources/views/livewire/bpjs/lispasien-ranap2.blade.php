@@ -196,16 +196,20 @@
                             <td>{{ $item->nm_poli }}</td>
                             <td>{{ $item->tglsep }}</td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}>
+                                <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-green-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }}>
+                                <input type="checkbox" disabled {{ $item->sudah_triase ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-blue-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }}>
+                                <input type="checkbox" disabled {{ $item->sudah_pemeriksaan ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-yellow-500 cursor-not-allowed">
                             </td>
                             <td class="text-center">
-                                <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }}>
+                                <input type="checkbox" disabled {{ $item->sudah_mati ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-red-500 cursor-not-allowed">
                             </td>
                         </tr>
                     @endforeach

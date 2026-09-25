@@ -41,73 +41,31 @@ class PembayaranRalan extends Controller
             ->orderBy('reg_periksa.kd_dokter')
             ->orderBy('reg_periksa.tgl_registrasi')
             ->get();
-            $paymentRalan->map(function ($item) {
-                // NOMOR NOTA
-                $item->getNomorNota = DB::table('nota_jalan')
-                    ->select('no_nota')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->get();
-                // LABORAT
-                $item->getLaborat = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Laborat')
-                    ->get();
-                // RADIOLOGI
-                $item->getRadiologi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Radiologi')
-                    ->get();
-                // Obat+Emb+Tsl / OBAT
-                $item->getObat = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Obat')
-                    ->get();
-                // RALAN DOKTER / 1 Paket Tindakan
-                $item->getRalanDokter = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter')
-                    ->get();
-                // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-                $item->getRalanDrParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter Paramedis')
-                    ->get();
-                // RALAN PARAMEDIS / 3 Paket Tindakan
-                $item->getRalanParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Paramedis')
-                    ->get();
-                // TAMBAHAN
-                $item->getTambahan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Tambahan')
-                    ->get();
-                // POTONGAN
-                $item->getPotongan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Potongan')
-                    ->get();
-                // REGISTRASI
-                $item->getRegistrasi = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Registrasi')
-                    ->get();
-                // OPERASI
-                $item->getOprasi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Operasi')
-                    ->get();
-            });
+            
+        $noRawats = $paymentRalan->pluck('no_rawat')->toArray();
+        $notaJalan = DB::table('nota_jalan')->select('no_rawat', 'no_nota')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $billings = DB::table('billing')->select('no_rawat', 'nm_perawatan', 'totalbiaya', 'status')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+
+        $paymentRalan->map(function ($item) use ($notaJalan, $billings) {
+            $item->getNomorNota = isset($notaJalan[$item->no_rawat]) ? $notaJalan[$item->no_rawat] : collect();
+            
+            $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
+            $filterBilling = function($status) use ($itemBillings) {
+                return $itemBillings->where('status', $status)->values();
+            };
+
+            $item->getLaborat = $filterBilling('Laborat');
+            $item->getRadiologi = $filterBilling('Radiologi');
+            $item->getObat = $filterBilling('Obat');
+            $item->getRalanDokter = $filterBilling('Ralan Dokter');
+            $item->getRalanDrParamedis = $filterBilling('Ralan Dokter Paramedis');
+            $item->getRalanParamedis = $filterBilling('Ralan Paramedis');
+            $item->getTambahan = $filterBilling('Tambahan');
+            $item->getPotongan = $filterBilling('Potongan');
+            $item->getRegistrasi = $filterBilling('Registrasi');
+            $item->getOprasi = $filterBilling('Operasi');
+            return $item;
+        });
 
         return view('laporan.pembayaranRalan', [
             'penjab'=> $penjab,
@@ -158,73 +116,31 @@ class PembayaranRalan extends Controller
             ->orderBy('reg_periksa.kd_dokter')
             ->orderBy('reg_periksa.tgl_registrasi')
             ->get();
-            $paymentRalan->map(function ($item) {
-                // NOMOR NOTA
-                $item->getNomorNota = DB::table('nota_jalan')
-                    ->select('no_nota')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->get();
-                // LABORAT
-                $item->getLaborat = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Laborat')
-                    ->get();
-                // RADIOLOGI
-                $item->getRadiologi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Radiologi')
-                    ->get();
-                // Obat+Emb+Tsl / OBAT
-                $item->getObat = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Obat')
-                    ->get();
-                // RALAN DOKTER / 1 Paket Tindakan
-                $item->getRalanDokter = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter')
-                    ->get();
-                // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-                $item->getRalanDrParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Dokter Paramedis')
-                    ->get();
-                // RALAN PARAMEDIS / 3 Paket Tindakan
-                $item->getRalanParamedis = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Ralan Paramedis')
-                    ->get();
-                // TAMBAHAN
-                $item->getTambahan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Tambahan')
-                    ->get();
-                // POTONGAN
-                $item->getPotongan = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Potongan')
-                    ->get();
-                // REGISTRASI
-                $item->getRegistrasi = DB::table('billing')
-                    ->select('totalbiaya')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Registrasi')
-                    ->get();
-                // OPERASI
-                $item->getOprasi = DB::table('billing')
-                    ->select('nm_perawatan', 'totalbiaya', 'status')
-                    ->where('no_rawat', $item->no_rawat)
-                    ->where('status', '=', 'Operasi')
-                    ->get();
-            });
+            
+        $noRawats = $paymentRalan->pluck('no_rawat')->toArray();
+        $notaJalan = DB::table('nota_jalan')->select('no_rawat', 'no_nota')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+        $billings = DB::table('billing')->select('no_rawat', 'nm_perawatan', 'totalbiaya', 'status')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
+
+        $paymentRalan->map(function ($item) use ($notaJalan, $billings) {
+            $item->getNomorNota = isset($notaJalan[$item->no_rawat]) ? $notaJalan[$item->no_rawat] : collect();
+            
+            $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
+            $filterBilling = function($status) use ($itemBillings) {
+                return $itemBillings->where('status', $status)->values();
+            };
+
+            $item->getLaborat = $filterBilling('Laborat');
+            $item->getRadiologi = $filterBilling('Radiologi');
+            $item->getObat = $filterBilling('Obat');
+            $item->getRalanDokter = $filterBilling('Ralan Dokter');
+            $item->getRalanDrParamedis = $filterBilling('Ralan Dokter Paramedis');
+            $item->getRalanParamedis = $filterBilling('Ralan Paramedis');
+            $item->getTambahan = $filterBilling('Tambahan');
+            $item->getPotongan = $filterBilling('Potongan');
+            $item->getRegistrasi = $filterBilling('Registrasi');
+            $item->getOprasi = $filterBilling('Operasi');
+            return $item;
+        });
 
         return view('laporan.pembayaranRalan', [
             'penjab'=> $penjab,
@@ -233,4 +149,3 @@ class PembayaranRalan extends Controller
 
     }
 }
-

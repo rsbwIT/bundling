@@ -16,7 +16,7 @@
                     <input type="text"
                            name="cari"
                            class="form-control"
-                           placeholder="Cari nama / username..."
+                           placeholder="Cari nama / username / jabatan..."
                            value="{{ request('cari') }}">
                 </div>
 
@@ -41,6 +41,7 @@
                 <tr>
                     <th>No</th>
                     <th>Nama Petugas</th>
+                    <th>Jabatan</th>
                     <th>Username</th>
                     <th>Password</th>
                     <th>Status</th>
@@ -53,6 +54,7 @@
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td>{{ $item->nama_petugas ?? '-' }}</td>
+                        <td>{{ $item->jabatan ?? '-' }}</td>
                         <td>
                             @if($item->username_ada_spasi == 1)
                                 <span class="badge bg-danger" title="Peringatan: Ada spasi tersembunyi di username ini!">⚠️ Spasi</span>
@@ -86,13 +88,11 @@
                                     <i class="fas fa-magic"></i> Perbaiki
                                 </button>
                             @endif
-                            @if(session('user') && session('user')->nik == '01091999')
                             <button type="button"
                                     class="btn btn-sm btn-warning lihatAkses"
                                     data-id="{{ $item->username_asli }}" title="Edit Akses">
                                 ⚙
                             </button>
-                            @endif
                             <button type="button"
                                     class="btn btn-sm btn-danger btnHapusUser"
                                     data-id="{{ $item->username_asli }}" title="Hapus User">

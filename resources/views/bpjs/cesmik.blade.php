@@ -72,8 +72,8 @@
                                 document.addEventListener("DOMContentLoaded", function() {
                                     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
                                     
-                                    var urlLocal = "{{ asset('storage/file_scan/' . basename($getInacbg->lokasi_file)) }}";
-                                    var urlWebapps = "/webapps/berkasrawat/{{ $getInacbg->lokasi_file }}";
+                                    var urlLocal = "{{ asset('storage/file_scan/' . basename($getInacbg->lokasi_file)) }}?v={{ time() }}";
+                                    var urlWebapps = "/webapps/berkasrawat/{{ $getInacbg->lokasi_file }}?v={{ time() }}";
                                     var container = document.getElementById('pdf-container-inacbg');
                                     
                                     function renderPdf(pdf) {

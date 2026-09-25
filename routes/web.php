@@ -908,3 +908,5 @@ Route::get('/gizi/print-label', [GiziController::class, 'printLabel'])->name('gi
 Route::get('/laporan-pengeluaran-harian', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'index'])->name('laporan.pengeluaran-harian');
 Route::get('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'mapping'])->name('laporan.mapping-suplier');
 Route::post('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'simpanMapping'])->name('laporan.mapping-suplier.simpan');
+
+Route::get('/lab-pk', [\App\Http\Controllers\Laporan\LabPK::class, 'index'])->name('laporan.lab_pk');
