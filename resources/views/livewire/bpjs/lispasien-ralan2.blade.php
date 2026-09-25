@@ -73,6 +73,7 @@
                         </div>
                     </div>
                     <div class="col-lg-5 text-right">
+                        
                         @if (session()->has('successSaveINACBG'))
                             <span class="text-success"><i class="icon fas fa-check"> </i>
                                 {{ session('successSaveINACBG') }} </span>

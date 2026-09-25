@@ -337,7 +337,7 @@ textarea:focus{
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('bpjs.inacbg.simpan') }}">
+            <form method="POST" action="{{ route('bpjs.inacbg.simpan') }}" id="form-simpan-inacbg">
                 @csrf
 
                 <input type="hidden" name="no_rawat" value="{{ $pasien->no_rawat }}">
@@ -683,9 +683,18 @@ textarea:focus{
                     @endif
 
                     {{-- Tombol Simpan --}}
-                    <button type="submit" class="btn-eklaim btn-success">
+                    <button type="submit" class="btn-eklaim btn-success" id="btn-simpan-inacbg">
                         <i class="fas fa-save"></i> Simpan &amp; Final Klaim
                     </button>
+
+
+
+                    <!-- Tombol Hapus Klaim -->
+                    @if($status_kirim)
+                        <button type="button" class="btn-eklaim" onclick="hapusKlaim()" style="background:#dc3545; color:white;">
+                            <i class="fas fa-trash"></i> Hapus Klaim
+                        </button>
+                    @endif
 
                     <!-- Tombol Print Klaim -->
                     @if($status_kirim)
@@ -768,6 +777,168 @@ function openResumeModal(btn, norawat) {
             Swal.fire('Error', errMsg, 'error');
         }
     });
+}
+function cekKlaim() {
+    Swal.fire({
+        title: 'Mengecek Data...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading()
+        }
+    });
+
+    $.ajax({
+        url: '{{ route("bpjs.inacbg.getClaimData") }}',
+        type: 'GET',
+        data: {
+            nomor_sep: '{{ $nosep }}',
+            nomor_kartu: '{{ $pasien->no_peserta }}'
+        },
+        success: function(res) {
+            if (res.success && res.data) {
+                let html = '<div style="text-align:left; font-size:13px; max-height:400px; overflow-y:auto;">';
+                let data = res.data.data || res.data;
+                
+                html += '<table class="table table-sm table-bordered">';
+                html += '<tr><td style="width:120px;font-weight:bold;">Nomor Kartu</td><td>' + '{{ $pasien->no_peserta }}' + '</td></tr>';
+                html += '<tr><td style="width:120px;font-weight:bold;">Status Final</td><td>' + (data.kemkes_dc_status || data.status || '-') + '</td></tr>';
+                if(data.cbg) {
+                    html += '<tr><td style="font-weight:bold;">Kode CBG</td><td>' + data.cbg.code + ' - ' + data.cbg.description + '</td></tr>';
+                    html += '<tr><td style="font-weight:bold;">Tarif</td><td>Rp ' + parseInt(data.cbg.tariff).toLocaleString('id-ID') + '</td></tr>';
+                }
+                html += '</table>';
+                
+                html += '<pre style="background:#f4f4f4; padding:10px; border-radius:5px; font-size:11px;">' + JSON.stringify(res.data, null, 2) + '</pre>';
+                html += '</div>';
+
+                Swal.fire({
+                    title: 'Data Klaim INACBG',
+                    html: html,
+                    width: '600px',
+                    confirmButtonText: 'Tutup'
+                });
+            } else {
+                Swal.fire('Error', res.message || 'Data tidak ditemukan', 'error');
+            }
+        },
+        error: function(xhr) {
+            var errMsg = 'Terjadi kesalahan sistem';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errMsg = xhr.responseJSON.message;
+            }
+            Swal.fire('Error', errMsg, 'error');
+        }
+    });
+}
+
+
+
+    
+    $('#form-simpan-inacbg').on('submit', function(e) {
+        e.preventDefault();
+        
+        var form = $(this);
+        var btn = $('#btn-simpan-inacbg');
+        var originalHtml = btn.html();
+        
+        btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+        btn.prop('disabled', true);
+        
+        $.ajax({
+            url: form.attr('action'),
+            type: form.attr('method'),
+            data: form.serialize(),
+            success: function(response) {
+                btn.html(originalHtml);
+                btn.prop('disabled', false);
+                
+                if(response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message
+                    }).then((result) => {
+                        // Reload data or something if needed, but for 'wussh' we don't reload
+                        // We can just show the print button or anything else
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Terjadi kesalahan'
+                    });
+                }
+            },
+            error: function(xhr) {
+                btn.html(originalHtml);
+                btn.prop('disabled', false);
+                
+                var errMsg = 'Terjadi kesalahan sistem';
+                if(xhr.responseJSON && xhr.responseJSON.message) {
+                    errMsg = xhr.responseJSON.message;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: errMsg
+                });
+            }
+        });
+    });
+
+    function hapusKlaim() {
+    Swal.fire({
+        title: 'Hapus Klaim?',
+        text: "Anda yakin ingin menghapus klaim INACBG ini?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Menghapus...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            $.ajax({
+                url: '{{ route("bpjs.inacbg.deleteClaim") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    nomor_sep: '{{ $nosep }}',
+            nomor_kartu: '{{ $pasien->no_peserta }}',
+                    coder_nik: '{{ $coder->no_ik }}'
+                },
+                success: function(res) {
+                    if (res.success) {
+                        Swal.fire(
+                            'Terhapus!',
+                            res.message,
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    var errMsg = 'Terjadi kesalahan sistem';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errMsg, 'error');
+                }
+            });
+        }
+    })
 }
 </script>
 
@@ -1080,6 +1251,168 @@ function openResumeModal(btn, norawat) {
         }
         toggleSITB();
     });
+function cekKlaim() {
+    Swal.fire({
+        title: 'Mengecek Data...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading()
+        }
+    });
+
+    $.ajax({
+        url: '{{ route("bpjs.inacbg.getClaimData") }}',
+        type: 'GET',
+        data: {
+            nomor_sep: '{{ $nosep }}',
+            nomor_kartu: '{{ $pasien->no_peserta }}'
+        },
+        success: function(res) {
+            if (res.success && res.data) {
+                let html = '<div style="text-align:left; font-size:13px; max-height:400px; overflow-y:auto;">';
+                let data = res.data.data || res.data;
+                
+                html += '<table class="table table-sm table-bordered">';
+                html += '<tr><td style="width:120px;font-weight:bold;">Nomor Kartu</td><td>' + '{{ $pasien->no_peserta }}' + '</td></tr>';
+                html += '<tr><td style="width:120px;font-weight:bold;">Status Final</td><td>' + (data.kemkes_dc_status || data.status || '-') + '</td></tr>';
+                if(data.cbg) {
+                    html += '<tr><td style="font-weight:bold;">Kode CBG</td><td>' + data.cbg.code + ' - ' + data.cbg.description + '</td></tr>';
+                    html += '<tr><td style="font-weight:bold;">Tarif</td><td>Rp ' + parseInt(data.cbg.tariff).toLocaleString('id-ID') + '</td></tr>';
+                }
+                html += '</table>';
+                
+                html += '<pre style="background:#f4f4f4; padding:10px; border-radius:5px; font-size:11px;">' + JSON.stringify(res.data, null, 2) + '</pre>';
+                html += '</div>';
+
+                Swal.fire({
+                    title: 'Data Klaim INACBG',
+                    html: html,
+                    width: '600px',
+                    confirmButtonText: 'Tutup'
+                });
+            } else {
+                Swal.fire('Error', res.message || 'Data tidak ditemukan', 'error');
+            }
+        },
+        error: function(xhr) {
+            var errMsg = 'Terjadi kesalahan sistem';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errMsg = xhr.responseJSON.message;
+            }
+            Swal.fire('Error', errMsg, 'error');
+        }
+    });
+}
+
+
+
+    
+    $('#form-simpan-inacbg').on('submit', function(e) {
+        e.preventDefault();
+        
+        var form = $(this);
+        var btn = $('#btn-simpan-inacbg');
+        var originalHtml = btn.html();
+        
+        btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+        btn.prop('disabled', true);
+        
+        $.ajax({
+            url: form.attr('action'),
+            type: form.attr('method'),
+            data: form.serialize(),
+            success: function(response) {
+                btn.html(originalHtml);
+                btn.prop('disabled', false);
+                
+                if(response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message
+                    }).then((result) => {
+                        // Reload data or something if needed, but for 'wussh' we don't reload
+                        // We can just show the print button or anything else
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Terjadi kesalahan'
+                    });
+                }
+            },
+            error: function(xhr) {
+                btn.html(originalHtml);
+                btn.prop('disabled', false);
+                
+                var errMsg = 'Terjadi kesalahan sistem';
+                if(xhr.responseJSON && xhr.responseJSON.message) {
+                    errMsg = xhr.responseJSON.message;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: errMsg
+                });
+            }
+        });
+    });
+
+    function hapusKlaim() {
+    Swal.fire({
+        title: 'Hapus Klaim?',
+        text: "Anda yakin ingin menghapus klaim INACBG ini?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Menghapus...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            $.ajax({
+                url: '{{ route("bpjs.inacbg.deleteClaim") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    nomor_sep: '{{ $nosep }}',
+            nomor_kartu: '{{ $pasien->no_peserta }}',
+                    coder_nik: '{{ $coder->no_ik }}'
+                },
+                success: function(res) {
+                    if (res.success) {
+                        Swal.fire(
+                            'Terhapus!',
+                            res.message,
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    var errMsg = 'Terjadi kesalahan sistem';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errMsg, 'error');
+                }
+            });
+        }
+    })
+}
 </script>
 
 @endsection

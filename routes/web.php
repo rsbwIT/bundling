@@ -289,6 +289,12 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/bpjs/inacbg/sitb-invalidate', [bridginginacbg2::class, 'sitbInvalidate'])
             ->name('bpjs.inacbg.sitbInvalidate');
 
+        Route::post('/bpjs/inacbg/delete-claim', [bridginginacbg2::class, 'deleteClaim'])
+            ->name('bpjs.inacbg.deleteClaim');
+
+        Route::get('/bpjs/inacbg/get-claim-data', [bridginginacbg2::class, 'getClaimData'])
+            ->name('bpjs.inacbg.getClaimData');
+
 
         // Tambahkan Route Baru untuk Tombol Grouper Saja
         Route::post('/bpjs/inacbg/grouper', [bridginginacbg2::class, 'grouper'])
@@ -319,7 +325,14 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/laporan/klaim', [LaporanKlaimIndividual::class, 'index'])->name('klaim.index');
         Route::get('/laporan/klaim/data', [LaporanKlaimIndividual::class, 'data'])->name('klaim.data');
-        Route::post('/bpjs/inacbg/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
+                  Route::get(
+              '/bpjs/inacbg/{norawat}',
+              [bridginginacbg2::class, 'index']
+          )
+              ->where('norawat', '.*')
+              ->name('bpjs.inacbg');
+
+          Route::post('/bpjs/inacbg/update-diagnosa', [bridginginacbg2::class, 'updateDiagnosa'])
             ->name('inacbg.updateDiagnosa');
 
         Route::post('/bpjs/inacbg/update-resume', [bridginginacbg2::class, 'updateResumeData'])

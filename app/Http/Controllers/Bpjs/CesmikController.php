@@ -189,7 +189,7 @@ class CesmikController extends Controller
                 })
                 ->get();
                 
-            $settingBundlingArray = DB::table('bw_setting_bundling')->pluck('status', 'nama_berkas')->toArray();
+            
             
             // Jadikan "Berkas Digital Keperawatan" sebagai MASTER SWITCH untuk semua file digital (kecuali INACBG)
             $masterSwitch = $settingBundlingArray['Berkas Digital Keperawatan'] ?? '0';
