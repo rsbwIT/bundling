@@ -697,10 +697,6 @@ textarea:focus{
                         </a>
                     @endif
 
-                    <button type="button" class="btn-eklaim" onclick="hapusKlaim()" style="background:#dc3545; color:white;">
-                        <i class="fas fa-trash"></i> Hapus Klaim
-                    </button>
-
                 </div>
 
 
@@ -1084,56 +1080,6 @@ function openResumeModal(btn, norawat) {
         }
         toggleSITB();
     });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function hapusKlaim() {
-    Swal.fire({
-        title: 'Hapus Klaim?',
-        text: 'Anda yakin ingin menghapus klaim INACBG ini?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Menghapus...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
-
-            $.ajax({
-                url: '{{ route("bpjs.inacbg.deleteClaim") }}',
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    nomor_sep: '{{ $nosep }}',
-                    coder_nik: '{{ $coder->no_ik }}'
-                },
-                success: function(res) {
-                    if (res.success) {
-                        Swal.fire('Terhapus!', res.message, 'success').then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire('Error', res.message, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    var errMsg = 'Terjadi kesalahan sistem';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errMsg = xhr.responseJSON.message;
-                    }
-                    Swal.fire('Error', errMsg, 'error');
-                }
-            });
-        }
-    })
-}
 </script>
 
 @endsection

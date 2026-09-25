@@ -1511,53 +1511,6 @@ class bridginginacbg2 extends Controller
         }
     }
 
-
-    public function deleteClaim(Request $request)
-    {
-        try {
-            if (!$request->nomor_sep || !$request->coder_nik) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nomor SEP atau Coder NIK kosong'
-                ], 400);
-            }
-
-            $payload = [
-                "metadata" => ["method" => "delete_claim"],
-                "data" => [
-                    "nomor_sep" => $request->nomor_sep,
-                    "coder_nik" => $request->coder_nik
-                ]
-            ];
-            
-            // Un-final klaim sebelum menghapus, untuk jaga-jaga kalau statusnya final
-            $this->requestInacbg([
-                'metadata' => ['method' => 'reedit_claim'],
-                'data' => ['nomor_sep' => $request->nomor_sep]
-            ]);
-
-            $res = $this->requestInacbg($payload);
-            
-            if (($res['metadata']['code'] ?? 0) == 200 || ($res['metadata']['message'] ?? '') == 'Ok') {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Hapus Klaim Berhasil'
-                ]);
-            }
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus klaim: ' . ($res['metadata']['message'] ?? json_encode($res))
-            ], 400);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
     public function updateResumeData(Request $request)
     {
         try {
