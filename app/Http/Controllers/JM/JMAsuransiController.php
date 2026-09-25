@@ -1895,6 +1895,21 @@ class JMAsuransiController extends Controller
             return redirect('/jm-asuransi')->with('error', 'Kode dokter tidak ditemukan');
         }
 
+        $data = $this->getDetailData($kdDokter, $tanggl1, $tanggl2, $kdPenjamin);
+
+        return view('detail-tindakan-umum.jm-asuransi-detail', [
+            'details' => $data['details'],
+            'detailsRalan' => $data['detailsRalan'],
+            'detailsRanap' => $data['detailsRanap'],
+            'nmDokter' => $data['nmDokter'],
+            'kdDokter' => $kdDokter,
+            'tanggl1' => $tanggl1,
+            'tanggl2' => $tanggl2,
+        ]);
+    }
+
+    public function getDetailData($kdDokter, $tanggl1, $tanggl2, $kdPenjamin = null)
+    {
         // Ambil nama dokter
         $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
             ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
@@ -1902,8 +1917,8 @@ class JMAsuransiController extends Controller
 
         // Base filter for penjamin + bayar_piutang (menggunakan whereExists agar tidak double)
         $penjaminFilter = function ($query, $noRawatCol = 'reg_periksa.no_rawat') use ($kdPenjamin, $tanggl1, $tanggl2) {
-            if ($kdPenjamin) {
-                $query->whereIn('penjab.kd_pj', $kdPenjamin);
+            if (!empty($kdPenjamin)) {
+                $query->whereIn('penjab.kd_pj', (array)$kdPenjamin);
             } else {
                 $query->whereNotIn('penjab.kd_pj', ['UMU', 'BPJ'])
                       ->where('penjab.png_jawab', 'not like', '%COB%');
@@ -1926,7 +1941,7 @@ class JMAsuransiController extends Controller
 
         // 1. rawat_jl_dr (Ralan)
         $q1 = DB::table('rawat_jl_dr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
                 DB::raw("rawat_jl_dr.tarif_tindakandr as tarif"),
                 DB::raw("'Ralan - Tindakan Dokter' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'rawat_jl_dr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -1940,7 +1955,7 @@ class JMAsuransiController extends Controller
 
         // 2. rawat_jl_drpr (Ralan - tarif dokter)
         $q2 = DB::table('rawat_jl_drpr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
                 DB::raw("rawat_jl_drpr.tarif_tindakandr as tarif"),
                 DB::raw("'Ralan - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -1954,7 +1969,7 @@ class JMAsuransiController extends Controller
 
         // 3. rawat_inap_dr (Ranap)
         $q3 = DB::table('rawat_inap_dr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
                 DB::raw("rawat_inap_dr.tarif_tindakandr as tarif"),
                 DB::raw("'Ranap - Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_inap_dr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -1967,7 +1982,7 @@ class JMAsuransiController extends Controller
 
         // 4. rawat_inap_drpr (Ranap - tarif dokter)
         $q4 = DB::table('rawat_inap_drpr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
                 DB::raw("rawat_inap_drpr.tarif_tindakandr as tarif"),
                 DB::raw("'Ranap - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -1980,7 +1995,7 @@ class JMAsuransiController extends Controller
 
         // 5. Operasi (operator1)
         $q5 = DB::table('operasi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
                 DB::raw("operasi.biayaoperator1 as tarif"),
                 DB::raw("'Operasi - Operator 1' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -1993,7 +2008,7 @@ class JMAsuransiController extends Controller
 
         // 5b. Operasi (dokter_anestesi)
         $q5b = DB::table('operasi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
                 DB::raw("operasi.biayadokter_anestesi as tarif"),
                 DB::raw("'Operasi - Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2006,7 +2021,7 @@ class JMAsuransiController extends Controller
 
         // 6. Radiologi (kd_dokter - PJ Rad)
         $q6 = DB::table('periksa_radiologi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_radiologi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
                 DB::raw("periksa_radiologi.tarif_tindakan_dokter as tarif"),
                 DB::raw("'Radiologi - PJ Rad' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2019,7 +2034,7 @@ class JMAsuransiController extends Controller
 
         // 7. Radiologi (dokter_perujuk)
         $q7 = DB::table('periksa_radiologi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_radiologi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_radiologi.nm_perawatan',
                 DB::raw("periksa_radiologi.tarif_perujuk as tarif"),
                 DB::raw("'Radiologi - Perujuk' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_radiologi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2033,7 +2048,7 @@ class JMAsuransiController extends Controller
 
         // 8. Lab PA (dokter_perujuk)
         $q8 = DB::table('periksa_lab')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_lab.nm_perawatan',
                 DB::raw("periksa_lab.tarif_perujuk as tarif"),
                 DB::raw("'Lab PA - Perujuk' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2048,7 +2063,7 @@ class JMAsuransiController extends Controller
 
         // 9. Lab PA (kd_dokter - PJ Lab)
         $q9 = DB::table('periksa_lab')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_lab.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_lab.nm_perawatan',
                 DB::raw("periksa_lab.tarif_tindakan_dokter as tarif"),
                 DB::raw("'Lab PA - PJ Lab' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'periksa_lab.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2062,7 +2077,7 @@ class JMAsuransiController extends Controller
 
         // Also check paramedis tables (rawat_jl_pr, rawat_inap_pr by nip)
         $q10 = DB::table('rawat_jl_pr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
                 DB::raw("rawat_jl_pr.tarif_tindakanpr as tarif"),
                 DB::raw("'Ralan - Paramedis' as sumber"), DB::raw("'Ralan' as status"))
             ->join('reg_periksa', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2075,7 +2090,7 @@ class JMAsuransiController extends Controller
         $details = $details->merge($q10);
 
         $q11 = DB::table('rawat_inap_pr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
                 DB::raw("rawat_inap_pr.tarif_tindakanpr as tarif"),
                 DB::raw("'Ranap - Paramedis' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_inap_pr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2089,7 +2104,7 @@ class JMAsuransiController extends Controller
 
         // 12. rawat_jl_drpr (Ralan/Ranap - Paramedis)
         $q12 = DB::table('rawat_jl_drpr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
                 DB::raw("rawat_jl_drpr.tarif_tindakanpr as tarif"),
                 DB::raw("'Ralan/Ranap - Tindakan DrPr (Paramedis)' as sumber"), DB::raw("reg_periksa.status_lanjut as status"))
             ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2102,7 +2117,7 @@ class JMAsuransiController extends Controller
 
         // 13. rawat_inap_drpr (Ranap - Paramedis)
         $q13 = DB::table('rawat_inap_drpr')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan_inap.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan_inap.nm_perawatan',
                 DB::raw("rawat_inap_drpr.tarif_tindakanpr as tarif"),
                 DB::raw("'Ranap - Tindakan DrPr (Paramedis)' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2115,7 +2130,7 @@ class JMAsuransiController extends Controller
 
         // 14. operasi (Asisten Operator)
         $q14 = DB::table('operasi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
                 DB::raw("operasi.biayaasisten_operator1 as tarif"),
                 DB::raw("'Operasi - Asisten Operator' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2128,7 +2143,7 @@ class JMAsuransiController extends Controller
 
         // 15. operasi (Asisten Anestesi)
         $q15 = DB::table('operasi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
                 DB::raw("operasi.biayaasisten_anestesi as tarif"),
                 DB::raw("'Operasi - Asisten Anestesi' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2141,7 +2156,7 @@ class JMAsuransiController extends Controller
 
         // 16. operasi (Omloop)
         $q16 = DB::table('operasi')
-            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
                 DB::raw("operasi.biaya_omloop as tarif"),
                 DB::raw("'Operasi - Omloop' as sumber"), DB::raw("'Ranap' as status"))
             ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -2152,12 +2167,18 @@ class JMAsuransiController extends Controller
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q16);
 
-        return view('detail-tindakan-umum.jm-asuransi-detail', [
-            'details' => $details,
+        $details = $details->filter(function($item) {
+            return $item->tarif > 0;
+        })->values();
+
+        $detailsRalan = $details->filter(fn($i) => stripos($i->status, 'Ralan') !== false)->values();
+        $detailsRanap = $details->filter(fn($i) => stripos($i->status, 'Ranap') !== false)->values();
+
+        return [
             'nmDokter' => $nmDokter,
-            'kdDokter' => $kdDokter,
-            'tanggl1' => $tanggl1,
-            'tanggl2' => $tanggl2,
-        ]);
+            'details' => $details,
+            'detailsRalan' => $detailsRalan,
+            'detailsRanap' => $detailsRanap,
+        ];
     }
 }

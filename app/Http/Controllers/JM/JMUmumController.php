@@ -1394,6 +1394,21 @@ class JMUmumController extends Controller
             return redirect('/jm-umum')->with('error', 'Kode dokter tidak ditemukan');
         }
 
+        $data = $this->getDetailData($kdDokter, $tanggl1, $tanggl2);
+
+        return view('detail-tindakan-umum.jm-umum-detail', [
+            'details' => $data['details'],
+            'detailsRalan' => $data['detailsRalan'],
+            'detailsRanap' => $data['detailsRanap'],
+            'nmDokter' => $data['nmDokter'],
+            'kdDokter' => $kdDokter,
+            'tanggl1' => $tanggl1,
+            'tanggl2' => $tanggl2,
+        ]);
+    }
+
+    public function getDetailData($kdDokter, $tanggl1, $tanggl2)
+    {
         // Ambil nama dokter
         $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
             ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
@@ -1794,12 +1809,14 @@ class JMUmumController extends Controller
             return $item->tarif > 0;
         })->values();
 
-        return view('detail-tindakan-umum.jm-umum-detail', [
-            'details' => $details,
+        $detailsRalan = $details->filter(fn($i) => stripos($i->status, 'Ralan') !== false)->values();
+        $detailsRanap = $details->filter(fn($i) => stripos($i->status, 'Ranap') !== false)->values();
+
+        return [
             'nmDokter' => $nmDokter,
-            'kdDokter' => $kdDokter,
-            'tanggl1' => $tanggl1,
-            'tanggl2' => $tanggl2,
-        ]);
+            'details' => $details,
+            'detailsRalan' => $detailsRalan,
+            'detailsRanap' => $detailsRanap,
+        ];
     }
 }

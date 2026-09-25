@@ -929,6 +929,42 @@
                             </ul>
                         </li>
 @endif
+                        {{-- MENU REKAP PENDAPATAN --}}
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <p>
+                                    Rekap Pendapatan
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/pdf-tindakan') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>PDF Tindakan</p>
+                                    </a>
+                                </li>
+                                {{-- <li class="nav-item">
+                                    <a href="{{ url('/pdf-tindakan/jasdok') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Jasdok</p>
+                                    </a>
+                                </li> --}}
+                                {{-- <li class="nav-item">
+                                    <a href="{{ url('/rekap-pendapatan-bulanan') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rekap Pendapatan Bulanan</p>
+                                    </a>
+                                </li> --}}
+                                <li class="nav-item">
+                                    <a href="{{ url('/rekap-pendapatan-harian') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rekap Pendapatan Harian</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         {{-- MENU CASEMIX --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Gabung Berkas - Tools</li>

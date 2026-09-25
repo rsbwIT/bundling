@@ -16,6 +16,8 @@ use App\Http\Controllers\Bpjs\MonitoringBridgingController;
 use App\Http\Controllers\Bpjs\MonitoringSignalController;
 use App\Http\Controllers\InfoKamar\InfoKamar;
 use App\Http\Controllers\Test\TestController;
+use App\Http\Controllers\Test\PdfTindakanController;
+use App\Http\Controllers\Test\JasdokController;
 use App\Http\Controllers\JM\JMUmumController;
 use App\Http\Controllers\JM\JMBpjsController;
 use App\Http\Controllers\JM\JMAsuransiController;
@@ -153,6 +155,7 @@ use App\Http\Controllers\DetailTindakanBPJS\OperasiAndVKBpjs;
 use App\Http\Controllers\DetailTindakanBPJS\PeriksaRadiologiBpjs;
 use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
+use App\Http\Controllers\Laporan\RekapPendapatanHarianController;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Pkpa\MonitoringPkpaController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
@@ -196,6 +199,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/jm-asuransi/detail', [JMAsuransiController::class, 'detail']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
+        Route::get('/pdf-tindakan', [PdfTindakanController::class, 'index'])->name('pdf-tindakan');
+        Route::get('/pdf-tindakan/jasdok', [JasdokController::class, 'index'])->name('pdf-tindakan.jasdok');
         Route::get('/logout', [AuthController::class, 'Logout'])->name('logout');
         
         Route::get('/hospital-logo', function() {
@@ -446,6 +451,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('simpan-cob', [PiutangHarian::class, 'simpanCob'])->name('simpan-cob');
 
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
+        Route::get('/rekap-pendapatan-harian', [RekapPendapatanHarianController::class, 'index']);
 
         //user
         Route::get('/ai/user', [User::class, 'index'])
