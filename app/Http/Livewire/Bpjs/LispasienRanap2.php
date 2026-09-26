@@ -57,7 +57,10 @@ class LispasienRanap2 extends Component
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('bridging_sep', function ($join) {
+                $join->on('bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+                     ->where('bridging_sep.jnspelayanan', '=', '1');
+            })
             ->leftJoin('bw_file_casemix_hasil', 'bw_file_casemix_hasil.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('resume_pasien_ranap', 'resume_pasien_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('data_triase_igd', 'data_triase_igd.no_rawat', '=', 'reg_periksa.no_rawat')

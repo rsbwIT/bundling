@@ -184,8 +184,11 @@ class GabungPdfService
         if ($importedPages > 0) {
             $no_rawatSTR = str_replace('/', '', $no_rawat);
             
-            // Coba ambil nomor SEP
-            $nosep = DB::table('bridging_sep')->where('no_rawat', $no_rawat)->value('no_sep');
+            // Coba ambil nomor SEP (Prioritaskan Ranap = 1)
+            $nosep = DB::table('bridging_sep')
+                ->where('no_rawat', $no_rawat)
+                ->orderBy('jnspelayanan', 'asc')
+                ->value('no_sep');
             
             // Gunakan nomor SEP sebagai nama file jika ada, jika tidak gunakan HASIL-norawat
             $nama_file = $nosep ? $nosep : 'HASIL-' . $no_rawatSTR;
