@@ -467,7 +467,7 @@ class bridginginacbg2 extends Controller
         $petugasTriase = null;
         $infoPasienTriase = null;
 
-        if ($pasien->status_lanjut == 'Ranap') {
+        if (true) {
             $triase = DB::table('data_triase_igd')->where('no_rawat', $norawat)->first();
             $triasePrimer = DB::table('data_triase_igdprimer')->where('no_rawat', $norawat)->first();
             $triaseSekunder = DB::table('data_triase_igdsekunder')->where('no_rawat', $norawat)->first();
@@ -1712,7 +1712,7 @@ class bridginginacbg2 extends Controller
         $petugasTriase = null;
         $infoPasienTriase = null;
 
-        if ($pasien->status_lanjut == 'Ranap') {
+        if (true) {
             $triase = DB::table('data_triase_igd')->where('no_rawat', $norawat)->first();
             $triasePrimer = DB::table('data_triase_igdprimer')->where('no_rawat', $norawat)->first();
             $triaseSekunder = DB::table('data_triase_igdsekunder')->where('no_rawat', $norawat)->first();

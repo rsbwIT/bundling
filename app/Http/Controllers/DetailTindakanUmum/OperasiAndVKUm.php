@@ -15,6 +15,8 @@ class OperasiAndVKUm extends Controller
         $this->cacheService = $cacheService;
     }
     public function OperasiAndVKUm(Request $request) {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
         $action = '/operasi-and-vk-umum';
         $petugas = $this->cacheService->getPetugas();
         $dokter = $this->cacheService->getDokter();

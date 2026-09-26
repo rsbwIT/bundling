@@ -18,6 +18,8 @@ class OperasiAndVKKSO extends Controller
     // NAMA METHOD DIUBAH AGAR SESUAI DENGAN ROUTE
     function OperasiAndVKKSO(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
         $penjab = $this->cacheService->getPenjab();
         $petugas = $this->cacheService->getPetugas();
         $dokter = $this->cacheService->getDokter();
