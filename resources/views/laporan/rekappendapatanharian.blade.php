@@ -89,6 +89,9 @@
                         <th rowspan="2" style="width: 140px;">Kamar + Service</th>
                         <th colspan="3">OK</th>
                         <th rowspan="2" style="width: 140px;" class="table-primary text-dark">TOTAL</th>
+                        <th rowspan="2" style="width: 120px;">PJ</th>
+                        <th rowspan="2" style="width: 120px;">EKSES</th>
+                        <th rowspan="2" style="width: 140px;" class="table-primary text-dark">GRAND TOTAL</th>
                     </tr>
                     <tr>
                         <th style="width: 120px;">JS</th>
@@ -134,6 +137,9 @@
                         $totOkJmDr = 0;
                         $totOkJmPr = 0;
                         $totOkJs = 0;
+                        $totTotal = 0;
+                        $totPj = 0;
+                        $totEkses = 0;
                         $totGrandTotal = 0;
                     @endphp
 
@@ -160,7 +166,10 @@
                             $totOkJmDr += $item->ok_jm_dr ?? 0;
                             $totOkJmPr += $item->ok_jm_pr ?? 0;
                             $totOkJs += $item->ok_js ?? 0;
-                            $totGrandTotal += $item->total ?? 0;
+                            $totTotal += $item->total ?? 0;
+                            $totPj += $item->pj ?? 0;
+                            $totEkses += $item->ekses ?? 0;
+                            $totGrandTotal += $item->grand_total ?? 0;
                         @endphp
                         <tr>
                             <td>{{ $item->tanggal }}</td>
@@ -186,6 +195,9 @@
                             <td>{{ number_format($item->ok_jm_pr ?? 0, 0, ',', '.') }}</td>
                             <td>{{ number_format($item->ok_js ?? 0, 0, ',', '.') }}</td>
                             <td class="font-weight-bold table-light">{{ number_format($item->total ?? 0, 0, ',', '.') }}</td>
+                            <td>{{ number_format($item->pj ?? 0, 0, ',', '.') }}</td>
+                            <td>{{ number_format($item->ekses ?? 0, 0, ',', '.') }}</td>
+                            <td class="font-weight-bold table-primary text-dark">{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -219,6 +231,9 @@
                         <td class="text-right">{{ number_format($totOkJmDr, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totOkJmPr, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totOkJs, 0, ',', '.') }}</td>
+                        <td class="text-right font-weight-bold table-light">{{ number_format($totTotal, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totPj, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totEkses, 0, ',', '.') }}</td>
                         <td class="text-right font-weight-bold table-primary text-dark">{{ number_format($totGrandTotal, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>

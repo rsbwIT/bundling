@@ -440,6 +440,37 @@ class RekapPendapatanHarianController extends Controller
         ->get()
         ->keyBy('tanggal');
 
+        // 11. EKSES (Ekses Ranap & Ralan)
+        $eksesRanapQuery = DB::table('piutang_pasien as pp')
+            ->leftJoin('detail_nota_inap as dni', 'pp.no_rawat', '=', 'dni.no_rawat')
+            ->join('reg_periksa as rp', 'pp.no_rawat', '=', 'rp.no_rawat')
+            ->where('rp.status_lanjut', 'Ranap')
+            ->whereBetween('pp.tgl_piutang', [$tgl1, $tgl2]);
+        
+        $eksesRanapPerTgl = $eksesRanapQuery->select('pp.tgl_piutang', DB::raw('SUM(dni.besar_bayar) as total_ekses'))
+            ->groupBy('pp.tgl_piutang')
+            ->pluck('total_ekses', 'pp.tgl_piutang');
+
+        $eksesRalanQuery = DB::table('piutang_pasien as pp')
+            ->leftJoin('detail_nota_jalan as dnj', 'pp.no_rawat', '=', 'dnj.no_rawat')
+            ->join('reg_periksa as rp', 'pp.no_rawat', '=', 'rp.no_rawat')
+            ->where('rp.status_lanjut', 'Ralan')
+            ->whereBetween('pp.tgl_piutang', [$tgl1, $tgl2]);
+        
+        $eksesRalanPerTgl = $eksesRalanQuery->select('pp.tgl_piutang', DB::raw('SUM(dnj.besar_bayar) as total_ekses'))
+            ->groupBy('pp.tgl_piutang')
+            ->pluck('total_ekses', 'pp.tgl_piutang');
+
+        // 12. PEMBAYARAN PJ
+        $pjQuery = DB::table('tagihan_sadewa')
+            ->where('no_nota', 'like', 'PJ%')
+            ->whereDate('tgl_bayar', '>=', $tgl1)
+            ->whereDate('tgl_bayar', '<=', $tgl2);
+        
+        $pjPerTgl = $pjQuery->select(DB::raw('DATE(tgl_bayar) as tanggal'), DB::raw('SUM(jumlah_bayar) as total_pj'))
+            ->groupBy(DB::raw('DATE(tgl_bayar)'))
+            ->pluck('total_pj', 'tanggal');
+
         // Susun baris per tanggal dari $tgl1 hingga $tgl2
         $period = new DatePeriod(
             new DateTime($tgl1),
@@ -482,6 +513,22 @@ class RekapPendapatanHarianController extends Controller
             $okJmPrVal = $okItem ? (float)$okItem->jm_pr : 0;
             $okJsVal   = $okItem ? (float)$okItem->js : 0;
 
+            $eksesRanapVal = (float) $eksesRanapPerTgl->get($tglStr, 0);
+            $eksesRalanVal = (float) $eksesRalanPerTgl->get($tglStr, 0);
+            $eksesVal = 0;
+            if ($statusLanjut === 'Ranap') {
+                $eksesVal = $eksesRanapVal;
+            } elseif ($statusLanjut === 'Ralan') {
+                $eksesVal = $eksesRalanVal;
+            } else {
+                $eksesVal = $eksesRanapVal + $eksesRalanVal;
+            }
+
+            // Only add PJ if no penjamin filter is active, or if it's UMU (since PJ is likely general patients). 
+            // We don't have kd_pj in tagihan_sadewa, so we can just add it when it's not filtered by specific non-umum. 
+            // Wait, for safety I'll just include it always, or ask the user. I'll include it always as it was in Bulanan.
+            $pjVal = (float) $pjPerTgl->get($tglStr, 0);
+
             $rowTotal = $regVal + $jsVal + $bhpVal + $jmDrVal + $prVal + $ksoVal
                 + $obatVal + $returVal
                 + $labJsVal + $labBhpVal
@@ -513,6 +560,9 @@ class RekapPendapatanHarianController extends Controller
                 'ok_jm_pr'   => $okJmPrVal,
                 'ok_js'      => $okJsVal,
                 'total'      => $rowTotal,
+                'pj'         => $pjVal,
+                'ekses'      => $eksesVal,
+                'grand_total'=> $rowTotal + $eksesVal + $pjVal,
             ]);
         }
 
