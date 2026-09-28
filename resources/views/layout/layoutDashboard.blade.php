@@ -963,6 +963,12 @@
                                         <p>Rekap Pendapatan Harian</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/rekap-pendapatan-asuransi') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rekap Pendapatan Asuransi</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         {{-- MENU CASEMIX --}}
