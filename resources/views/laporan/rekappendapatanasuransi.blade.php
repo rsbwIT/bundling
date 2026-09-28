@@ -73,7 +73,6 @@
                     <tr>
                         <th rowspan="2" style="width: 70px;">Tahun</th>
                         <th rowspan="2" style="width: 70px;">Bulan</th>
-                        <th rowspan="2">LAIN"</th>
                         <th rowspan="2">REG</th>
                         <th colspan="5">TINDAKAN</th>
                         <th rowspan="2">OBAT<br>EMB+TUSLAH</th>
@@ -127,7 +126,11 @@
                                 @if ($index === 0)
                                     <td rowspan="{{ count($items) }}" style="vertical-align: middle; font-weight: bold; text-align: center;">{{ $groupKey }}</td>
                                 @endif
-                                <td class="text-center font-weight-bold">{{ $item->nama_bulan }}</td>
+                                <td class="text-center font-weight-bold">
+                                    <a href="{{ url('/rekap-pendapatan-asuransi/detail?tgl1='.$tgl1.'&tgl2='.$tgl2.'&tgl_nota='.$item->tgl_nota.'&status_lanjut='.$item->status_lanjut) }}" target="_blank" class="text-decoration-none">
+                                        {{ $item->nama_bulan }}
+                                    </a>
+                                </td>
                                 <td>{{ number_format($item->reg, 0, ',', '.') }}</td>
                                 <td>{{ number_format($item->js, 0, ',', '.') }}</td>
                                 <td>{{ number_format($item->bhp, 0, ',', '.') }}</td>

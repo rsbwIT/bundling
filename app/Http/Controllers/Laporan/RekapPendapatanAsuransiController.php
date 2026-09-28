@@ -281,6 +281,8 @@ class RekapPendapatanAsuransiController extends Controller
             $dataRekap->push((object)[
                 'group_key'  => $statusPrefix . '.' . $year,
                 'nama_bulan' => $namaBulan[$monthNum],
+                'tgl_nota'   => $tglStr,
+                'status_lanjut' => $statusLanjut,
                 'reg'        => $regVal,
                 'js'         => $jsVal,
                 'bhp'        => $bhpVal,
@@ -316,5 +318,196 @@ class RekapPendapatanAsuransiController extends Controller
         }
 
         return view('laporan.rekappendapatanasuransi', compact('tgl1', 'tgl2', 'dataRekap'));
+    }
+
+    public function detailTindakan(Request $request)
+    {
+        $tgl1 = $request->tgl1;
+        $tgl2 = $request->tgl2;
+        $tgl_nota = $request->tgl_nota; // e.g. "2025-01-01"
+        $status_lanjut = $request->status_lanjut; // e.g. "Ralan" or "Ranap"
+
+        
+        $notaSource = "(
+            SELECT DISTINCT 
+                bp.no_rawat, 
+                rp.status_lanjut,
+                DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') as bulan,
+                p.no_rkm_medis,
+                p.nm_pasien,
+                COALESCE(ni.tanggal, nj.tanggal) as tgl_tindakan,
+                d.nm_dokter as pj
+            FROM bayar_piutang bp
+            JOIN reg_periksa rp ON bp.no_rawat = rp.no_rawat
+            JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
+            LEFT JOIN nota_inap ni ON bp.no_rawat = ni.no_rawat
+            LEFT JOIN nota_jalan nj ON bp.no_rawat = nj.no_rawat
+            WHERE bp.tgl_bayar BETWEEN '{$tgl1}' AND '{$tgl2}'
+            AND DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') = '{$tgl_nota}'
+            AND rp.status_lanjut = '{$status_lanjut}'
+            AND COALESCE(ni.tanggal, nj.tanggal) IS NOT NULL
+        )";
+
+        $nipDokterKhusus = [
+            '12041999', '0518010327', '518010327', '1802081010970003', '1802081010970000',
+            '10104020181', '0817010312', '817010312', '05084010153', '5084010153',
+            '0106010608', '106010608', '19960223', '0224010675', '224010675',
+            '1802086108980001', '1802086108980000', '1802054204000003', '1802054204000000',
+            '09964020055', '9964020055', '88888', '0214010227', '214010227', '0512010199', '512010199', '1204020129'
+        ];
+        $nipIn = "'" . implode("','", array_unique($nipDokterKhusus)) . "'";
+
+        // 1. DR
+        $sqlDr = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, d.nm_dokter as operator, t.material as js, t.bhp, t.tarif_tindakandr as jm_dr, 0 as pr, COALESCE(t.kso, 0) as kso
+            FROM rawat_jl_dr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            UNION ALL
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, d.nm_dokter as operator, t.material as js, t.bhp, t.tarif_tindakandr as jm_dr, 0 as pr, COALESCE(t.kso, 0) as kso
+            FROM rawat_inap_dr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+        ";
+        $detailDr = DB::select($sqlDr);
+
+        // 2. PR
+        $sqlPr = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, p2.nama as operator, t.material as js, t.bhp, (CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN 0 ELSE t.tarif_tindakanpr END) as pr, COALESCE(t.kso, 0) as kso
+            FROM rawat_jl_pr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            UNION ALL
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, p2.nama as operator, t.material as js, t.bhp, (CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN 0 ELSE t.tarif_tindakanpr END) as pr, COALESCE(t.kso, 0) as kso
+            FROM rawat_inap_pr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+        ";
+        $detailPr = DB::select($sqlPr);
+
+        // 3. DRPR
+        $sqlDrpr = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, d.nm_dokter, 
+            CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN '' ELSE p2.nama END as nm_petugas, 
+            t.material as js, t.bhp, t.tarif_tindakandr as jm_dr, 
+            CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN 0 ELSE t.tarif_tindakanpr END as pr, 
+            COALESCE(t.kso, 0) as kso
+            FROM rawat_jl_drpr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            UNION ALL
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, p2.nama as nm_dokter, '' as nm_petugas, 0 as js, 0 as bhp, t.tarif_tindakanpr as jm_dr, 0 as pr, 0 as kso
+            FROM rawat_jl_drpr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            WHERE p2.nama LIKE '%Nusae Qolbi%'
+            UNION ALL
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, d.nm_dokter, 
+            CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN '' ELSE p2.nama END as nm_petugas, 
+            t.material as js, t.bhp, t.tarif_tindakandr as jm_dr, 
+            CASE WHEN p2.nama LIKE '%Nusae Qolbi%' THEN 0 ELSE t.tarif_tindakanpr END as pr, 
+            COALESCE(t.kso, 0) as kso
+            FROM rawat_inap_drpr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            UNION ALL
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, ni.tgl_tindakan, jp.nm_perawatan, p2.nama as nm_dokter, '' as nm_petugas, 0 as js, 0 as bhp, t.tarif_tindakanpr as jm_dr, 0 as pr, 0 as kso
+            FROM rawat_inap_drpr t 
+            JOIN jns_perawatan jp ON t.kd_jenis_prw = jp.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+            WHERE p2.nama LIKE '%Nusae Qolbi%'
+        ";
+        $detailDrpr = DB::select($sqlDrpr);
+
+        // 4. LAB
+        $sqlLab = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_periksa as tgl_tindakan, jl.nm_perawatan, d.nm_dokter, p2.nama as nm_petugas, t.bagian_rs as js, t.bhp, t.tarif_tindakan_dokter as jm_dr, t.tarif_tindakan_petugas as pr, t.kso
+            FROM periksa_lab t 
+            JOIN jns_perawatan_lab jl ON t.kd_jenis_prw = jl.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+        ";
+        $detailLab = DB::select($sqlLab);
+
+        // 5. RO
+        $sqlRo = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_periksa as tgl_tindakan, jr.nm_perawatan, 
+            d.nm_dokter, p2.nama as nm_petugas,
+            (t.bagian_rs + CASE WHEN t.dokter_perujuk = 'D0000091' THEN t.tarif_perujuk ELSE 0 END) as js, 
+            t.bhp, t.tarif_tindakan_dokter as jm_dr, t.tarif_tindakan_petugas as petugas, (CASE WHEN t.dokter_perujuk = 'D0000091' THEN 0 ELSE t.tarif_perujuk END) as perujuk, t.kso
+            FROM periksa_radiologi t 
+            JOIN jns_perawatan_radiologi jr ON t.kd_jenis_prw = jr.kd_jenis_prw
+            JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            JOIN petugas p2 ON t.nip = p2.nip
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+        ";
+        $detailRo = DB::select($sqlRo);
+
+        // 6. OK
+        $sqlOk = "
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_operasi as tgl_tindakan, p.nm_perawatan, d.nm_dokter as operator,
+                (t.biayaalat + t.biayasewaok + t.akomodasi + t.bagian_rs + t.biayasarpras) as js,
+                (
+                    t.biayaoperator1 + t.biayaoperator2 + t.biayaoperator3 + t.biayadokter_anak + t.biayadokter_anestesi + t.biaya_dokter_pjanak + t.biaya_dokter_umum
+                    + CASE WHEN t.asisten_operator1 IN ($nipIn) THEN t.biayaasisten_operator1 ELSE 0 END
+                    + CASE WHEN t.asisten_operator2 IN ($nipIn) THEN t.biayaasisten_operator2 ELSE 0 END
+                    + CASE WHEN t.asisten_operator3 IN ($nipIn) THEN t.biayaasisten_operator3 ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi IN ($nipIn) THEN t.biayaasisten_anestesi ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi2 IN ($nipIn) THEN t.biayaasisten_anestesi2 ELSE 0 END
+                    + CASE WHEN t.bidan IN ($nipIn) THEN t.biayabidan ELSE 0 END
+                    + CASE WHEN t.bidan2 IN ($nipIn) THEN t.biayabidan2 ELSE 0 END
+                    + CASE WHEN t.bidan3 IN ($nipIn) THEN t.biayabidan3 ELSE 0 END
+                    + CASE WHEN t.instrumen IN ($nipIn) THEN t.biayainstrumen ELSE 0 END
+                    + CASE WHEN t.perawaat_resusitas IN ($nipIn) THEN t.biayaperawaat_resusitas ELSE 0 END
+                    + CASE WHEN t.perawat_luar IN ($nipIn) THEN t.biayaperawat_luar ELSE 0 END
+                    + CASE WHEN t.omloop IN ($nipIn) THEN t.biaya_omloop ELSE 0 END
+                    + CASE WHEN t.omloop2 IN ($nipIn) THEN t.biaya_omloop2 ELSE 0 END
+                    + CASE WHEN t.omloop3 IN ($nipIn) THEN t.biaya_omloop3 ELSE 0 END
+                    + CASE WHEN t.omloop4 IN ($nipIn) THEN t.biaya_omloop4 ELSE 0 END
+                    + CASE WHEN t.omloop5 IN ($nipIn) THEN t.biaya_omloop5 ELSE 0 END
+                ) as jm_dr,
+                (
+                    CASE WHEN t.asisten_operator1 NOT IN ($nipIn) THEN t.biayaasisten_operator1 ELSE 0 END
+                    + CASE WHEN t.asisten_operator2 NOT IN ($nipIn) THEN t.biayaasisten_operator2 ELSE 0 END
+                    + CASE WHEN t.asisten_operator3 NOT IN ($nipIn) THEN t.biayaasisten_operator3 ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi NOT IN ($nipIn) THEN t.biayaasisten_anestesi ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi2 NOT IN ($nipIn) THEN t.biayaasisten_anestesi2 ELSE 0 END
+                    + CASE WHEN t.bidan NOT IN ($nipIn) THEN t.biayabidan ELSE 0 END
+                    + CASE WHEN t.bidan2 NOT IN ($nipIn) THEN t.biayabidan2 ELSE 0 END
+                    + CASE WHEN t.bidan3 NOT IN ($nipIn) THEN t.biayabidan3 ELSE 0 END
+                    + CASE WHEN t.instrumen NOT IN ($nipIn) THEN t.biayainstrumen ELSE 0 END
+                    + CASE WHEN t.perawaat_resusitas NOT IN ($nipIn) THEN t.biayaperawaat_resusitas ELSE 0 END
+                    + CASE WHEN t.perawat_luar NOT IN ($nipIn) THEN t.biayaperawat_luar ELSE 0 END
+                    + CASE WHEN t.omloop NOT IN ($nipIn) THEN t.biaya_omloop ELSE 0 END
+                    + CASE WHEN t.omloop2 NOT IN ($nipIn) THEN t.biaya_omloop2 ELSE 0 END
+                    + CASE WHEN t.omloop3 NOT IN ($nipIn) THEN t.biaya_omloop3 ELSE 0 END
+                    + CASE WHEN t.omloop4 NOT IN ($nipIn) THEN t.biaya_omloop4 ELSE 0 END
+                    + CASE WHEN t.omloop5 NOT IN ($nipIn) THEN t.biaya_omloop5 ELSE 0 END
+                ) as jm_pr
+            FROM operasi t
+            JOIN paket_operasi p ON t.kode_paket = p.kode_paket
+            LEFT JOIN dokter d ON t.operator1 = d.kd_dokter
+            JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
+        ";
+        $detailOk = DB::select($sqlOk);
+
+        return view('laporan.rekappendapatanasuransi-detail', compact(
+            'tgl1', 'tgl2', 'tgl_nota', 'status_lanjut',
+            'detailDr', 'detailPr', 'detailDrpr', 'detailLab', 'detailRo', 'detailOk'
+        ));
     }
 }
