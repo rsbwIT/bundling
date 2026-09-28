@@ -137,6 +137,10 @@
                         $totOkJmDr = 0;
                         $totOkJmPr = 0;
                         $totOkJs = 0;
+                        $totSubTindakan = 0;
+                        $totSubLab = 0;
+                        $totSubRo = 0;
+                        $totSubOk = 0;
                         $totTotal = 0;
                         $totPj = 0;
                         $totEkses = 0;
@@ -166,6 +170,16 @@
                             $totOkJmDr += $item->ok_jm_dr ?? 0;
                             $totOkJmPr += $item->ok_jm_pr ?? 0;
                             $totOkJs += $item->ok_js ?? 0;
+                            
+                            $subTotalTindakan = ($item->js ?? 0) + ($item->bhp ?? 0) + ($item->jm_dr ?? 0) + ($item->pr ?? 0) + ($item->kso ?? 0);
+                            $subTotalLab = ($item->lab_js ?? 0) + ($item->lab_bhp ?? 0);
+                            $subTotalRo = ($item->ro_js ?? 0) + ($item->ro_bhp ?? 0) + ($item->ro_jm_pj ?? 0) + ($item->ro_petugas ?? 0) + ($item->ro_perujuk ?? 0);
+                            $subTotalOk = ($item->ok_jm_dr ?? 0) + ($item->ok_jm_pr ?? 0) + ($item->ok_js ?? 0);
+
+                            $totSubTindakan += $subTotalTindakan;
+                            $totSubLab += $subTotalLab;
+                            $totSubRo += $subTotalRo;
+                            $totSubOk += $subTotalOk;
                             $totTotal += $item->total ?? 0;
                             $totPj += $item->pj ?? 0;
                             $totEkses += $item->ekses ?? 0;
@@ -201,7 +215,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="23" class="text-center py-3 text-muted">
+                            <td colspan="26" class="text-center py-3 text-muted">
                                 Tidak ada data pada periode ini.
                             </td>
                         </tr>
@@ -236,6 +250,23 @@
                         <td class="text-right">{{ number_format($totEkses, 0, ',', '.') }}</td>
                         <td class="text-right font-weight-bold table-primary text-dark">{{ number_format($totGrandTotal, 0, ',', '.') }}</td>
                     </tr>
+                    <tr class="table-info font-weight-bold">
+                        <td class="text-center">GRANDTOTAL</td>
+                        <td class="text-right">{{ number_format($totReg, 0, ',', '.') }}</td>
+                        <td class="text-center" colspan="5">{{ number_format($totSubTindakan, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totObat, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totRetur, 0, ',', '.') }}</td>
+                        <td class="text-center" colspan="2">{{ number_format($totSubLab, 0, ',', '.') }}</td>
+                        <td class="text-center" colspan="5">{{ number_format($totSubRo, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totPot, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totTbm, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totKmr, 0, ',', '.') }}</td>
+                        <td class="text-center" colspan="3">{{ number_format($totSubOk, 0, ',', '.') }}</td>
+                        <td class="text-right font-weight-bold table-light">{{ number_format($totTotal, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totPj, 0, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($totEkses, 0, ',', '.') }}</td>
+                        <td class="text-right font-weight-bold table-primary text-dark">{{ number_format($totGrandTotal, 0, ',', '.') }}</td>
+                    </tr>
                 </tfoot>
             </table>
         </div>
@@ -247,18 +278,60 @@ function copyTable(tableId) {
     const table = document.getElementById(tableId);
     if (!table) return;
 
-    let range = document.createRange();
-    range.selectNode(table);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
+    let maxCols = 0;
+    for (let i = 0; i < table.rows.length; i++) {
+        let cols = 0;
+        for (let j = 0; j < table.rows[i].cells.length; j++) {
+            cols += table.rows[i].cells[j].colSpan;
+        }
+        if (cols > maxCols) maxCols = cols;
+    }
 
+    let matrix = [];
+    for (let i = 0; i < table.rows.length; i++) {
+        matrix.push(new Array(maxCols).fill(''));
+    }
+
+    for (let i = 0; i < table.rows.length; i++) {
+        let cells = table.rows[i].cells;
+        let c = 0;
+        for (let j = 0; j < cells.length; j++) {
+            let cell = cells[j];
+            while (c < maxCols && matrix[i][c] !== '') {
+                c++;
+            }
+            if (c >= maxCols) break;
+
+            let text = cell.innerText.replace(/\r?\n/g, ' ').trim();
+            // Remove dots only if the text is a formatted number (e.g., "1.500.000" or "-5.000")
+            if (/^-?\d{1,3}(\.\d{3})+$/.test(text)) {
+                text = text.replace(/\./g, '');
+            }
+            
+            for (let r = 0; r < cell.rowSpan; r++) {
+                for (let k = 0; k < cell.colSpan; k++) {
+                    if (i + r < matrix.length && c + k < maxCols) {
+                        matrix[i + r][c + k] = (r === 0 && k === 0) ? text : '';
+                    }
+                }
+            }
+            c += cell.colSpan;
+        }
+    }
+
+    let tsv = matrix.map(row => row.join('\t')).join('\n');
+
+    let textArea = document.createElement("textarea");
+    textArea.value = tsv;
+    document.body.appendChild(textArea);
+    textArea.select();
     try {
         document.execCommand('copy');
-        alert('Tabel berhasil disalin ke clipboard!');
+        alert('Tabel berhasil disalin! Format sudah disesuaikan untuk di-paste ke Excel (Unformatted Text).');
     } catch (err) {
         alert('Gagal menyalin tabel.');
     }
-    window.getSelection().removeAllRanges();
+    document.body.removeChild(textArea);
 }
 </script>
 
