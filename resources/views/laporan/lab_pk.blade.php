@@ -19,6 +19,13 @@
                         <option value="umum" {{ request('jenis_pasien') == 'umum' ? 'selected' : '' }}>Umum (Tunai)</option>
                         <option value="asuransi" {{ request('jenis_pasien') == 'asuransi' ? 'selected' : '' }}>Asuransi / BPJS / Piutang</option>
                     </select>
+
+                    <label class="mr-2 font-weight-bold">Jenis Rawat :</label>
+                    <select name="status_lanjut" class="form-control form-control-sm mr-3">
+                        <option value="semua" {{ request('status_lanjut') == 'semua' ? 'selected' : '' }}>Semua (Ralan & Ranap)</option>
+                        <option value="Ralan" {{ request('status_lanjut') == 'Ralan' ? 'selected' : '' }}>Rawat Jalan (Ralan)</option>
+                        <option value="Ranap" {{ request('status_lanjut') == 'Ranap' ? 'selected' : '' }}>Rawat Inap (Ranap)</option>
+                    </select>
                     
                     <button type="submit" class="btn btn-sm btn-primary px-3 mr-2">
                         <i class="fas fa-search"></i> Tampilkan
@@ -40,6 +47,7 @@
                                 <th>No Nota</th>
                                 <th>No RM</th>
                                 <th>Nama Pasien</th>
+                                <th>Jenis Rawat</th>
                                 <th>Jenis Bayar</th>
                                 <th>Tgl Pembayaran</th>
                                 <th>Tgl Registrasi</th>
@@ -77,6 +85,7 @@
                                     <td>{{ $item->no_nota ?? '-' }}</td>
                                     <td>{{ $item->no_rkm_medis }}</td>
                                     <td>{{ $item->nm_pasien }}</td>
+                                    <td>{{ $item->status_lanjut }}</td>
                                     <td>{{ $item->jenis_bayar }}</td>
                                     <td class="text-center">{{ \Carbon\Carbon::parse($item->tgl_pembayaran)->format('Y-m-d') }}</td>
                                     <td class="text-center">{{ \Carbon\Carbon::parse($item->tgl_registrasi)->format('Y-m-d') }}</td>
@@ -93,14 +102,14 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="18" class="text-center text-muted py-4">Belum ada data pemeriksaan lab.</td>
+                                    <td colspan="19" class="text-center text-muted py-4">Belum ada data pemeriksaan lab.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                         @if(count($data) > 0)
                             <tfoot class="bg-light">
                                 <tr>
-                                    <th colspan="10" class="text-right font-weight-bold text-uppercase">TOTAL BIAYA:</th>
+                                    <th colspan="11" class="text-right font-weight-bold text-uppercase">TOTAL BIAYA:</th>
                                     <th class="text-right font-weight-bold text-dark">{{ number_format($t_rs, 0, ',', '.') }}</th>
                                     <th class="text-right font-weight-bold text-dark">{{ number_format($t_bhp, 0, ',', '.') }}</th>
                                     <th class="text-right font-weight-bold text-dark">{{ number_format($t_rujuk, 0, ',', '.') }}</th>

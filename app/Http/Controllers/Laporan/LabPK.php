@@ -14,6 +14,7 @@ class LabPK extends Controller
         $tglMulai = $request->get('tgl_mulai', date('Y-m-d'));
         $tglSelesai = $request->get('tgl_selesai', date('Y-m-d'));
         $jenisPasien = $request->get('jenis_pasien', 'semua');
+        $statusLanjut = $request->get('status_lanjut', 'semua');
 
         // Jalankan query menggunakan Query Builder Laravel
         $data = DB::table('periksa_lab')
@@ -23,6 +24,7 @@ class LabPK extends Controller
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'reg_periksa.tgl_registrasi',
+                'reg_periksa.status_lanjut',
                 'dokter.nm_dokter',
                 'periksa_lab.dokter_perujuk',
                 'periksa_lab.bagian_rs',
@@ -70,6 +72,9 @@ class LabPK extends Controller
                           ->whereBetween('bayar_piutang.tgl_bayar', [$tglMulai, $tglSelesai]);
                 }
             })
+            ->when($statusLanjut != 'semua', function ($query) use ($statusLanjut) {
+                return $query->where('reg_periksa.status_lanjut', $statusLanjut);
+            })
             ->orderBy('periksa_lab.no_rawat', 'ASC')
             ->get();
 
@@ -79,10 +84,12 @@ class LabPK extends Controller
                 'status' => true,
                 'tgl_mulai' => $tglMulai,
                 'tgl_selesai' => $tglSelesai,
+                'status_lanjut' => $statusLanjut,
+                'jenis_pasien' => $jenisPasien,
                 'data' => $data
             ]);
         }
 
-        return view('laporan.lab_pk', compact('data', 'tglMulai', 'tglSelesai'));
+        return view('laporan.lab_pk', compact('data', 'tglMulai', 'tglSelesai', 'statusLanjut', 'jenisPasien'));
     }
 }
