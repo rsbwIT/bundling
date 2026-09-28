@@ -21,6 +21,7 @@ use App\Http\Controllers\Test\JasdokController;
 use App\Http\Controllers\JM\JMUmumController;
 use App\Http\Controllers\JM\JMBpjsController;
 use App\Http\Controllers\JM\JMAsuransiController;
+use App\Http\Controllers\JM\JmOkController;
 use App\Http\Controllers\Bpjs\ListPasienRalan;
 use App\Http\Controllers\Bpjs\ListPasienRanap;
 use App\Http\Controllers\Bpjs\ListPasienRanap2;
@@ -156,6 +157,7 @@ use App\Http\Controllers\DetailTindakanBPJS\PeriksaRadiologiBpjs;
 use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\Laporan\RekapPendapatanHarianController;
+use App\Http\Controllers\Laporan\RekapPendapatanAsuransiController;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Pkpa\MonitoringPkpaController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
@@ -197,6 +199,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/jm-bpjs/detail', [JMBpjsController::class, 'detail']);
         Route::get('/jm-asuransi', [JMAsuransiController::class, 'index']);
         Route::get('/jm-asuransi/detail', [JMAsuransiController::class, 'detail']);
+        Route::get('/jm-ok', [JmOkController::class, 'index']);
         Route::get('/test-delte', [TestController::class, 'TestDelete']);
         Route::get('/test-cari', [TestController::class, 'TestCari']);
         Route::get('/pdf-tindakan', [PdfTindakanController::class, 'index'])->name('pdf-tindakan');
@@ -452,6 +455,7 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
         Route::get('/rekap-pendapatan-harian', [RekapPendapatanHarianController::class, 'index']);
+        Route::get('/rekap-pendapatan-asuransi', [RekapPendapatanAsuransiController::class, 'index']);
 
         //user
         Route::get('/ai/user', [User::class, 'index'])
