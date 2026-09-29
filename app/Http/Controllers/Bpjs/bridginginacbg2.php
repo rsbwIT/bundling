@@ -1236,7 +1236,14 @@ class bridginginacbg2 extends Controller
                 'msg'   => $e->getMessage()
             ]);
 
-            abort(500, $e->getMessage());
+            return response("
+                <div style='font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ebccd1; border-radius: 5px; background-color: #f2dede; color: #a94442; max-width: 600px; margin-left: auto; margin-right: auto;'>
+                    <h3 style='margin-top: 0;'><i class='fas fa-exclamation-triangle'></i> Pemberitahuan</h3>
+                    <p style='font-size: 16px;'>Maaf, cetakan belum ada dan status di eKlaim belum terkirim.</p>
+                    <hr style='border-top-color: #e4b9c0;'>
+                    <p style='font-size: 12px; margin-bottom: 0;'>Detail Error: " . htmlspecialchars($e->getMessage()) . "</p>
+                </div>
+            ");
         }
     }
 
