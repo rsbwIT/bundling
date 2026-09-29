@@ -236,6 +236,7 @@ class GabungPdfService
             }
         } else {
             \Illuminate\Support\Facades\Log::warning("Tidak ada halaman PDF yang berhasil di-import untuk no_rawat: $no_rawat");
+            throw new \Exception("Berkas (INACBG/Scan/Khanza) belum lengkap atau tidak ditemukan!");
         }
     }
 }
