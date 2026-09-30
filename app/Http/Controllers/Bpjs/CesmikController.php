@@ -192,9 +192,9 @@ class CesmikController extends Controller
             
             
             // Jadikan "Berkas Digital Keperawatan" sebagai MASTER SWITCH untuk semua file digital (kecuali INACBG)
-            $masterSwitch = $settingBundlingArray['Berkas Digital Keperawatan'] ?? '0';
+            $isBerkasDigitalKeperawatanAktif = $settingBundling->contains('nama_berkas', 'Berkas Digital Keperawatan');
             
-            if ($masterSwitch != '1') {
+            if (!$isBerkasDigitalKeperawatanAktif) {
                 // Kosongkan semua berkas digital jika switch utama dimatikan
                 $semuaBerkasDigital = collect([]);
             }
