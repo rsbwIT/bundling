@@ -281,6 +281,42 @@ textarea:focus{
         text-align:center;
     }
 }
+
+/* DARK MODE */
+body.dark-mode .eklaim-card,
+body.dark-mode .info-item,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: #343a40;
+    border-color: #4b545c;
+    color: #fff;
+}
+
+body.dark-mode .header-title,
+body.dark-mode .label,
+body.dark-mode .tarif-name,
+body.dark-mode .center-title {
+    background: #3a4047;
+    color: #fff;
+    border-color: #4b545c;
+}
+
+body.dark-mode .header-title h5,
+body.dark-mode .info-item strong,
+body.dark-mode .info-item small {
+    color: #fff;
+}
+
+body.dark-mode .eklaim-table td,
+body.dark-mode .tarif-grid td {
+    border-color: #4b545c;
+    background: transparent;
+}
+
+body.dark-mode .readonly {
+    background: #2b3035;
+}
 </style>
 
 {{-- <div class="content-wrapper"> --}}
