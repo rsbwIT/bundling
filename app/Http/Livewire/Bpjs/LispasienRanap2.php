@@ -69,9 +69,10 @@ class LispasienRanap2 extends Component
             ->whereBetween('kamar_inap.tgl_keluar', [$this->tanggal1, $this->tanggal2])
             ->where(function ($query) use ($cariKode) {
                 if ($cariKode) {
-                    $query->where('reg_periksa.no_rkm_medis', $cariKode)
-                        ->orWhere('pasien.nm_pasien', $cariKode)
-                        ->orWhere('bridging_sep.no_sep', $cariKode);
+                    $query->where('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
+                        ->orWhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
+                        ->orWhere('bridging_sep.no_sep', 'LIKE', "$cariKode%")
+                        ->orWhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
                 }
             })
             ->where(function ($query) {

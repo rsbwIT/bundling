@@ -62,7 +62,8 @@ class LispasienRalan2 extends Component
                 if ($cariKode) {
                     $query->where('reg_periksa.no_rkm_medis', 'LIKE', "$cariKode%")
                         ->orWhere('pasien.nm_pasien', 'LIKE', "%$cariKode%")
-                        ->orWhere('bridging_sep.no_sep', $cariKode);
+                        ->orWhere('bridging_sep.no_sep', 'LIKE', "$cariKode%")
+                        ->orWhere('reg_periksa.no_rawat', 'LIKE', "$cariKode%");
                 }
             })
             ->where(function ($query) {
