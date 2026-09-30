@@ -191,18 +191,9 @@ class JMBpjsController extends Controller
         };
 
         $dcFilterRalan = function($query) {
-            $query->where(function($q) {
-                $q->where('jns_perawatan.nm_perawatan', '!=', 'Pasang dan Lepas DC')
-                  ->orWhere(function($sub) {
-                      $sub->where('jns_perawatan.nm_perawatan', 'Pasang dan Lepas DC')
-                          ->whereExists(function($sq) {
-                              $sq->select(DB::raw(1))
-                                 ->from('spesialis')
-                                 ->whereColumn('spesialis.kd_sps', 'dokter.kd_sps')
-                                 ->where('spesialis.nm_sps', 'like', '%UMUM%');
-                          });
-                  });
-            });
+            // Pasang dan Lepas DC di rawat jalan dokter spesialis juga dapat
+            // Jadi filter ini dikosongkan untuk ralan
+            $query->whereRaw('1 = 1');
         };
 
         // 1. Query rawat_jl_dr (Dokter Saja)
@@ -210,7 +201,7 @@ class JMBpjsController extends Controller
         ->select(
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE TRIM(rawat_jl_dr.kd_dokter) END as kd_dokter"),
             DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
-            DB::raw("SUM(CASE WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) END) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5 WHEN rawat_jl_dr.kd_dokter IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%Ultrasonografi (USG)%' THEN 45000 ELSE (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_dr','reg_periksa.no_rawat','=','rawat_jl_dr.no_rawat')
@@ -267,7 +258,7 @@ class JMBpjsController extends Controller
         ->select(
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE TRIM(rawat_jl_drpr.kd_dokter) END as kd_dokter"),
             DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'Andi Nurlela Wulandari, dr' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'Chairil Makky, dr, Sp.PD,FINASIM' ELSE dokter.nm_dokter END as nm_dokter"),
-            DB::raw("SUM(CASE WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5 ELSE (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) END) as total_ralan")
+            DB::raw("SUM(CASE WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5 WHEN rawat_jl_drpr.kd_dokter IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%Ultrasonografi (USG)%' THEN 45000 ELSE (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ('RJBP0053', 'RJBP0056', 'HD02-BPJ', 'RJBP0043', 'RJBP0055', 'RJBP0054', 'RJBP0030', 'RJBP0073', 'IGDBP0014', 'RJBP0072') OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) END) as total_ralan")
         )
         ->join('reg_periksa','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
         ->join('rawat_jl_drpr','reg_periksa.no_rawat','=','rawat_jl_drpr.no_rawat')
@@ -826,6 +817,22 @@ class JMBpjsController extends Controller
             $processedNoRawats = [];
             $jagaIgdProcessed = [];
             $intubasiProcessed = [];
+            $internalProcessed = [];
+
+            // Pre-scan: deteksi real doctor untuk Visite HD dan Dokter Umum HD dari DB
+            // untuk memvalidasi hardcode mapping query
+            $hdRealDoctorsIndex = [];
+            if (!empty($noRawats)) {
+                $hdRows = DB::table('rawat_jl_dr')
+                    ->whereIn('rawat_jl_dr.no_rawat', $noRawats)
+                    ->whereIn('rawat_jl_dr.kd_jenis_prw', ['HD02-BPJ', 'HD04-BPJ'])
+                    ->select('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_jenis_prw', 'rawat_jl_dr.kd_dokter')
+                    ->get();
+                
+                foreach ($hdRows as $row) {
+                    $hdRealDoctorsIndex[$row->no_rawat][$row->kd_jenis_prw] = trim($row->kd_dokter);
+                }
+            }
 
             foreach ($rawDetails as $item) {
                 $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
@@ -835,6 +842,7 @@ class JMBpjsController extends Controller
                 $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false);
                 $isJasaDokterJaga = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Jaga') !== false;
                 $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
+                $isVisiteHD = stripos($item->nm_perawatan, 'Visite HD') !== false;
                 $isEkg = stripos($item->nm_perawatan, 'ekg') !== false || stripos($item->nm_perawatan, 'elektrocardiografi') !== false;
                 $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
                 $isJasaPeriksaSp = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
@@ -861,12 +869,38 @@ class JMBpjsController extends Controller
                 }
 
                 $isIntubasi = stripos($item->nm_perawatan, 'Intubasi') !== false;
+                $isPemeriksaanInternal = stripos($item->nm_perawatan, 'Pemeriksaan Internal') !== false;
 
                 if ($isIntubasi) {
                     if (isset($intubasiProcessed[$item->no_rawat])) {
                         $calculatedTariff = 0;
                     } else {
                         $intubasiProcessed[$item->no_rawat] = true;
+                    }
+                }
+
+                // Pemeriksaan Internal: hanya 1 per no_rawat (jika ada Dari dan Ke, ambil 1 saja)
+                if ($isPemeriksaanInternal) {
+                    $internalKey = $item->no_rawat . '_' . $item->kd_dokter;
+                    if (isset($internalProcessed[$internalKey])) {
+                        $calculatedTariff = 0;
+                    } else {
+                        $internalProcessed[$internalKey] = true;
+                    }
+                }
+
+                $isVisiteHD = stripos($item->nm_perawatan, 'Visite HD') !== false;
+                $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
+
+                // Cek manipulasi mapping HD: jika kd_dokter asli di DB tidak sesuai mapping query
+                if ($isVisiteHD && isset($hdRealDoctorsIndex[$item->no_rawat]['HD04-BPJ'])) {
+                    if ($hdRealDoctorsIndex[$item->no_rawat]['HD04-BPJ'] !== trim($item->kd_dokter)) {
+                        $calculatedTariff = 0;
+                    }
+                }
+                if ($isDokterUmumHD && isset($hdRealDoctorsIndex[$item->no_rawat]['HD02-BPJ'])) {
+                    if ($hdRealDoctorsIndex[$item->no_rawat]['HD02-BPJ'] !== trim($item->kd_dokter)) {
+                        $calculatedTariff = 0;
                     }
                 }
 
@@ -891,7 +925,7 @@ class JMBpjsController extends Controller
                     $calculatedTariff = 120000;
                 }
 
-                if (in_array($item->kd_dokter, ['D0000103', 'D0000032']) && stripos($item->nm_perawatan, 'USG Kebidanan') !== false && stripos($item->nm_perawatan, '(RSBW)') === false) {
+                if (in_array($item->kd_dokter, ['D0000103', 'D0000032', 'D0000016']) && stripos($item->nm_perawatan, 'USG Kebidanan') !== false && stripos($item->nm_perawatan, '(RSBW)') === false) {
                     $calculatedTariff = $calculatedTariff * 0.5;
                 }
 
@@ -1988,6 +2022,7 @@ class JMBpjsController extends Controller
         })
         ->whereNotIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2031,6 +2066,7 @@ class JMBpjsController extends Controller
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) { $q->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])->orWhere('paket_operasi.nm_perawatan', 'like', '%(rj)%')->orWhere('operasi.status', 'Ralan')->orWhere('reg_periksa.status_lanjut', 'Ralan'); })
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2095,6 +2131,7 @@ class JMBpjsController extends Controller
         })
         ->whereNotIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2136,6 +2173,7 @@ class JMBpjsController extends Controller
         ->where('piutang_pasien.status', 'Lunas')
         ->where(function($q) { $q->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])->orWhere('paket_operasi.nm_perawatan', 'like', '%(rj)%')->orWhere('operasi.status', 'Ralan')->orWhere('reg_periksa.status_lanjut', 'Ralan'); })
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2195,6 +2233,7 @@ class JMBpjsController extends Controller
         ->where('operasi.omloop', '!=', '-')
         ->where('operasi.omloop', '!=', '')
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2237,6 +2276,7 @@ class JMBpjsController extends Controller
         ->where('operasi.omloop', '!=', '-')
         ->where('operasi.omloop', '!=', '')
         ->where('petugas.nama', '!=', 'Dahyar')
+        ->where('petugas.nip', '!=', '0512010199') // astika tidak dapat tarif tindakan jenis operasi
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
                     $query->where(function($q) use ($cariNomor) {
@@ -2538,8 +2578,9 @@ class JMBpjsController extends Controller
         // 1. rawat_jl_dr (Ralan)
         $q1 = DB::table('rawat_jl_dr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
+                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
                     (CASE WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END) * 0.5
+                WHEN '{$kdDokter}' IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%Ultrasonografi (USG)%' THEN 45000
                 ELSE
                     (CASE WHEN '{$kdDokter}' = 'D0000110' AND (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') THEN (CASE WHEN rawat_jl_dr.kso > 0 THEN rawat_jl_dr.kso ELSE rawat_jl_dr.tarif_tindakandr END) WHEN rawat_jl_dr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_dr.tarif_tindakandr END)
                 END as tarif"),
@@ -2550,15 +2591,15 @@ class JMBpjsController extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where(DB::raw("CASE WHEN rawat_jl_dr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_dr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_dr.kd_dokter END"), $kdDokter)
-            ->when(!$isDokterUmum, function($q) { $q->where('jns_perawatan.nm_perawatan', '!=', 'Pasang dan Lepas DC'); })
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q1);
 
         // 2. rawat_jl_drpr (Ralan - tarif dokter)
         $q2 = DB::table('rawat_jl_drpr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'jns_perawatan.nm_perawatan',
-                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
+                DB::raw("CASE WHEN '{$kdDokter}' IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%USG Kebidanan%' AND jns_perawatan.nm_perawatan NOT LIKE '%(RSBW)%' THEN
                     (CASE WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END) * 0.5
+                WHEN '{$kdDokter}' IN ('D0000103', 'D0000032', 'D0000016') AND jns_perawatan.nm_perawatan LIKE '%Ultrasonografi (USG)%' THEN 45000
                 ELSE
                     (CASE WHEN '{$kdDokter}' = 'D0000110' AND (jns_perawatan.nm_perawatan LIKE '%Sewa Alat%' OR jns_perawatan.nm_perawatan LIKE '%Alat Orthopedi%' OR jns_perawatan.nm_perawatan LIKE '%Alat DJ STENT%') THEN (CASE WHEN rawat_jl_drpr.kso > 0 THEN rawat_jl_drpr.kso ELSE rawat_jl_drpr.tarif_tindakandr END) WHEN rawat_jl_drpr.kd_jenis_prw IN ({$kodeMasterStr}) OR jns_perawatan.nm_perawatan LIKE '%Dokter Umum HD%' THEN jns_perawatan.tarif_tindakandr WHEN jns_perawatan.nm_perawatan LIKE '%Jasa Periksa Dokter Jaga%' THEN LEAST(jns_perawatan.tarif_tindakandr, 50000) ELSE rawat_jl_drpr.tarif_tindakandr END)
                 END as tarif"),
@@ -2569,7 +2610,6 @@ class JMBpjsController extends Controller
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where(DB::raw("CASE WHEN rawat_jl_drpr.kd_jenis_prw = 'HD02-BPJ' THEN 'D0000033' WHEN rawat_jl_drpr.kd_jenis_prw = 'HD04-BPJ' THEN 'D0000115' ELSE rawat_jl_drpr.kd_dokter END"), $kdDokter)
-            ->when(!$isDokterUmum, function($q) { $q->where('jns_perawatan.nm_perawatan', '!=', 'Pasang dan Lepas DC'); })
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q2);
 
@@ -3293,6 +3333,22 @@ class JMBpjsController extends Controller
                 }
             }
 
+            // Global pre-scan for HD: simpan kd_dokter asli per no_rawat per kd_jenis_prw HD
+            // Mapping HD: HD02-BPJ -> D0000033, HD04-BPJ -> D0000115
+            // Jika kd_dokter asli di DB tidak sesuai mapping, tarif = 0
+            $hdRealDoctors = [];
+            if (!empty($noRawats)) {
+                $hdRows = DB::table('rawat_jl_dr')
+                    ->whereIn('rawat_jl_dr.no_rawat', $noRawats)
+                    ->whereIn('rawat_jl_dr.kd_jenis_prw', ['HD02-BPJ', 'HD04-BPJ'])
+                    ->select('rawat_jl_dr.no_rawat', 'rawat_jl_dr.kd_jenis_prw', 'rawat_jl_dr.kd_dokter')
+                    ->get();
+                
+                foreach ($hdRows as $row) {
+                    $hdRealDoctors[$row->no_rawat][$row->kd_jenis_prw] = trim($row->kd_dokter);
+                }
+            }
+
             if ($isSp) {
                 $visitsDr = DB::table('rawat_inap_dr')
                     ->join('dokter', 'rawat_inap_dr.kd_dokter', '=', 'dokter.kd_dokter')
@@ -3394,7 +3450,9 @@ class JMBpjsController extends Controller
                     return ($item->tgl_perawatan ?? '9999-12-31') . ' ' . ($item->jam_rawat ?? '23:59:59');
                 })->values();
 
-                $details->transform(function ($item) use ($validVisits, $claims, $kdDokter, $surgeryDoctors, $operators, &$processedNoRawats, &$jagaIgdProcessedDetail, &$intubasiProcessedDetail, $isSp, $dpjpDoctors, $firstJagaIgdDocs) {
+                $internalProcessedDetail = [];
+
+                $details->transform(function ($item) use ($validVisits, $claims, $kdDokter, $surgeryDoctors, $operators, &$processedNoRawats, &$jagaIgdProcessedDetail, &$intubasiProcessedDetail, &$internalProcessedDetail, $isSp, $dpjpDoctors, $firstJagaIgdDocs, $hdRealDoctors) {
                     $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                     $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                     $isSpirometri = stripos($item->nm_perawatan, 'spirometri') !== false;
@@ -3413,6 +3471,31 @@ class JMBpjsController extends Controller
                             $item->tarif = 0;
                         } else {
                             $intubasiProcessedDetail[$item->no_rawat] = true;
+                        }
+                    }
+
+                    // Pemeriksaan Internal: hanya 1 per no_rawat (Dari + Ke = ambil 1 saja)
+                    $isPemeriksaanInternal = stripos($item->nm_perawatan, 'Pemeriksaan Internal') !== false;
+                    if ($isPemeriksaanInternal) {
+                        if (isset($internalProcessedDetail[$item->no_rawat])) {
+                            $item->tarif = 0;
+                        } else {
+                            $internalProcessedDetail[$item->no_rawat] = true;
+                        }
+                    }
+
+                    // Cek manipulasi mapping HD: jika kd_dokter asli di DB tidak sesuai mapping query
+                    $isVisiteHD = stripos($item->nm_perawatan, 'Visite HD') !== false;
+                    $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
+
+                    if ($isVisiteHD && isset($hdRealDoctors[$item->no_rawat]['HD04-BPJ'])) {
+                        if ($hdRealDoctors[$item->no_rawat]['HD04-BPJ'] !== trim($kdDokter)) {
+                            $item->tarif = 0;
+                        }
+                    }
+                    if ($isDokterUmumHD && isset($hdRealDoctors[$item->no_rawat]['HD02-BPJ'])) {
+                        if ($hdRealDoctors[$item->no_rawat]['HD02-BPJ'] !== trim($kdDokter)) {
+                            $item->tarif = 0;
                         }
                     }
 
@@ -3537,7 +3620,9 @@ class JMBpjsController extends Controller
                     return ($item->tgl_perawatan ?? '9999-12-31') . ' ' . ($item->jam_rawat ?? '23:59:59');
                 })->values();
 
-                $details->transform(function ($item) use ($kdDokter, $surgeryDoctors, $operators, $dpjpDoctors, $firstJagaIgdDocs, &$jagaIgdProcessedDetail) {
+                $internalProcessedDetail2 = [];
+
+                $details->transform(function ($item) use ($kdDokter, $surgeryDoctors, $operators, $dpjpDoctors, $firstJagaIgdDocs, &$jagaIgdProcessedDetail, &$internalProcessedDetail2, $hdRealDoctors) {
                     $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                     $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                     $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
@@ -3555,12 +3640,37 @@ class JMBpjsController extends Controller
                         }
                     }
 
+                    // Cek manipulasi mapping HD: jika kd_dokter asli di DB tidak sesuai mapping query
+                    $isVisiteHD = stripos($item->nm_perawatan, 'Visite HD') !== false;
+                    $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
+
+                    if ($isVisiteHD && isset($hdRealDoctors[$item->no_rawat]['HD04-BPJ'])) {
+                        if ($hdRealDoctors[$item->no_rawat]['HD04-BPJ'] !== trim($kdDokter)) {
+                            $item->tarif = 0;
+                        }
+                    }
+                    if ($isDokterUmumHD && isset($hdRealDoctors[$item->no_rawat]['HD02-BPJ'])) {
+                        if ($hdRealDoctors[$item->no_rawat]['HD02-BPJ'] !== trim($kdDokter)) {
+                            $item->tarif = 0;
+                        }
+                    }
+
                     if (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan operasi ukuran > 3 cm') !== false) {
                         $item->tarif = 180000;
                     } elseif (stripos($item->nm_perawatan, 'HISTOPATOLOGIK') !== false && stripos($item->nm_perawatan, 'Jaringan biopsi') !== false) {
                         $item->tarif = 120000;
                     } elseif (stripos($item->nm_perawatan, 'SITOLOGI') !== false && stripos($item->nm_perawatan, 'Cairan pleura') !== false) {
                         $item->tarif = 120000;
+                    }
+
+                    // Pemeriksaan Internal: hanya 1 per no_rawat (Dari + Ke = ambil 1 saja)
+                    $isPemeriksaanInternal = stripos($item->nm_perawatan, 'Pemeriksaan Internal') !== false;
+                    if ($isPemeriksaanInternal) {
+                        if (isset($internalProcessedDetail2[$item->no_rawat])) {
+                            $item->tarif = 0;
+                        } else {
+                            $internalProcessedDetail2[$item->no_rawat] = true;
+                        }
                     }
 
                     // Limit Visite/Konsultasi/Jasa Spesialis untuk Dokter Umum max 15.000 (hanya BPJS murni, bukan COB)
@@ -3592,6 +3702,14 @@ class JMBpjsController extends Controller
                     }
                     return $item;
                 });
+            }
+        }
+        // Astika tidak boleh dapat tarif tindakan jenis operasi
+        if (trim($kdDokter) === '0512010199') {
+            foreach ($details as $item) {
+                if (stripos($item->sumber, 'Operasi') !== false) {
+                    $item->tarif = 0;
+                }
             }
         }
 
@@ -3692,6 +3810,13 @@ class JMBpjsController extends Controller
             }
         }
 
+        $filterStatus = $request->get('filter_status', 'all');
+        if ($filterStatus !== 'all') {
+            $details = $details->filter(function ($item) use ($filterStatus) {
+                return stripos($item->status, $filterStatus) !== false;
+            })->values();
+        }
+
         if ($isApi) {
             return $details;
         }
@@ -3722,13 +3847,18 @@ class JMBpjsController extends Controller
         };
 
         if (stripos($namaPerawatan, 'Pasang dan Lepas DC') !== false) {
+            // Pasang dan Lepas DC di rawat jalan dokter spesialis juga dapat
+            if ($status && (stripos($status, 'Ralan') !== false || stripos($status, 'Jalan') !== false)) {
+                return false; 
+            }
+
             if ($kdDokter) {
                 $sps = $getDoctorSps($kdDokter);
                 if ($sps === 'UMUM' || $sps === '' || $sps === '-') {
-                    return false; // Dokter Umum DAPAT Jasa Medis
+                    return false; // Dokter Umum DAPAT Jasa Medis di Ranap
                 }
             }
-            return true; // Dokter Spesialis => Excluded
+            return true; // Dokter Spesialis => Excluded di Ranap
         }
 
         if (stripos($namaPerawatan, 'Pemeriksaan Internal') !== false) {
@@ -3797,8 +3927,16 @@ class JMBpjsController extends Controller
             return true; // Non-spesialis / default => Excluded
         }
 
+        // Jasa Periksa Dokter Umum / IGD BPJS Rawat Jalan => Ralan DAPAT, Ranap TIDAK
+        if (stripos($namaPerawatan, 'Jasa Periksa Dokter Umum / IGD BPJS Rawat Jalan') !== false) {
+            if ($status && (stripos($status, 'Ralan') !== false || stripos($status, 'Jalan') !== false)) {
+                return false; // Rawat Jalan => Tetap Dapat
+            }
+            return true; // Rawat Inap => Excluded
+        }
+
         foreach ($this->tindakanDikecualikan as $keyword) {
-            if (stripos($keyword, 'Pasang NGT') !== false || stripos($keyword, 'Fisioterapi TENS') !== false || stripos($keyword, 'Pemeriksaan Internal') !== false || stripos($keyword, 'Nebulizer') !== false || stripos($keyword, 'Tonometri') !== false) {
+            if (stripos($keyword, 'Pasang NGT') !== false || stripos($keyword, 'Fisioterapi TENS') !== false || stripos($keyword, 'Pemeriksaan Internal') !== false || stripos($keyword, 'Nebulizer') !== false || stripos($keyword, 'Tonometri') !== false || stripos($keyword, 'Jasa Periksa Dokter Umum') !== false) {
                 continue;
             }
             if (stripos($namaPerawatan, $keyword) !== false) {

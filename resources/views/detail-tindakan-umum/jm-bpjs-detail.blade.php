@@ -11,13 +11,30 @@
             <small>Periode: {{ $tanggl1 }} s/d {{ $tanggl2 }}</small>
         </div>
         <div class="card-body">
-            <div class="mb-3">
-                <a href="javascript:history.back()" class="btn btn-sm btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Kembali
-                </a>
-                <button type="button" class="btn btn-sm btn-default" id="copyButton">
-                    <i class="fas fa-copy"></i> Copy Table
-                </button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <a href="javascript:history.back()" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </a>
+                    <button type="button" class="btn btn-sm btn-default" id="copyButton">
+                        <i class="fas fa-copy"></i> Copy Table
+                    </button>
+                </div>
+                <div>
+                    <form action="" method="GET" class="form-inline">
+                        <input type="hidden" name="tgl1" value="{{ request('tgl1') }}">
+                        <input type="hidden" name="tgl2" value="{{ request('tgl2') }}">
+                        <input type="hidden" name="kd_dokter" value="{{ request('kd_dokter') }}">
+                        <input type="hidden" name="nm_dokter" value="{{ request('nm_dokter') }}">
+                        <input type="hidden" name="penjamin" value="{{ request('penjamin', 'all') }}">
+                        <label for="filter_status" class="mr-2">Filter Status:</label>
+                        <select name="filter_status" id="filter_status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                            <option value="all" {{ request('filter_status', 'all') == 'all' ? 'selected' : '' }}>Semua</option>
+                            <option value="Ralan" {{ request('filter_status') == 'Ralan' ? 'selected' : '' }}>Rawat Jalan</option>
+                            <option value="Ranap" {{ request('filter_status') == 'Ranap' ? 'selected' : '' }}>Rawat Inap</option>
+                        </select>
+                    </form>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-sm table-bordered table-striped text-xs" style="white-space: nowrap;" id="tableToCopy">
