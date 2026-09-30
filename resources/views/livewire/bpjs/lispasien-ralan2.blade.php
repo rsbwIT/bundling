@@ -87,16 +87,24 @@
             </form>
         </div>
         <div class="card-body table-responsive p-0" style="height: 650px;">
+            <style>
+                .table td, .table th { vertical-align: middle !important; }
+                .spill { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 0.68rem; font-weight: 700; }
+                .spill-ok { background: #dcfce7; color: #15803d; }
+                .spill-no { background: #fee2e2; color: #b91c1c; }
+                .spill-warn { background: #fef9c3; color: #854d0e; }
+                .spill-na { background: #f1f5f9; color: #94a3b8; }
+            </style>
             <table class="table table-sm table-bordered table-hover table-head-fixed p-3 text-sm">
                 <thead>
                     <tr class="text-center">
-                        <th width="25%">Pilihan</th>
+                        <th width="30%">Pilihan</th>
                         <th>RM</th>
                         <th>No.Rawat</th>
                         <th>No.Sep</th>
                         <th>Pasien</th>
                         <th>Poli</th>
-                        <th>Tgl.Sep</th>
+                        <th style="white-space: nowrap; width: 8%;">Tgl.Sep</th>
                         <th>Resume</th>
                         <th>Triase</th>
                         <th>S.O.A.P</th>
@@ -116,14 +124,12 @@
                                             Upload
                                             <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
                                                 wire:loading
-                                                wire:target="UploadInacbg('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')">
-                                            </span>
+                                                wire:target="UploadInacbg('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')"></span>
                                             <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
                                                 wire:loading
-                                                wire:target="UploadScan('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')">
-                                            </span>
+                                                wire:target="UploadScan('{{ $key }}', '{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')"></span>
                                         </button>
-                                        <div class="dropdown-menu" role="menu">
+                                        <div class="dropdown-menu shadow-sm" role="menu">
                                             <a class="dropdown-item" href="#" data-toggle="modal"
                                                 wire:click="SetmodalInacbg('{{ $key }}')"
                                                 data-target="#UploadInacbg">
@@ -141,11 +147,12 @@
                                         <button type="button"
                                             class="btn btn-block btn-outline-dark btn-xs btn-flat dropdown-toggle dropdown-icon"
                                             data-toggle="dropdown">
-                                            Khanza <span class="spinner-grow spinner-grow-sm" role="status"
+                                            Khanza
+                                            <span class="spinner-grow spinner-grow-sm" role="status"
                                                 aria-hidden="true" wire:loading
                                                 wire:target="SimpanKhanza('{{ $item->no_rawat }}', '{{ $item->no_sep }}')"></span>
                                         </button>
-                                        <div class="dropdown-menu" role="menu">
+                                        <div class="dropdown-menu shadow-sm" role="menu">
                                             <button type="button" class="dropdown-item"
                                                 wire:click="SimpanKhanza('{{ $item->no_rawat }}', '{{ $item->no_sep }}')">
                                                 <i class="nav-icon fas fa-save"></i> Simpan Khanza
@@ -174,7 +181,8 @@
                                         <button type="button"
                                             class="btn btn-block btn-outline-success btn-xs btn-flat"
                                             wire:click="GabungBerkas('{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')">
-                                            Gabung <span class="spinner-grow spinner-grow-sm" role="status"
+                                            Gabung
+                                            <span class="spinner-grow spinner-grow-sm" role="status"
                                                 aria-hidden="true" wire:loading
                                                 wire:target="GabungBerkas('{{ $item->no_rawat }}', '{{ $item->no_rkm_medis }}')"></span>
                                         </button>
@@ -217,7 +225,7 @@
                             <td>{{ $item->no_sep }}</td>
                             <td>{{ $item->nm_pasien }}</td>
                             <td>{{ $item->nm_poli }}</td>
-                            <td>{{ $item->tglsep }}</td>
+                            <td style="white-space: nowrap;">{{ $item->tglsep }}</td>
                             <td class="text-center">
                                 <input type="checkbox" disabled {{ $item->sudah_resume ? 'checked' : '' }}
                                     class="w-4 h-4 accent-green-500 cursor-not-allowed">
