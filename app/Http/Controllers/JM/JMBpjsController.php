@@ -165,6 +165,7 @@ class JMBpjsController extends Controller
 
     public function index(Request $request, $isApi = false)
     {
+        $rawDokterAnakFallback = "CASE WHEN operasi.dokter_anak IN ('', '-', '0') AND LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN (SELECT rawat_inap_dr.kd_dokter FROM rawat_inap_dr JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw JOIN dokter d2 ON rawat_inap_dr.kd_dokter = d2.kd_dokter JOIN spesialis ON d2.kd_sps = spesialis.kd_sps WHERE rawat_inap_dr.no_rawat = operasi.no_rawat AND spesialis.nm_sps LIKE '%Anak%' AND jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' LIMIT 1) ELSE operasi.dokter_anak END";
         $actionCari = '/jm-bpjs';
         $dokter = $this->cacheService->getDokter();
         $penjab = $this->cacheService->getPenjab();
@@ -676,9 +677,10 @@ class JMBpjsController extends Controller
 
             $operatedDocs = DB::table('operasi')
                 ->whereIn('operasi.no_rawat', $noRawats)
+                ->leftJoin('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
                 ->leftJoin('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
                 ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
-                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', 'operasi.dokter_anak', 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
+                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', DB::raw("($rawDokterAnakFallback) as dokter_anak"), 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
                 ->get();
 
             $operators = [];
@@ -1241,11 +1243,17 @@ class JMBpjsController extends Controller
         // 5c. Query OPERASI (dokter_anak) RANAP
         $queryOperasiAnakRanap = DB::table('operasi')
         ->select(
-            'operasi.dokter_anak as kd_dokter',
+            DB::raw("($rawDokterAnakFallback) as kd_dokter"),
             'dokter.nm_dokter',
             DB::raw("SUM(
                 CASE
-                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN 70000
+                    WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN
+                        CASE 
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 90000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 80000
+                            WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 3' THEN 70000
+                            ELSE 100000
+                        END
                     WHEN (operasi.dokter_anak IS NOT NULL AND operasi.dokter_anak != '' AND operasi.dokter_anak != '-')
                     AND (operasi.dokter_umum IS NULL OR operasi.dokter_umum = '' OR operasi.dokter_umum = '-')
                     THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.15, 2)
@@ -1259,7 +1267,7 @@ class JMBpjsController extends Controller
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-        ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
+        ->join('dokter', function($join) use ($rawDokterAnakFallback) { $join->on('dokter.kd_dokter', '=', DB::raw($rawDokterAnakFallback)); })
         ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
         ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
@@ -1277,7 +1285,7 @@ class JMBpjsController extends Controller
         })
         ->whereNotIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
         ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) $query->whereIn('operasi.dokter_anak', $kdDokter);
+            if ($kdDokter) $query->whereIn(DB::raw($rawDokterAnakFallback), $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
@@ -1304,7 +1312,7 @@ class JMBpjsController extends Controller
         ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
         ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
         ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
-        ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
+        ->join('dokter', function($join) use ($rawDokterAnakFallback) { $join->on('dokter.kd_dokter', '=', DB::raw($rawDokterAnakFallback)); })
         ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
         ->where(function($q) { $q->whereIn('penjab.kd_pj', ['BPJ', 'IAK'])->orWhere('penjab.png_jawab', 'like', '%COB%'); })
         ->whereExists(function ($sub) use ($tanggl1, $tanggl2) {
@@ -1321,7 +1329,7 @@ class JMBpjsController extends Controller
         })
         ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
         ->where(function ($query) use ($kdDokter) {
-            if ($kdDokter) $query->whereIn('operasi.dokter_anak', $kdDokter);
+            if ($kdDokter) $query->whereIn(DB::raw($rawDokterAnakFallback), $kdDokter);
         })
         ->where(function ($query) use ($cariNomor) {
                 if (!empty($cariNomor)) {
@@ -2484,6 +2492,7 @@ class JMBpjsController extends Controller
 
     public function detail(Request $request, $isApi = false)
     {
+        $rawDokterAnakFallback = "CASE WHEN operasi.dokter_anak IN ('', '-', '0') AND LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN (SELECT rawat_inap_dr.kd_dokter FROM rawat_inap_dr JOIN jns_perawatan_inap ON rawat_inap_dr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw JOIN dokter d2 ON rawat_inap_dr.kd_dokter = d2.kd_dokter JOIN spesialis ON d2.kd_sps = spesialis.kd_sps WHERE rawat_inap_dr.no_rawat = operasi.no_rawat AND spesialis.nm_sps LIKE '%Anak%' AND jns_perawatan_inap.nm_perawatan LIKE '%Visite Dokter Spesialis%' LIMIT 1) ELSE operasi.dokter_anak END";
         $kdDokter = $request->kd_dokter;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
         $tanggl2 = $request->tgl2 ?? date('Y-m-t');
@@ -2667,7 +2676,13 @@ class JMBpjsController extends Controller
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
                 DB::raw("
                     CASE
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN 70000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%persalinan spontan%' THEN
+                            CASE 
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 90000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 2' THEN 80000
+                                WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 3' THEN 70000
+                                ELSE 100000
+                            END
                         WHEN (operasi.dokter_anak IS NOT NULL AND operasi.dokter_anak != '' AND operasi.dokter_anak != '-')
                         AND (operasi.dokter_umum IS NULL OR operasi.dokter_umum = '' OR operasi.dokter_umum = '-')
                         THEN ROUND((COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) * 0.20 * 0.15, 2)
@@ -2683,7 +2698,7 @@ class JMBpjsController extends Controller
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')
-            ->where('operasi.dokter_anak', $kdDokter)
+            ->whereRaw("($rawDokterAnakFallback) = ?", [$kdDokter])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q5c);
 
@@ -2771,7 +2786,7 @@ class JMBpjsController extends Controller
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
             ->leftJoin('rvp_klaim_bpjs', 'operasi.no_rawat', '=', 'rvp_klaim_bpjs.no_rawat')->leftJoin('piutang_pasien', 'operasi.no_rawat', '=', 'piutang_pasien.no_rawat')->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->where('operasi.dokter_anak', $kdDokter)
+            ->whereRaw("($rawDokterAnakFallback) = ?", [$kdDokter])
             ->whereIn('operasi.kode_paket', ['RJ-001', 'RJ-002', 'RJ-003'])
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q5c_ralan);
@@ -3186,9 +3201,10 @@ class JMBpjsController extends Controller
 
             $operatedDocs = DB::table('operasi')
                 ->whereIn('operasi.no_rawat', $noRawats)
+                ->leftJoin('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
                 ->leftJoin('dokter', 'operasi.operator1', '=', 'dokter.kd_dokter')
                 ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
-                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', 'operasi.dokter_anak', 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
+                ->select('operasi.no_rawat', 'operasi.operator1', 'operasi.dokter_anestesi', DB::raw("($rawDokterAnakFallback) as dokter_anak"), 'operasi.dokter_umum', 'spesialis.nm_sps as operator1_nmsps')
                 ->get();
 
             $operators = [];
