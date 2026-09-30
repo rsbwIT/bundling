@@ -160,11 +160,13 @@ textarea:focus{
     cursor:pointer;
     font-size:12px;
     font-weight:600;
-    transition:.2s;
+    transition: all 0.3s ease;
 }
 
 .btn-eklaim:hover{
     opacity:.92;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .btn-primary{ background:#2563eb; }
@@ -284,13 +286,27 @@ textarea:focus{
 
 /* DARK MODE */
 body.dark-mode .eklaim-card,
-body.dark-mode .info-item,
+body.dark-mode .info-item {
+    background: #2b3035;
+    border-color: #4b545c;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
     background: #343a40;
     border-color: #4b545c;
     color: #fff;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+    background: #3f474e;
 }
 
 body.dark-mode .header-title,
@@ -1136,8 +1152,17 @@ function openResumeModal(btn, norawat) {
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+function getSwalConfig(config) {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    if(isDarkMode) {
+        config.background = '#343a40';
+        config.color = '#fff';
+    }
+    return config;
+}
+
 function hapusKlaim() {
-    Swal.fire({
+    Swal.fire(getSwalConfig({
         title: 'Hapus Klaim?',
         text: 'Anda yakin ingin menghapus klaim INACBG ini?',
         icon: 'warning',
@@ -1146,13 +1171,13 @@ function hapusKlaim() {
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Ya, Hapus!',
         cancelButtonText: 'Batal'
-    }).then((result) => {
+    })).then((result) => {
         if (result.isConfirmed) {
-            Swal.fire({
+            Swal.fire(getSwalConfig({
                 title: 'Menghapus...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading() }
-            });
+            }));
 
             $.ajax({
                 url: '{{ route("bpjs.inacbg.deleteClaim") }}',
@@ -1164,23 +1189,23 @@ function hapusKlaim() {
                 },
                 success: function(res) {
                     if (res.success) {
-                        Swal.fire({
+                        Swal.fire(getSwalConfig({
                             title: 'Terhapus!',
                             text: res.message,
                             icon: 'success',
                             timer: 2000,
                             showConfirmButton: false
-                        }).then(() => {
+                        })).then(() => {
                             location.reload();
                         });
                     } else {
-                        Swal.fire({
+                        Swal.fire(getSwalConfig({
                             title: 'Error',
                             text: res.message,
                             icon: 'error',
                             timer: 2000,
                             showConfirmButton: false
-                        });
+                        }));
                     }
                 },
                 error: function(xhr) {
@@ -1188,13 +1213,13 @@ function hapusKlaim() {
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errMsg = xhr.responseJSON.message;
                     }
-                    Swal.fire({
+                    Swal.fire(getSwalConfig({
                         title: 'Error',
                         text: errMsg,
                         icon: 'error',
                         timer: 2000,
                         showConfirmButton: false
-                    });
+                    }));
                 }
             });
         }

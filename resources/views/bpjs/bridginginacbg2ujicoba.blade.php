@@ -160,11 +160,13 @@ textarea:focus{
     cursor:pointer;
     font-size:12px;
     font-weight:600;
-    transition:.2s;
+    transition: all 0.3s ease;
 }
 
 .btn-eklaim:hover{
     opacity:.92;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .btn-primary{ background:#2563eb; }
@@ -284,13 +286,27 @@ textarea:focus{
 
 /* DARK MODE */
 body.dark-mode .eklaim-card,
-body.dark-mode .info-item,
+body.dark-mode .info-item {
+    background: #2b3035;
+    border-color: #4b545c;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
     background: #343a40;
     border-color: #4b545c;
     color: #fff;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+    background: #3f474e;
 }
 
 body.dark-mode .header-title,
