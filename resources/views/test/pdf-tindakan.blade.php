@@ -39,15 +39,22 @@
                                 <input class="custom-control-input" type="checkbox" id="checkUmum" name="jenis[]" value="umum" {{ in_array('umum', $selectedJenis) ? 'checked' : '' }}>
                                 <label for="checkUmum" class="custom-control-label font-weight-bold text-xs">Umum</label>
                             </div>
-                            <div class="custom-control custom-checkbox">
+                            <div class="custom-control custom-checkbox mr-3">
                                 <input class="custom-control-input" type="checkbox" id="checkAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
                                 <label for="checkAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" id="checkInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
+                                <label for="checkInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-12 mb-2 d-flex">
                         <button type="submit" class="btn btn-sm btn-primary flex-fill mr-1">
                             <i class="fas fa-search mr-1"></i> Tampilkan
+                        </button>
+                        <button type="button" class="btn btn-sm btn-success flex-fill mr-1" data-toggle="modal" data-target="#modalDownloadBanyakDokter">
+                            <i class="fas fa-file-pdf mr-1"></i> Cetak PDF (Banyak Dokter)
                         </button>
                         @if ($kdDokter)
                             @php
@@ -106,7 +113,7 @@
                 {{-- Ringkasan Total Box --}}
                 <div class="row mb-3">
                     @if (in_array('umum', $selectedJenis))
-                        <div class="{{ in_array('asuransi', $selectedJenis) ? 'col-md-4' : 'col-md-6' }} col-sm-12 mb-2">
+                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
                             <div class="info-box bg-info mb-0">
                                 <span class="info-box-icon"><i class="fas fa-user-check"></i></span>
                                 <div class="info-box-content">
@@ -118,7 +125,7 @@
                         </div>
                     @endif
                     @if (in_array('asuransi', $selectedJenis))
-                        <div class="{{ in_array('umum', $selectedJenis) ? 'col-md-4' : 'col-md-6' }} col-sm-12 mb-2">
+                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
                             <div class="info-box bg-warning mb-0">
                                 <span class="info-box-icon text-white"><i class="fas fa-shield-alt"></i></span>
                                 <div class="info-box-content text-white">
@@ -129,11 +136,23 @@
                             </div>
                         </div>
                     @endif
-                    <div class="{{ in_array('umum', $selectedJenis) && in_array('asuransi', $selectedJenis) ? 'col-md-4' : 'col-md-6' }} col-sm-12 mb-2">
-                        <div class="info-box bg-success mb-0">
+                    @if (in_array('inhealth', $selectedJenis))
+                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                            <div class="info-box bg-success mb-0">
+                                <span class="info-box-icon text-white"><i class="fas fa-heartbeat"></i></span>
+                                <div class="info-box-content text-white">
+                                    <span class="info-box-text">Total Tindakan INHEALTH</span>
+                                    <span class="info-box-number">Rp {{ number_format($totalInhealth) }}</span>
+                                    <span class="progress-description">Ranap: Rp {{ number_format($totalRanapInhealth) }} | Ralan: Rp {{ number_format($totalRalanInhealth) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                        <div class="info-box bg-danger mb-0">
                             <span class="info-box-icon"><i class="fas fa-calculator"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">GRAND TOTAL KESELURUHAN</span>
+                                <span class="info-box-text">GRAND TOTAL</span>
                                 <span class="info-box-number">Rp {{ number_format($grandTotal) }}</span>
                                 <span class="progress-description">Ranap: Rp {{ number_format($totalRanap) }} | Ralan: Rp {{ number_format($totalRalan) }}</span>
                             </div>
@@ -171,6 +190,7 @@
                                             <th class="text-center" width="4%">No</th>
                                             <th>No Rawat</th>
                                             <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
                                             <th>Penanggung Jawab</th>
                                             <th>Nama Tindakan</th>
                                             <th>Sumber</th>
@@ -184,6 +204,7 @@
                                                 <td class="text-center">{{ $no++ }}</td>
                                                 <td>{{ $item->no_rawat }}</td>
                                                 <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
                                                 <td>{{ $item->penjamin ?? '-' }}</td>
                                                 <td>{{ $item->nm_perawatan }}</td>
                                                 <td><span class="badge badge-warning">{{ $item->sumber }}</span></td>
@@ -191,7 +212,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-3 text-muted">
+                                                <td colspan="8" class="text-center py-3 text-muted">
                                                     Tidak ada data tindakan Rawat Inap (Ranap) Umum.
                                                 </td>
                                             </tr>
@@ -199,7 +220,7 @@
                                     </tbody>
                                     <tfoot style="background-color: #ffeeba; font-weight: bold;">
                                         <tr>
-                                            <td colspan="6" class="text-right">TOTAL RAWAT INAP (UMUM)</td>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT INAP (UMUM)</td>
                                             <td class="text-right text-dark font-weight-bold">
                                                 Rp {{ number_format($totalRanapUmum) }}
                                             </td>
@@ -231,6 +252,7 @@
                                             <th class="text-center" width="4%">No</th>
                                             <th>No Rawat</th>
                                             <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
                                             <th>Penanggung Jawab</th>
                                             <th>Nama Tindakan</th>
                                             <th>Sumber</th>
@@ -244,6 +266,7 @@
                                                 <td class="text-center">{{ $no++ }}</td>
                                                 <td>{{ $item->no_rawat }}</td>
                                                 <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
                                                 <td>{{ $item->penjamin ?? '-' }}</td>
                                                 <td>{{ $item->nm_perawatan }}</td>
                                                 <td><span class="badge badge-info">{{ $item->sumber }}</span></td>
@@ -251,7 +274,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-3 text-muted">
+                                                <td colspan="8" class="text-center py-3 text-muted">
                                                     Tidak ada data tindakan Rawat Jalan (Ralan) Umum.
                                                 </td>
                                             </tr>
@@ -259,7 +282,7 @@
                                     </tbody>
                                     <tfoot style="background-color: #bee5eb; font-weight: bold;">
                                         <tr>
-                                            <td colspan="6" class="text-right">TOTAL RAWAT JALAN (UMUM)</td>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT JALAN (UMUM)</td>
                                             <td class="text-right text-info font-weight-bold">
                                                 Rp {{ number_format($totalRalanUmum) }}
                                             </td>
@@ -301,6 +324,7 @@
                                             <th class="text-center" width="4%">No</th>
                                             <th>No Rawat</th>
                                             <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
                                             <th>Nama Asuransi / Penjamin</th>
                                             <th>Nama Tindakan</th>
                                             <th>Sumber</th>
@@ -314,6 +338,7 @@
                                                 <td class="text-center">{{ $no++ }}</td>
                                                 <td>{{ $item->no_rawat }}</td>
                                                 <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
                                                 <td><span class="badge badge-secondary">{{ $item->penjamin ?? '-' }}</span></td>
                                                 <td>{{ $item->nm_perawatan }}</td>
                                                 <td><span class="badge badge-warning">{{ $item->sumber }}</span></td>
@@ -321,7 +346,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-3 text-muted">
+                                                <td colspan="8" class="text-center py-3 text-muted">
                                                     Tidak ada data tindakan Rawat Inap (Ranap) Asuransi.
                                                 </td>
                                             </tr>
@@ -329,7 +354,7 @@
                                     </tbody>
                                     <tfoot style="background-color: #ffd6b3; font-weight: bold;">
                                         <tr>
-                                            <td colspan="6" class="text-right">TOTAL RAWAT INAP (ASURANSI)</td>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT INAP (ASURANSI)</td>
                                             <td class="text-right text-dark font-weight-bold">
                                                 Rp {{ number_format($totalRanapAsuransi) }}
                                             </td>
@@ -361,6 +386,7 @@
                                             <th class="text-center" width="4%">No</th>
                                             <th>No Rawat</th>
                                             <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
                                             <th>Nama Asuransi / Penjamin</th>
                                             <th>Nama Tindakan</th>
                                             <th>Sumber</th>
@@ -374,6 +400,7 @@
                                                 <td class="text-center">{{ $no++ }}</td>
                                                 <td>{{ $item->no_rawat }}</td>
                                                 <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
                                                 <td><span class="badge badge-secondary">{{ $item->penjamin ?? '-' }}</span></td>
                                                 <td>{{ $item->nm_perawatan }}</td>
                                                 <td><span class="badge badge-primary">{{ $item->sumber }}</span></td>
@@ -381,7 +408,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-3 text-muted">
+                                                <td colspan="8" class="text-center py-3 text-muted">
                                                     Tidak ada data tindakan Rawat Jalan (Ralan) Asuransi.
                                                 </td>
                                             </tr>
@@ -389,7 +416,7 @@
                                     </tbody>
                                     <tfoot style="background-color: #b8daff; font-weight: bold;">
                                         <tr>
-                                            <td colspan="6" class="text-right">TOTAL RAWAT JALAN (ASURANSI)</td>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT JALAN (ASURANSI)</td>
                                             <td class="text-right text-primary font-weight-bold">
                                                 Rp {{ number_format($totalRalanAsuransi) }}
                                             </td>
@@ -400,7 +427,122 @@
                         </div>
                     </div>
                 @endif
+                
+                {{-- 3. TABEL INHEALTH --}}
+                @if(in_array('inhealth', $selectedJenis))
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold"><i class="fas fa-heartbeat mr-2"></i>Tindakan INHEALTH ({{ count($detailsRanapInhealth) + count($detailsRalanInhealth) }} Tindakan)</h6>
+                            <div>
+                                <span class="badge badge-light text-success mr-2">Ranap: Rp {{ number_format($totalRanapInhealth) }}</span>
+                                <span class="badge badge-light text-success">Ralan: Rp {{ number_format($totalRalanInhealth) }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {{-- 3.A. RAWAT INAP INHEALTH --}}
+                            <div class="bg-light p-2 border-bottom font-weight-bold text-success text-xs">
+                                A. Rawat Inap (Ranap) - Inhealth <span class="badge badge-success ml-1">{{ count($detailsRanapInhealth) }} Data</span>
+                                <button type="button" class="btn btn-xs btn-outline-success float-right" onclick="copyTable('tableRanapInhealth')" style="padding: 0px 5px;"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-bordered table-hover table-sm text-xs mb-0" id="tableRanapInhealth">
+                                    <thead class="thead-light sticky-top">
+                                        <tr>
+                                            <th width="5%" class="text-center">No</th>
+                                            <th>No. Rawat</th>
+                                            <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
+                                            <th>Nama Asuransi / Penjamin</th>
+                                            <th>Nama Tindakan</th>
+                                            <th>Sumber</th>
+                                            <th class="text-right">Tarif (Rp)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php $no = 1; @endphp
+                                        @forelse ($detailsRanapInhealth as $item)
+                                            <tr>
+                                                <td class="text-center">{{ $no++ }}</td>
+                                                <td>{{ $item->no_rawat }}</td>
+                                                <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
+                                                <td><span class="badge badge-secondary">{{ $item->penjamin ?? '-' }}</span></td>
+                                                <td>{{ $item->nm_perawatan }}</td>
+                                                <td><span class="badge badge-primary">{{ $item->sumber }}</span></td>
+                                                <td class="text-right font-weight-bold">{{ number_format($item->tarif) }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-3 text-muted">
+                                                    Tidak ada data tindakan Rawat Inap (Ranap) Inhealth.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                    <tfoot style="background-color: #d4edda; font-weight: bold;">
+                                        <tr>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT INAP (INHEALTH)</td>
+                                            <td class="text-right text-success font-weight-bold">
+                                                Rp {{ number_format($totalRanapInhealth) }}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
 
+                            {{-- 3.B. RAWAT JALAN INHEALTH --}}
+                            <div class="bg-light p-2 border-bottom border-top font-weight-bold text-success text-xs mt-2">
+                                B. Rawat Jalan (Ralan) - Inhealth <span class="badge badge-success ml-1">{{ count($detailsRalanInhealth) }} Data</span>
+                                <button type="button" class="btn btn-xs btn-outline-success float-right" onclick="copyTable('tableRalanInhealth')" style="padding: 0px 5px;"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-bordered table-hover table-sm text-xs mb-0" id="tableRalanInhealth">
+                                    <thead class="thead-light sticky-top">
+                                        <tr>
+                                            <th width="5%" class="text-center">No</th>
+                                            <th>No. Rawat</th>
+                                            <th>Nama Pasien</th>
+                                            <th>Dokter / Petugas</th>
+                                            <th>Nama Asuransi / Penjamin</th>
+                                            <th>Nama Tindakan</th>
+                                            <th>Sumber</th>
+                                            <th class="text-right">Tarif (Rp)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php $no = 1; @endphp
+                                        @forelse ($detailsRalanInhealth as $item)
+                                            <tr>
+                                                <td class="text-center">{{ $no++ }}</td>
+                                                <td>{{ $item->no_rawat }}</td>
+                                                <td>{{ $item->nm_pasien }}</td>
+                                                <td>{{ $item->nm_dokter_petugas ?? '-' }}</td>
+                                                <td><span class="badge badge-secondary">{{ $item->penjamin ?? '-' }}</span></td>
+                                                <td>{{ $item->nm_perawatan }}</td>
+                                                <td><span class="badge badge-primary">{{ $item->sumber }}</span></td>
+                                                <td class="text-right font-weight-bold">{{ number_format($item->tarif) }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-3 text-muted">
+                                                    Tidak ada data tindakan Rawat Jalan (Ralan) Inhealth.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                    <tfoot style="background-color: #d4edda; font-weight: bold;">
+                                        <tr>
+                                            <td colspan="7" class="text-right">TOTAL RAWAT JALAN (INHEALTH)</td>
+                                            <td class="text-right text-success font-weight-bold">
+                                                Rp {{ number_format($totalRalanInhealth) }}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="alert alert-light border text-center py-5">
                     <i class="fas fa-user-md fa-3x text-secondary mb-3"></i>
@@ -408,6 +550,81 @@
                     <p class="text-muted text-xs mb-0">Pilih dokter/petugas, tentukan rentang tanggal, dan pilih penjamin (Umum / Asuransi) untuk melihat tabel rincian serta mencetak laporan PDF.</p>
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- Modal Download PDF Banyak Dokter --}}
+    <div class="modal fade" id="modalDownloadBanyakDokter" tabindex="-1" role="dialog" aria-labelledby="modalDownloadBanyakDokterLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form action="{{ url('/pdf-tindakan') }}" method="GET" target="_blank">
+                    <input type="hidden" name="filter_submitted" value="1">
+                    <input type="hidden" name="export" value="pdf">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold" id="modalDownloadBanyakDokterLabel">Cetak PDF Banyak Dokter</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="font-weight-bold text-xs">Tanggal Awal:</label>
+                                <input type="date" name="tgl1" class="form-control form-control-sm" value="{{ $tanggl1 }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="font-weight-bold text-xs">Tanggal Akhir:</label>
+                                <input type="date" name="tgl2" class="form-control form-control-sm" value="{{ $tanggl2 }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="font-weight-bold text-xs d-block">Pilihan Penjamin / Tindakan:</label>
+                            <div class="d-flex align-items-center pt-1">
+                                <div class="custom-control custom-checkbox mr-3">
+                                    <input class="custom-control-input" type="checkbox" id="modalCheckUmum" name="jenis[]" value="umum" {{ in_array('umum', $selectedJenis) ? 'checked' : '' }}>
+                                    <label for="modalCheckUmum" class="custom-control-label font-weight-bold text-xs">Umum</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mr-3">
+                                    <input class="custom-control-input" type="checkbox" id="modalCheckAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
+                                    <label for="modalCheckAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" id="modalCheckInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
+                                    <label for="modalCheckInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <label class="font-weight-bold text-xs d-block mb-2">Pilih Dokter / Petugas (Bisa Lebih Dari Satu):</label>
+                        <div class="d-flex mb-2">
+                            <button type="button" class="btn btn-xs btn-outline-primary mr-2" id="btnSelectAllDokter">Pilih Semua</button>
+                            <button type="button" class="btn btn-xs btn-outline-danger" id="btnDeselectAllDokter">Hapus Semua</button>
+                        </div>
+                        <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            <div class="row">
+                                @foreach ($listDokter as $doc)
+                                    <div class="col-md-6 mb-2">
+                                        <div class="custom-control custom-checkbox">
+                                            <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
+                                            <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
+                                                {{ $doc['nama'] }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -421,6 +638,52 @@
                     allowClear: true
                 });
             }
+
+            $('#btnSelectAllDokter').on('click', function() {
+                $('.chk-dokter').prop('checked', true);
+            });
+            $('#btnDeselectAllDokter').on('click', function() {
+                $('.chk-dokter').prop('checked', false);
+            });
+
+            $('#modalDownloadBanyakDokter form').on('submit', function(e) {
+                e.preventDefault();
+                let form = $(this);
+                let tgl1 = form.find('input[name="tgl1"]').val();
+                let tgl2 = form.find('input[name="tgl2"]').val();
+                
+                let jenis = [];
+                form.find('input[name="jenis[]"]:checked').each(function() {
+                    jenis.push($(this).val());
+                });
+                
+                let dokters = [];
+                form.find('input[name="kd_dokter[]"]:checked').each(function() {
+                    dokters.push($(this).val());
+                });
+                
+                if (dokters.length === 0) {
+                    alert('Silakan pilih minimal satu dokter.');
+                    return;
+                }
+                
+                let jenisQuery = '';
+                jenis.forEach(function(j) { jenisQuery += '&jenis[]=' + j; });
+                
+                let delay = 0;
+                dokters.forEach(function(kd_dokter) {
+                    let url = "{{ url('/pdf-tindakan') }}?filter_submitted=1&export=pdf&action=download&kd_dokter=" + kd_dokter + "&tgl1=" + tgl1 + "&tgl2=" + tgl2 + jenisQuery;
+                    setTimeout(function() {
+                        let iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = url;
+                        document.body.appendChild(iframe);
+                    }, delay);
+                    delay += 800; // sedikit diperlambat agar server tidak kwalahan dan download terproses
+                });
+                
+                $('#modalDownloadBanyakDokter').modal('hide');
+            });
         });
 
         function copyTable(tableId) {

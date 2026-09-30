@@ -408,22 +408,182 @@
         </table>
     @endif
 
+    {{-- ====================================================================== --}}
+    {{-- PINDAH HALAMAN JIKA ADA INHEALTH               --}}
+    {{-- ====================================================================== --}}
+    @if((in_array('umum', $selectedJenis) || in_array('asuransi', $selectedJenis)) && in_array('inhealth', $selectedJenis))
+        <div class="page-break"></div>
+    @endif
+
+
+    {{-- ====================================================================== --}}
+    {{-- BAGIAN III: TINDAKAN INHEALTH (RAWAT INAP DAHULU, KEMUDIAN RAWAT JALAN)  --}}
+    {{-- ====================================================================== --}}
+    @if(in_array('inhealth', $selectedJenis))
+        {{-- Kop Resmi RS --}}
+        <div class="header">
+            <table style="border: none; width: 100%; margin-bottom: 2px;">
+                <tr style="border: none;">
+                    <td style="border: none; width: 65px; text-align: center; vertical-align: middle;">
+                        @if(isset($getSetting) && $getSetting->logo)
+                            <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="50" height="50">
+                        @endif
+                    </td>
+                    <td style="border: none; text-align: center; vertical-align: middle;">
+                        <h2>{{ $getSetting->nama_instansi ?? 'RUMAH SAKIT' }}</h2>
+                        <p>{{ $getSetting->alamat_instansi ?? '' }}, {{ $getSetting->kabupaten ?? '' }}, {{ $getSetting->propinsi ?? '' }}</p>
+                        <p>{{ $getSetting->kontak ?? '' }} | {{ $getSetting->email ?? '' }}</p>
+                    </td>
+                    <td style="border: none; width: 65px;"></td>
+                </tr>
+            </table>
+            <div class="kop-divider"></div>
+            <h3 class="doc-title">RINCIAN DETAIL TINDAKAN - INHEALTH</h3>
+        </div>
+
+        {{-- Meta Informasi Inhealth --}}
+        <table class="meta-table">
+            <tr>
+                <td width="16%" class="font-bold">Nama Dokter/Petugas</td>
+                <td width="2%">:</td>
+                <td width="47%">{{ $nmDokter }} ({{ $kdDokter }})</td>
+                <td width="15%" class="font-bold">Tanggal Cetak</td>
+                <td width="2%">:</td>
+                <td width="18%">{{ date('d-m-Y H:i') }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold">Periode Tindakan</td>
+                <td>:</td>
+                <td>{{ date('d-m-Y', strtotime($tanggl1)) }} s/d {{ date('d-m-Y', strtotime($tanggl2)) }}</td>
+                <td class="font-bold">Jenis Penjamin</td>
+                <td>:</td>
+                <td>INHEALTH</td>
+            </tr>
+            <tr>
+                <td class="font-bold">Total Tindakan Inhealth</td>
+                <td>:</td>
+                <td colspan="3">
+                    {{ count($detailsRanapInhealth) + count($detailsRalanInhealth) }} tindakan 
+                    (Ranap: {{ count($detailsRanapInhealth) }} | Ralan: {{ count($detailsRalanInhealth) }})
+                </td>
+            </tr>
+        </table>
+
+        {{-- 3.A. TABEL RAWAT INAP (RANAP) - INHEALTH --}}
+        <div class="table-sub-title">1. Tindakan Rawat Inap (Ranap) - INHEALTH ({{ count($detailsRanapInhealth) }} Tindakan)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="4%">No</th>
+                    <th width="16%">No. Rawat</th>
+                    <th width="20%">Nama Pasien</th>
+                    <th width="14%">Nama Asuransi / Penjamin</th>
+                    <th width="22%">Nama Tindakan</th>
+                    <th width="12%">Sumber</th>
+                    <th width="12%" class="text-right">Tarif (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $no = 1; @endphp
+                @forelse($detailsRanapInhealth as $item)
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td>{{ $item->no_rawat }}</td>
+                        <td>{{ $item->nm_pasien }}</td>
+                        <td>{{ $item->penjamin ?? '-' }}</td>
+                        <td>{{ $item->nm_perawatan }}</td>
+                        <td>{{ $item->sumber }}</td>
+                        <td class="text-right">{{ number_format($item->tarif, 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 8px;">Tidak ada data tindakan Rawat Inap (Ranap) Inhealth.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            <tfoot>
+                <tr class="footer-subtotal">
+                    <td colspan="6" class="text-right font-bold">SUBTOTAL RAWAT INAP (INHEALTH) :</td>
+                    <td class="text-right font-bold">{{ number_format($totalRanapInhealth, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{-- 3.B. TABEL RAWAT JALAN (RALAN) - INHEALTH --}}
+        <div class="table-sub-title">2. Tindakan Rawat Jalan (Ralan) - INHEALTH ({{ count($detailsRalanInhealth) }} Tindakan)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="4%">No</th>
+                    <th width="16%">No. Rawat</th>
+                    <th width="20%">Nama Pasien</th>
+                    <th width="14%">Nama Asuransi / Penjamin</th>
+                    <th width="22%">Nama Tindakan</th>
+                    <th width="12%">Sumber</th>
+                    <th width="12%" class="text-right">Tarif (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $no = 1; @endphp
+                @forelse($detailsRalanInhealth as $item)
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td>{{ $item->no_rawat }}</td>
+                        <td>{{ $item->nm_pasien }}</td>
+                        <td>{{ $item->penjamin ?? '-' }}</td>
+                        <td>{{ $item->nm_perawatan }}</td>
+                        <td>{{ $item->sumber }}</td>
+                        <td class="text-right">{{ number_format($item->tarif, 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 8px;">Tidak ada data tindakan Rawat Jalan (Ralan) Inhealth.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            <tfoot>
+                <tr class="footer-subtotal">
+                    <td colspan="6" class="text-right font-bold">SUBTOTAL RAWAT JALAN (INHEALTH) :</td>
+                    <td class="text-right font-bold">{{ number_format($totalRalanInhealth, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{-- TOTAL KESELURUHAN INHEALTH --}}
+        <table class="grand-total-table" style="margin-top: 5px;">
+            <tr style="background-color: #f2f2f2;">
+                <td width="70%" class="text-right">TOTAL TINDAKAN INHEALTH (Ranap: Rp {{ number_format($totalRanapInhealth, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanInhealth, 0, ',', '.') }}) :</td>
+                <td width="30%" class="text-right">Rp {{ number_format($totalInhealth, 0, ',', '.') }}</td>
+            </tr>
+        </table>
+    @endif
+
 
     {{-- ====================================================================== --}}
     {{-- REKAPITULASI GRAND TOTAL AKHIR (JIKA KEDUA PENJAMIN DITAMPILKAN)        --}}
     {{-- ====================================================================== --}}
-    @if(in_array('umum', $selectedJenis) && in_array('asuransi', $selectedJenis))
+    @if(count($selectedJenis) > 1)
         <table class="grand-total-table" style="margin-top: 15px;">
-            <tr>
-                <td width="70%" class="text-right font-bold">TOTAL TINDAKAN UMUM (Ranap: Rp {{ number_format($totalRanapUmum, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanUmum, 0, ',', '.') }}) :</td>
-                <td width="30%" class="text-right font-bold">Rp {{ number_format($totalUmum, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td class="text-right font-bold">TOTAL TINDAKAN ASURANSI (Ranap: Rp {{ number_format($totalRanapAsuransi, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanAsuransi, 0, ',', '.') }}) :</td>
-                <td class="text-right font-bold">Rp {{ number_format($totalAsuransi, 0, ',', '.') }}</td>
-            </tr>
+            @if(in_array('umum', $selectedJenis))
+                <tr>
+                    <td width="70%" class="text-right font-bold">TOTAL TINDAKAN UMUM (Ranap: Rp {{ number_format($totalRanapUmum, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanUmum, 0, ',', '.') }}) :</td>
+                    <td width="30%" class="text-right font-bold">Rp {{ number_format($totalUmum, 0, ',', '.') }}</td>
+                </tr>
+            @endif
+            @if(in_array('asuransi', $selectedJenis))
+                <tr>
+                    <td class="text-right font-bold">TOTAL TINDAKAN ASURANSI (Ranap: Rp {{ number_format($totalRanapAsuransi, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanAsuransi, 0, ',', '.') }}) :</td>
+                    <td class="text-right font-bold">Rp {{ number_format($totalAsuransi, 0, ',', '.') }}</td>
+                </tr>
+            @endif
+            @if(in_array('inhealth', $selectedJenis))
+                <tr>
+                    <td class="text-right font-bold">TOTAL TINDAKAN INHEALTH (Ranap: Rp {{ number_format($totalRanapInhealth, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanInhealth, 0, ',', '.') }}) :</td>
+                    <td class="text-right font-bold">Rp {{ number_format($totalInhealth, 0, ',', '.') }}</td>
+                </tr>
+            @endif
             <tr style="background-color: #e5e5e5;">
-                <td class="text-right font-bold" style="font-size: 9pt;">GRAND TOTAL KESELURUHAN (UMUM + ASURANSI) :</td>
+                <td class="text-right font-bold" style="font-size: 9pt;">GRAND TOTAL KESELURUHAN ({{ strtoupper($labelJenis) }}) :</td>
                 <td class="text-right font-bold" style="font-size: 9pt;">
                     Rp {{ number_format($grandTotal, 0, ',', '.') }}
                 </td>
