@@ -337,7 +337,7 @@ textarea:focus{
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('bpjs.inacbg.simpan') }}">
+            <form method="POST" action="{{ route('bpjs.inacbg.simpan') }}" onsubmit="return disableSubmitButton(this)">
                 @csrf
 
                 <input type="hidden" name="no_rawat" value="{{ $pasien->no_rawat }}">
@@ -714,6 +714,18 @@ textarea:focus{
 <div id="modalContainer"></div>
 
 <script>
+function disableSubmitButton(form) {
+    let btn = form.querySelector('button[type="submit"]');
+    if(btn) {
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btn.style.cursor = 'not-allowed';
+            btn.disabled = true;
+        }, 0);
+    }
+    return true;
+}
+
 function openTriaseModal(btn, norawat) {
     var originalHtml = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1116,11 +1128,23 @@ function hapusKlaim() {
                 },
                 success: function(res) {
                     if (res.success) {
-                        Swal.fire('Terhapus!', res.message, 'success').then(() => {
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: res.message,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
                             location.reload();
                         });
                     } else {
-                        Swal.fire('Error', res.message, 'error');
+                        Swal.fire({
+                            title: 'Error',
+                            text: res.message,
+                            icon: 'error',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     }
                 },
                 error: function(xhr) {
@@ -1128,7 +1152,13 @@ function hapusKlaim() {
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errMsg = xhr.responseJSON.message;
                     }
-                    Swal.fire('Error', errMsg, 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: errMsg,
+                        icon: 'error',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 }
             });
         }

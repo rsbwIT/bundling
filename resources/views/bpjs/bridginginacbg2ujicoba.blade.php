@@ -337,7 +337,7 @@ textarea:focus{
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('bpjs.inacbg-ujicoba.simpan') }}">
+            <form method="POST" action="{{ route('bpjs.inacbg-ujicoba.simpan') }}" onsubmit="return disableSubmitButton(this)">
                 @csrf
 
                 <input type="hidden" name="no_rawat" value="{{ $pasien->no_rawat }}">
@@ -705,6 +705,20 @@ textarea:focus{
         </div>
     </div>
 </div>
+
+<script>
+function disableSubmitButton(form) {
+    let btn = form.querySelector('button[type="submit"]');
+    if(btn) {
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btn.style.cursor = 'not-allowed';
+            btn.disabled = true;
+        }, 0);
+    }
+    return true;
+}
+</script>
 
 @if($pasien->status_lanjut == 'Ranap' && $triase)
 <!-- MODAL DATA TRIASE -->
