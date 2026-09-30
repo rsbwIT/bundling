@@ -137,19 +137,44 @@
                         {{-- BERKAS FISIOTERAPI (PALING BAWAH) --}}
                         @if (isset($getFisioData) && $getFisioData !== null)
                             <div class="card-body">
-                                <div class="card py-3 p-4" style="background-color: #f4f6f9; border: none;">
+                                <div class="card py-3 p-4 berkas-fisio-bg">
                                     <style>
+                                        .berkas-fisio-bg {
+                                            background-color: #f4f6f9;
+                                            border: none;
+                                        }
                                         .a4-container {
                                             max-width: 210mm;
                                             min-height: 297mm;
                                             padding: 15mm;
                                             margin: 0 auto;
                                             background: white;
+                                            color: #000;
                                             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                                             border: 1px solid #ddd;
                                             box-sizing: border-box;
                                             font-family: Arial, sans-serif;
                                             font-size: 14px;
+                                        }
+                                        
+                                        /* DARK MODE BERKAS FISIO */
+                                        body.dark-mode .berkas-fisio-bg {
+                                            background-color: transparent;
+                                        }
+                                        body.dark-mode .a4-container {
+                                            background: #343a40;
+                                            color: #fff;
+                                            border-color: #4b545c;
+                                            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+                                        }
+                                        /* Jika di dalam a4-container ada tabel */
+                                        body.dark-mode .a4-container table td,
+                                        body.dark-mode .a4-container table th {
+                                            border-color: #4b545c;
+                                            color: #fff;
+                                        }
+                                        body.dark-mode .fisio-table th {
+                                            background-color: #4b545c !important;
                                         }
                                     </style>
                                     <div class="a4-container">
