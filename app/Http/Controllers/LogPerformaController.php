@@ -7,14 +7,17 @@ use App\Models\LogPerforma;
 
 class LogPerformaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil top 100 log terlambat dalam 7 hari terakhir
-        $logs = LogPerforma::where('waktu_akses', '>=', now()->subDays(7))
-            ->orderBy('waktu_loading_detik', 'desc')
-            ->limit(100)
-            ->get();
+        $tgl_awal = $request->input('tgl_awal', date('Y-m-d'));
+        $tgl_akhir = $request->input('tgl_akhir', date('Y-m-d'));
 
-        return view('monitoring.performa', compact('logs'));
+        // Ambil semua data log berdasarkan rentang tanggal, urutkan dari yang paling baru
+        $logs = LogPerforma::whereDate('waktu_akses', '>=', $tgl_awal)
+            ->whereDate('waktu_akses', '<=', $tgl_akhir)
+            ->orderBy('waktu_akses', 'desc')
+            ->paginate(50);
+
+        return view('monitoring.performa', compact('logs', 'tgl_awal', 'tgl_akhir'));
     }
 }

@@ -4,8 +4,19 @@
 
 @section('content')
             <div class="card card-danger card-outline shadow-sm">
-                <div class="card-header">
-                    <h3 class="card-title font-weight-bold"><i class="fas fa-tachometer-alt text-danger mr-2"></i> Log Halaman Paling Lambat (Top 100)</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-tachometer-alt text-danger mr-2"></i> Riwayat Log Performa Halaman</h3>
+                    <form action="{{ url('/monitoring-performa') }}" method="GET" class="form-inline m-0">
+                        <div class="form-group mr-2">
+                            <label class="mr-2 text-sm">Periode:</label>
+                            <input type="date" name="tgl_awal" class="form-control form-control-sm" value="{{ $tgl_awal ?? date('Y-m-d') }}">
+                        </div>
+                        <div class="form-group mr-2">
+                            <label class="mr-2 text-sm">s.d.</label>
+                            <input type="date" name="tgl_akhir" class="form-control form-control-sm" value="{{ $tgl_akhir ?? date('Y-m-d') }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Filter</button>
+                    </form>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -32,11 +43,16 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">Belum ada halaman yang terdeteksi lambat (>1 detik)</td>
+                                    <td colspan="5" class="text-center text-muted py-4">Belum ada riwayat log performa yang tersimpan.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                <div class="card-footer clearfix">
+                    <div class="float-right">
+                        {{ $logs->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>

@@ -174,18 +174,34 @@
             <div class="modal-body p-0">
                 <div class="p-3 bg-white border-bottom shadow-sm" style="position: sticky; top: 0; z-index: 10;">
                     <form class="d-flex flex-wrap justify-content-between align-items-center w-100 m-0" onsubmit="event.preventDefault(); fetchLogs();">
-                        <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center flex-wrap gap-2 w-100 mb-2">
+                            <label class="mb-0 fw-bold text-secondary" style="font-size: 0.85rem; margin-right: 8px;"><i class="fas fa-server mr-1"></i> Layanan:</label>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownLayanan" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    -- Pilih Layanan --
+                                </button>
+                                <div class="dropdown-menu p-2 shadow" aria-labelledby="dropdownLayanan" style="max-height: 250px; overflow-y: auto; min-width: 250px;" onclick="event.stopPropagation();">
+                                    @foreach($services as $service)
+                                    <div class="custom-control custom-checkbox mb-2">
+                                        <input type="checkbox" class="custom-control-input filter-layanan-cb" id="cb-{{ $service['id'] }}" value="{{ $service['id'] }}">
+                                        <label class="custom-control-label text-sm" style="cursor: pointer;" for="cb-{{ $service['id'] }}">{{ $service['name'] }}</label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center flex-wrap gap-2 w-100">
                             <label for="filterTanggalAwal" class="mb-0 fw-bold text-secondary" style="font-size: 0.85rem; margin-right: 8px;"><i class="far fa-calendar-alt mr-1"></i> Periode:</label>
                             <input type="date" id="filterTanggalAwal" class="form-control form-control-sm shadow-none" style="width: auto; margin-right: 5px;">
                             <span class="text-muted" style="margin-right: 5px;">s/d</span>
                             <input type="date" id="filterTanggalAkhir" class="form-control form-control-sm shadow-none" style="width: auto; margin-right: 10px;">
                             <button type="submit" class="btn btn-sm btn-primary shadow-sm px-3" style="border-radius: 20px;"><i class="fas fa-search mr-1"></i> Cari</button>
                         </div>
-                        <div class="mt-2 mt-md-0">
+                        <div class="mt-2 mt-md-0 d-flex align-items-center">
                             <a href="javascript:void(0)" onclick="cetakPdf()" class="btn btn-sm btn-danger shadow-sm px-3 mr-2" style="border-radius: 20px;">
                                 <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
                             </a>
-                            <button type="button" class="btn btn-sm btn-light border shadow-sm px-3" style="border-radius: 20px;" onclick="document.getElementById('filterTanggalAwal').value=''; document.getElementById('filterTanggalAkhir').value=''; fetchLogs();">
+                            <button type="button" class="btn btn-sm btn-light border shadow-sm px-3" style="border-radius: 20px;" onclick="document.querySelectorAll('.filter-layanan-cb').forEach(cb => cb.checked = false); document.getElementById('filterTanggalAwal').value=''; document.getElementById('filterTanggalAkhir').value=''; fetchLogs();">
                                 <i class="fas fa-undo-alt mr-1"></i> Reset
                             </button>
                         </div>
@@ -425,6 +441,9 @@
             document.getElementById('filterTanggalAkhir').value = today;
         }
         
+        // Tidak menggunakan Select2 karena sering bermasalah di dalam Modal tanpa styling khusus
+        // Kita menggunakan Bootstrap Dropdown + Checkboxes
+        
         fetchLogs();
         // Coba Bootstrap 4 dulu, fallback ke manual
         if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
@@ -461,11 +480,19 @@
     function cetakPdf() {
         const tglAwal = document.getElementById('filterTanggalAwal').value;
         const tglAkhir = document.getElementById('filterTanggalAkhir').value;
+        let layanan = [];
+        document.querySelectorAll('.filter-layanan-cb:checked').forEach(cb => {
+            layanan.push(cb.value);
+        });
+        
         let url = "{{ url('/bpjs/monitoring-signal/pdf') }}";
         
         let params = new URLSearchParams();
         if (tglAwal) params.append('tanggal_awal', tglAwal);
         if (tglAkhir) params.append('tanggal_akhir', tglAkhir);
+        if (layanan.length > 0) {
+            layanan.forEach(val => params.append('layanan[]', val));
+        }
         
         if(params.toString()) {
             url += '?' + params.toString();
@@ -479,6 +506,12 @@
         const tbody = document.getElementById('tbodyRiwayatGangguan');
         const filterTanggalAwal = document.getElementById('filterTanggalAwal').value;
         const filterTanggalAkhir = document.getElementById('filterTanggalAkhir').value;
+        
+        let filterLayanan = [];
+        document.querySelectorAll('.filter-layanan-cb:checked').forEach(cb => {
+            filterLayanan.push(cb.value);
+        });
+        
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>';
         
         try {
@@ -486,6 +519,10 @@
             let params = new URLSearchParams();
             if (filterTanggalAwal) params.append('tanggal_awal', filterTanggalAwal);
             if (filterTanggalAkhir) params.append('tanggal_akhir', filterTanggalAkhir);
+            
+            if (filterLayanan.length > 0) {
+                filterLayanan.forEach(val => params.append('layanan[]', val));
+            }
             
             if(params.toString()) {
                 url += '?' + params.toString();

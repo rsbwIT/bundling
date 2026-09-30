@@ -189,6 +189,10 @@ class MonitoringSignalController extends Controller
         $query = DB::table('log_monitoring_bpjs')
             ->orderBy('waktu_gangguan', 'desc');
 
+        if ($request->has('layanan') && !empty($request->layanan)) {
+            $query->whereIn('service_id', (array)$request->layanan);
+        }
+
         if ($request->has('tanggal_awal') && $request->tanggal_awal != '') {
             $query->whereDate('waktu_gangguan', '>=', $request->tanggal_awal);
             
@@ -209,8 +213,13 @@ class MonitoringSignalController extends Controller
     {
         $tanggal_awal = $request->input('tanggal_awal', date('Y-m-d'));
         $tanggal_akhir = $request->input('tanggal_akhir', date('Y-m-d'));
+        $layanan = $request->input('layanan');
 
         $query = DB::table('log_monitoring_bpjs')->orderBy('waktu_gangguan', 'desc');
+
+        if ($request->filled('layanan') && !empty($request->layanan)) {
+            $query->whereIn('service_id', (array)$request->layanan);
+        }
 
         if ($request->filled('tanggal_awal')) {
             $query->whereDate('waktu_gangguan', '>=', $tanggal_awal);

@@ -107,6 +107,26 @@
             Made with <i class="fas fa-hospital text-red-500"></i> rsbumiwaras.co.id
         </div>
     </footer>
+        <script>
+            // Auto reload jika dianggurin 3 menit (180000 ms)
+            let idleTimeout;
+            const idleDuration = 3 * 60 * 1000; // 3 menit
+
+            function resetIdleTimer() {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    // Refresh halaman ke kondisi awal
+                    window.location.href = "{{ route('antrian-farmasi.index') }}";
+                }, idleDuration);
+            }
+
+            // Dengarkan interaksi user (layar sentuh, mouse, keyboard)
+            window.onload = resetIdleTimer;
+            document.onmousemove = resetIdleTimer;
+            document.onkeypress = resetIdleTimer;
+            document.ontouchstart = resetIdleTimer;
+            document.onclick = resetIdleTimer;
+        </script>
 </body>
 
 </html>
