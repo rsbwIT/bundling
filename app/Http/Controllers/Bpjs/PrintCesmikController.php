@@ -25,6 +25,15 @@ class PrintCesmikController extends Controller
 
         PrintPdfService::printPdf($noRawat, $cariNoSep);
 
+        // Gabung berkas secara otomatis setelah menyimpan PDF
+        $getpasien = DB::table('reg_periksa')
+            ->select('no_rkm_medis')
+            ->where('no_rawat', '=', $noRawat)
+            ->first();
+            
+        if ($getpasien) {
+            \App\Services\GabungPdfService::printPdf($noRawat, $getpasien->no_rkm_medis);
+        }
         Session::flash('successSaveINACBG', 'PDF');
         $redirectUrl = url('/casemix-home-cari');
         $csrfToken = Session::token();
