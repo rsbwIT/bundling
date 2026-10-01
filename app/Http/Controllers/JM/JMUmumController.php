@@ -514,6 +514,68 @@ class JMUmumController extends Controller
         })
         ->groupBy('operasi.operator1', 'dokter.nm_dokter');
 
+        // 5c. Query OPERASI (dokter_anak)
+        $queryOperasiAnak = DB::table('operasi')
+        ->select(
+            'operasi.dokter_anak as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(operasi.biayadokter_anak) as total_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'operasi.dokter_anak', '=', 'dokter.kd_dokter')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) {
+                $query->whereIn('operasi.dokter_anak', $kdDokter);
+            }
+        })
+        ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                        $q->where('reg_periksa.no_rawat', 'like', "%{$cariNomor}%")
+                          ->orWhere('pasien.no_rkm_medis', 'like', "%{$cariNomor}%")
+                          ->orWhere('pasien.nm_pasien', 'like', "%{$cariNomor}%");
+                    });
+                }
+        })
+        ->groupBy('operasi.dokter_anak', 'dokter.nm_dokter');
+
+        // 5d. Query OPERASI (dokter_umum)
+        $queryOperasiUmum = DB::table('operasi')
+        ->select(
+            'operasi.dokter_umum as kd_dokter',
+            'dokter.nm_dokter',
+            DB::raw("SUM(operasi.biaya_dokter_umum) as total_ranap")
+        )
+        ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+        ->join('dokter', 'operasi.dokter_umum', '=', 'dokter.kd_dokter')
+        ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+        ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+        ->where('billing.no', '=', 'No.Nota')
+        ->where('penjab.kd_pj', 'UMU')
+        ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+        ->where(function ($query) use ($kdDokter) {
+            if ($kdDokter) {
+                $query->whereIn('operasi.dokter_umum', $kdDokter);
+            }
+        })
+        ->where(function ($query) use ($cariNomor) {
+                if (!empty($cariNomor)) {
+                    $query->where(function($q) use ($cariNomor) {
+                        $q->where('reg_periksa.no_rawat', 'like', "%{$cariNomor}%")
+                          ->orWhere('pasien.no_rkm_medis', 'like', "%{$cariNomor}%")
+                          ->orWhere('pasien.nm_pasien', 'like', "%{$cariNomor}%");
+                    });
+                }
+        })
+        ->groupBy('operasi.dokter_umum', 'dokter.nm_dokter');
+
         // 5b. Query OPERASI (dokter_anestesi)
         $queryOperasiAnestesi = DB::table('operasi')
         ->select(
@@ -781,6 +843,8 @@ class JMUmumController extends Controller
             ->unionAll($queryRanapDrPr)
             ->unionAll($queryOperasi)
             ->unionAll($queryOperasiAnestesi)
+            ->unionAll($queryOperasiAnak)
+            ->unionAll($queryOperasiUmum)
             ->unionAll($queryRanapJlDr)
             ->unionAll($queryRanapJlDrPr)
             ->unionAll($queryRadiologiPerujuk)
@@ -1570,6 +1634,38 @@ class JMUmumController extends Controller
             ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
             ->where('operasi.operator1', $kdDokter)->get();
         $details = $details->merge($q5);
+
+        // 5c. OPERASI (dokter_anak)
+        $q5c = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
+                DB::raw("'Operasi - Dokter Anak' as sumber"), DB::raw("'Ranap' as status"), 'operasi.biayadokter_anak as tarif')
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('operasi.dokter_anak', $kdDokter)
+            ->get();
+        $details = $details->merge($q5c);
+
+        // 5d. OPERASI (dokter_umum)
+        $q5d = DB::table('operasi')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'paket_operasi.nm_perawatan',
+                DB::raw("'Operasi - Dokter Umum' as sumber"), DB::raw("'Ranap' as status"), 'operasi.biaya_dokter_umum as tarif')
+            ->join('reg_periksa', 'operasi.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('paket_operasi', 'operasi.kode_paket', '=', 'paket_operasi.kode_paket')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->where('billing.no', '=', 'No.Nota')
+            ->where('penjab.kd_pj', 'UMU')
+            ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
+            ->where('operasi.dokter_umum', $kdDokter)
+            ->get();
+        $details = $details->merge($q5d);
 
         // 5b. OPERASI (dokter_anestesi)
         $q5b = DB::table('operasi')
