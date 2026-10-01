@@ -10,6 +10,14 @@ class DataInacbg extends Controller
 {
     function Inacbg(Request $request){
         $cariNomor = $request->cariNomor;
+        $noRawat = $cariNomor;
+        if (strlen($cariNomor) > 15) {
+            $sep = DB::table('bridging_sep')->where('no_sep', $cariNomor)->first();
+            if ($sep) {
+                $noRawat = $sep->no_rawat;
+            }
+        }
+
         $dataInacbg = DB::table('reg_periksa')
         ->select('reg_periksa.no_rawat',
             'bridging_sep.no_sep',
@@ -43,8 +51,7 @@ class DataInacbg extends Controller
         ->join('resume_pasien','resume_pasien.no_rawat','=','reg_periksa.no_rawat')
         ->join('bridging_sep','bridging_sep.no_rawat','=','reg_periksa.no_rawat')
         ->join('piutang_pasien','piutang_pasien.no_rawat','=','reg_periksa.no_rawat')
-        ->where('reg_periksa.no_rawat','=', $cariNomor)
-        ->orWhere('bridging_sep.no_sep','=', $cariNomor)
+        ->where('reg_periksa.no_rawat','=', $noRawat)
         ->get();
 
         return view('bpjs.datainacbg', [

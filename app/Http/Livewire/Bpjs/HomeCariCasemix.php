@@ -82,12 +82,12 @@ class HomeCariCasemix extends Component
                 ->leftJoin('bridging_sep AS bridging_ranap', function ($join) {
                     $join->on('bridging_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
                          ->where('bridging_ranap.jnspelayanan', '=', '1')
-                         ->where('bridging_ranap.no_sep', '>', 2);
+                         ->where('bridging_ranap.no_sep', '!=', '');
                 })
                 ->leftJoin('bridging_sep AS bridging_ralan', function ($join) {
                     $join->on('bridging_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
                          ->where('bridging_ralan.jnspelayanan', '=', '2')
-                         ->where('bridging_ralan.no_sep', '>', 2);
+                         ->where('bridging_ralan.no_sep', '!=', '');
                 })
                 ->where(function ($query) {
                     $query->where('reg_periksa.no_rawat', '=', $this->cariNorawat)

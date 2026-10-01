@@ -47,31 +47,33 @@ class InfoKamar3 extends Component
     {
         $kd_kelas_bpjs = $this->kd_kelas_bpjs;
         try {
-            $this->getRuangan = DB::table('bw_display_bad')
-                ->select('bw_display_bad.kd_kelas_bpjs')
+            $allKamars = DB::table('bw_display_bad')
+                ->select(
+                    'kd_kelas_bpjs',
+                    'nm_ruangan_bpjs',
+                    'times_update',
+                    DB::raw('COUNT(status) AS kapasitas'),
+                    DB::raw('COUNT(CASE WHEN status = 0 THEN 0 END) AS tersedia'),
+                    DB::raw("'0' AS tersedia_wanita"),
+                    DB::raw("'0' AS tersedia_pria"),
+                    DB::raw('COUNT(CASE WHEN status = 0 THEN 0 END) AS tersedia_pria_wanita')
+                )
                 ->where(function ($query) use ($kd_kelas_bpjs) {
                     if ($kd_kelas_bpjs) {
-                        $query->whereIn('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs);
+                        $query->whereIn('kd_kelas_bpjs', $kd_kelas_bpjs);
                     }
                 })
-                ->groupBy('bw_display_bad.kd_kelas_bpjs')
+                ->groupBy('kd_kelas_bpjs', 'nm_ruangan_bpjs')
                 ->get();
-
-            $this->getRuangan->map(function ($item) {
-                $item->getkamar = DB::table('bw_display_bad')
-                    ->select(
-                        'nm_ruangan_bpjs',
-                        'times_update',
-                        DB::raw('COUNT(status) AS kapasitas'),
-                        DB::raw('COUNT(CASE WHEN status = 0 THEN 0 END) AS tersedia'),
-                        DB::raw("'0' AS tersedia_wanita"),
-                        DB::raw("'0' AS tersedia_pria"),
-                        DB::raw('COUNT(CASE WHEN status = 0 THEN 0 END) AS tersedia_pria_wanita')
-                    )
-                    ->where('kd_kelas_bpjs', $item->kd_kelas_bpjs)
-                    ->groupBy('nm_ruangan_bpjs')
-                    ->get();
-            });
+            
+            $groupedByKelas = $allKamars->groupBy('kd_kelas_bpjs');
+            
+            $this->getRuangan = $groupedByKelas->map(function ($items, $kelas) {
+                $item = (object)[];
+                $item->kd_kelas_bpjs = $kelas;
+                $item->getkamar = $items;
+                return $item;
+            })->values();
         } catch (\Throwable $th) {
         }
     }

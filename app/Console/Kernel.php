@@ -15,9 +15,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('bed:update-times')->everyFiveMinutes();
-        $schedule->command('mjkn:kirim-antrean')->everyMinute();
-        $schedule->command('mjkn:auto-task')->everyMinute();
+        $schedule->command('bed:update-times')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('mjkn:kirim-antrean')->everyMinute()->withoutOverlapping();
+        $schedule->command('mjkn:auto-task')->everyMinute()->withoutOverlapping();
     }
 
     /**
