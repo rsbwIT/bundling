@@ -58,6 +58,7 @@ class BpjsController extends Controller
             Storage::disk('public')->put('file_scan/' . $file_name, file_get_contents($file));
             
             // Upload SFTP ke server Khanza
+            $sftpOk = false;
             try {
                 $local_path = $file->storeAs('temp', $file_name, 'local');
                 $local_full_path = storage_path('app/' . $local_path);
@@ -66,7 +67,7 @@ class BpjsController extends Controller
                 if ($sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
                     $remote_path = 'pages/upload/' . $file_name;
                     $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
-                    $sftp->put($sftp_full_path, $local_full_path, \phpseclib3\Net\SFTP::SOURCE_LOCAL_FILE);
+                    $sftpOk = (bool) $sftp->put($sftp_full_path, $local_full_path, \phpseclib3\Net\SFTP::SOURCE_LOCAL_FILE);
                 }
                 
                 if (file_exists($local_full_path)) {
@@ -123,6 +124,10 @@ class BpjsController extends Controller
             }
         }
         Session::flash('successSaveINACBG', 'INACBG / SCAN');
+        // Berkas scan tetap tersimpan di aplikasi ini, tapi beri tahu jika tidak sampai ke server Khanza
+        if (isset($sftpOk) && $sftpOk === false) {
+            Session::flash('errorBundling', 'Berkas scan tersimpan di aplikasi ini, tetapi GAGAL dikirim ke server Khanza (cek koneksi SFTP)');
+        }
         $redirectUrl = url('/casemix-home-cari');
         $csrfToken = Session::token();
         $cariNoSep = $request->no_sep;

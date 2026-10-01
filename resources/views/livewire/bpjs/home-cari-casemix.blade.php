@@ -87,7 +87,7 @@
                                             </button>
                                         </form>
 
-                                        <form action="{{ url('gabung-berkas-casemix') }}" method="">
+                                        <form action="{{ url('gabung-berkas-casemix') }}" method="POST">
                                             @csrf
                                             <input name="cariNorawat" value="{{ $item->no_rawat }}" hidden>
                                             <input name="no_rkm_medis" value="{{ $item->no_rkm_medis }}" hidden>

@@ -30,16 +30,13 @@ class AuthController extends Controller
             'password' => $request->password,
         ];
 
-        $cacheKey = 'user_' . $data['id_user'];
-        if (Cache::has($cacheKey)) {
-            $result = Cache::get($cacheKey);
-        } else {
-            $result = DB::table('user')
+        // PERBAIKAN KEAMANAN: login selalu dicek ke database (password wajib cocok).
+        // Sebelumnya hasil login di-cache berdasarkan id_user saja, sehingga dalam 12 menit
+        // setelah user login, orang lain bisa masuk sebagai user itu dengan password apa saja.
+        $result = DB::table('user')
             ->select('id_user', 'password')
             ->whereRaw("aes_decrypt(user.id_user, 'nur') = ? AND aes_decrypt(user.password, 'windi') = ?", [$data['id_user'], $data['password']])
             ->first();
-            Cache::put($cacheKey, $result, 720);
-        }
         // dd(Cache::get($cacheKey));
 
 

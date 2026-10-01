@@ -260,7 +260,7 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/upload-berkas', [BpjsController::class, 'inputClaimBpjs']);
         Route::get('/carinorawat-casemix', [CesmikController::class, 'Casemix']);
         Route::get('/print-casemix', [PrintCesmikController::class, 'printCasemix']);
-        Route::get('/gabung-berkas-casemix', [GabungBerkas::class, 'gabungBerkas']);
+        Route::post('/gabung-berkas-casemix', [GabungBerkas::class, 'gabungBerkas']);
         Route::get('/data-inacbg', [DataInacbg::class, 'Inacbg']);
         Route::get('/setting-bpjs-casemix', [SettingBpjs::class, 'settingBpjsCasemix']);
         Route::get('/croscheck-coding', [HomeCasemix::class, 'crosCheckCoding']);
