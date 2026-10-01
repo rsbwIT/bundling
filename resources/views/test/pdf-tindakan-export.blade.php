@@ -5,8 +5,8 @@
     <title>Detail Tindakan ({{ $labelJenis }}) - {{ $nmDokter }}</title>
     <style>
         @page {
-            margin: 12mm 15mm 15mm 15mm;
-            size: a4 portrait;
+            margin: 10mm;
+            size: a4 landscape;
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -70,10 +70,10 @@
         }
         .data-table th, .data-table td {
             border: 1px solid #000000;
-            padding: 3.5px 5px;
+            padding: 2px 3px;
             word-wrap: break-word;
             vertical-align: middle;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #000000;
         }
         .data-table th {
@@ -106,8 +106,8 @@
         }
         .grand-total-table td {
             border: 1px solid #000000;
-            padding: 4px 8px;
-            font-size: 8.5pt;
+            padding: 2px 5px;
+            font-size: 8pt;
             font-weight: bold;
             color: #000000;
         }
@@ -558,6 +558,156 @@
         </table>
     @endif
 
+    {{-- ====================================================================== --}}
+    {{-- PINDAH HALAMAN JIKA ADA BPJS               --}}
+    {{-- ====================================================================== --}}
+    @if((in_array('umum', $selectedJenis) || in_array('asuransi', $selectedJenis) || in_array('inhealth', $selectedJenis)) && in_array('bpjs', $selectedJenis))
+        <div class="page-break"></div>
+    @endif
+
+
+    {{-- ====================================================================== --}}
+    {{-- BAGIAN IV: TINDAKAN BPJS (RAWAT INAP DAHULU, KEMUDIAN RAWAT JALAN)  --}}
+    {{-- ====================================================================== --}}
+    @if(in_array('bpjs', $selectedJenis))
+        {{-- Kop Resmi RS --}}
+        <div class="header">
+            <table style="border: none; width: 100%; margin-bottom: 2px;">
+                <tr style="border: none;">
+                    <td style="border: none; width: 65px; text-align: center; vertical-align: middle;">
+                        @if(isset($getSetting) && $getSetting->logo)
+                            <img src="data:image/png;base64,{{ base64_encode($getSetting->logo) }}" width="50" height="50">
+                        @endif
+                    </td>
+                    <td style="border: none; text-align: center; vertical-align: middle;">
+                        <h2>{{ $getSetting->nama_instansi ?? 'RUMAH SAKIT' }}</h2>
+                        <p>{{ $getSetting->alamat_instansi ?? '' }}, {{ $getSetting->kabupaten ?? '' }}, {{ $getSetting->propinsi ?? '' }}</p>
+                        <p>{{ $getSetting->kontak ?? '' }} | {{ $getSetting->email ?? '' }}</p>
+                    </td>
+                    <td style="border: none; width: 65px;"></td>
+                </tr>
+            </table>
+            <div class="kop-divider"></div>
+            <h3 class="doc-title">RINCIAN DETAIL TINDAKAN - BPJS</h3>
+        </div>
+
+        {{-- Meta Informasi BPJS --}}
+        <table class="meta-table">
+            <tr>
+                <td width="16%" class="font-bold">Nama Dokter/Petugas</td>
+                <td width="2%">:</td>
+                <td width="47%">{{ $nmDokter }} ({{ $kdDokter }})</td>
+                <td width="15%" class="font-bold">Tanggal Cetak</td>
+                <td width="2%">:</td>
+                <td width="18%">{{ date('d-m-Y H:i') }}</td>
+            </tr>
+            <tr>
+                <td class="font-bold">Periode Tindakan</td>
+                <td>:</td>
+                <td>{{ date('d-m-Y', strtotime($tanggl1)) }} s/d {{ date('d-m-Y', strtotime($tanggl2)) }}</td>
+                <td class="font-bold">Jenis Penjamin</td>
+                <td>:</td>
+                <td>BPJS</td>
+            </tr>
+            <tr>
+                <td class="font-bold">Total Tindakan BPJS</td>
+                <td>:</td>
+                <td colspan="3">
+                    {{ count($detailsRanapBpjs) + count($detailsRalanBpjs) }} tindakan 
+                    (Ranap: {{ count($detailsRanapBpjs) }} | Ralan: {{ count($detailsRalanBpjs) }})
+                </td>
+            </tr>
+        </table>
+
+        {{-- 4.A. TABEL RAWAT INAP (RANAP) - BPJS --}}
+        <div class="table-sub-title">1. Tindakan Rawat Inap (Ranap) - BPJS ({{ count($detailsRanapBpjs) }} Tindakan)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="4%">No</th>
+                    <th width="16%">No. Rawat</th>
+                    <th width="20%">Nama Pasien</th>
+                    <th width="14%">Penjamin</th>
+                    <th width="22%">Nama Tindakan</th>
+                    <th width="12%">Sumber</th>
+                    <th width="12%" class="text-right">Tarif (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $no = 1; @endphp
+                @forelse($detailsRanapBpjs as $item)
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td>{{ $item->no_rawat }}</td>
+                        <td>{{ $item->nm_pasien }}</td>
+                        <td>{{ $item->png_jawab ?? 'BPJS' }}</td>
+                        <td>{{ $item->nm_perawatan }}</td>
+                        <td>{{ $item->sumber }}</td>
+                        <td class="text-right">{{ number_format($item->tarif, 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 8px;">Tidak ada data tindakan Rawat Inap (Ranap) BPJS.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            <tfoot>
+                <tr class="footer-subtotal">
+                    <td colspan="6" class="text-right font-bold">SUBTOTAL RAWAT INAP (BPJS) :</td>
+                    <td class="text-right font-bold">{{ number_format($totalRanapBpjs, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{-- 4.B. TABEL RAWAT JALAN (RALAN) - BPJS --}}
+        <div class="table-sub-title">2. Tindakan Rawat Jalan (Ralan) - BPJS ({{ count($detailsRalanBpjs) }} Tindakan)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="4%">No</th>
+                    <th width="16%">No. Rawat</th>
+                    <th width="20%">Nama Pasien</th>
+                    <th width="14%">Penjamin</th>
+                    <th width="22%">Nama Tindakan</th>
+                    <th width="12%">Sumber</th>
+                    <th width="12%" class="text-right">Tarif (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $no = 1; @endphp
+                @forelse($detailsRalanBpjs as $item)
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td>{{ $item->no_rawat }}</td>
+                        <td>{{ $item->nm_pasien }}</td>
+                        <td>{{ $item->png_jawab ?? 'BPJS' }}</td>
+                        <td>{{ $item->nm_perawatan }}</td>
+                        <td>{{ $item->sumber }}</td>
+                        <td class="text-right">{{ number_format($item->tarif, 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 8px;">Tidak ada data tindakan Rawat Jalan (Ralan) BPJS.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            <tfoot>
+                <tr class="footer-subtotal">
+                    <td colspan="6" class="text-right font-bold">SUBTOTAL RAWAT JALAN (BPJS) :</td>
+                    <td class="text-right font-bold">{{ number_format($totalRalanBpjs, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{-- TOTAL KESELURUHAN BPJS --}}
+        <table class="grand-total-table" style="margin-top: 5px;">
+            <tr style="background-color: #f2f2f2;">
+                <td width="70%" class="text-right">TOTAL TINDAKAN BPJS (Ranap: Rp {{ number_format($totalRanapBpjs, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanBpjs, 0, ',', '.') }}) :</td>
+                <td width="30%" class="text-right">Rp {{ number_format($totalBpjs, 0, ',', '.') }}</td>
+            </tr>
+        </table>
+    @endif
+
 
     {{-- ====================================================================== --}}
     {{-- REKAPITULASI GRAND TOTAL AKHIR (JIKA KEDUA PENJAMIN DITAMPILKAN)        --}}
@@ -580,6 +730,12 @@
                 <tr>
                     <td class="text-right font-bold">TOTAL TINDAKAN INHEALTH (Ranap: Rp {{ number_format($totalRanapInhealth, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanInhealth, 0, ',', '.') }}) :</td>
                     <td class="text-right font-bold">Rp {{ number_format($totalInhealth, 0, ',', '.') }}</td>
+                </tr>
+            @endif
+            @if(in_array('bpjs', $selectedJenis))
+                <tr>
+                    <td class="text-right font-bold">TOTAL TINDAKAN BPJS (Ranap: Rp {{ number_format($totalRanapBpjs, 0, ',', '.') }} | Ralan: Rp {{ number_format($totalRalanBpjs, 0, ',', '.') }}) :</td>
+                    <td class="text-right font-bold">Rp {{ number_format($totalBpjs, 0, ',', '.') }}</td>
                 </tr>
             @endif
             <tr style="background-color: #e5e5e5;">

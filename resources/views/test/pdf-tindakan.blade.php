@@ -17,11 +17,36 @@
                         <label class="font-weight-bold text-xs">Pilih Dokter / Petugas:</label>
                         <select name="kd_dokter" class="form-control form-control-sm select2" style="width: 100%;" required>
                             <option value="">-- Pilih Dokter / Petugas --</option>
-                            @foreach ($listDokter as $doc)
-                                <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                    {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
-                                </option>
-                            @endforeach
+                            
+                            @if(count($listDokterSpesialis) > 0)
+                                <optgroup label="Dokter Spesialis">
+                                    @foreach ($listDokterSpesialis as $doc)
+                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
+                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if(count($listDokterUmum) > 0)
+                                <optgroup label="Dokter Umum">
+                                    @foreach ($listDokterUmum as $doc)
+                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
+                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if(count($listPetugas) > 0)
+                                <optgroup label="Petugas / Paramedis">
+                                    @foreach ($listPetugas as $doc)
+                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
+                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-2 col-sm-6 mb-2">
@@ -43,9 +68,13 @@
                                 <input class="custom-control-input" type="checkbox" id="checkAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
                                 <label for="checkAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
                             </div>
-                            <div class="custom-control custom-checkbox">
+                            <div class="custom-control custom-checkbox mr-3">
                                 <input class="custom-control-input" type="checkbox" id="checkInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
                                 <label for="checkInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" id="checkBpjs" name="jenis[]" value="bpjs" {{ in_array('bpjs', $selectedJenis) ? 'checked' : '' }}>
+                                <label for="checkBpjs" class="custom-control-label font-weight-bold text-xs">BPJS</label>
                             </div>
                         </div>
                     </div>
@@ -144,6 +173,18 @@
                                     <span class="info-box-text">Total Tindakan INHEALTH</span>
                                     <span class="info-box-number">Rp {{ number_format($totalInhealth) }}</span>
                                     <span class="progress-description">Ranap: Rp {{ number_format($totalRanapInhealth) }} | Ralan: Rp {{ number_format($totalRalanInhealth) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (in_array('bpjs', $selectedJenis))
+                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                            <div class="info-box bg-secondary mb-0">
+                                <span class="info-box-icon text-white"><i class="fas fa-hospital-user"></i></span>
+                                <div class="info-box-content text-white">
+                                    <span class="info-box-text">Total Tindakan BPJS</span>
+                                    <span class="info-box-number">Rp {{ number_format($totalBpjs) }}</span>
+                                    <span class="progress-description">Ranap: Rp {{ number_format($totalRanapBpjs) }} | Ralan: Rp {{ number_format($totalRalanBpjs) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -543,6 +584,124 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- 4. TABEL BPJS --}}
+                @if(in_array('bpjs', $selectedJenis))
+                    <div class="card card-secondary shadow-sm mb-4">
+                        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold"><i class="fas fa-hospital-user mr-2"></i>Tindakan BPJS ({{ count($detailsRanapBpjs) + count($detailsRalanBpjs) }} Tindakan)</h6>
+                            <div>
+                                <span class="badge badge-light text-secondary mr-2">Ranap: Rp {{ number_format($totalRanapBpjs) }}</span>
+                                <span class="badge badge-light text-secondary">Ralan: Rp {{ number_format($totalRalanBpjs) }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            {{-- 4.A. RAWAT INAP BPJS --}}
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold text-dark mb-2">
+                                    A. Rawat Inap (Ranap) - BPJS <span class="badge badge-secondary ml-1">{{ count($detailsRanapBpjs) }} Data</span>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary float-right" onclick="copyTable('tableRanapBpjs')" style="padding: 0px 5px;"><i class="fas fa-copy"></i> Copy</button>
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-sm text-xs mb-0" id="tableRanapBpjs">
+                                        <thead class="bg-light text-center">
+                                            <tr>
+                                                <th width="3%">No</th>
+                                                <th width="15%">No. Rawat</th>
+                                                <th width="20%">Nama Pasien</th>
+                                                <th width="12%">Penjamin</th>
+                                                <th width="25%">Nama Perawatan</th>
+                                                <th width="7%">Tgl Rawat</th>
+                                                <th width="6%">Jam</th>
+                                                <th width="12%">Tarif (Rp)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($detailsRanapBpjs as $item)
+                                                <tr>
+                                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                                    <td>{{ $item->no_rawat }}</td>
+                                                    <td>{{ $item->nm_pasien }}</td>
+                                                    <td>{{ $item->png_jawab ?? 'BPJS' }}</td>
+                                                    <td>{{ $item->nm_perawatan }} <span class="text-muted">({{ $item->sumber ?? '-' }})</span></td>
+                                                    <td class="text-center">{{ isset($item->tgl_perawatan) ? date('d-m-Y', strtotime($item->tgl_perawatan)) : '-' }}</td>
+                                                    <td class="text-center">{{ $item->jam_rawat ?? '-' }}</td>
+                                                    <td class="text-right">{{ number_format($item->tarif) }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="8" class="text-center text-muted font-italic">
+                                                        Tidak ada data tindakan Rawat Inap (Ranap) BPJS.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        <tfoot class="bg-light">
+                                            <tr>
+                                                <td colspan="7" class="text-right">TOTAL RAWAT INAP (BPJS)</td>
+                                                <td class="text-right text-secondary font-weight-bold">
+                                                    Rp {{ number_format($totalRanapBpjs) }}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            {{-- 4.B. RAWAT JALAN BPJS --}}
+                            <div>
+                                <h6 class="font-weight-bold text-dark mb-2">
+                                    B. Rawat Jalan (Ralan) - BPJS <span class="badge badge-secondary ml-1">{{ count($detailsRalanBpjs) }} Data</span>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary float-right" onclick="copyTable('tableRalanBpjs')" style="padding: 0px 5px;"><i class="fas fa-copy"></i> Copy</button>
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-sm text-xs mb-0" id="tableRalanBpjs">
+                                        <thead class="bg-light text-center">
+                                            <tr>
+                                                <th width="3%">No</th>
+                                                <th width="15%">No. Rawat</th>
+                                                <th width="20%">Nama Pasien</th>
+                                                <th width="12%">Penjamin</th>
+                                                <th width="25%">Nama Perawatan</th>
+                                                <th width="7%">Tgl Rawat</th>
+                                                <th width="6%">Jam</th>
+                                                <th width="12%">Tarif (Rp)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($detailsRalanBpjs as $item)
+                                                <tr>
+                                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                                    <td>{{ $item->no_rawat }}</td>
+                                                    <td>{{ $item->nm_pasien }}</td>
+                                                    <td>{{ $item->png_jawab ?? 'BPJS' }}</td>
+                                                    <td>{{ $item->nm_perawatan }} <span class="text-muted">({{ $item->sumber ?? '-' }})</span></td>
+                                                    <td class="text-center">{{ isset($item->tgl_perawatan) ? date('d-m-Y', strtotime($item->tgl_perawatan)) : '-' }}</td>
+                                                    <td class="text-center">{{ $item->jam_rawat ?? '-' }}</td>
+                                                    <td class="text-right">{{ number_format($item->tarif) }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="8" class="text-center text-muted font-italic">
+                                                        Tidak ada data tindakan Rawat Jalan (Ralan) BPJS.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        <tfoot class="bg-light">
+                                            <tr>
+                                                <td colspan="7" class="text-right">TOTAL RAWAT JALAN (BPJS)</td>
+                                                <td class="text-right text-secondary font-weight-bold">
+                                                    Rp {{ number_format($totalRalanBpjs) }}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="alert alert-light border text-center py-5">
                     <i class="fas fa-user-md fa-3x text-secondary mb-3"></i>
@@ -559,7 +718,7 @@
             <div class="modal-content">
                 <form action="{{ url('/pdf-tindakan') }}" method="GET" target="_blank">
                     <input type="hidden" name="filter_submitted" value="1">
-                    <input type="hidden" name="export" value="pdf">
+                    <input type="hidden" name="export" value="zip">
                     
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold" id="modalDownloadBanyakDokterLabel">Cetak PDF Banyak Dokter</h5>
@@ -589,9 +748,13 @@
                                     <input class="custom-control-input" type="checkbox" id="modalCheckAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
                                     <label for="modalCheckAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
                                 </div>
-                                <div class="custom-control custom-checkbox">
+                                <div class="custom-control custom-checkbox mr-3">
                                     <input class="custom-control-input" type="checkbox" id="modalCheckInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
                                     <label for="modalCheckInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" id="modalCheckBpjs" name="jenis[]" value="bpjs" {{ in_array('bpjs', $selectedJenis) ? 'checked' : '' }}>
+                                    <label for="modalCheckBpjs" class="custom-control-label font-weight-bold text-xs">BPJS</label>
                                 </div>
                             </div>
                         </div>
@@ -603,24 +766,65 @@
                             <button type="button" class="btn btn-xs btn-outline-danger" id="btnDeselectAllDokter">Hapus Semua</button>
                         </div>
                         <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
-                            <div class="row">
-                                @foreach ($listDokter as $doc)
-                                    <div class="col-md-6 mb-2">
-                                        <div class="custom-control custom-checkbox">
-                                            <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
-                                            <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
-                                                {{ $doc['nama'] }}
-                                            </label>
+                            {{-- DOKTER SPESIALIS --}}
+                            @if(count($listDokterSpesialis) > 0)
+                                <h6 class="font-weight-bold text-primary mb-2 mt-2 border-bottom pb-1">Dokter Spesialis</h6>
+                                <div class="row">
+                                    @foreach ($listDokterSpesialis as $doc)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
+                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
+                                                    {{ $doc['nama'] }}
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- DOKTER UMUM --}}
+                            @if(count($listDokterUmum) > 0)
+                                <h6 class="font-weight-bold text-success mb-2 mt-3 border-bottom pb-1">Dokter Umum</h6>
+                                <div class="row">
+                                    @foreach ($listDokterUmum as $doc)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
+                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
+                                                    {{ $doc['nama'] }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- PETUGAS --}}
+                            @if(count($listPetugas) > 0)
+                                <h6 class="font-weight-bold text-info mb-2 mt-3 border-bottom pb-1">Petugas / Paramedis</h6>
+                                <div class="row">
+                                    @foreach ($listPetugas as $doc)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
+                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
+                                                    {{ $doc['nama'] }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                        <button type="button" class="btn btn-danger btn-sm" id="btnDownloadMultiple">
+                            <i class="fas fa-file-pdf mr-1"></i> Download PDF (Terpisah)
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" id="btnDownloadZip">
+                            <i class="fas fa-file-archive mr-1"></i> Download ZIP
                         </button>
                     </div>
                 </form>
@@ -646,9 +850,20 @@
                 $('.chk-dokter').prop('checked', false);
             });
 
-            $('#modalDownloadBanyakDokter form').on('submit', function(e) {
-                e.preventDefault();
-                let form = $(this);
+            $('#btnDownloadZip').on('click', function(e) {
+                let form = $('#modalDownloadBanyakDokter form');
+                let dokters = form.find('input[name="kd_dokter[]"]:checked');
+                if (dokters.length === 0) {
+                    alert('Silakan pilih minimal satu dokter.');
+                    return;
+                }
+                form.find('input[name="export"]').val('zip');
+                form[0].submit();
+                $('#modalDownloadBanyakDokter').modal('hide');
+            });
+
+            $('#btnDownloadMultiple').on('click', function(e) {
+                let form = $('#modalDownloadBanyakDokter form');
                 let tgl1 = form.find('input[name="tgl1"]').val();
                 let tgl2 = form.find('input[name="tgl2"]').val();
                 
@@ -679,7 +894,7 @@
                         iframe.src = url;
                         document.body.appendChild(iframe);
                     }, delay);
-                    delay += 800; // sedikit diperlambat agar server tidak kwalahan dan download terproses
+                    delay += 800; // sedikit diperlambat
                 });
                 
                 $('#modalDownloadBanyakDokter').modal('hide');
