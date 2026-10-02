@@ -603,6 +603,7 @@
                                         <p>Pasien Terdaftar</p>
                                     </a>
                                 </li>
+
                             </ul>
                         </li>
 @endif
@@ -969,6 +970,14 @@
                                         <p>Rekap Pendapatan Asuransi</p>
                                     </a>
                                 </li>
+                                @if(\App\Helpers\AksesHelper::cek('/pendapatan-alat-dokter'))
+                                <li class="nav-item">
+                                    <a href="{{ url('/pendapatan-alat-dokter') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rekap Alat Dokter</p>
+                                    </a>
+                                </li>
+                                @endif
                             </ul>
                         </li>
                         {{-- MENU CASEMIX --}}

@@ -158,6 +158,7 @@ use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\Laporan\RekapPendapatanHarianController;
 use App\Http\Controllers\Laporan\RekapPendapatanAsuransiController;
+use App\Http\Controllers\Laporan\PendapatanAlatDokterController;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Pkpa\MonitoringPkpaController;
 use App\Http\Controllers\PasienKamarInap\PasienLebihDari1;
@@ -457,6 +458,9 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/rekap-pendapatan-harian', [RekapPendapatanHarianController::class, 'index']);
         Route::get('/rekap-pendapatan-asuransi', [RekapPendapatanAsuransiController::class, 'index']);
         Route::get('/rekap-pendapatan-asuransi/detail', [RekapPendapatanAsuransiController::class, 'detailTindakan']);
+        
+        Route::get('/pendapatan-alat-dokter', [PendapatanAlatDokterController::class, 'index']);
+        Route::get('/pendapatan-alat-dokter/pdf', [PendapatanAlatDokterController::class, 'printPdf']);
 
         //user
         Route::get('/ai/user', [User::class, 'index'])

@@ -1,0 +1,4148 @@
+PENJAB:
+Array
+(
+    [0] => stdClass Object
+        (
+            [kd_pj] => -
+            [png_jawab] => -
+        )
+
+    [1] => stdClass Object
+        (
+            [kd_pj] => 102
+            [png_jawab] => ASR - PT PELABUHAN TANJUNG PRIOK IPC
+        )
+
+    [2] => stdClass Object
+        (
+            [kd_pj] => 106
+            [png_jawab] => ASR - MANDIRI INHEALTH INDEMNITY
+        )
+
+    [3] => stdClass Object
+        (
+            [kd_pj] => 107
+            [png_jawab] => ASR - PT MANDIRI INHEALTH INDEMNITY
+        )
+
+    [4] => stdClass Object
+        (
+            [kd_pj] => 108
+            [png_jawab] => ASR - PT MANDIRI INHEALTH INDEMNITY (COB SUB)
+        )
+
+    [5] => stdClass Object
+        (
+            [kd_pj] => 452
+            [png_jawab] => ASR - Asuransi Biaktif
+        )
+
+    [6] => stdClass Object
+        (
+            [kd_pj] => 457
+            [png_jawab] => ASR - PLN PUSAT
+        )
+
+    [7] => stdClass Object
+        (
+            [kd_pj] => A01
+            [png_jawab] => PEGAWAI PEMERINTAH NON PNS
+        )
+
+    [8] => stdClass Object
+        (
+            [kd_pj] => A02
+            [png_jawab] => PEGAWAI BUMN
+        )
+
+    [9] => stdClass Object
+        (
+            [kd_pj] => A03
+            [png_jawab] => ASR - PEKERJA MANDIRI
+        )
+
+    [10] => stdClass Object
+        (
+            [kd_pj] => A04
+            [png_jawab] => ASR - PBI (APBN)
+        )
+
+    [11] => stdClass Object
+        (
+            [kd_pj] => A05
+            [png_jawab] => u
+        )
+
+    [12] => stdClass Object
+        (
+            [kd_pj] => A06
+            [png_jawab] => ASR - PNS DAERAH
+        )
+
+    [13] => stdClass Object
+        (
+            [kd_pj] => A08
+            [png_jawab] => ASR - KARYAWAN RS
+        )
+
+    [14] => stdClass Object
+        (
+            [kd_pj] => A09
+            [png_jawab] => ASR - ASKES INHEALTH
+        )
+
+    [15] => stdClass Object
+        (
+            [kd_pj] => A10
+            [png_jawab] => ASR - BNI LIFE INSURANCE
+        )
+
+    [16] => stdClass Object
+        (
+            [kd_pj] => A11
+            [png_jawab] => ASR - JAMSOSTEK
+        )
+
+    [17] => stdClass Object
+        (
+            [kd_pj] => A12
+            [png_jawab] => ASR - MANULIFE FINANCIAL
+        )
+
+    [18] => stdClass Object
+        (
+            [kd_pj] => A13
+            [png_jawab] => ASR - AIA
+        )
+
+    [19] => stdClass Object
+        (
+            [kd_pj] => A14
+            [png_jawab] => WINTERTHUR
+        )
+
+    [20] => stdClass Object
+        (
+            [kd_pj] => A15
+            [png_jawab] => ASR - EQUITY
+        )
+
+    [21] => stdClass Object
+        (
+            [kd_pj] => A16
+            [png_jawab] => ASR - SINAR MAS
+        )
+
+    [22] => stdClass Object
+        (
+            [kd_pj] => A17
+            [png_jawab] => GLOBAL ASSISTANCE
+        )
+
+    [23] => stdClass Object
+        (
+            [kd_pj] => A18
+            [png_jawab] => ASR - ADMEDIKA
+        )
+
+    [24] => stdClass Object
+        (
+            [kd_pj] => A19
+            [png_jawab] => ASR - TAKAFUL ASSURANCE
+        )
+
+    [25] => stdClass Object
+        (
+            [kd_pj] => A20
+            [png_jawab] => H M O
+        )
+
+    [26] => stdClass Object
+        (
+            [kd_pj] => A21
+            [png_jawab] => ASR - MULTI ARTHA GUNA
+        )
+
+    [27] => stdClass Object
+        (
+            [kd_pj] => A22
+            [png_jawab] => ASR - C A R
+        )
+
+    [28] => stdClass Object
+        (
+            [kd_pj] => A23
+            [png_jawab] => ASR - MEDICARE
+        )
+
+    [29] => stdClass Object
+        (
+            [kd_pj] => A24
+            [png_jawab] => ASR - LIPPO GENERAL HEALTH CARE
+        )
+
+    [30] => stdClass Object
+        (
+            [kd_pj] => A25
+            [png_jawab] => ASR - BUMI ASIH JAYA PT
+        )
+
+    [31] => stdClass Object
+        (
+            [kd_pj] => A26
+            [png_jawab] => ASR - TASPEN PT
+        )
+
+    [32] => stdClass Object
+        (
+            [kd_pj] => A27
+            [png_jawab] => BLUE DOT
+        )
+
+    [33] => stdClass Object
+        (
+            [kd_pj] => A28
+            [png_jawab] => ASR - ASURANSI RELIANCE PT
+        )
+
+    [34] => stdClass Object
+        (
+            [kd_pj] => A29
+            [png_jawab] => ASR - ASURANSI MANULIFE INDONESIA PT
+        )
+
+    [35] => stdClass Object
+        (
+            [kd_pj] => A30
+            [png_jawab] => ASURANSI BINA DANA ARTHA PT
+        )
+
+    [36] => stdClass Object
+        (
+            [kd_pj] => A31
+            [png_jawab] => ASURANSI JIWA BAKRIE PT
+        )
+
+    [37] => stdClass Object
+        (
+            [kd_pj] => A32
+            [png_jawab] => ASR - ASURANSI JIWA EKA LIFE PT
+        )
+
+    [38] => stdClass Object
+        (
+            [kd_pj] => A33
+            [png_jawab] => ASR - ASURANSI TAKAFUL KELUARGA PT
+        )
+
+    [39] => stdClass Object
+        (
+            [kd_pj] => A34
+            [png_jawab] => ASR - ASURANSI BUMIDA BUMI PUTRA PT
+        )
+
+    [40] => stdClass Object
+        (
+            [kd_pj] => A35
+            [png_jawab] => ASURANSI WINTHERTUR LIFE INDON
+        )
+
+    [41] => stdClass Object
+        (
+            [kd_pj] => A36
+            [png_jawab] => ASR - ASURANSI WANA ARTHA LIFE PT
+        )
+
+    [42] => stdClass Object
+        (
+            [kd_pj] => A37
+            [png_jawab] => ASR - ASURANSI MAYAPADA LIFE PT
+        )
+
+    [43] => stdClass Object
+        (
+            [kd_pj] => A38
+            [png_jawab] => ASR - FEDERAL INTERNATIONAL FINANCE 
+        )
+
+    [44] => stdClass Object
+        (
+            [kd_pj] => A39
+            [png_jawab] => ASR - ASURANSI ASTRA BUANA
+        )
+
+    [45] => stdClass Object
+        (
+            [kd_pj] => A3Q
+            [png_jawab] => ASR - ADMEDIKA EQINPYR
+        )
+
+    [46] => stdClass Object
+        (
+            [kd_pj] => A40
+            [png_jawab] => ASR - INDOFOOD SUKSES MAKMUR Tbk PT
+        )
+
+    [47] => stdClass Object
+        (
+            [kd_pj] => A41
+            [png_jawab] => ASR - DWIDAYA SENTRA PERKASA PT
+        )
+
+    [48] => stdClass Object
+        (
+            [kd_pj] => A42
+            [png_jawab] => ASR - ASDP
+        )
+
+    [49] => stdClass Object
+        (
+            [kd_pj] => A43
+            [png_jawab] => ASR - SIL PT
+        )
+
+    [50] => stdClass Object
+        (
+            [kd_pj] => A44
+            [png_jawab] => GGPC PT
+        )
+
+    [51] => stdClass Object
+        (
+            [kd_pj] => A45
+            [png_jawab] => ASR - GUNUNG MADU PLANTATIONS PT
+        )
+
+    [52] => stdClass Object
+        (
+            [kd_pj] => A46
+            [png_jawab] => ASR - JPKM PELINDO
+        )
+
+    [53] => stdClass Object
+        (
+            [kd_pj] => A47
+            [png_jawab] => ASR - BANK NIAGA
+        )
+
+    [54] => stdClass Object
+        (
+            [kd_pj] => A48
+            [png_jawab] => ASR - BCA
+        )
+
+    [55] => stdClass Object
+        (
+            [kd_pj] => A49
+            [png_jawab] => ANGKUTAN SUNGAI DANAU DAN PENY
+        )
+
+    [56] => stdClass Object
+        (
+            [kd_pj] => A50
+            [png_jawab] => ASR - A J CENTRA ASIA RAYA SYARIAH
+        )
+
+    [57] => stdClass Object
+        (
+            [kd_pj] => A51
+            [png_jawab] => ASR - SEMEN BATU RAJA PT
+        )
+
+    [58] => stdClass Object
+        (
+            [kd_pj] => A52
+            [png_jawab] => ASR - BUKIT ASAM PT
+        )
+
+    [59] => stdClass Object
+        (
+            [kd_pj] => A53
+            [png_jawab] => ASR - TIRTA INVESTAMA INDUSTRIAL PT
+        )
+
+    [60] => stdClass Object
+        (
+            [kd_pj] => A54
+            [png_jawab] => ASR - CPB PT
+        )
+
+    [61] => stdClass Object
+        (
+            [kd_pj] => A55
+            [png_jawab] => ASR - BANK LAMPUNG
+        )
+
+    [62] => stdClass Object
+        (
+            [kd_pj] => A56
+            [png_jawab] => ASR - BANK INDONESIA
+        )
+
+    [63] => stdClass Object
+        (
+            [kd_pj] => A57
+            [png_jawab] => WAHYUNI WANDIRA PT
+        )
+
+    [64] => stdClass Object
+        (
+            [kd_pj] => A58
+            [png_jawab] => ASR - GARUDA FOOD PT
+        )
+
+    [65] => stdClass Object
+        (
+            [kd_pj] => A59
+            [png_jawab] => ASR - SHARP PT
+        )
+
+    [66] => stdClass Object
+        (
+            [kd_pj] => A5M
+            [png_jawab] => ASR - ASURANSI MEGA INSURANCE
+        )
+
+    [67] => stdClass Object
+        (
+            [kd_pj] => A60
+            [png_jawab] => ASR - PTPN VII PT
+        )
+
+    [68] => stdClass Object
+        (
+            [kd_pj] => A61
+            [png_jawab] => ASR - PLN PT
+        )
+
+    [69] => stdClass Object
+        (
+            [kd_pj] => A62
+            [png_jawab] => ASR - BTPN
+        )
+
+    [70] => stdClass Object
+        (
+            [kd_pj] => A63
+            [png_jawab] => ASR - TELKOM PT
+        )
+
+    [71] => stdClass Object
+        (
+            [kd_pj] => A64
+            [png_jawab] => ASR - PDAM
+        )
+
+    [72] => stdClass Object
+        (
+            [kd_pj] => A65
+            [png_jawab] => ASR - SUCOFINDO PT
+        )
+
+    [73] => stdClass Object
+        (
+            [kd_pj] => A66
+            [png_jawab] => ASR - BANK SYARIAH MANDIRI
+        )
+
+    [74] => stdClass Object
+        (
+            [kd_pj] => A67
+            [png_jawab] => ASR - COCACOLA COMP PT
+        )
+
+    [75] => stdClass Object
+        (
+            [kd_pj] => A68
+            [png_jawab] => ASR - INDOMARCO
+        )
+
+    [76] => stdClass Object
+        (
+            [kd_pj] => A69
+            [png_jawab] => MARCOPOLO HOTEL
+        )
+
+    [77] => stdClass Object
+        (
+            [kd_pj] => A70
+            [png_jawab] => ASR - TRAKINDO UTAMA PT
+        )
+
+    [78] => stdClass Object
+        (
+            [kd_pj] => A71
+            [png_jawab] => ASR - YAKES BANK MANDIRI
+        )
+
+    [79] => stdClass Object
+        (
+            [kd_pj] => A72
+            [png_jawab] => ASR - PERUM PERUMNAS LAMPUNG
+        )
+
+    [80] => stdClass Object
+        (
+            [kd_pj] => A73
+            [png_jawab] => ASR - BRI
+        )
+
+    [81] => stdClass Object
+        (
+            [kd_pj] => A74
+            [png_jawab] => ASR - PELINDO PT
+        )
+
+    [82] => stdClass Object
+        (
+            [kd_pj] => A75
+            [png_jawab] => INDOSAT PT
+        )
+
+    [83] => stdClass Object
+        (
+            [kd_pj] => A76
+            [png_jawab] => RADAR LAMPUNG (JAWA POST GROUP
+        )
+
+    [84] => stdClass Object
+        (
+            [kd_pj] => A77
+            [png_jawab] => EASCO MEDIKA PT
+        )
+
+    [85] => stdClass Object
+        (
+            [kd_pj] => A78
+            [png_jawab] => ASR - ADMINISTRASI MEDIKA PT
+        )
+
+    [86] => stdClass Object
+        (
+            [kd_pj] => A79
+            [png_jawab] => ASR - CENTRAL PROTEINA PRIMA PT
+        )
+
+    [87] => stdClass Object
+        (
+            [kd_pj] => A80
+            [png_jawab] => GESA ASSISTANCE
+        )
+
+    [88] => stdClass Object
+        (
+            [kd_pj] => A81
+            [png_jawab] => ASR - GLOBAL ASSISTENCE & HEALTHCARE
+        )
+
+    [89] => stdClass Object
+        (
+            [kd_pj] => A82
+            [png_jawab] => ASR - INTERNATIONAL SOS
+        )
+
+    [90] => stdClass Object
+        (
+            [kd_pj] => A83
+            [png_jawab] => ASR - JUANG JAYA ABDI ALAM PT
+        )
+
+    [91] => stdClass Object
+        (
+            [kd_pj] => A84
+            [png_jawab] => ASR - LIPPO GENERAL INSURANCE
+        )
+
+    [92] => stdClass Object
+        (
+            [kd_pj] => A85
+            [png_jawab] => ASR - NESTLE INDONESIA PT
+        )
+
+    [93] => stdClass Object
+        (
+            [kd_pj] => A86
+            [png_jawab] => ASR - PSN YAKES PERTAMINA
+        )
+
+    [94] => stdClass Object
+        (
+            [kd_pj] => A87
+            [png_jawab] => ASR - PARINDO PERMAI PT
+        )
+
+    [95] => stdClass Object
+        (
+            [kd_pj] => A88
+            [png_jawab] => NEKA BOGA PERSIA PT
+        )
+
+    [96] => stdClass Object
+        (
+            [kd_pj] => A89
+            [png_jawab] => ASR - SWEET INDO LAMPUNG PT
+        )
+
+    [97] => stdClass Object
+        (
+            [kd_pj] => A90
+            [png_jawab] => ASR - SAMUDRA INDONESIA PT
+        )
+
+    [98] => stdClass Object
+        (
+            [kd_pj] => A91
+            [png_jawab] => ASR - SOUTH EAST ASIA PIPE INDUSTRIE
+        )
+
+    [99] => stdClass Object
+        (
+            [kd_pj] => A92
+            [png_jawab] => ASR - WIJAYA KUSUMA CONTRACTORS PT
+        )
+
+    [100] => stdClass Object
+        (
+            [kd_pj] => A93
+            [png_jawab] => BAKRIE TELEKOM PT
+        )
+
+    [101] => stdClass Object
+        (
+            [kd_pj] => A94
+            [png_jawab] => ASR - AIG LIFE HEALTH CARE PT
+        )
+
+    [102] => stdClass Object
+        (
+            [kd_pj] => A95
+            [png_jawab] => YAKES TELEKOM AREA SUMATERA
+        )
+
+    [103] => stdClass Object
+        (
+            [kd_pj] => A96
+            [png_jawab] => ASR - UNITED TRACTORS PT
+        )
+
+    [104] => stdClass Object
+        (
+            [kd_pj] => A97
+            [png_jawab] => ASR - MEDIKOM PRIMA PT
+        )
+
+    [105] => stdClass Object
+        (
+            [kd_pj] => A98
+            [png_jawab] => ASR - BANK CENTRAL ASIA PT
+        )
+
+    [106] => stdClass Object
+        (
+            [kd_pj] => A99
+            [png_jawab] => ASR - CENTRAL PERTIWI BAHARI PT
+        )
+
+    [107] => stdClass Object
+        (
+            [kd_pj] => AAA
+            [png_jawab] => ASR - ACROSS ASIA ASSIST
+        )
+
+    [108] => stdClass Object
+        (
+            [kd_pj] => AB1
+            [png_jawab] => ASR - ADMEDIKA BANK BRI
+        )
+
+    [109] => stdClass Object
+        (
+            [kd_pj] => ABS
+            [png_jawab] => ASR - PT. AMALIA BEATO SENZA
+        )
+
+    [110] => stdClass Object
+        (
+            [kd_pj] => ACI
+            [png_jawab] => ASR - ADMEDIKA CLIFE
+        )
+
+    [111] => stdClass Object
+        (
+            [kd_pj] => AD1
+            [png_jawab] => ASR - ADMEDIKA INTRA ASIA
+        )
+
+    [112] => stdClass Object
+        (
+            [kd_pj] => ADB
+            [png_jawab] => ASR - ADMEDIKA BOSOWA
+        )
+
+    [113] => stdClass Object
+        (
+            [kd_pj] => ADI
+            [png_jawab] => ASR - ADMEDIKA ICON +
+        )
+
+    [114] => stdClass Object
+        (
+            [kd_pj] => ADJ
+            [png_jawab] => ASR - ADMEDIKA - JASINDO FULL PAYOR
+        )
+
+    [115] => stdClass Object
+        (
+            [kd_pj] => ADL
+            [png_jawab] => ADMEDIKA LEMONILO
+        )
+
+    [116] => stdClass Object
+        (
+            [kd_pj] => ADP
+            [png_jawab] => ADMEDIKA PERTAL
+        )
+
+    [117] => stdClass Object
+        (
+            [kd_pj] => ADR
+            [png_jawab] => ASR - ADMEDIKA BRIGRUP
+        )
+
+    [118] => stdClass Object
+        (
+            [kd_pj] => ADV
+            [png_jawab] => ASR - RS ADVENT
+        )
+
+    [119] => stdClass Object
+        (
+            [kd_pj] => AHM
+            [png_jawab] => ASR - HEALTH METRICS
+        )
+
+    [120] => stdClass Object
+        (
+            [kd_pj] => AIC
+            [png_jawab] => ASR - PT Indonesia comnets
+        )
+
+    [121] => stdClass Object
+        (
+            [kd_pj] => AKR
+            [png_jawab] => ASR - HOTEL AKAR LAMPUNG
+        )
+
+    [122] => stdClass Object
+        (
+            [kd_pj] => AKT
+            [png_jawab] => ADMEDIKA KIPSAT
+        )
+
+    [123] => stdClass Object
+        (
+            [kd_pj] => AMR
+            [png_jawab] => ASR - ADMEDIKA MITRAKU
+        )
+
+    [124] => stdClass Object
+        (
+            [kd_pj] => AP3
+            [png_jawab] => ASR - ADMEDIKA PARAGON
+        )
+
+    [125] => stdClass Object
+        (
+            [kd_pj] => AP6
+            [png_jawab] => Admedika PGN NET
+        )
+
+    [126] => stdClass Object
+        (
+            [kd_pj] => API
+            [png_jawab] => ASR- ADMEDIKA ANGKASA PURA IND
+        )
+
+    [127] => stdClass Object
+        (
+            [kd_pj] => APN
+            [png_jawab] => ASR - ADMEDIKA APINDO
+        )
+
+    [128] => stdClass Object
+        (
+            [kd_pj] => APS
+            [png_jawab] => ASR - ANGKASAPURA SOLUSI
+        )
+
+    [129] => stdClass Object
+        (
+            [kd_pj] => ASM
+            [png_jawab] => ASR - ABADI SMYLINKS
+        )
+
+    [130] => stdClass Object
+        (
+            [kd_pj] => AX4
+            [png_jawab] => ASR - PT. AXA INSURANCE INDONESIA
+        )
+
+    [131] => stdClass Object
+        (
+            [kd_pj] => AZM
+            [png_jawab] => ASR - ASURANSI ZURICH MEDICILLIN
+        )
+
+    [132] => stdClass Object
+        (
+            [kd_pj] => B01
+            [png_jawab] => RENTOKIL, PT
+        )
+
+    [133] => stdClass Object
+        (
+            [kd_pj] => B02
+            [png_jawab] => ASR - ASURANSI GENERALI INDONESIA
+        )
+
+    [134] => stdClass Object
+        (
+            [kd_pj] => B03
+            [png_jawab] => ASR - ASURANSI ILG
+        )
+
+    [135] => stdClass Object
+        (
+            [kd_pj] => B04
+            [png_jawab] => ASR - KOPERASI GUNUNG MADU
+        )
+
+    [136] => stdClass Object
+        (
+            [kd_pj] => B05
+            [png_jawab] => ASR - KOPERASI GUNUNG MADU (COB MAX)
+        )
+
+    [137] => stdClass Object
+        (
+            [kd_pj] => B0N
+            [png_jawab] => ASR - BANK BTN
+        )
+
+    [138] => stdClass Object
+        (
+            [kd_pj] => B11
+            [png_jawab] => ASR - Asuransi FWD Life
+        )
+
+    [139] => stdClass Object
+        (
+            [kd_pj] => B12
+            [png_jawab] => RS BELLEZA
+        )
+
+    [140] => stdClass Object
+        (
+            [kd_pj] => B16
+            [png_jawab] => ASR - asuransi beringin life
+        )
+
+    [141] => stdClass Object
+        (
+            [kd_pj] => B22
+            [png_jawab] => ASR - KEMENKES
+        )
+
+    [142] => stdClass Object
+        (
+            [kd_pj] => B44
+            [png_jawab] => ASR - PLN BATAM
+        )
+
+    [143] => stdClass Object
+        (
+            [kd_pj] => B55
+            [png_jawab] => ASR - BRI LIFE
+        )
+
+    [144] => stdClass Object
+        (
+            [kd_pj] => BAP
+            [png_jawab] => ASR - BUKIT ASAM PT (COB SUB)
+        )
+
+    [145] => stdClass Object
+        (
+            [kd_pj] => BFP
+            [png_jawab] => ASR - PT BINTANG FAJAR PERSADA
+        )
+
+    [146] => stdClass Object
+        (
+            [kd_pj] => BKP
+            [png_jawab] => ASR - PT BANK KB BUKOPIN TBK
+        )
+
+    [147] => stdClass Object
+        (
+            [kd_pj] => BLG
+            [png_jawab] => ASR - BULOG
+        )
+
+    [148] => stdClass Object
+        (
+            [kd_pj] => BMI
+            [png_jawab] => ASR - PT BUMI MENARA INTERNUSA
+        )
+
+    [149] => stdClass Object
+        (
+            [kd_pj] => BMK
+            [png_jawab] => ASR - RS BUDI MEDIKA
+        )
+
+    [150] => stdClass Object
+        (
+            [kd_pj] => BN1
+            [png_jawab] => ASR - BNI SYARIAH
+        )
+
+    [151] => stdClass Object
+        (
+            [kd_pj] => BPA
+            [png_jawab] => ASR - BRI PSN ADMEDIKA
+        )
+
+    [152] => stdClass Object
+        (
+            [kd_pj] => BPJ
+            [png_jawab] => BPJS
+        )
+
+    [153] => stdClass Object
+        (
+            [kd_pj] => BPL
+            [png_jawab] => ASR - BIDDOKES POLDA LAMPUNG
+        )
+
+    [154] => stdClass Object
+        (
+            [kd_pj] => C01
+            [png_jawab] => 1991 SECURITY
+        )
+
+    [155] => stdClass Object
+        (
+            [kd_pj] => C02
+            [png_jawab] => ASR - A.J CENTRA ASIA RAYA
+        )
+
+    [156] => stdClass Object
+        (
+            [kd_pj] => C03
+            [png_jawab] => ASR - AA INTERNATIONAL
+        )
+
+    [157] => stdClass Object
+        (
+            [kd_pj] => C04
+            [png_jawab] => ASR - ACE JAYA PROTEKSI
+        )
+
+    [158] => stdClass Object
+        (
+            [kd_pj] => C05
+            [png_jawab] => ASR - ADMEDIKA SOMPO
+        )
+
+    [159] => stdClass Object
+        (
+            [kd_pj] => C06
+            [png_jawab] => ASR - ADMINISTRASI MEDIKA
+        )
+
+    [160] => stdClass Object
+        (
+            [kd_pj] => C07
+            [png_jawab] => ASR - AGRO GIRI PERKASA
+        )
+
+    [161] => stdClass Object
+        (
+            [kd_pj] => C08
+            [png_jawab] => ASR - AIG LIFE HEALTH CARE
+        )
+
+    [162] => stdClass Object
+        (
+            [kd_pj] => C09
+            [png_jawab] => ASR - AIRNAV INDONESIA
+        )
+
+    [163] => stdClass Object
+        (
+            [kd_pj] => C10
+            [png_jawab] => AJB BUMIPUTERA 1912
+        )
+
+    [164] => stdClass Object
+        (
+            [kd_pj] => C11
+            [png_jawab] => ASR - AJINOMOTO
+        )
+
+    [165] => stdClass Object
+        (
+            [kd_pj] => C12
+            [png_jawab] => ASR - AMERTA INDAH OTSUKA
+        )
+
+    [166] => stdClass Object
+        (
+            [kd_pj] => C13
+            [png_jawab] => ASR - ANGKASA PURA II
+        )
+
+    [167] => stdClass Object
+        (
+            [kd_pj] => C15
+            [png_jawab] => ASR - AQUA
+        )
+
+    [168] => stdClass Object
+        (
+            [kd_pj] => C16
+            [png_jawab] => ARTHA TEKNIK ABADI
+        )
+
+    [169] => stdClass Object
+        (
+            [kd_pj] => C17
+            [png_jawab] => ARUNA WIJAYA SAKTI
+        )
+
+    [170] => stdClass Object
+        (
+            [kd_pj] => C18
+            [png_jawab] => ASTRA GRAPHIA
+        )
+
+    [171] => stdClass Object
+        (
+            [kd_pj] => C19
+            [png_jawab] => ASR - ASTRA INTERNATIONAL TBK (DAIHA
+        )
+
+    [172] => stdClass Object
+        (
+            [kd_pj] => C20
+            [png_jawab] => ASR - ASTRA INTERNATIONAL TBK (ISO)
+        )
+
+    [173] => stdClass Object
+        (
+            [kd_pj] => C21
+            [png_jawab] => ASR - ASTRA INTERNATIONAL TBK 
+        )
+
+    [174] => stdClass Object
+        (
+            [kd_pj] => C22
+            [png_jawab] => ASURANSI ABDA
+        )
+
+    [175] => stdClass Object
+        (
+            [kd_pj] => C23
+            [png_jawab] => ASR - ASURANSI ADIRA DINAMIKA
+        )
+
+    [176] => stdClass Object
+        (
+            [kd_pj] => C24
+            [png_jawab] => ASURANSI AGRAPANA AKSATA 
+        )
+
+    [177] => stdClass Object
+        (
+            [kd_pj] => C25
+            [png_jawab] => ASR - ASURANSI ALLIANZ 
+        )
+
+    [178] => stdClass Object
+        (
+            [kd_pj] => C26
+            [png_jawab] => ASR - ASURANSI ASKRIDA
+        )
+
+    [179] => stdClass Object
+        (
+            [kd_pj] => C27
+            [png_jawab] => ASR - ASURANSI ASKRINDO
+        )
+
+    [180] => stdClass Object
+        (
+            [kd_pj] => C28
+            [png_jawab] => ASR - ASURANSI ASTRA LIFE
+        )
+
+    [181] => stdClass Object
+        (
+            [kd_pj] => C29
+            [png_jawab] => ASR - ASURANSI ASYIFA CARE
+        )
+
+    [182] => stdClass Object
+        (
+            [kd_pj] => C30
+            [png_jawab] => ASR - ASURANSI AVRIST
+        )
+
+    [183] => stdClass Object
+        (
+            [kd_pj] => C31
+            [png_jawab] => ASR - ASURANSI AXA INDONESIA
+        )
+
+    [184] => stdClass Object
+        (
+            [kd_pj] => C32
+            [png_jawab] => ASR - ASURANSI AXA MANDIRI
+        )
+
+    [185] => stdClass Object
+        (
+            [kd_pj] => C33
+            [png_jawab] => ASR - ASURANSI BINA DANA ARTHA 
+        )
+
+    [186] => stdClass Object
+        (
+            [kd_pj] => C34
+            [png_jawab] => ASURANSI BOSOWA PERISKOP
+        )
+
+    [187] => stdClass Object
+        (
+            [kd_pj] => C35
+            [png_jawab] => ASR - ASURANSI BERINGIN LIFE
+        )
+
+    [188] => stdClass Object
+        (
+            [kd_pj] => C36
+            [png_jawab] => ASR - ASURANSI BUMIDA
+        )
+
+    [189] => stdClass Object
+        (
+            [kd_pj] => C37
+            [png_jawab] => ASR - ASURANSI CAKRAWALA
+        )
+
+    [190] => stdClass Object
+        (
+            [kd_pj] => C38
+            [png_jawab] => ASR - ASURANSI CENTRAL ASIA (ACA)
+        )
+
+    [191] => stdClass Object
+        (
+            [kd_pj] => C39
+            [png_jawab] => ASR - ASURANSI CHUBB GENERAL INSURAN
+        )
+
+    [192] => stdClass Object
+        (
+            [kd_pj] => C40
+            [png_jawab] => ASR - ASURANSI CHUBB LIFE
+        )
+
+    [193] => stdClass Object
+        (
+            [kd_pj] => C41
+            [png_jawab] => ASR - ASURANSI CIGNA INTERNASIONAL
+        )
+
+    [194] => stdClass Object
+        (
+            [kd_pj] => C42
+            [png_jawab] => ASR - ASURANSI COMMONWEALTH LIFE
+        )
+
+    [195] => stdClass Object
+        (
+            [kd_pj] => C43
+            [png_jawab] => ASR - ASURANSI CYNERGY CARE
+        )
+
+    [196] => stdClass Object
+        (
+            [kd_pj] => C44
+            [png_jawab] => ASR - ASURANSI DAYIN MITRA 
+        )
+
+    [197] => stdClass Object
+        (
+            [kd_pj] => C45
+            [png_jawab] => ASR - ASURANSI FULLERTON
+        )
+
+    [198] => stdClass Object
+        (
+            [kd_pj] => C46
+            [png_jawab] => ASR - ASURANSI FWD LIFE INDONESIA 
+        )
+
+    [199] => stdClass Object
+        (
+            [kd_pj] => C47
+            [png_jawab] => ASR - GLOBAL ASISTENSI MANAJEMEN IND
+        )
+
+    [200] => stdClass Object
+        (
+            [kd_pj] => C48
+            [png_jawab] => ASR - ASURANSI HANWHA LIFE
+        )
+
+    [201] => stdClass Object
+        (
+            [kd_pj] => C49
+            [png_jawab] => ASR - ASURANSI I AM CARE
+        )
+
+    [202] => stdClass Object
+        (
+            [kd_pj] => C50
+            [png_jawab] => ASR - ASURANSI INDOSURYA
+        )
+
+    [203] => stdClass Object
+        (
+            [kd_pj] => C51
+            [png_jawab] => ASR - ASURANSI INDRAPURA PACIFIC CRO
+        )
+
+    [204] => stdClass Object
+        (
+            [kd_pj] => C52
+            [png_jawab] => ASR - ASURANSI INHEALTH
+        )
+
+    [205] => stdClass Object
+        (
+            [kd_pj] => C53
+            [png_jawab] => ASURANSI INTRA ASIA 
+        )
+
+    [206] => stdClass Object
+        (
+            [kd_pj] => C54
+            [png_jawab] => ASR - ASURANSI JASA INDONESIA 
+        )
+
+    [207] => stdClass Object
+        (
+            [kd_pj] => C55
+            [png_jawab] => ASURANSI JIWA BAKRIE 
+        )
+
+    [208] => stdClass Object
+        (
+            [kd_pj] => C56
+            [png_jawab] => ASR - ASURANSI JIWA EKA LIFE 
+        )
+
+    [209] => stdClass Object
+        (
+            [kd_pj] => C57
+            [png_jawab] => ASR - ADMEDIKA GENERALI
+        )
+
+    [210] => stdClass Object
+        (
+            [kd_pj] => C58
+            [png_jawab] => ASR - ASURANSI JIWA RECAPITAL
+        )
+
+    [211] => stdClass Object
+        (
+            [kd_pj] => C59
+            [png_jawab] => ASURANSI JIWA SEQUISLIFE
+        )
+
+    [212] => stdClass Object
+        (
+            [kd_pj] => C60
+            [png_jawab] => ASR - ASURANSI JIWA SINARMAS MSIG
+        )
+
+    [213] => stdClass Object
+        (
+            [kd_pj] => C61
+            [png_jawab] => ASURANSI JIWASRAYA 
+        )
+
+    [214] => stdClass Object
+        (
+            [kd_pj] => C62
+            [png_jawab] => ASR - ASURANSI KRESNA LIFE
+        )
+
+    [215] => stdClass Object
+        (
+            [kd_pj] => C63
+            [png_jawab] => ASR - ASURANSI LIVE GREAT
+        )
+
+    [216] => stdClass Object
+        (
+            [kd_pj] => C64
+            [png_jawab] => ASURANSI MAKE HEALTH CONNECT
+        )
+
+    [217] => stdClass Object
+        (
+            [kd_pj] => C65
+            [png_jawab] => ASR - PT. BANK MANDIRI TASPEN
+        )
+
+    [218] => stdClass Object
+        (
+            [kd_pj] => C66
+            [png_jawab] => ASR - ASURANSI MANDIRI KESEHATAN PRI
+        )
+
+    [219] => stdClass Object
+        (
+            [kd_pj] => C67
+            [png_jawab] => ASR - ASURANSI MANULIFE INDONESIA 
+        )
+
+    [220] => stdClass Object
+        (
+            [kd_pj] => C68
+            [png_jawab] => ASR - ASURANSI MAYAPADA LIFE 
+        )
+
+    [221] => stdClass Object
+        (
+            [kd_pj] => C69
+            [png_jawab] => ASR - ASURANSI MEDIA HEALTH CARE
+        )
+
+    [222] => stdClass Object
+        (
+            [kd_pj] => C70
+            [png_jawab] => ASR - ASURANSI MEDICA PLAZA
+        )
+
+    [223] => stdClass Object
+        (
+            [kd_pj] => C71
+            [png_jawab] => ASR - ASURANSI MEDICILLIN
+        )
+
+    [224] => stdClass Object
+        (
+            [kd_pj] => C72
+            [png_jawab] => ASR - ASURANSI MEDILUM
+        )
+
+    [225] => stdClass Object
+        (
+            [kd_pj] => C73
+            [png_jawab] => ASR - ASURANSI MEGA HEALTH
+        )
+
+    [226] => stdClass Object
+        (
+            [kd_pj] => C74
+            [png_jawab] => ASURANSI MITRA MAPARYA
+        )
+
+    [227] => stdClass Object
+        (
+            [kd_pj] => C75
+            [png_jawab] => ASR - ASURANSI MNC LIFE
+        )
+
+    [228] => stdClass Object
+        (
+            [kd_pj] => C76
+            [png_jawab] => ASR - PSN ASURANSI NAYAKA
+        )
+
+    [229] => stdClass Object
+        (
+            [kd_pj] => C77
+            [png_jawab] => ASR - ASURANSI PACIFIC CROSS
+        )
+
+    [230] => stdClass Object
+        (
+            [kd_pj] => C78
+            [png_jawab] => ASR - ASURANSI PAN PACIFIC
+        )
+
+    [231] => stdClass Object
+        (
+            [kd_pj] => C79
+            [png_jawab] => ASR - ASURANSI PANIN LIFE
+        )
+
+    [232] => stdClass Object
+        (
+            [kd_pj] => C80
+            [png_jawab] => ASR - ASURANSI PENSIUNAN BULOG
+        )
+
+    [233] => stdClass Object
+        (
+            [kd_pj] => C81
+            [png_jawab] => ASR - ASURANSI PLATINUM
+        )
+
+    [234] => stdClass Object
+        (
+            [kd_pj] => C82
+            [png_jawab] => ASR - ASURANSI PLATINUM HEALTH CARE
+        )
+
+    [235] => stdClass Object
+        (
+            [kd_pj] => C83
+            [png_jawab] => ASURANSI RAMA SATRIA WIBAWA 
+        )
+
+    [236] => stdClass Object
+        (
+            [kd_pj] => C84
+            [png_jawab] => ASR - ASURANSI RAMAYANA 
+        )
+
+    [237] => stdClass Object
+        (
+            [kd_pj] => C85
+            [png_jawab] => ASR - ASURANSI RELIANCE 
+        )
+
+    [238] => stdClass Object
+        (
+            [kd_pj] => C86
+            [png_jawab] => ASR - ASURANSI RELIFE
+        )
+
+    [239] => stdClass Object
+        (
+            [kd_pj] => C87
+            [png_jawab] => ASURANSI SAMSUNG TUGU
+        )
+
+    [240] => stdClass Object
+        (
+            [kd_pj] => C88
+            [png_jawab] => ASR - ASURANSI SEQUISLIFE
+        )
+
+    [241] => stdClass Object
+        (
+            [kd_pj] => C89
+            [png_jawab] => ASR - ASURANSI SILOAM CARE
+        )
+
+    [242] => stdClass Object
+        (
+            [kd_pj] => C90
+            [png_jawab] => ASR - ASURANSI SOMPO
+        )
+
+    [243] => stdClass Object
+        (
+            [kd_pj] => C91
+            [png_jawab] => ASURANSI TAKAFUL KELUARGA 
+        )
+
+    [244] => stdClass Object
+        (
+            [kd_pj] => C92
+            [png_jawab] => ASR - ASURANSI TUGU MANDIRI
+        )
+
+    [245] => stdClass Object
+        (
+            [kd_pj] => C93
+            [png_jawab] => ASR - ASURANSI UMUM MEGA
+        )
+
+    [246] => stdClass Object
+        (
+            [kd_pj] => C94
+            [png_jawab] => ASR - ASURANSI WANA ARTHA LIFE 
+        )
+
+    [247] => stdClass Object
+        (
+            [kd_pj] => C95
+            [png_jawab] => ASURANSI WINTHERTUR LIFE INDO
+        )
+
+    [248] => stdClass Object
+        (
+            [kd_pj] => C96
+            [png_jawab] => AUTO 2000 
+        )
+
+    [249] => stdClass Object
+        (
+            [kd_pj] => C97
+            [png_jawab] => ASR - AXA FINANCIAL INDONESIA  
+        )
+
+    [250] => stdClass Object
+        (
+            [kd_pj] => C98
+            [png_jawab] => ASR - AXA GENERAL INDONESIA (AGI)
+        )
+
+    [251] => stdClass Object
+        (
+            [kd_pj] => C99
+            [png_jawab] => ASR - AXA HEALTHCARE MANAGEMENT (AHM
+        )
+
+    [252] => stdClass Object
+        (
+            [kd_pj] => CAS
+            [png_jawab] => ASR - CAR SYARIAH
+        )
+
+    [253] => stdClass Object
+        (
+            [kd_pj] => CBL
+            [png_jawab] => ASR - BANK LAMPUNG (COB SUB)
+        )
+
+    [254] => stdClass Object
+        (
+            [kd_pj] => CBR
+            [png_jawab] => ASR - BRI LIFE (COB SUB)
+        )
+
+    [255] => stdClass Object
+        (
+            [kd_pj] => CBT
+            [png_jawab] => ASR - BANK BTN (COB SUB)
+        )
+
+    [256] => stdClass Object
+        (
+            [kd_pj] => CGM
+            [png_jawab] => ASR - GMP (COB MAX)
+        )
+
+    [257] => stdClass Object
+        (
+            [kd_pj] => CGN
+            [png_jawab] => ASR - GONUSA PRIMA (COB SUB)
+        )
+
+    [258] => stdClass Object
+        (
+            [kd_pj] => CGP
+            [png_jawab] => ASR - GGPC (COB MAX)
+        )
+
+    [259] => stdClass Object
+        (
+            [kd_pj] => CIN
+            [png_jawab] => ASR - ASURANSI CIPUTRA INDONESIA
+        )
+
+    [260] => stdClass Object
+        (
+            [kd_pj] => CKI
+            [png_jawab] => ASR - KAI (COB MAX)
+        )
+
+    [261] => stdClass Object
+        (
+            [kd_pj] => CKM
+            [png_jawab] => ASR - KMP (COB MAX)
+        )
+
+    [262] => stdClass Object
+        (
+            [kd_pj] => CMI
+            [png_jawab] => ASR - MANDIRI INHEALTH INDEMNITY (COB SUB)
+        )
+
+    [263] => stdClass Object
+        (
+            [kd_pj] => CNS
+            [png_jawab] => ASR - ADMEDIKA CNS
+        )
+
+    [264] => stdClass Object
+        (
+            [kd_pj] => CNY
+            [png_jawab] => ASR - NAYAKA (COB MAX)
+        )
+
+    [265] => stdClass Object
+        (
+            [kd_pj] => CPD
+            [png_jawab] => ASR - PDAM (COB MAX)
+        )
+
+    [266] => stdClass Object
+        (
+            [kd_pj] => CPK
+            [png_jawab] => ASR - PT CITRA PALMA KENCANA
+        )
+
+    [267] => stdClass Object
+        (
+            [kd_pj] => CPS
+            [png_jawab] => ASR - PUSRI (COB MAX)
+        )
+
+    [268] => stdClass Object
+        (
+            [kd_pj] => CPT
+            [png_jawab] => ASR - PTPN 7 (COB MAX)
+        )
+
+    [269] => stdClass Object
+        (
+            [kd_pj] => CSI
+            [png_jawab] => ASR - SINTEK (COB SUB)
+        )
+
+    [270] => stdClass Object
+        (
+            [kd_pj] => D01
+            [png_jawab] => ASR - BADAN PENYELENGGARA JPKM RSP
+        )
+
+    [271] => stdClass Object
+        (
+            [kd_pj] => D02
+            [png_jawab] => BAJRA 
+        )
+
+    [272] => stdClass Object
+        (
+            [kd_pj] => D03
+            [png_jawab] => BAKRIE TELEKOM 
+        )
+
+    [273] => stdClass Object
+        (
+            [kd_pj] => D04
+            [png_jawab] => ASR - BALAI POM
+        )
+
+    [274] => stdClass Object
+        (
+            [kd_pj] => D05
+            [png_jawab] => ASR - BANK ARTHA GRAHA
+        )
+
+    [275] => stdClass Object
+        (
+            [kd_pj] => D06
+            [png_jawab] => BANK BJB
+        )
+
+    [276] => stdClass Object
+        (
+            [kd_pj] => D07
+            [png_jawab] => ASR - BANK BRI SYARIAH
+        )
+
+    [277] => stdClass Object
+        (
+            [kd_pj] => D08
+            [png_jawab] => ASR - BANK CENTRAL ASIA 
+        )
+
+    [278] => stdClass Object
+        (
+            [kd_pj] => D09
+            [png_jawab] => ASR - BANK MUAMALAT 
+        )
+
+    [279] => stdClass Object
+        (
+            [kd_pj] => D10
+            [png_jawab] => ASR - BANK PANIN 
+        )
+
+    [280] => stdClass Object
+        (
+            [kd_pj] => D11
+            [png_jawab] => ASR - BANK TABUNGAN NEGARA
+        )
+
+    [281] => stdClass Object
+        (
+            [kd_pj] => D12
+            [png_jawab] => BERCA SCHINDIER 
+        )
+
+    [282] => stdClass Object
+        (
+            [kd_pj] => D13
+            [png_jawab] => ASR - BFI FINANCE 
+        )
+
+    [283] => stdClass Object
+        (
+            [kd_pj] => D14
+            [png_jawab] => ASR - RS BHAYANGKARA
+        )
+
+    [284] => stdClass Object
+        (
+            [kd_pj] => D15
+            [png_jawab] => BHAYANGKARI
+        )
+
+    [285] => stdClass Object
+        (
+            [kd_pj] => D16
+            [png_jawab] => BIRULAUT KHATULISTIWA 
+        )
+
+    [286] => stdClass Object
+        (
+            [kd_pj] => D17
+            [png_jawab] => BRATA KERTA RAHARJA 
+        )
+
+    [287] => stdClass Object
+        (
+            [kd_pj] => D18
+            [png_jawab] => BUKIT ASAM 
+        )
+
+    [288] => stdClass Object
+        (
+            [kd_pj] => D19
+            [png_jawab] => BUMA 
+        )
+
+    [289] => stdClass Object
+        (
+            [kd_pj] => D20
+            [png_jawab] => BUMI ASIH JAYA 
+        )
+
+    [290] => stdClass Object
+        (
+            [kd_pj] => D21
+            [png_jawab] => BURLIF 
+        )
+
+    [291] => stdClass Object
+        (
+            [kd_pj] => D22
+            [png_jawab] => ASR - BW, CV
+        )
+
+    [292] => stdClass Object
+        (
+            [kd_pj] => D23
+            [png_jawab] => CAHAYA DUTA PERSADA 
+        )
+
+    [293] => stdClass Object
+        (
+            [kd_pj] => D24
+            [png_jawab] => ASR - CENTRAL BALI BAHARI 
+        )
+
+    [294] => stdClass Object
+        (
+            [kd_pj] => D25
+            [png_jawab] => CENTRAL INTERNATIONAL EDUCATIO
+        )
+
+    [295] => stdClass Object
+        (
+            [kd_pj] => D26
+            [png_jawab] => ASR - CENTRAL PERTIWI BAHARI 
+        )
+
+    [296] => stdClass Object
+        (
+            [kd_pj] => D27
+            [png_jawab] => ASR - CENTRAL PROTEINA PRIMA 
+        )
+
+    [297] => stdClass Object
+        (
+            [kd_pj] => D28
+            [png_jawab] => ASR - CHEIL JEDANG 
+        )
+
+    [298] => stdClass Object
+        (
+            [kd_pj] => D29
+            [png_jawab] => ASR - CIOMAS ADISATWA (JAPFA) 
+        )
+
+    [299] => stdClass Object
+        (
+            [kd_pj] => D30
+            [png_jawab] => ASR - CIPTA KRIDA BAHARI 
+        )
+
+    [300] => stdClass Object
+        (
+            [kd_pj] => D31
+            [png_jawab] => ASR - CITRA INTERNATIONAL UNDERWRIT
+        )
+
+    [301] => stdClass Object
+        (
+            [kd_pj] => D32
+            [png_jawab] => ASR - CJ CHEIL JEDANG FEED LAMPUNG 
+        )
+
+    [302] => stdClass Object
+        (
+            [kd_pj] => D33
+            [png_jawab] => ASR - COCACOLA COMP 
+        )
+
+    [303] => stdClass Object
+        (
+            [kd_pj] => D34
+            [png_jawab] => ASR - CPB 
+        )
+
+    [304] => stdClass Object
+        (
+            [kd_pj] => D35
+            [png_jawab] => ASR - DAIWA INTERNASIONAL GRUP 
+        )
+
+    [305] => stdClass Object
+        (
+            [kd_pj] => D36
+            [png_jawab] => DARYA - VARIA LABORATORIA 
+        )
+
+    [306] => stdClass Object
+        (
+            [kd_pj] => D37
+            [png_jawab] => DEBIT MANDIRI
+        )
+
+    [307] => stdClass Object
+        (
+            [kd_pj] => D38
+            [png_jawab] => ASR - DJARUM 
+        )
+
+    [308] => stdClass Object
+        (
+            [kd_pj] => D39
+            [png_jawab] => DWIDAYA SENTRA PERKASA 
+        )
+
+    [309] => stdClass Object
+        (
+            [kd_pj] => D40
+            [png_jawab] => EASCO MEDIKA 
+        )
+
+    [310] => stdClass Object
+        (
+            [kd_pj] => D41
+            [png_jawab] => EDUCATION GLOBAL SERVICE 
+        )
+
+    [311] => stdClass Object
+        (
+            [kd_pj] => D42
+            [png_jawab] => ENERGIZER INDONESIA 
+        )
+
+    [312] => stdClass Object
+        (
+            [kd_pj] => D43
+            [png_jawab] => ENGGAL PERDANA 
+        )
+
+    [313] => stdClass Object
+        (
+            [kd_pj] => D44
+            [png_jawab] => ESKINDO 
+        )
+
+    [314] => stdClass Object
+        (
+            [kd_pj] => D45
+            [png_jawab] => ASR - FAST FOOD INDONESIA 
+        )
+
+    [315] => stdClass Object
+        (
+            [kd_pj] => D46
+            [png_jawab] => ASR - F-I-F-XXX
+        )
+
+    [316] => stdClass Object
+        (
+            [kd_pj] => D47
+            [png_jawab] => ASR - FIF LAMPUNG
+        )
+
+    [317] => stdClass Object
+        (
+            [kd_pj] => D48
+            [png_jawab] => ASR - FULLERTON
+        )
+
+    [318] => stdClass Object
+        (
+            [kd_pj] => D49
+            [png_jawab] => ASR - GARDA MEDIKA
+        )
+
+    [319] => stdClass Object
+        (
+            [kd_pj] => D50
+            [png_jawab] => ASR - GARUDA FOOD 
+        )
+
+    [320] => stdClass Object
+        (
+            [kd_pj] => D51
+            [png_jawab] => ASR - GARUDA INDONESIA 
+        )
+
+    [321] => stdClass Object
+        (
+            [kd_pj] => D52
+            [png_jawab] => GAWI BAHANDEP SAWIT MEKAR 
+        )
+
+    [322] => stdClass Object
+        (
+            [kd_pj] => D53
+            [png_jawab] => ASR - GGPC
+        )
+
+    [323] => stdClass Object
+        (
+            [kd_pj] => D54
+            [png_jawab] => ASR - GLOBAL ASSISTENCE dan HEALTHCA
+        )
+
+    [324] => stdClass Object
+        (
+            [kd_pj] => D55
+            [png_jawab] => ASR - GPM 
+        )
+
+    [325] => stdClass Object
+        (
+            [kd_pj] => D56
+            [png_jawab] => GRAHAWITA SANTIKA 
+        )
+
+    [326] => stdClass Object
+        (
+            [kd_pj] => D57
+            [png_jawab] => ASR - GREAT EASTERN LIFE INDONESIA 
+        )
+
+    [327] => stdClass Object
+        (
+            [kd_pj] => D58
+            [png_jawab] => ASR - GREAT GIANT PINEAPPLE COY
+        )
+
+    [328] => stdClass Object
+        (
+            [kd_pj] => D59
+            [png_jawab] => ASR - GUDANG GARAM
+        )
+
+    [329] => stdClass Object
+        (
+            [kd_pj] => D60
+            [png_jawab] => ASR - GUNUNG MADU PLANTATIONS
+        )
+
+    [330] => stdClass Object
+        (
+            [kd_pj] => D61
+            [png_jawab] => HMO
+        )
+
+    [331] => stdClass Object
+        (
+            [kd_pj] => D62
+            [png_jawab] => HANJUNG INDONESIA
+        )
+
+    [332] => stdClass Object
+        (
+            [kd_pj] => D63
+            [png_jawab] => HAREN 
+        )
+
+    [333] => stdClass Object
+        (
+            [kd_pj] => D64
+            [png_jawab] => ASR - HOLLAND BAKERY
+        )
+
+    [334] => stdClass Object
+        (
+            [kd_pj] => D65
+            [png_jawab] => ASR - OONA INSURANCE
+        )
+
+    [335] => stdClass Object
+        (
+            [kd_pj] => D66
+            [png_jawab] => ASR - HOTEL BATIQA
+        )
+
+    [336] => stdClass Object
+        (
+            [kd_pj] => D67
+            [png_jawab] => ASR - HOTEL EMERSIA
+        )
+
+    [337] => stdClass Object
+        (
+            [kd_pj] => D68
+            [png_jawab] => ASR - HOTEL NOVOTEL
+        )
+
+    [338] => stdClass Object
+        (
+            [kd_pj] => D69
+            [png_jawab] => ASR - HOTEL SEVEN
+        )
+
+    [339] => stdClass Object
+        (
+            [kd_pj] => D70
+            [png_jawab] => ASR - HOTEL SHERATON LAMPUNG
+        )
+
+    [340] => stdClass Object
+        (
+            [kd_pj] => D71
+            [png_jawab] => HUTAMA INDAH MEKAR
+        )
+
+    [341] => stdClass Object
+        (
+            [kd_pj] => D72
+            [png_jawab] => HUTAMA KARYA
+        )
+
+    [342] => stdClass Object
+        (
+            [kd_pj] => D73
+            [png_jawab] => IBI DARMAJAYA
+        )
+
+    [343] => stdClass Object
+        (
+            [kd_pj] => D74
+            [png_jawab] => ICON PLUS ADMEDIKA
+        )
+
+    [344] => stdClass Object
+        (
+            [kd_pj] => D75
+            [png_jawab] => INDOBARA BAHANA
+        )
+
+    [345] => stdClass Object
+        (
+            [kd_pj] => D76
+            [png_jawab] => ASR - INDOCAFCO
+        )
+
+    [346] => stdClass Object
+        (
+            [kd_pj] => D77
+            [png_jawab] => ASR - INDOFOOD SUKSES MAKMUR
+        )
+
+    [347] => stdClass Object
+        (
+            [kd_pj] => D78
+            [png_jawab] => ASR - INDOSAT
+        )
+
+    [348] => stdClass Object
+        (
+            [kd_pj] => D79
+            [png_jawab] => ASR - INHEALTH ADMEDIKA
+        )
+
+    [349] => stdClass Object
+        (
+            [kd_pj] => D80
+            [png_jawab] => ASR - INTERNATIONAL PACIFIC CROSS
+        )
+
+    [350] => stdClass Object
+        (
+            [kd_pj] => D81
+            [png_jawab] => ASR - INTRIAS MANDIRI SEJATI
+        )
+
+    [351] => stdClass Object
+        (
+            [kd_pj] => D82
+            [png_jawab] => ASR - IPC PELABUHAN TANJUNG PRIOK
+        )
+
+    [352] => stdClass Object
+        (
+            [kd_pj] => D83
+            [png_jawab] => ASR - PSN IPC TERMINAL PETIKEMAS
+        )
+
+    [353] => stdClass Object
+        (
+            [kd_pj] => D84
+            [png_jawab] => ASR - JAPFA COMFEED INDONESIA TBK
+        )
+
+    [354] => stdClass Object
+        (
+            [kd_pj] => D85
+            [png_jawab] => ASR - JASA ARMADA INDONESIA
+        )
+
+    [355] => stdClass Object
+        (
+            [kd_pj] => D86
+            [png_jawab] => ASR - JASA RAHARJA
+        )
+
+    [356] => stdClass Object
+        (
+            [kd_pj] => D87
+            [png_jawab] => ASR - JASA RAHARJA PUTRA
+        )
+
+    [357] => stdClass Object
+        (
+            [kd_pj] => D88
+            [png_jawab] => ASR - JMA SYARIAH ADMEDIKA
+        )
+
+    [358] => stdClass Object
+        (
+            [kd_pj] => D89
+            [png_jawab] => ASR - JMCC INDONESIA
+        )
+
+    [359] => stdClass Object
+        (
+            [kd_pj] => D90
+            [png_jawab] => ASR - JOTUN
+        )
+
+    [360] => stdClass Object
+        (
+            [kd_pj] => D91
+            [png_jawab] => ASR - PSN JPKM ADMEDIKA
+        )
+
+    [361] => stdClass Object
+        (
+            [kd_pj] => D92
+            [png_jawab] => JUANG JAYA ABADI ALAM
+        )
+
+    [362] => stdClass Object
+        (
+            [kd_pj] => D93
+            [png_jawab] => ASR - K A I
+        )
+
+    [363] => stdClass Object
+        (
+            [kd_pj] => D94
+            [png_jawab] => ASR - KARYAWAN ADMEDIKA
+        )
+
+    [364] => stdClass Object
+        (
+            [kd_pj] => D95
+            [png_jawab] => ASR - KIMIA FARMA
+        )
+
+    [365] => stdClass Object
+        (
+            [kd_pj] => D96
+            [png_jawab] => ASR - KLINIK ENGGAL
+        )
+
+    [366] => stdClass Object
+        (
+            [kd_pj] => D97
+            [png_jawab] => KOMERING JAYA PERDANA
+        )
+
+    [367] => stdClass Object
+        (
+            [kd_pj] => D98
+            [png_jawab] => KOPERASI MITRA INDAH
+        )
+
+    [368] => stdClass Object
+        (
+            [kd_pj] => D99
+            [png_jawab] => KRIYA SWARNA PUBIAN
+        )
+
+    [369] => stdClass Object
+        (
+            [kd_pj] => E01
+            [png_jawab] => ASR - LABORATORIUM ENGGAL
+        )
+
+    [370] => stdClass Object
+        (
+            [kd_pj] => E02
+            [png_jawab] => LUXINDO RAYA
+        )
+
+    [371] => stdClass Object
+        (
+            [kd_pj] => E03
+            [png_jawab] => MAGNA SEHAT
+        )
+
+    [372] => stdClass Object
+        (
+            [kd_pj] => E04
+            [png_jawab] => ASR - MANDIRI AXA GENERAL INSURANCE
+        )
+
+    [373] => stdClass Object
+        (
+            [kd_pj] => E05
+            [png_jawab] => ASR - MARITIM BARITO PERKASA
+        )
+
+    [374] => stdClass Object
+        (
+            [kd_pj] => E06
+            [png_jawab] => ASR - MEDICAL ASSISTANCE HEALTH CARE
+        )
+
+    [375] => stdClass Object
+        (
+            [kd_pj] => E07
+            [png_jawab] => ASR - MEDIKOM PRIMA
+        )
+
+    [376] => stdClass Object
+        (
+            [kd_pj] => E08
+            [png_jawab] => ASR - MEDILINK
+        )
+
+    [377] => stdClass Object
+        (
+            [kd_pj] => E09
+            [png_jawab] => ASR - MEGA AUTO FINANCE (MAF)
+        )
+
+    [378] => stdClass Object
+        (
+            [kd_pj] => E10
+            [png_jawab] => ASR - MEGA AUTO FINANCIAL
+        )
+
+    [379] => stdClass Object
+        (
+            [kd_pj] => E11
+            [png_jawab] => ASR - MEGA PETRO SYNERGY
+        )
+
+    [380] => stdClass Object
+        (
+            [kd_pj] => E12
+            [png_jawab] => MENARA
+        )
+
+    [381] => stdClass Object
+        (
+            [kd_pj] => E13
+            [png_jawab] => ASR - MHC INDONESIA
+        )
+
+    [382] => stdClass Object
+        (
+            [kd_pj] => E14
+            [png_jawab] => MIRAMBI ENERGI
+        )
+
+    [383] => stdClass Object
+        (
+            [kd_pj] => E15
+            [png_jawab] => MITRA KELUARGA PIRANTI SEHAT
+        )
+
+    [384] => stdClass Object
+        (
+            [kd_pj] => E16
+            [png_jawab] => MULTI BANGUN ABADI
+        )
+
+    [385] => stdClass Object
+        (
+            [kd_pj] => E17
+            [png_jawab] => MULTI BINTANG
+        )
+
+    [386] => stdClass Object
+        (
+            [kd_pj] => E18
+            [png_jawab] => ASR - MULTI KARYA ENGINEERING
+        )
+
+    [387] => stdClass Object
+        (
+            [kd_pj] => E19
+            [png_jawab] => ASR - MULTICOM
+        )
+
+    [388] => stdClass Object
+        (
+            [kd_pj] => E20
+            [png_jawab] => NATAFARI
+        )
+
+    [389] => stdClass Object
+        (
+            [kd_pj] => E21
+            [png_jawab] => ASR - NEDCOFFEE INDONESIA MAKMUR JAY
+        )
+
+    [390] => stdClass Object
+        (
+            [kd_pj] => E22
+            [png_jawab] => NEKA BOGA PERSIA
+        )
+
+    [391] => stdClass Object
+        (
+            [kd_pj] => E23
+            [png_jawab] => ASR - NESTLE INDONESIA
+        )
+
+    [392] => stdClass Object
+        (
+            [kd_pj] => E24
+            [png_jawab] => ASR - OLAM INDONESIA
+        )
+
+    [393] => stdClass Object
+        (
+            [kd_pj] => E25
+            [png_jawab] => ASR - OTORITAS JASA KEUANGAN
+        )
+
+    [394] => stdClass Object
+        (
+            [kd_pj] => E26
+            [png_jawab] => ASR - OWLEXA HEALTH CARE
+        )
+
+    [395] => stdClass Object
+        (
+            [kd_pj] => E27
+            [png_jawab] => ASR - PAMA PERSADA NUSANTARA
+        )
+
+    [396] => stdClass Object
+        (
+            [kd_pj] => E28
+            [png_jawab] => PARINDO PERMAI
+        )
+
+    [397] => stdClass Object
+        (
+            [kd_pj] => E29
+            [png_jawab] => ASR - PELABUHAN TANJUNG PRIOK
+        )
+
+    [398] => stdClass Object
+        (
+            [kd_pj] => E30
+            [png_jawab] => ASR - PELINDO
+        )
+
+    [399] => stdClass Object
+        (
+            [kd_pj] => E31
+            [png_jawab] => ASR - PEMUKA SAKTI MANIS INDAH
+        )
+
+    [400] => stdClass Object
+        (
+            [kd_pj] => E32
+            [png_jawab] => ASR - PENSIUNAN IPC
+        )
+
+    [401] => stdClass Object
+        (
+            [kd_pj] => E33
+            [png_jawab] => ASR - PSN PERTA MEDIKA
+        )
+
+    [402] => stdClass Object
+        (
+            [kd_pj] => E34
+            [png_jawab] => ASR - PERTAMINA ADMEDIKA
+        )
+
+    [403] => stdClass Object
+        (
+            [kd_pj] => E35
+            [png_jawab] => ASR - PERTAMINA GEOTHERMAL ENERGY
+        )
+
+    [404] => stdClass Object
+        (
+            [kd_pj] => E36
+            [png_jawab] => ASR - PERTAMINA HULU MAHAKAM
+        )
+
+    [405] => stdClass Object
+        (
+            [kd_pj] => E37
+            [png_jawab] => ASR - PERTAMINA
+        )
+
+    [406] => stdClass Object
+        (
+            [kd_pj] => E38
+            [png_jawab] => ASR - ADMEDIKA PERUSAHAAN GAS NEGARA
+        )
+
+    [407] => stdClass Object
+        (
+            [kd_pj] => E39
+            [png_jawab] => PERUSAHAAN PERDAGANGAN INDONES
+        )
+
+    [408] => stdClass Object
+        (
+            [kd_pj] => E40
+            [png_jawab] => PETRA
+        )
+
+    [409] => stdClass Object
+        (
+            [kd_pj] => E41
+            [png_jawab] => PETROSEA
+        )
+
+    [410] => stdClass Object
+        (
+            [kd_pj] => E42
+            [png_jawab] => ASR - PGAS TELEKOMUNIKASI NUSANTARA
+        )
+
+    [411] => stdClass Object
+        (
+            [kd_pj] => E43
+            [png_jawab] => ASR - PGN SOLUTION
+        )
+
+    [412] => stdClass Object
+        (
+            [kd_pj] => E44
+            [png_jawab] => ASR - PHILLIPS SEAFOOD INDONESIA
+        )
+
+    [413] => stdClass Object
+        (
+            [kd_pj] => E45
+            [png_jawab] => ASR - PINDO DELI MEDICARE
+        )
+
+    [414] => stdClass Object
+        (
+            [kd_pj] => E46
+            [png_jawab] => ASR - PJB UNIT PEMBANGKITAN GRESIK
+        )
+
+    [415] => stdClass Object
+        (
+            [kd_pj] => E47
+            [png_jawab] => ASR - PLN ADMEDIKA
+        )
+
+    [416] => stdClass Object
+        (
+            [kd_pj] => E48
+            [png_jawab] => ASR - PLN UID LAMPUNG
+        )
+
+    [417] => stdClass Object
+        (
+            [kd_pj] => E49
+            [png_jawab] => ASR - PLN UIP 3 B SUMATERA
+        )
+
+    [418] => stdClass Object
+        (
+            [kd_pj] => E50
+            [png_jawab] => ASR - PLN
+        )
+
+    [419] => stdClass Object
+        (
+            [kd_pj] => E51
+            [png_jawab] => ASR - PLN AREA KOTA BUMI
+        )
+
+    [420] => stdClass Object
+        (
+            [kd_pj] => E52
+            [png_jawab] => ASR - PLN AREA METRO
+        )
+
+    [421] => stdClass Object
+        (
+            [kd_pj] => E53
+            [png_jawab] => ASR - PLN AREA SEKTOR BANDAR LAMPUNG
+        )
+
+    [422] => stdClass Object
+        (
+            [kd_pj] => E54
+            [png_jawab] => ASR - PLN AREA TANJUNG KARANG
+        )
+
+    [423] => stdClass Object
+        (
+            [kd_pj] => E55
+            [png_jawab] => ASR - PLN UNIT KONSTRUKSI SUMATERA 4
+        )
+
+    [424] => stdClass Object
+        (
+            [kd_pj] => E56
+            [png_jawab] => ASR - PLN UNIT SUMBAGSEL SEKTOR TAR
+        )
+
+    [425] => stdClass Object
+        (
+            [kd_pj] => E57
+            [png_jawab] => ASR - PLN UNIT TRANSMISI TANJUNG KAR
+        )
+
+    [426] => stdClass Object
+        (
+            [kd_pj] => E58
+            [png_jawab] => ASR - BIDDOKES POLDA LAMPUNG (COB MAX)
+        )
+
+    [427] => stdClass Object
+        (
+            [kd_pj] => E59
+            [png_jawab] => ASR - PT. PRABU TIRTA JAYA LESTARI
+        )
+
+    [428] => stdClass Object
+        (
+            [kd_pj] => E60
+            [png_jawab] => PRIMA ALUMGA
+        )
+
+    [429] => stdClass Object
+        (
+            [kd_pj] => E61
+            [png_jawab] => ASR - PRIMA SARANA JASA
+        )
+
+    [430] => stdClass Object
+        (
+            [kd_pj] => E62
+            [png_jawab] => ASR - PRODIA
+        )
+
+    [431] => stdClass Object
+        (
+            [kd_pj] => E63
+            [png_jawab] => ASR - PRUDENTIAL ADMEDIKA
+        )
+
+    [432] => stdClass Object
+        (
+            [kd_pj] => E64
+            [png_jawab] => ASR - PRUDENTIAL
+        )
+
+    [433] => stdClass Object
+        (
+            [kd_pj] => E65
+            [png_jawab] => ASR - PSMI
+        )
+
+    [434] => stdClass Object
+        (
+            [kd_pj] => E66
+            [png_jawab] => ASR - PTPN VII
+        )
+
+    [435] => stdClass Object
+        (
+            [kd_pj] => E67
+            [png_jawab] => ASR - PUPUK SRIWIJAYA
+        )
+
+    [436] => stdClass Object
+        (
+            [kd_pj] => E69
+            [png_jawab] => SAMSUNG ELEKTRONIK
+        )
+
+    [437] => stdClass Object
+        (
+            [kd_pj] => E71
+            [png_jawab] => SANGGAR SARANA BAJA
+        )
+
+    [438] => stdClass Object
+        (
+            [kd_pj] => E72
+            [png_jawab] => ASR - SANTOSA AGRINDO
+        )
+
+    [439] => stdClass Object
+        (
+            [kd_pj] => E73
+            [png_jawab] => SARANA LAMPUNG UTAMA
+        )
+
+    [440] => stdClass Object
+        (
+            [kd_pj] => E74
+            [png_jawab] => SARANA USAHA SEJAHTERA INSAN P
+        )
+
+    [441] => stdClass Object
+        (
+            [kd_pj] => E75
+            [png_jawab] => SCMN
+        )
+
+    [442] => stdClass Object
+        (
+            [kd_pj] => E76
+            [png_jawab] => ASR - SEAPI
+        )
+
+    [443] => stdClass Object
+        (
+            [kd_pj] => E77
+            [png_jawab] => ASR - SEMEN BATU RAJA
+        )
+
+    [444] => stdClass Object
+        (
+            [kd_pj] => E78
+            [png_jawab] => ASR - SHARP
+        )
+
+    [445] => stdClass Object
+        (
+            [kd_pj] => E79
+            [png_jawab] => ASR - SHERATON
+        )
+
+    [446] => stdClass Object
+        (
+            [kd_pj] => E80
+            [png_jawab] => SIL
+        )
+
+    [447] => stdClass Object
+        (
+            [kd_pj] => E81
+            [png_jawab] => ASR - SIP
+        )
+
+    [448] => stdClass Object
+        (
+            [kd_pj] => E82
+            [png_jawab] => ASR - SKKMIGAS
+        )
+
+    [449] => stdClass Object
+        (
+            [kd_pj] => E83
+            [png_jawab] => ASR - SOHO INDUSTRI PHARMASI
+        )
+
+    [450] => stdClass Object
+        (
+            [kd_pj] => E85
+            [png_jawab] => ASR - SUCOFINDO
+        )
+
+    [451] => stdClass Object
+        (
+            [kd_pj] => E86
+            [png_jawab] => ASR - SUMBER CIPTA MULTINIAGA
+        )
+
+    [452] => stdClass Object
+        (
+            [kd_pj] => E87
+            [png_jawab] => SUMBER DAYA DIAN MANDIRI
+        )
+
+    [453] => stdClass Object
+        (
+            [kd_pj] => E88
+            [png_jawab] => ASR - SUMBER INDAH PERKASA
+        )
+
+    [454] => stdClass Object
+        (
+            [kd_pj] => E89
+            [png_jawab] => ASR - SUMMIT OTTO FINANCE
+        )
+
+    [455] => stdClass Object
+        (
+            [kd_pj] => E90
+            [png_jawab] => ASR - SUNLIFE FINANCIAL INDONESIA
+        )
+
+    [456] => stdClass Object
+        (
+            [kd_pj] => E91
+            [png_jawab] => SURVEYOR INDONESIA
+        )
+
+    [457] => stdClass Object
+        (
+            [kd_pj] => E92
+            [png_jawab] => SURYA DARMA PERKASA
+        )
+
+    [458] => stdClass Object
+        (
+            [kd_pj] => E93
+            [png_jawab] => ASR - SUZUKI FINANCE INDONESIA
+        )
+
+    [459] => stdClass Object
+        (
+            [kd_pj] => E94
+            [png_jawab] => SWAKARYA INSAN MANDIRI
+        )
+
+    [460] => stdClass Object
+        (
+            [kd_pj] => E95
+            [png_jawab] => ASR - SWEET INDO LAMPUNG
+        )
+
+    [461] => stdClass Object
+        (
+            [kd_pj] => E96
+            [png_jawab] => ASR - TAKAFUL  ASSURANCE
+        )
+
+    [462] => stdClass Object
+        (
+            [kd_pj] => E97
+            [png_jawab] => ASR - TAKEDA
+        )
+
+    [463] => stdClass Object
+        (
+            [kd_pj] => E98
+            [png_jawab] => ASR - TASPEN
+        )
+
+    [464] => stdClass Object
+        (
+            [kd_pj] => E99
+            [png_jawab] => ASR - YAKES TELKOM AREA SUMATERA
+        )
+
+    [465] => stdClass Object
+        (
+            [kd_pj] => F01
+            [png_jawab] => ASR - TELKOMEDIKA
+        )
+
+    [466] => stdClass Object
+        (
+            [kd_pj] => F02
+            [png_jawab] => ASR - TIRTA INVESTAMA INDUSTRIAL
+        )
+
+    [467] => stdClass Object
+        (
+            [kd_pj] => F03
+            [png_jawab] => ASR - TIRTA MEDICAL CENTRE
+        )
+
+    [468] => stdClass Object
+        (
+            [kd_pj] => F04
+            [png_jawab] => TNI AL
+        )
+
+    [469] => stdClass Object
+        (
+            [kd_pj] => F05
+            [png_jawab] => ASR - TOKIO MARINE LIFE INSURANCE IN
+        )
+
+    [470] => stdClass Object
+        (
+            [kd_pj] => F06
+            [png_jawab] => ASR - TOYOTA ASTRA FINANCIAL SERVICE
+        )
+
+    [471] => stdClass Object
+        (
+            [kd_pj] => F07
+            [png_jawab] => ASR - TOYOTA BIO INDONESIA
+        )
+
+    [472] => stdClass Object
+        (
+            [kd_pj] => F08
+            [png_jawab] => ASR - TRAKINDO UTAMA
+        )
+
+    [473] => stdClass Object
+        (
+            [kd_pj] => F09
+            [png_jawab] => ASR - TRITUNGGAL MANDIRI SOLUSINDO
+        )
+
+    [474] => stdClass Object
+        (
+            [kd_pj] => F10
+            [png_jawab] => ASR - TUGU KRESNA PRATAMA
+        )
+
+    [475] => stdClass Object
+        (
+            [kd_pj] => F11
+            [png_jawab] => ASR - TUGU PRATAMA INDONESIA
+        )
+
+    [476] => stdClass Object
+        (
+            [kd_pj] => F12
+            [png_jawab] => ASR - UNILEVER INDONESIA TBK
+        )
+
+    [477] => stdClass Object
+        (
+            [kd_pj] => F13
+            [png_jawab] => ASR - UNITED TRACTORS
+        )
+
+    [478] => stdClass Object
+        (
+            [kd_pj] => F14
+            [png_jawab] => WAHYUNI WANDIRA
+        )
+
+    [479] => stdClass Object
+        (
+            [kd_pj] => F15
+            [png_jawab] => WESTPOINT
+        )
+
+    [480] => stdClass Object
+        (
+            [kd_pj] => F16
+            [png_jawab] => ASR - WIJAYA KUSUMA CONTRACTORS
+        )
+
+    [481] => stdClass Object
+        (
+            [kd_pj] => F17
+            [png_jawab] => ASR - YAKES BANK INDONESIA
+        )
+
+    [482] => stdClass Object
+        (
+            [kd_pj] => F18
+            [png_jawab] => ASR - YAKES PENSIUNAN BANK DAGANG NE
+        )
+
+    [483] => stdClass Object
+        (
+            [kd_pj] => F19
+            [png_jawab] => ASR - YAYASAN KESEHATAN GARUDA (YANK
+        )
+
+    [484] => stdClass Object
+        (
+            [kd_pj] => F20
+            [png_jawab] => ASR - PSN YKKBI
+        )
+
+    [485] => stdClass Object
+        (
+            [kd_pj] => F21
+            [png_jawab] => ASR - YKP-BDN
+        )
+
+    [486] => stdClass Object
+        (
+            [kd_pj] => F22
+            [png_jawab] => ASR - ZURICH TOPAS LIFE (MAYAPADA LI
+        )
+
+    [487] => stdClass Object
+        (
+            [kd_pj] => F23
+            [png_jawab] => ASR - Asuransi Aviva
+        )
+
+    [488] => stdClass Object
+        (
+            [kd_pj] => F24
+            [png_jawab] => ASR - PELABUHAN BUKIT PRIMA
+        )
+
+    [489] => stdClass Object
+        (
+            [kd_pj] => F25
+            [png_jawab] => ASR - PLN UIK SUMBAGSEL
+        )
+
+    [490] => stdClass Object
+        (
+            [kd_pj] => F26
+            [png_jawab] => VICTORIA INSURANCE
+        )
+
+    [491] => stdClass Object
+        (
+            [kd_pj] => F27
+            [png_jawab] => ASR - AIA ADMEDIKA
+        )
+
+    [492] => stdClass Object
+        (
+            [kd_pj] => F28
+            [png_jawab] => ASR - AMAN JAYA PERDANA PT 
+        )
+
+    [493] => stdClass Object
+        (
+            [kd_pj] => F29
+            [png_jawab] => ASR - PLN UIW KALSELTENG
+        )
+
+    [494] => stdClass Object
+        (
+            [kd_pj] => F30
+            [png_jawab] => ASR - ASURANSI CIGNA INDONESIA
+        )
+
+    [495] => stdClass Object
+        (
+            [kd_pj] => F31
+            [png_jawab] => ASR - PLN UID BANTEN
+        )
+
+    [496] => stdClass Object
+        (
+            [kd_pj] => F99
+            [png_jawab] => KANTOR BAHASA
+        )
+
+    [497] => stdClass Object
+        (
+            [kd_pj] => FAC
+            [png_jawab] => ASR - CV FEED AND CARE (COB SUB)
+        )
+
+    [498] => stdClass Object
+        (
+            [kd_pj] => FPG
+            [png_jawab] => ASR - PT ASURANSI FPG INDONESIA
+        )
+
+    [499] => stdClass Object
+        (
+            [kd_pj] => G11
+            [png_jawab] => ASR - PT GOLD COIN SPECIALITIES
+        )
+
+    [500] => stdClass Object
+        (
+            [kd_pj] => G21
+            [png_jawab] => GEPTRONIKA SENTOSA UTAMA PT
+        )
+
+    [501] => stdClass Object
+        (
+            [kd_pj] => G22
+            [png_jawab] => ASR - PT HARPINDO MITRA KHARISMA
+        )
+
+    [502] => stdClass Object
+        (
+            [kd_pj] => G23
+            [png_jawab] => PT ALLBEST MARINE
+        )
+
+    [503] => stdClass Object
+        (
+            [kd_pj] => G24
+            [png_jawab] => ASR - PT. ADIARTHA SWABUANA
+        )
+
+    [504] => stdClass Object
+        (
+            [kd_pj] => GEX
+            [png_jawab] => ASR - GLOBAL EXCEL
+        )
+
+    [505] => stdClass Object
+        (
+            [kd_pj] => GMP
+            [png_jawab] => ASR - GMP (COB SUB)
+        )
+
+    [506] => stdClass Object
+        (
+            [kd_pj] => GNP
+            [png_jawab] => ASR - GONUSA PRIMA
+        )
+
+    [507] => stdClass Object
+        (
+            [kd_pj] => GPC
+            [png_jawab] => ASR - GGPC (COB SUB)
+        )
+
+    [508] => stdClass Object
+        (
+            [kd_pj] => GRH
+            [png_jawab] => ASR - RS GRAHA HUSADA
+        )
+
+    [509] => stdClass Object
+        (
+            [kd_pj] => H41
+            [png_jawab] => ASR - Halodoc
+        )
+
+    [510] => stdClass Object
+        (
+            [kd_pj] => HEI
+            [png_jawab] => ASR - PT HUANYU ENGINEERING INDONESIA
+        )
+
+    [511] => stdClass Object
+        (
+            [kd_pj] => IAK
+            [png_jawab] => ASR - PT KAI (COB SUB)
+        )
+
+    [512] => stdClass Object
+        (
+            [kd_pj] => IDK
+            [png_jawab] => ASR - ADMEDIKA IDMIMK
+        )
+
+    [513] => stdClass Object
+        (
+            [kd_pj] => IDM
+            [png_jawab] => ASR - ADMEDIKA IDMCOAL
+        )
+
+    [514] => stdClass Object
+        (
+            [kd_pj] => INH
+            [png_jawab] => ASR - ASKES INHEALTH (COB SUB)
+        )
+
+    [515] => stdClass Object
+        (
+            [kd_pj] => IPG
+            [png_jawab] => ASR - PT INDONESIA PREMIUM GOODS
+        )
+
+    [516] => stdClass Object
+        (
+            [kd_pj] => IS5
+            [png_jawab] => ASR - PT. ISS INDONESIA
+        )
+
+    [517] => stdClass Object
+        (
+            [kd_pj] => ISO
+            [png_jawab] => ASR - ISOMEDIK
+        )
+
+    [518] => stdClass Object
+        (
+            [kd_pj] => ITM
+            [png_jawab] => ASR - ADMEDIKA ITM
+        )
+
+    [519] => stdClass Object
+        (
+            [kd_pj] => ITP
+            [png_jawab] => ASR - IPC TERMINAL PETIKEMAS
+        )
+
+    [520] => stdClass Object
+        (
+            [kd_pj] => J01
+            [png_jawab] => ASR - JAMKESKOT
+        )
+
+    [521] => stdClass Object
+        (
+            [kd_pj] => JFI
+            [png_jawab] => ASR - JAPFA FOOD INDONESIA ADMEDIKA
+        )
+
+    [522] => stdClass Object
+        (
+            [kd_pj] => JMP
+            [png_jawab] => ASR - PT JASA MARGA PERSERO
+        )
+
+    [523] => stdClass Object
+        (
+            [kd_pj] => JMS
+            [png_jawab] => ASR - ADMEDIKA JMAS
+        )
+
+    [524] => stdClass Object
+        (
+            [kd_pj] => JRM
+            [png_jawab] => ASR - JASA RAHARJA (COB MAX)
+        )
+
+    [525] => stdClass Object
+        (
+            [kd_pj] => K25
+            [png_jawab] => ASR - CITRA KARSA DINAMIKA PT
+        )
+
+    [526] => stdClass Object
+        (
+            [kd_pj] => K5K
+            [png_jawab] => ASR - KSK INSURANCE ADMEDIKA
+        )
+
+    [527] => stdClass Object
+        (
+            [kd_pj] => KAI
+            [png_jawab] => ASR - PT KAI
+        )
+
+    [528] => stdClass Object
+        (
+            [kd_pj] => KIN
+            [png_jawab] => ASR - PT. KALIMANTAN ALUMINIUM INDUSTRY
+        )
+
+    [529] => stdClass Object
+        (
+            [kd_pj] => KK1
+            [png_jawab] => ASR - PT Korindo Konstruksi
+        )
+
+    [530] => stdClass Object
+        (
+            [kd_pj] => KPI
+            [png_jawab] => ASR - PT. KILANG PERTAMINA INTERNATIONAL
+        )
+
+    [531] => stdClass Object
+        (
+            [kd_pj] => KPP
+            [png_jawab] => ASR - PT. KALIMANTAN PRIMA PERSADA
+        )
+
+    [532] => stdClass Object
+        (
+            [kd_pj] => M4G
+            [png_jawab] => Magna Sehat
+        )
+
+    [533] => stdClass Object
+        (
+            [kd_pj] => M4R
+            [png_jawab] => MRT Jakarta
+        )
+
+    [534] => stdClass Object
+        (
+            [kd_pj] => MD1
+            [png_jawab] => ASR - MEDCO E&P INDONESIA. PT
+        )
+
+    [535] => stdClass Object
+        (
+            [kd_pj] => MIA
+            [png_jawab] => ASR - Maximus Insurance Admedika
+        )
+
+    [536] => stdClass Object
+        (
+            [kd_pj] => MSC
+            [png_jawab] => ASR - PT. SUCDEN COFFEE INDONESIA
+        )
+
+    [537] => stdClass Object
+        (
+            [kd_pj] => MSI
+            [png_jawab] => ASR - MSIG LIFE INSURANCE
+        )
+
+    [538] => stdClass Object
+        (
+            [kd_pj] => MTL
+            [png_jawab] => ASR - ADMEDIKA MATTEL
+        )
+
+    [539] => stdClass Object
+        (
+            [kd_pj] => MTP
+            [png_jawab] => ASR - MEDITAP
+        )
+
+    [540] => stdClass Object
+        (
+            [kd_pj] => OJK
+            [png_jawab] => ASR - YKP OJK
+        )
+
+    [541] => stdClass Object
+        (
+            [kd_pj] => P01
+            [png_jawab] => ASR - PSN PLN PUSAT (PENSIUNAN)
+        )
+
+    [542] => stdClass Object
+        (
+            [kd_pj] => P02
+            [png_jawab] => ASR - PSN PLN BATAM (PENSIUNAN)
+        )
+
+    [543] => stdClass Object
+        (
+            [kd_pj] => P03
+            [png_jawab] => ASR - PSN PLN UID LAMPUNG (PENSIUNAN)
+        )
+
+    [544] => stdClass Object
+        (
+            [kd_pj] => P04
+            [png_jawab] => ASR - PSN PLN UIP 3 B SUMATERA (PENSIUNAN)
+        )
+
+    [545] => stdClass Object
+        (
+            [kd_pj] => P05
+            [png_jawab] => ASR - PSN PLN UID BANTEN (PENSIUNAN)
+        )
+
+    [546] => stdClass Object
+        (
+            [kd_pj] => P06
+            [png_jawab] => ASR - PSN PT. PLN INDONESIA POWER (PENSIUNAN)
+        )
+
+    [547] => stdClass Object
+        (
+            [kd_pj] => P07
+            [png_jawab] => ASR - PSN PT. PLN NUSANTARA POWER (PENSIUNAN)
+        )
+
+    [548] => stdClass Object
+        (
+            [kd_pj] => P08
+            [png_jawab] => ASR - PSN PLN P3B Sumatera (PENSIUNAN)
+        )
+
+    [549] => stdClass Object
+        (
+            [kd_pj] => P09
+            [png_jawab] => ASR - PSN PLN PUSAT SERTIFIKASI KETENAGALISTRIKAN (PENSIUNAN)
+        )
+
+    [550] => stdClass Object
+        (
+            [kd_pj] => P10
+            [png_jawab] => ASR - PSN PT. PLN ELECTRICITY SER (PENSIUNAN)
+        )
+
+    [551] => stdClass Object
+        (
+            [kd_pj] => P11
+            [png_jawab] => ASR - PSN PLN UIW S2JB (PENSIUNAN)
+        )
+
+    [552] => stdClass Object
+        (
+            [kd_pj] => P12
+            [png_jawab] => ASR - PSN PLN UIP SUMBAGSEL (PENSIUNAN)
+        )
+
+    [553] => stdClass Object
+        (
+            [kd_pj] => P13
+            [png_jawab] => ASR - PSN PLN UID SUMATERA UTARA (PENSIUNAN)
+        )
+
+    [554] => stdClass Object
+        (
+            [kd_pj] => P14
+            [png_jawab] => ASR - PSN PLN UID S2JB (PENSIUNAN)
+        )
+
+    [555] => stdClass Object
+        (
+            [kd_pj] => P1N
+            [png_jawab] => ASR - PLN UIW SUMBAR
+        )
+
+    [556] => stdClass Object
+        (
+            [kd_pj] => P1P
+            [png_jawab] => ASR - PT. PLN INDONESIA POWER
+        )
+
+    [557] => stdClass Object
+        (
+            [kd_pj] => P23
+            [png_jawab] => ASR - PT. PLN NUSANTARA POWER
+        )
+
+    [558] => stdClass Object
+        (
+            [kd_pj] => P24
+            [png_jawab] => ASR - JIWA ASTRA
+        )
+
+    [559] => stdClass Object
+        (
+            [kd_pj] => P3B
+            [png_jawab] => ASR - PLN P3B Sumatera
+        )
+
+    [560] => stdClass Object
+        (
+            [kd_pj] => P3H
+            [png_jawab] => ASR - PERTAMINA HULU ENERGI 
+        )
+
+    [561] => stdClass Object
+        (
+            [kd_pj] => P3R
+            [png_jawab] => ASR - PERTAMINA
+        )
+
+    [562] => stdClass Object
+        (
+            [kd_pj] => P4N
+            [png_jawab] => ASR - PANIN DAI-ICHILIFE
+        )
+
+    [563] => stdClass Object
+        (
+            [kd_pj] => P51
+            [png_jawab] => ASR - ADMEDIKA PDSI
+        )
+
+    [564] => stdClass Object
+        (
+            [kd_pj] => P60
+            [png_jawab] => ASR - JIWA SERAYA
+        )
+
+    [565] => stdClass Object
+        (
+            [kd_pj] => P93
+            [png_jawab] => ASR - BCA LIFE ADMEDIKA
+        )
+
+    [566] => stdClass Object
+        (
+            [kd_pj] => PBT
+            [png_jawab] => ASR - PT BTN (PERSERO)
+        )
+
+    [567] => stdClass Object
+        (
+            [kd_pj] => PCR
+            [png_jawab] => ASR - PRUDENTIAL CORPORATE
+        )
+
+    [568] => stdClass Object
+        (
+            [kd_pj] => PE1
+            [png_jawab] => ASR - Priamanaya Energi
+        )
+
+    [569] => stdClass Object
+        (
+            [kd_pj] => PIS
+            [png_jawab] => ASR - PERTALIFE INSURANCE
+        )
+
+    [570] => stdClass Object
+        (
+            [kd_pj] => PJT
+            [png_jawab] => ASR - PLN UID JAWA TIMUR
+        )
+
+    [571] => stdClass Object
+        (
+            [kd_pj] => PKP
+            [png_jawab] => ASR - PLN KANTOR PUSAT
+        )
+
+    [572] => stdClass Object
+        (
+            [kd_pj] => PL2
+            [png_jawab] => ASR - IPC PELABUHAN INDONESIA 2
+        )
+
+    [573] => stdClass Object
+        (
+            [kd_pj] => PLA
+            [png_jawab] => ASR - IPC PELABUHAN INDONESIA3
+        )
+
+    [574] => stdClass Object
+        (
+            [kd_pj] => PLM
+            [png_jawab] => ASR - PLN (COB MAX)
+        )
+
+    [575] => stdClass Object
+        (
+            [kd_pj] => PMA
+            [png_jawab] => ASR - ADMEDIKA PARAMA
+        )
+
+    [576] => stdClass Object
+        (
+            [kd_pj] => PN1
+            [png_jawab] => PLN UID BANTEN
+        )
+
+    [577] => stdClass Object
+        (
+            [kd_pj] => PN2
+            [png_jawab] => ASR - PLN UIW BANGKA BELITUNG
+        )
+
+    [578] => stdClass Object
+        (
+            [kd_pj] => PNM
+            [png_jawab] => ASR - ADMEDIKA PT NATARANG MINING
+        )
+
+    [579] => stdClass Object
+        (
+            [kd_pj] => PNT
+            [png_jawab] => ASR - PSN YAKES PENANTAM
+        )
+
+    [580] => stdClass Object
+        (
+            [kd_pj] => PP4
+            [png_jawab] => ASR - PT. PLN PUSMANPRO
+        )
+
+    [581] => stdClass Object
+        (
+            [kd_pj] => PPI
+            [png_jawab] => ASR - ADMEDIKA PTPPI
+        )
+
+    [582] => stdClass Object
+        (
+            [kd_pj] => PPL
+            [png_jawab] => ASR - PERTAMINA PORT AND LOGISTICS
+        )
+
+    [583] => stdClass Object
+        (
+            [kd_pj] => PPN
+            [png_jawab] => ASR - PERTAMINA PATRA NIAGA
+        )
+
+    [584] => stdClass Object
+        (
+            [kd_pj] => PRA
+            [png_jawab] => ASR - ADMEDIKA PRATAMA
+        )
+
+    [585] => stdClass Object
+        (
+            [kd_pj] => PRJ
+            [png_jawab] => ASR - PT. PLN NUSANTARA POWER REGIONAL JATRA
+        )
+
+    [586] => stdClass Object
+        (
+            [kd_pj] => PRM
+            [png_jawab] => ASR - ADMEDIKA ACAPRM
+        )
+
+    [587] => stdClass Object
+        (
+            [kd_pj] => PRS
+            [png_jawab] => ASR - PT ASURANSI PERISAI LISTRIK NASIONAL
+        )
+
+    [588] => stdClass Object
+        (
+            [kd_pj] => PS3
+            [png_jawab] => ASR - PLN UIW SULSELRABAR
+        )
+
+    [589] => stdClass Object
+        (
+            [kd_pj] => PSK
+            [png_jawab] => ASR - PLN PUSAT SERTIFIKASI KETENAGALISTRIKAN
+        )
+
+    [590] => stdClass Object
+        (
+            [kd_pj] => PST
+            [png_jawab] => ASR - PT. PUTRA SARANA TRANSBORNEO
+        )
+
+    [591] => stdClass Object
+        (
+            [kd_pj] => PSU
+            [png_jawab] => ASR - PLN UIK SUMBAGUT
+        )
+
+    [592] => stdClass Object
+        (
+            [kd_pj] => PT1
+            [png_jawab] => ASR - PT BUMA
+        )
+
+    [593] => stdClass Object
+        (
+            [kd_pj] => PT2
+            [png_jawab] => ASR - INHEALTH  INDEMNITY
+        )
+
+    [594] => stdClass Object
+        (
+            [kd_pj] => PTE
+            [png_jawab] => ASR - PT. PLN ELECTRICITY SER
+        )
+
+    [595] => stdClass Object
+        (
+            [kd_pj] => PTM
+            [png_jawab] => Pertamina Lubricants Admedika
+        )
+
+    [596] => stdClass Object
+        (
+            [kd_pj] => PUJ
+            [png_jawab] => ASR - PLN UID JABAR
+        )
+
+    [597] => stdClass Object
+        (
+            [kd_pj] => PUM
+            [png_jawab] => ASR - PLN UIW MALUKU DAN MALUT
+        )
+
+    [598] => stdClass Object
+        (
+            [kd_pj] => PUS
+            [png_jawab] => ASR - PLN UIW SUMUT
+        )
+
+    [599] => stdClass Object
+        (
+            [kd_pj] => PUW
+            [png_jawab] => ASR - PLN UIW RIAU
+        )
+
+    [600] => stdClass Object
+        (
+            [kd_pj] => R21
+            [png_jawab] => ASR - PSN YAKES TELKOM AREA SUMATERA
+        )
+
+    [601] => stdClass Object
+        (
+            [kd_pj] => R22
+            [png_jawab] => ASR - KEMENTRIAN PERTANIAN
+        )
+
+    [602] => stdClass Object
+        (
+            [kd_pj] => RML
+            [png_jawab] => ASR - ADMEDIKA RML (RIUNG MITRA LESTARI)
+        )
+
+    [603] => stdClass Object
+        (
+            [kd_pj] => RNT
+            [png_jawab] => ASR - RENTOKIL, PT
+        )
+
+    [604] => stdClass Object
+        (
+            [kd_pj] => S0R
+            [png_jawab] => ASR - PT SURVEYOR INDONESIA
+        )
+
+    [605] => stdClass Object
+        (
+            [kd_pj] => S2J
+            [png_jawab] => ASR - PLN UIW S2JB
+        )
+
+    [606] => stdClass Object
+        (
+            [kd_pj] => S39
+            [png_jawab] => ASR - ADMEDIKA SEQUIS FINANCE
+        )
+
+    [607] => stdClass Object
+        (
+            [kd_pj] => S77
+            [png_jawab] => ASR - BRI MEDIKA
+        )
+
+    [608] => stdClass Object
+        (
+            [kd_pj] => S95
+            [png_jawab] => ASR - SUPRACO QQ PHM PRODUTCION
+        )
+
+    [609] => stdClass Object
+        (
+            [kd_pj] => S99
+            [png_jawab] => ASR - PANIN ADMEDIKA
+        )
+
+    [610] => stdClass Object
+        (
+            [kd_pj] => SA1
+            [png_jawab] => ASR-SAMUDRA INDONESIA (COB SUB)
+        )
+
+    [611] => stdClass Object
+        (
+            [kd_pj] => SA2
+            [png_jawab] => ASR - SAMUDRA INDONESIA (COB MAX)
+        )
+
+    [612] => stdClass Object
+        (
+            [kd_pj] => SIM
+            [png_jawab] => ASR - SWAKARYA INSAN MANDIRI
+        )
+
+    [613] => stdClass Object
+        (
+            [kd_pj] => SIN
+            [png_jawab] => ASR - SINTEK
+        )
+
+    [614] => stdClass Object
+        (
+            [kd_pj] => SM1
+            [png_jawab] => ASR - SUN MEDICAL PLATINUM SYARIAH
+        )
+
+    [615] => stdClass Object
+        (
+            [kd_pj] => SU7
+            [png_jawab] => ASR - SUNDAY INSURANCE
+        )
+
+    [616] => stdClass Object
+        (
+            [kd_pj] => SUI
+            [png_jawab] => ASR - PT Solid Universal Indonesia
+        )
+
+    [617] => stdClass Object
+        (
+            [kd_pj] => SWA
+            [png_jawab] => ASR - PT SWAPRO INTERNATIONAL
+        )
+
+    [618] => stdClass Object
+        (
+            [kd_pj] => SYC
+            [png_jawab] => ASR - syntech (COB SUB) 
+        )
+
+    [619] => stdClass Object
+        (
+            [kd_pj] => SYN
+            [png_jawab] => ASR - SYNTECH MITRA INTEGRASI
+        )
+
+    [620] => stdClass Object
+        (
+            [kd_pj] => SYT
+            [png_jawab] => ASR - syntech
+        )
+
+    [621] => stdClass Object
+        (
+            [kd_pj] => TII
+            [png_jawab] => ASR - ADMEDIKA PERUM JASA TIRTA II
+        )
+
+    [622] => stdClass Object
+        (
+            [kd_pj] => TPI
+            [png_jawab] => ASR - ADMEDIKA TPI UNIVERSITAS PERTAMINA
+        )
+
+    [623] => stdClass Object
+        (
+            [kd_pj] => TZA
+            [png_jawab] => PT. TAUBA ZAKKA ATKIA
+        )
+
+    [624] => stdClass Object
+        (
+            [kd_pj] => UIP
+            [png_jawab] => ASR - PLN UIP SUMBAGSEL
+        )
+
+    [625] => stdClass Object
+        (
+            [kd_pj] => UMU
+            [png_jawab] => UMUM
+        )
+
+    [626] => stdClass Object
+        (
+            [kd_pj] => USU
+            [png_jawab] => PLN UID Sumatera Utara
+        )
+
+    [627] => stdClass Object
+        (
+            [kd_pj] => WKC
+            [png_jawab] => ASR - PT WIJAYA KUSUMA CONTRACTORS
+        )
+
+    [628] => stdClass Object
+        (
+            [kd_pj] => Y11
+            [png_jawab] => ASR - YKP BTN
+        )
+
+    [629] => stdClass Object
+        (
+            [kd_pj] => Z01
+            [png_jawab] => ASR - PLN UPK TARAHAN
+        )
+
+    [630] => stdClass Object
+        (
+            [kd_pj] => Z02
+            [png_jawab] => ASR - PLN UPK SEBALANG
+        )
+
+    [631] => stdClass Object
+        (
+            [kd_pj] => Z03
+            [png_jawab] => ASR - HARTA GENERAL INSURANCE
+        )
+
+    [632] => stdClass Object
+        (
+            [kd_pj] => Z04
+            [png_jawab] => ASR - MRT JAKARTA
+        )
+
+    [633] => stdClass Object
+        (
+            [kd_pj] => Z05
+            [png_jawab] => ASR - PLN INSURANCE
+        )
+
+    [634] => stdClass Object
+        (
+            [kd_pj] => Z1
+            [png_jawab] => PT. Juang Jaya Abadi
+        )
+
+    [635] => stdClass Object
+        (
+            [kd_pj] => Z48
+            [png_jawab] => ASR - PLN UPDK BANDAR LAMPUNG
+        )
+
+    [636] => stdClass Object
+        (
+            [kd_pj] => Z51
+            [png_jawab] => ASR - PT MAGNA SEHAT
+        )
+
+    [637] => stdClass Object
+        (
+            [kd_pj] => ZAI
+            [png_jawab] => ASR - ZURICH ASURANSI INDONESIA
+        )
+
+    [638] => stdClass Object
+        (
+            [kd_pj] => ZAM
+            [png_jawab] => ASR - ZURICH ADMEDIKA
+        )
+
+)
+
+bayar_piutang COLUMNS:
+Array
+(
+    [0] => stdClass Object
+        (
+            [Field] => tgl_bayar
+            [Type] => date
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [1] => stdClass Object
+        (
+            [Field] => no_rkm_medis
+            [Type] => varchar(15)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [2] => stdClass Object
+        (
+            [Field] => besar_cicilan
+            [Type] => double
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [3] => stdClass Object
+        (
+            [Field] => catatan
+            [Type] => varchar(100)
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [4] => stdClass Object
+        (
+            [Field] => no_rawat
+            [Type] => varchar(17)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [5] => stdClass Object
+        (
+            [Field] => kd_rek
+            [Type] => varchar(15)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [6] => stdClass Object
+        (
+            [Field] => kd_rek_kontra
+            [Type] => varchar(15)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [7] => stdClass Object
+        (
+            [Field] => diskon_piutang
+            [Type] => double
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [8] => stdClass Object
+        (
+            [Field] => kd_rek_diskon_piutang
+            [Type] => varchar(15)
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [9] => stdClass Object
+        (
+            [Field] => tidak_terbayar
+            [Type] => double
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [10] => stdClass Object
+        (
+            [Field] => kd_rek_tidak_terbayar
+            [Type] => varchar(15)
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+)
+
+reg_periksa COLUMNS:
+Array
+(
+    [0] => stdClass Object
+        (
+            [Field] => no_reg
+            [Type] => varchar(8)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [1] => stdClass Object
+        (
+            [Field] => no_rawat
+            [Type] => varchar(17)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [2] => stdClass Object
+        (
+            [Field] => tgl_registrasi
+            [Type] => date
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [3] => stdClass Object
+        (
+            [Field] => jam_reg
+            [Type] => time
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [4] => stdClass Object
+        (
+            [Field] => kd_dokter
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [5] => stdClass Object
+        (
+            [Field] => no_rkm_medis
+            [Type] => varchar(15)
+            [Null] => YES
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [6] => stdClass Object
+        (
+            [Field] => kd_poli
+            [Type] => char(5)
+            [Null] => YES
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [7] => stdClass Object
+        (
+            [Field] => p_jawab
+            [Type] => varchar(100)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [8] => stdClass Object
+        (
+            [Field] => almt_pj
+            [Type] => varchar(200)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [9] => stdClass Object
+        (
+            [Field] => hubunganpj
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [10] => stdClass Object
+        (
+            [Field] => biaya_reg
+            [Type] => double
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [11] => stdClass Object
+        (
+            [Field] => stts
+            [Type] => enum('Belum','Sudah','Batal','Berkas Diterima','Dirujuk','Meninggal','Dirawat','Pulang Paksa')
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [12] => stdClass Object
+        (
+            [Field] => stts_daftar
+            [Type] => enum('-','Lama','Baru')
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [13] => stdClass Object
+        (
+            [Field] => status_lanjut
+            [Type] => enum('Ralan','Ranap')
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [14] => stdClass Object
+        (
+            [Field] => kd_pj
+            [Type] => char(3)
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [15] => stdClass Object
+        (
+            [Field] => umurdaftar
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [16] => stdClass Object
+        (
+            [Field] => sttsumur
+            [Type] => enum('Th','Bl','Hr')
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [17] => stdClass Object
+        (
+            [Field] => status_bayar
+            [Type] => enum('Sudah Bayar','Belum Bayar')
+            [Null] => NO
+            [Key] => MUL
+            [Default] => 
+            [Extra] => 
+        )
+
+    [18] => stdClass Object
+        (
+            [Field] => status_poli
+            [Type] => enum('Lama','Baru')
+            [Null] => NO
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+)

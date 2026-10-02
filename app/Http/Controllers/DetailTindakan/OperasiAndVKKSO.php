@@ -164,10 +164,12 @@ class OperasiAndVKKSO extends Controller
             ->where('detail_piutang_pasien.kd_pj', '!=', 'BPJ')
             ->get()->groupBy('no_rawat');
             
-        $ksoDetails = DB::table('rawat_inap_dr')
-            ->select('no_rawat', DB::raw('SUM(kso) as total_kso'))
-            ->whereIn('no_rawat', $noRawats)
-            ->groupBy('no_rawat')
+        $ksoDetails = DB::table('rawat_inap_dr as r')
+            ->select('r.no_rawat', DB::raw('SUM(IF(COALESCE(p.uangmuka, 0) - COALESCE(p.totalpiutang, 0) < 0, jpi.kso, r.kso)) as total_kso'))
+            ->leftJoin('piutang_pasien as p', 'p.no_rawat', '=', 'r.no_rawat')
+            ->leftJoin('jns_perawatan_inap as jpi', 'jpi.kd_jenis_prw', '=', 'r.kd_jenis_prw')
+            ->whereIn('r.no_rawat', $noRawats)
+            ->groupBy('r.no_rawat')
             ->get()->keyBy('no_rawat');
 
         $OperasiAndVK->map(function ($item) use ($rawatCounts, $billings, $cobDetails, $ksoDetails) {
