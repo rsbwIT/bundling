@@ -106,7 +106,7 @@ class MonitoringSignalController extends Controller
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 exec("ping -n 1 -w 5000 " . escapeshellarg($host), $output, $result);
             } else {
-                exec("ping -c 1 -W 5 " . escapeshellarg($host), $output, $result);
+                exec("ping -c 1 -W 2 " . escapeshellarg($host), $output, $result);
             }
             
             $isOnline = ($result === 0);
@@ -124,7 +124,7 @@ class MonitoringSignalController extends Controller
             try {
                 // Melakukan HTTP GET request sederhana untuk mengecek konektivitas.
                 // Timeout diset 5 detik agar tidak membebani server
-                $response = Http::timeout(5)
+                $response = Http::connectTimeout(2)->timeout(3)
                     ->withOptions(['verify' => false]) // Abaikan SSL check untuk lingkungan lokal/uji
                     ->get($url);
                 
