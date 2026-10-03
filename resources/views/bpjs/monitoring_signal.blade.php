@@ -316,8 +316,7 @@
         latencyChart.update();
     }
 
-    // Auto refresh ping BPJS every 10 seconds
-    setInterval(checkAll, 10000);
+    // Auto refresh menggunakan setTimeout di dalam checkAll()
 
     function updateGlobalStats() {
         let connectedCount = 0;
@@ -424,10 +423,12 @@
 
     async function checkAll() {
         for (let i = 0; i < services.length; i++) {
-            checkSingle(services[i].id, services[i].name, services[i].url);
+            await checkSingle(services[i].id, services[i].name, services[i].url);
             // Jeda 500ms antar request agar Firewall BPJS tidak mengira ini serangan DDoS
             await new Promise(r => setTimeout(r, 500));
         }
+        // Ulangi pengecekan 10 detik SETELAH semua selesai dicek
+        setTimeout(checkAll, 10000);
     }
 
     // Update grafik setiap 2 detik dengan status/latensi terakhir yang diketahui (tanpa fake jitter)
