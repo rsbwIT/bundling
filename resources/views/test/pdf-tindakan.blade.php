@@ -38,6 +38,16 @@
                                 </optgroup>
                             @endif
 
+                            @if(count($listPetugasHD) > 0)
+                                <optgroup label="Tim Hemodialisa (HD)">
+                                    @foreach ($listPetugasHD as $doc)
+                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
+                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
                             @if(count($listPetugas) > 0)
                                 <optgroup label="Petugas / Paramedis">
                                     @foreach ($listPetugas as $doc)
@@ -800,7 +810,23 @@
                                 </div>
                             @endif
 
-                            {{-- PETUGAS --}}
+                            {{-- TIM HD --}}
+                            @if(count($listPetugasHD) > 0)
+                                <h6 class="font-weight-bold text-primary mb-2 mt-3 border-bottom pb-1">Tim Hemodialisa (HD)</h6>
+                                <div class="row">
+                                    @foreach ($listPetugasHD as $doc)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
+                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
+                                                    {{ $doc['nama'] }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             @if(count($listPetugas) > 0)
                                 <h6 class="font-weight-bold text-info mb-2 mt-3 border-bottom pb-1">Petugas / Paramedis</h6>
                                 <div class="row">

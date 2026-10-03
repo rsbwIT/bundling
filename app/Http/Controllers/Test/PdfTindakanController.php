@@ -59,6 +59,7 @@ class PdfTindakanController extends Controller
         $listDokterUmum = collect();
         $listDokterSpesialis = collect();
         $listPetugas = collect();
+        $listPetugasHD = collect();
 
         foreach ($listDokterRaw as $doc) {
             $id = $doc['id_khanza'];
@@ -76,6 +77,8 @@ class PdfTindakanController extends Controller
                 $listDokterSpesialis->push($doc);
             } elseif (str_starts_with($kode, 'U')) {
                 $listDokterUmum->push($doc);
+            } elseif (str_starts_with($kode, 'HD')) {
+                $listPetugasHD->push($doc);
             } else {
                 $listPetugas->push($doc);
             }
@@ -85,6 +88,7 @@ class PdfTindakanController extends Controller
         $listDokterUmum = $listDokterUmum->sortBy('nama')->values();
         $listDokterSpesialis = $listDokterSpesialis->sortBy('nama')->values();
         $listPetugas = $listPetugas->sortBy('nama')->values();
+        $listPetugasHD = $listPetugasHD->sortBy('nama')->values();
 
         $listDokter = $listDokterRaw; // keep original for select dropdown
 
@@ -107,7 +111,11 @@ class PdfTindakanController extends Controller
         $labelJenis = !empty($labelParts) ? implode(' & ', $labelParts) : '-';
 
         if ($kdDokter) {
-            $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            $templateData = collect($this->jmUmumController->templateJM)->firstWhere('id_khanza', $kdDokter);
+            $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
+
+            $nmDokter = $nmDokterFromTemplate 
+                ?? DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
                 ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
                 ?? $kdDokter;
 
@@ -205,6 +213,7 @@ class PdfTindakanController extends Controller
             'listDokterUmum' => $listDokterUmum,
             'listDokterSpesialis' => $listDokterSpesialis,
             'listPetugas' => $listPetugas,
+            'listPetugasHD' => $listPetugasHD,
                 'kdDokter' => $kdDokter,
                 'nmDokter' => $nmDokter,
                 'tanggl1' => $tanggl1,
@@ -257,6 +266,7 @@ class PdfTindakanController extends Controller
             'listDokterUmum' => $listDokterUmum,
             'listDokterSpesialis' => $listDokterSpesialis,
             'listPetugas' => $listPetugas,
+            'listPetugasHD' => $listPetugasHD,
             'kdDokter' => $kdDokter,
             'nmDokter' => $nmDokter,
             'tanggl1' => $tanggl1,
@@ -327,7 +337,11 @@ class PdfTindakanController extends Controller
         foreach ($kdDokterInput as $kdDokter) {
             if (!$kdDokter) continue;
 
-            $nmDokter = \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            $templateData = collect($this->jmUmumController->templateJM)->firstWhere('id_khanza', $kdDokter);
+            $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
+
+            $nmDokter = $nmDokterFromTemplate 
+                ?? \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
                 ?? \Illuminate\Support\Facades\DB::table('petugas')->where('nip', $kdDokter)->value('nama')
                 ?? $kdDokter;
 

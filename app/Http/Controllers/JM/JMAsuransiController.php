@@ -52,20 +52,20 @@ class JMAsuransiController extends Controller
         ['kode' => 'U25', 'nama' => 'Senja Nurhayati, dr', 'id_khanza' => 'D0000121'],
         ['kode' => 'HD1', 'nama' => 'HD Andan', 'id_khanza' => ''],
         ['kode' => 'HD2', 'nama' => 'HD Bayu', 'id_khanza' => ''],
-        ['kode' => 'HD3', 'nama' => 'HD Danu', 'id_khanza' => ''],
+        ['kode' => 'HD3', 'nama' => 'HD Danu', 'id_khanza' => '1115010262'],
         ['kode' => 'HD4', 'nama' => 'HD Ferdian', 'id_khanza' => ''],
         ['kode' => 'HD5', 'nama' => 'HD Kus', 'id_khanza' => '09964020055'],
-        ['kode' => 'HD6', 'nama' => 'HD Lili', 'id_khanza' => ''],
+        ['kode' => 'HD6', 'nama' => 'HD Lili', 'id_khanza' => '305010136'],
         ['kode' => 'HD7', 'nama' => 'HD M. Dwi', 'id_khanza' => ''],
-        ['kode' => 'HD8', 'nama' => 'HD Mala', 'id_khanza' => ''],
-        ['kode' => 'HD9', 'nama' => 'HD Ade Supriatna', 'id_khanza' => ''],
-        ['kode' => 'HD10', 'nama' => 'HD Yopi', 'id_khanza' => ''],
-        ['kode' => 'HD11', 'nama' => 'HD Ria', 'id_khanza' => ''],
-        ['kode' => 'HD12', 'nama' => 'HD Ronal', 'id_khanza' => ''],
-        ['kode' => 'HD13', 'nama' => 'HD Sabtina', 'id_khanza' => ''],
-        ['kode' => 'HD14', 'nama' => 'HD Sumo', 'id_khanza' => ''],
-        ['kode' => 'HD15', 'nama' => 'HD Sutriyanti', 'id_khanza' => ''],
-        ['kode' => 'HD16', 'nama' => 'HD Vina', 'id_khanza' => ''],
+        ['kode' => 'HD8', 'nama' => 'HD Mala', 'id_khanza' => '597010062'],
+        ['kode' => 'HD9', 'nama' => 'HD Ade Supriatna', 'id_khanza' => '1001020099'],
+        ['kode' => 'HD10', 'nama' => 'HD Yopi', 'id_khanza' => '319010344'],
+        ['kode' => 'HD11', 'nama' => 'HD Ria', 'id_khanza' => '511010183'],
+        ['kode' => 'HD12', 'nama' => 'HD Ronal', 'id_khanza' => '914010245'],
+        ['kode' => 'HD13', 'nama' => 'HD Sabtina', 'id_khanza' => '907010151'],
+        ['kode' => 'HD14', 'nama' => 'HD Sumo', 'id_khanza' => '309010165'],
+        ['kode' => 'HD15', 'nama' => 'HD Sutriyanti', 'id_khanza' => '30501035'],
+        ['kode' => 'HD16', 'nama' => 'HD Vina', 'id_khanza' => '209010160'],
         ['kode' => 'SP18', 'nama' => 'Horidokasa R, dr, SpOG', 'id_khanza' => 'D0000062'],
         ['kode' => 'SP19', 'nama' => 'Hotman Sijabat, dr, SpPD', 'id_khanza' => 'D0000038'],
         ['kode' => 'SP20', 'nama' => 'Lydia Theresia Tampubolon, dr, M.Kes', 'id_khanza' => 'D0000107'],
@@ -1911,7 +1911,12 @@ class JMAsuransiController extends Controller
     public function getDetailData($kdDokter, $tanggl1, $tanggl2, $kdPenjamin = null)
     {
         // Ambil nama dokter
-        $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+        $templateData = collect($this->templateJM)->firstWhere('id_khanza', $kdDokter);
+        $kodeTemplate = $templateData ? $templateData['kode'] : $kdDokter;
+        $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
+
+        $nmDokter = $nmDokterFromTemplate 
+            ?? DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
             ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
             ?? $kdDokter;
 
@@ -1939,6 +1944,20 @@ class JMAsuransiController extends Controller
 
         $details = collect();
 
+        // 1b. rawat_jl_dr pada pasien Ranap
+        $q1b = DB::table('rawat_jl_dr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_dr.tarif_tindakandr as tarif"),
+                DB::raw("'Ralan - Tindakan Dokter' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_jl_dr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_dr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where('rawat_jl_dr.kd_dokter', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q1b);
+
         // 1. rawat_jl_dr (Ralan)
         $q1 = DB::table('rawat_jl_dr')
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
@@ -1952,6 +1971,20 @@ class JMAsuransiController extends Controller
             ->where('rawat_jl_dr.kd_dokter', $kdDokter)
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q1);
+
+        // 2b. rawat_jl_drpr pada pasien Ranap
+        $q2b = DB::table('rawat_jl_drpr')
+            ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'jns_perawatan.nm_perawatan',
+                DB::raw("rawat_jl_drpr.tarif_tindakandr as tarif"),
+                DB::raw("'Ralan - Tindakan DrPr (Dokter)' as sumber"), DB::raw("'Ranap' as status"))
+            ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where('rawat_jl_drpr.kd_dokter', $kdDokter)
+            ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
+        $details = $details->merge($q2b);
 
         // 2. rawat_jl_drpr (Ralan - tarif dokter)
         $q2 = DB::table('rawat_jl_drpr')
@@ -2167,6 +2200,92 @@ class JMAsuransiController extends Controller
             ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); })->get();
         $details = $details->merge($q16);
 
+                // Set raw HD operator fee to 0 in detail items (since they are redistributed)
+        foreach ($details as $item) {
+            if (stripos($item->nm_perawatan, 'jasa operator hd') !== false) {
+                $item->tarif = 0;
+            }
+        }
+
+        // Calculate and add redistributed HD operator fee (dijabarkan)
+        $pembagianHD = [
+            'HD5'  => 10000, // HD Kus
+            'HD8'  => 8000,  // HD Mala
+            'HD11' => 6000,  // HD Ria
+            'HD3'  => 4000,  // HD Danu
+            'HD12' => 4000,  // HD Ronal
+            'HD14' => 4000,  // HD Sumo
+            'HD13' => 4000,  // HD Sabtina
+            'HD15' => 2000,  // HD Sutriyanti
+            'HD6'  => 2000,  // HD Lili
+            'HD16' => 2000,  // HD Vina
+            'HD18' => 2000,  // HD Sayu Putu
+            'HD9'  => 500,   // HD Ade Supriatna
+            'HD10' => 2000,  // HD Yopi
+        ];
+
+        if (isset($pembagianHD[$kodeTemplate])) {
+            $nilai = $pembagianHD[$kodeTemplate];
+            
+            $hdKusNip = '09964020055';
+            
+            $qHd1 = DB::table('rawat_jl_pr')
+                ->select('rawat_jl_pr.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'rawat_jl_pr.tgl_perawatan as tgl_perawatan', DB::raw("'Ralan' as status"))
+                ->join('reg_periksa', 'rawat_jl_pr.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->join('jns_perawatan', 'rawat_jl_pr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->where('rawat_jl_pr.nip', $hdKusNip)
+                ->where('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+                ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); });
+
+            $qHd2 = DB::table('rawat_jl_drpr')
+                ->select('rawat_jl_drpr.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'rawat_jl_drpr.tgl_perawatan as tgl_perawatan', DB::raw("'Ralan' as status"))
+                ->join('reg_periksa', 'rawat_jl_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->join('jns_perawatan', 'rawat_jl_drpr.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->where('rawat_jl_drpr.nip', $hdKusNip)
+                ->where('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+                ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); });
+
+            $qHd3 = DB::table('rawat_inap_pr')
+                ->select('rawat_inap_pr.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'rawat_inap_pr.tgl_perawatan as tgl_perawatan', DB::raw("'Ranap' as status"))
+                ->join('reg_periksa', 'rawat_inap_pr.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->join('jns_perawatan_inap', 'rawat_inap_pr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->where('rawat_inap_pr.nip', $hdKusNip)
+                ->where('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%')
+                ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); });
+
+            $qHd4 = DB::table('rawat_inap_drpr')
+                ->select('rawat_inap_drpr.no_rawat', 'pasien.nm_pasien', 'penjab.png_jawab as penjamin', 'rawat_inap_drpr.tgl_perawatan as tgl_perawatan', DB::raw("'Ranap' as status"))
+                ->join('reg_periksa', 'rawat_inap_drpr.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->join('jns_perawatan_inap', 'rawat_inap_drpr.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
+                ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
+                ->where('rawat_inap_drpr.nip', $hdKusNip)
+                ->where('jns_perawatan_inap.nm_perawatan', 'like', '%jasa operator hd%')
+                ->where(function($q) use ($penjaminFilter) { $penjaminFilter($q); });
+
+            $hdItemsList = $qHd1->unionAll($qHd2)->unionAll($qHd3)->unionAll($qHd4)->get();
+            
+            if ($nilai > 0) {
+                foreach ($hdItemsList as $hdItem) {
+                    $details->push((object) [
+                        'no_rawat' => $hdItem->no_rawat,
+                        'nm_pasien' => $hdItem->nm_pasien,
+                        'penjamin' => $hdItem->penjamin,
+                        'nm_perawatan' => 'Pembagian Jasa Operator HD (Redistribusi)',
+                        'sumber' => 'Redistribusi Jasa HD',
+                        'status' => $hdItem->status,
+                        'tarif' => $nilai,
+                        'tgl_perawatan' => $hdItem->tgl_perawatan
+                    ]);
+                }
+            }
+        }
         $details = $details->filter(function($item) {
             return $item->tarif > 0;
         })->values();
