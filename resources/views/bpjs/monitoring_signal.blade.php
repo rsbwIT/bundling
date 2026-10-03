@@ -428,7 +428,7 @@
             await new Promise(r => setTimeout(r, 500));
         }
         // Ulangi pengecekan 10 detik SETELAH semua selesai dicek
-        setTimeout(checkAll, 10000);
+        // setTimeout(checkAll, 10000); // Dinonaktifkan sementara
     }
 
     // Update grafik setiap 2 detik dengan status/latensi terakhir yang diketahui (tanpa fake jitter)
@@ -557,7 +557,7 @@
     }
 
     // Initial check
-    checkAll();
+    // checkAll(); // Dinonaktifkan sementara
 
 </script>
 
