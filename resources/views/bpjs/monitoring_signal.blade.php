@@ -110,6 +110,13 @@
 <div class="bbm-container">
 
 
+<!-- Monitoring disembunyikan sementara -->
+<div class="alert alert-info shadow-sm rounded mt-3">
+    <h5><i class="fas fa-info-circle me-2"></i> Informasi</h5>
+    <p class="mb-0">Fitur Monitoring Sinyal BPJS saat ini sedang dinonaktifkan sementara untuk perbaikan performa server.</p>
+</div>
+
+<div style="display: none;">
 <!-- Chart Section -->
 <div class="card mb-3 border-0 chart-card">
     <div class="card-header pt-3 pb-2 d-flex justify-content-between align-items-center">
@@ -159,6 +166,7 @@
         </div>
     </div>
     @endforeach
+</div>
 </div>
 
 <!-- Modal Riwayat Gangguan (Bootstrap 4 compatible) -->
