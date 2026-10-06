@@ -70,51 +70,63 @@
                             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function() {
-                                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                                    
                                     var urlLocal = "{{ asset('storage/file_scan/' . basename($getInacbg->lokasi_file)) }}?v={{ time() }}";
                                     var urlWebapps = "/webapps/berkasrawat/{{ $getInacbg->lokasi_file }}?v={{ time() }}";
                                     var container = document.getElementById('pdf-container-inacbg');
-                                    
-                                    function renderPdf(pdf) {
-                                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                                            pdf.getPage(pageNum).then(function(page) {
-                                                var scale = 2.0; // Render at high res
-                                                var viewport = page.getViewport({scale: scale});
-                                                
-                                                var canvas = document.createElement('canvas');
-                                                var context = canvas.getContext('2d');
-                                                canvas.height = viewport.height;
-                                                canvas.width = viewport.width;
-                                                
-                                                var renderContext = {
-                                                    canvasContext: context,
-                                                    viewport: viewport
-                                                };
-                                                page.render(renderContext).promise.then(function() {
-                                                    var img = document.createElement('img');
-                                                    img.src = canvas.toDataURL('image/png');
-                                                    img.style.width = '100%';
-                                                    img.style.maxWidth = '1000px';
-                                                    img.style.display = 'block';
-                                                    img.style.margin = '0 auto';
-                                                    container.appendChild(img);
-                                                });
-                                            });
-                                        }
+                                    var fallbackHtml = '<div style="height: 800px; width: 100%;"><iframe src="' + urlWebapps + '" width="100%" height="100%" style="border: none;"></iframe></div>';
+
+                                    if (typeof pdfjsLib === 'undefined') {
+                                        console.warn('pdf.js gagal dimuat. Beralih ke fallback iframe.');
+                                        container.innerHTML = fallbackHtml;
+                                        return;
                                     }
 
-                                    pdfjsLib.getDocument(urlLocal).promise.then(function(pdf) {
-                                        renderPdf(pdf);
-                                    }).catch(function(errorLocal) {
-                                        console.warn('Local PDF not found, trying webapps path...', errorLocal);
-                                        pdfjsLib.getDocument(urlWebapps).promise.then(function(pdf) {
+                                    try {
+                                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                                        
+                                        function renderPdf(pdf) {
+                                            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                                                pdf.getPage(pageNum).then(function(page) {
+                                                    var scale = 2.0; // Render at high res
+                                                    var viewport = page.getViewport({scale: scale});
+                                                    
+                                                    var canvas = document.createElement('canvas');
+                                                    var context = canvas.getContext('2d');
+                                                    canvas.height = viewport.height;
+                                                    canvas.width = viewport.width;
+                                                    
+                                                    var renderContext = {
+                                                        canvasContext: context,
+                                                        viewport: viewport
+                                                    };
+                                                    page.render(renderContext).promise.then(function() {
+                                                        var img = document.createElement('img');
+                                                        img.src = canvas.toDataURL('image/png');
+                                                        img.style.width = '100%';
+                                                        img.style.maxWidth = '1000px';
+                                                        img.style.display = 'block';
+                                                        img.style.margin = '0 auto';
+                                                        container.appendChild(img);
+                                                    });
+                                                });
+                                            }
+                                        }
+
+                                        pdfjsLib.getDocument(urlLocal).promise.then(function(pdf) {
                                             renderPdf(pdf);
-                                        }).catch(function(errorWebapps) {
-                                            console.error('Error loading INACBG PDF from both sources:', errorWebapps);
-                                            container.innerHTML = '<div class="p-4 text-danger">Gagal memuat preview PDF.</div>';
+                                        }).catch(function(errorLocal) {
+                                            console.warn('Local PDF not found, trying webapps path...', errorLocal);
+                                            pdfjsLib.getDocument(urlWebapps).promise.then(function(pdf) {
+                                                renderPdf(pdf);
+                                            }).catch(function(errorWebapps) {
+                                                console.error('Error loading INACBG PDF from both sources:', errorWebapps);
+                                                container.innerHTML = fallbackHtml; // Use fallback instead of error message
+                                            });
                                         });
-                                    });
+                                    } catch (e) {
+                                        console.error('Exception rendering PDF:', e);
+                                        container.innerHTML = fallbackHtml;
+                                    }
                                 });
                             </script>
                         @endif

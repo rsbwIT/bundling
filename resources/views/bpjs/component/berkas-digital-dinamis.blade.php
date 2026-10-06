@@ -29,77 +29,81 @@
     @if(!in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif']))
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            (function() {
-                if (typeof pdfjsLib === 'undefined') {
-                    var script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-                    script.onload = function() {
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                        renderDynamicPdf();
-                    };
-                    document.head.appendChild(script);
-                } else {
+            var containerId = 'container-berkas-{{ $berkas->kode }}';
+            var container = document.getElementById(containerId);
+            var fallbackHtml = '<div style="height: 800px; width: 100%;"><iframe src="{{ $urlWebapps }}" width="100%" height="100%" style="border: none;"></iframe></div>';
+
+            if (typeof pdfjsLib === 'undefined') {
+                console.warn('pdf.js gagal dimuat. Beralih ke fallback iframe.');
+                if (container) container.innerHTML = fallbackHtml;
+                return;
+            }
+
+            try {
+                (function() {
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
                     renderDynamicPdf();
-                }
 
-                function renderDynamicPdf() {
-                    var containerId = 'container-berkas-{{ $berkas->kode }}';
-                    var container = document.getElementById(containerId);
-                    var pdfData = "{{ $base64Pdf }}";
-                    
-                    if (!pdfData) {
-                        if(container) {
-                            container.innerHTML = '<div class="p-4 text-danger text-center">Gagal memuat file PDF dari server (' + '{{ $urlWebapps }}' + ').</div>';
+                    function renderDynamicPdf() {
+                        var pdfData = "{{ $base64Pdf }}";
+                        
+                        if (!pdfData) {
+                            if(container) {
+                                container.innerHTML = fallbackHtml; // Fallback instead of error
+                            }
+                            return;
                         }
-                        return;
-                    }
-                    
-                    var rawData = atob(pdfData);
-                    var pdfAsArray = new Uint8Array(rawData.length);
-                    for (var i = 0; i < rawData.length; i++) {
-                        pdfAsArray[i] = rawData.charCodeAt(i);
-                    }
-                    
-                    function renderPdf(pdf) {
-                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                            pdf.getPage(pageNum).then(function(page) {
-                                var scale = 2.0; 
-                                var viewport = page.getViewport({scale: scale});
-                                
-                                var canvas = document.createElement('canvas');
-                                var context = canvas.getContext('2d');
-                                canvas.height = viewport.height;
-                                canvas.width = viewport.width;
-                                
-                                var renderContext = {
-                                    canvasContext: context,
-                                    viewport: viewport
-                                };
-                                page.render(renderContext).promise.then(function() {
-                                    var img = document.createElement('img');
-                                    img.src = canvas.toDataURL('image/png');
-                                    img.style.width = '100%';
-                                    img.style.maxWidth = '1000px';
-                                    img.style.display = 'block';
-                                    img.style.margin = '0 auto';
-                                    if(container) {
-                                        container.appendChild(img);
-                                    }
+                        
+                        var rawData = atob(pdfData);
+                        var pdfAsArray = new Uint8Array(rawData.length);
+                        for (var i = 0; i < rawData.length; i++) {
+                            pdfAsArray[i] = rawData.charCodeAt(i);
+                        }
+                        
+                        function renderPdf(pdf) {
+                            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                                pdf.getPage(pageNum).then(function(page) {
+                                    var scale = 2.0; 
+                                    var viewport = page.getViewport({scale: scale});
+                                    
+                                    var canvas = document.createElement('canvas');
+                                    var context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+                                    
+                                    var renderContext = {
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    };
+                                    page.render(renderContext).promise.then(function() {
+                                        var img = document.createElement('img');
+                                        img.src = canvas.toDataURL('image/png');
+                                        img.style.width = '100%';
+                                        img.style.maxWidth = '1000px';
+                                        img.style.display = 'block';
+                                        img.style.margin = '0 auto';
+                                        if(container) {
+                                            container.appendChild(img);
+                                        }
+                                    });
                                 });
-                            });
+                            }
                         }
-                    }
 
-                    pdfjsLib.getDocument({data: pdfAsArray}).promise.then(function(pdf) {
-                        renderPdf(pdf);
-                    }).catch(function(error) {
-                        console.error('Error parsing PDF:', error);
-                        if(container) {
-                            container.innerHTML = '<div class="p-4 text-danger text-center">Gagal merender data PDF.</div>';
-                        }
-                    });
-                }
-            })();
+                        pdfjsLib.getDocument({data: pdfAsArray}).promise.then(function(pdf) {
+                            renderPdf(pdf);
+                        }).catch(function(error) {
+                            console.error('Error parsing PDF:', error);
+                            if(container) {
+                                container.innerHTML = fallbackHtml; // Fallback instead of error
+                            }
+                        });
+                    }
+                })();
+            } catch (e) {
+                console.error('Exception rendering PDF:', e);
+                if (container) container.innerHTML = fallbackHtml;
+            }
         });
     </script>
     @endif
