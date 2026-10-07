@@ -5,14 +5,28 @@
 @section('konten')
 
 <style>
-    #tableToCopy th {
+    .table-rekap {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    .table-rekap th {
         text-align: center;
         vertical-align: middle;
+        text-transform: uppercase;
+        background-color: #f4f6f9 !important;
+        font-weight: bold;
+        color: #333;
+        padding: 8px 4px !important;
     }
-    #tableToCopy td:nth-child(1) {
+    .table-rekap td {
+        vertical-align: middle;
+        padding: 6px 4px !important;
+    }
+    .table-rekap tbody td:nth-child(1) {
         text-align: center;
     }
-    #tableToCopy td:nth-child(n+2) {
+    .table-rekap tbody td:nth-child(n+2) {
         text-align: right;
     }
 </style>
@@ -26,9 +40,8 @@
                 </h5>
                 <small class="text-muted">Laporan rincian pendapatan harian {{ $statusLanjut == 'Ralan' ? 'rawat jalan' : ($statusLanjut == 'SEMUA' ? 'rawat inap dan rawat jalan' : 'rawat inap') }} dengan penjamin {{ $penjaminLabel }} <span class="badge badge-light border ml-1">{{ $kdPj == 'UMU' ? 'Berdasarkan Tanggal Nota' : ($kdPj == 'SEMUA' ? 'Umum: Tgl Nota | BPJS & Asr: Tgl Bayar Piutang' : 'Berdasarkan Tanggal Pembayaran Piutang') }}</span></small>
             </div>
-            <div>
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="copyButton" onclick="copyTable('tableToCopy')">
-                    <i class="fas fa-copy mr-1"></i> Copy Table
+                <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadExcel()">
+                    <i class="fas fa-file-excel mr-1"></i> Download Excel
                 </button>
             </div>
         </div>
@@ -73,265 +86,181 @@
         </form>
 
         {{-- Tabel Rekap --}}
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover table-sm align-middle" id="tableToCopy">
-                <thead class="table-secondary">
-                    <tr>
-                        <th rowspan="2" style="width: 110px;">Tanggal</th>
-                        <th rowspan="2" style="width: 120px;">REG</th>
-                        <th colspan="5">Paket Tindakan {{ $statusLanjut == 'Ralan' ? 'Ralan' : ($statusLanjut == 'SEMUA' ? '' : 'Ranap') }}</th>
-                        <th rowspan="2" style="width: 130px;">OBAT<br>EMB+TUSLAH</th>
-                        <th rowspan="2" style="width: 120px;">RETUR<br>OBAT</th>
-                        <th colspan="2">LAB</th>
-                        <th colspan="5">RO</th>
-                        <th rowspan="2" style="width: 120px;">POT</th>
-                        <th rowspan="2" style="width: 120px;">TBM</th>
-                        <th rowspan="2" style="width: 140px;">Kamar + Service</th>
-                        <th colspan="3">OK</th>
-                        <th rowspan="2" style="width: 140px;" class="table-primary text-dark">TOTAL</th>
-                        <th rowspan="2" style="width: 120px;">PJ</th>
-                        <th rowspan="2" style="width: 120px;">EKSES</th>
-                        <th rowspan="2" style="width: 140px;" class="table-primary text-dark">GRAND TOTAL</th>
-                    </tr>
-                    <tr>
-                        <th style="width: 120px;">JS</th>
-                        <th style="width: 120px;">BHP</th>
-                        <th style="width: 120px;">JM DR</th>
-                        <th style="width: 120px;">PR</th>
-                        <th style="width: 120px;">KSO</th>
+        @if($statusLanjut == 'SEMUA')
+            <h6 class="font-weight-bold text-dark mb-2">RAWAT INAP (RANAP)</h6>
+            @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekapRanap, 'statusLanjutLocal' => 'Ranap'])
+            
+            <h6 class="font-weight-bold text-dark mb-2 mt-4">RAWAT JALAN (RALAN)</h6>
+            @php
+                $totalSemua = $dataRekapRanap->sum('grand_total') + $dataRekapRalan->sum('grand_total');
+            @endphp
+            @include('laporan.partials.table_rekap', [
+                'dataRekapLocal' => $dataRekapRalan, 
+                'statusLanjutLocal' => 'Ralan',
+                'showTotalKeseluruhan' => true,
+                'totalKeseluruhan' => $totalSemua
+            ])
+        @else
+            @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekap, 'statusLanjutLocal' => $statusLanjut])
+        @endif
 
-                        <th style="width: 120px;">JS</th>
-                        <th style="width: 120px;">BHP</th>
-
-                        <th style="width: 120px;">JS</th>
-                        <th style="width: 120px;">BHP</th>
-                        <th style="width: 120px;">JM PJ</th>
-                        <th style="width: 120px;">PETUGAS</th>
-                        <th style="width: 140px;">JM PR (PERUJUK)</th>
-
-                        <th style="width: 120px;">JM DR</th>
-                        <th style="width: 120px;">JM PR</th>
-                        <th style="width: 120px;">JS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $totReg = 0;
-                        $totJs = 0;
-                        $totBhp = 0;
-                        $totJmDr = 0;
-                        $totPr = 0;
-                        $totKso = 0;
-                        $totObat = 0;
-                        $totRetur = 0;
-                        $totLabJs = 0;
-                        $totLabBhp = 0;
-                        $totRoJs = 0;
-                        $totRoBhp = 0;
-                        $totRoJmPj = 0;
-                        $totRoPetugas = 0;
-                        $totRoPerujuk = 0;
-                        $totPot = 0;
-                        $totTbm = 0;
-                        $totKmr = 0;
-                        $totOkJmDr = 0;
-                        $totOkJmPr = 0;
-                        $totOkJs = 0;
-                        $totSubTindakan = 0;
-                        $totSubLab = 0;
-                        $totSubRo = 0;
-                        $totSubOk = 0;
-                        $totTotal = 0;
-                        $totPj = 0;
-                        $totEkses = 0;
-                        $totGrandTotal = 0;
-                    @endphp
-
-                    @forelse ($dataRekap as $item)
-                        @php
-                            $totReg += $item->reg ?? 0;
-                            $totJs += $item->js ?? 0;
-                            $totBhp += $item->bhp ?? 0;
-                            $totJmDr += $item->jm_dr ?? 0;
-                            $totPr += $item->pr ?? 0;
-                            $totKso += $item->kso ?? 0;
-                            $totObat += $item->obat ?? 0;
-                            $totRetur += $item->retur ?? 0;
-                            $totLabJs += $item->lab_js ?? 0;
-                            $totLabBhp += $item->lab_bhp ?? 0;
-                            $totRoJs += $item->ro_js ?? 0;
-                            $totRoBhp += $item->ro_bhp ?? 0;
-                            $totRoJmPj += $item->ro_jm_pj ?? 0;
-                            $totRoPetugas += $item->ro_petugas ?? 0;
-                            $totRoPerujuk += $item->ro_perujuk ?? 0;
-                            $totPot += $item->pot ?? 0;
-                            $totTbm += $item->tbm ?? 0;
-                            $totKmr += $item->kamar ?? 0;
-                            $totOkJmDr += $item->ok_jm_dr ?? 0;
-                            $totOkJmPr += $item->ok_jm_pr ?? 0;
-                            $totOkJs += $item->ok_js ?? 0;
-                            
-                            $subTotalTindakan = ($item->js ?? 0) + ($item->bhp ?? 0) + ($item->jm_dr ?? 0) + ($item->pr ?? 0) + ($item->kso ?? 0);
-                            $subTotalLab = ($item->lab_js ?? 0) + ($item->lab_bhp ?? 0);
-                            $subTotalRo = ($item->ro_js ?? 0) + ($item->ro_bhp ?? 0) + ($item->ro_jm_pj ?? 0) + ($item->ro_petugas ?? 0) + ($item->ro_perujuk ?? 0);
-                            $subTotalOk = ($item->ok_jm_dr ?? 0) + ($item->ok_jm_pr ?? 0) + ($item->ok_js ?? 0);
-
-                            $totSubTindakan += $subTotalTindakan;
-                            $totSubLab += $subTotalLab;
-                            $totSubRo += $subTotalRo;
-                            $totSubOk += $subTotalOk;
-                            $totTotal += $item->total ?? 0;
-                            $totPj += $item->pj ?? 0;
-                            $totEkses += $item->ekses ?? 0;
-                            $totGrandTotal += $item->grand_total ?? 0;
-                        @endphp
-                        <tr>
-                            <td>{{ $item->tanggal }}</td>
-                            <td>{{ number_format($item->reg ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->js ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->bhp ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->jm_dr ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->pr ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->kso ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->obat ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->retur ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->lab_js ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->lab_bhp ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ro_js ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ro_bhp ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ro_jm_pj ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ro_petugas ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ro_perujuk ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->pot ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->tbm ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->kamar ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ok_jm_dr ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ok_jm_pr ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ok_js ?? 0, 0, ',', '.') }}</td>
-                            <td class="font-weight-bold table-light">{{ number_format($item->total ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->pj ?? 0, 0, ',', '.') }}</td>
-                            <td>{{ number_format($item->ekses ?? 0, 0, ',', '.') }}</td>
-                            <td class="font-weight-bold table-primary text-dark">{{ number_format($item->grand_total ?? 0, 0, ',', '.') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="26" class="text-center py-3 text-muted">
-                                Tidak ada data pada periode ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-                <tfoot class="table-warning font-weight-bold">
-                    <tr>
-                        <td class="text-center">TOTAL</td>
-                        <td class="text-right">{{ number_format($totReg, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totJs, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totBhp, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totJmDr, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totPr, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totKso, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totObat, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRetur, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totLabJs, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totLabBhp, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRoJs, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRoBhp, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRoJmPj, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRoPetugas, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRoPerujuk, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totPot, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totTbm, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totKmr, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totOkJmDr, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totOkJmPr, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totOkJs, 0, ',', '.') }}</td>
-                        <td class="text-right font-weight-bold table-light">{{ number_format($totTotal, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totPj, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totEkses, 0, ',', '.') }}</td>
-                        <td class="text-right font-weight-bold table-primary text-dark">{{ number_format($totGrandTotal, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr class="table-info font-weight-bold">
-                        <td class="text-center">GRANDTOTAL</td>
-                        <td class="text-right">{{ number_format($totReg, 0, ',', '.') }}</td>
-                        <td class="text-center" colspan="5">{{ number_format($totSubTindakan, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totObat, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totRetur, 0, ',', '.') }}</td>
-                        <td class="text-center" colspan="2">{{ number_format($totSubLab, 0, ',', '.') }}</td>
-                        <td class="text-center" colspan="5">{{ number_format($totSubRo, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totPot, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totTbm, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totKmr, 0, ',', '.') }}</td>
-                        <td class="text-center" colspan="3">{{ number_format($totSubOk, 0, ',', '.') }}</td>
-                        <td class="text-right font-weight-bold table-light">{{ number_format($totTotal, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totPj, 0, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totEkses, 0, ',', '.') }}</td>
-                        <td class="text-right font-weight-bold table-primary text-dark">{{ number_format($totGrandTotal, 0, ',', '.') }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+        @include('laporan.partials.summary_table')
     </div>
 </div>
 
 <script>
-function copyTable(tableId) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
+function downloadExcel() {
+    let tables = document.querySelectorAll('.table-rekap');
+    if (tables.length === 0) return;
 
-    let maxCols = 0;
-    for (let i = 0; i < table.rows.length; i++) {
-        let cols = 0;
-        for (let j = 0; j < table.rows[i].cells.length; j++) {
-            cols += table.rows[i].cells[j].colSpan;
-        }
-        if (cols > maxCols) maxCols = cols;
-    }
+    let html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 11pt; }
+            th, td { border: 1px solid black; padding: 4px; vertical-align: middle; }
+            th { background-color: #f4f6f9; font-weight: bold; }
+            .no-border { border: none !important; }
+            /* Bootstrap Colors for Excel */
+            .table-primary, .table-primary > th, .table-primary > td { background-color: #cfe2ff !important; }
+            .table-secondary, .table-secondary > th, .table-secondary > td { background-color: #e2e3e5 !important; }
+            .table-success, .table-success > th, .table-success > td { background-color: #d1e7dd !important; }
+            .table-warning, .table-warning > th, .table-warning > td { background-color: #fff3cd !important; }
+            .table-info, .table-info > th, .table-info > td { background-color: #cff4fc !important; }
+            .table-light, .table-light > th, .table-light > td { background-color: #f8f9fa !important; }
+            .table-dark, .table-dark > th, .table-dark > td { background-color: #212529 !important; color: #fff !important; }
+            .bg-primary { background-color: #0d6efd !important; color: #fff !important; }
+            .bg-success { background-color: #198754 !important; color: #fff !important; }
+            .bg-info { background-color: #0dcaf0 !important; color: #000 !important; }
+            .bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+            .bg-danger { background-color: #dc3545 !important; color: #fff !important; }
+            .bg-light { background-color: #f8f9fa !important; }
+            .text-dark { color: #212529 !important; }
+            .text-muted { color: #6c757d !important; }
+            .text-white { color: #fff !important; }
+            .text-primary { color: #0d6efd !important; }
+            .font-weight-bold { font-weight: bold !important; }
+        </style>
+    </head>
+    <body>
+    `;
 
-    let matrix = [];
-    for (let i = 0; i < table.rows.length; i++) {
-        matrix.push(new Array(maxCols).fill(''));
-    }
-
-    for (let i = 0; i < table.rows.length; i++) {
-        let cells = table.rows[i].cells;
-        let c = 0;
-        for (let j = 0; j < cells.length; j++) {
-            let cell = cells[j];
-            while (c < maxCols && matrix[i][c] !== '') {
-                c++;
+    tables.forEach((table) => {
+        let title = '';
+        let titleElement = table.previousElementSibling;
+        
+        while (titleElement) {
+            if (titleElement.tagName === 'H4' || titleElement.tagName === 'H5') {
+                title = titleElement.innerText.trim();
+                break;
             }
-            if (c >= maxCols) break;
+            titleElement = titleElement.previousElementSibling;
+        }
 
-            let text = cell.innerText.replace(/\r?\n/g, ' ').trim();
-            // Remove dots only if the text is a formatted number (e.g., "1.500.000" or "-5.000")
-            if (/^-?\d{1,3}(\.\d{3})+$/.test(text)) {
-                text = text.replace(/\./g, '');
+        if (!title && table.parentElement) {
+            let parentPrev = table.parentElement.previousElementSibling;
+            while (parentPrev) {
+                if (parentPrev.tagName === 'H4' || parentPrev.tagName === 'H5') {
+                    title = parentPrev.innerText.trim();
+                    break;
+                }
+                parentPrev = parentPrev.previousElementSibling;
+            }
+        }
+
+        let maxCols = 0;
+        for (let i = 0; i < table.rows.length; i++) {
+            let cols = 0;
+            for (let j = 0; j < table.rows[i].cells.length; j++) {
+                cols += table.rows[i].cells[j].colSpan;
+            }
+            if (cols > maxCols) maxCols = cols;
+        }
+
+        @php
+            $bulanIndo = ['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'];
+            $bln = date('m', strtotime($tgl1));
+            $namaBulan = $bulanIndo[$bln] ?? '';
+            $thn = date('Y', strtotime($tgl1));
+            $judulRekap = "REKAP BULAN " . strtoupper($namaBulan) . " " . $thn;
+            $pelayanan = $statusLanjut == 'Ralan' ? 'Rawat Jalan' : ($statusLanjut == 'SEMUA' ? 'Rawat Inap & Jalan' : 'Rawat Inap');
+        @endphp
+
+        let kopSurat = `
+            <tr>
+                <td colspan="${maxCols}" class="no-border" align="center" style="text-align: center; vertical-align: middle;">
+                    <h2 style="margin: 0; font-size: 16pt;">{{ $setting->nama_instansi }}</h2>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">{{ $setting->alamat_instansi }}, {{ $setting->kabupaten }}, {{ $setting->propinsi }}</p>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">Kontak: {{ $setting->kontak }} | Email: {{ $setting->email }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="border-bottom: 2px solid black !important;"></td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="height: 10px;"></td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" align="center" style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 14pt;">{{ $judulRekap }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">Jenis Pelayanan: {{ $pelayanan }} | Penjamin: {{ $penjaminLabel }}</p>
+                    <h4 style="margin: 10px 0 5px 0; font-size: 12pt;">${title}</h4>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="height: 10px;"></td>
+            </tr>
+        `;
+
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = table.outerHTML;
+
+        // Force Excel to respect alignments by injecting the HTML 'align' attribute directly
+        let ths = tempDiv.querySelectorAll('th');
+        ths.forEach(th => {
+            th.setAttribute('align', 'center');
+            th.style.textAlign = 'center';
+        });
+
+        let tds = tempDiv.querySelectorAll('td');
+        tds.forEach(td => {
+            let align = 'right'; // Default numbers to right
+            
+            if (td.style.textAlign) {
+                align = td.style.textAlign; // Respect existing inline styles from summary table
+            } else if (td.classList.contains('text-center') || td.classList.contains('no-border')) {
+                align = 'center';
+            } else if (td.classList.contains('text-left')) {
+                align = 'left';
             }
             
-            for (let r = 0; r < cell.rowSpan; r++) {
-                for (let k = 0; k < cell.colSpan; k++) {
-                    if (i + r < matrix.length && c + k < maxCols) {
-                        matrix[i + r][c + k] = (r === 0 && k === 0) ? text : '';
-                    }
-                }
-            }
-            c += cell.colSpan;
-        }
-    }
+            td.setAttribute('align', align);
+            td.style.textAlign = align;
+        });
 
-    let tsv = matrix.map(row => row.join('\t')).join('\n');
+        let tableHtml = tempDiv.innerHTML;
+        // Insert kopSurat right after <thead>
+        tableHtml = tableHtml.replace(/(<thead[^>]*>)/i, '$1' + kopSurat);
+        
 
-    let textArea = document.createElement("textarea");
-    textArea.value = tsv;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-        document.execCommand('copy');
-        alert('Tabel berhasil disalin! Format sudah disesuaikan untuk di-paste ke Excel (Unformatted Text).');
-    } catch (err) {
-        alert('Gagal menyalin tabel.');
-    }
-    document.body.removeChild(textArea);
+        
+        html += tableHtml;
+        html += '<br><br>';
+    });
+
+    html += `</body></html>`;
+
+    let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob);
+    
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'Rekap_Pendapatan_Harian.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 </script>
 
