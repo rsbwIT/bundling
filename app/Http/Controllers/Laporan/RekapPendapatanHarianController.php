@@ -18,6 +18,65 @@ class RekapPendapatanHarianController extends Controller
         $kdPj = $request->kd_pj ?? 'UMU';
         $statusLanjut = $request->status_lanjut ?? 'Ranap'; // default 'Ranap', supports 'Ralan' and 'SEMUA'
 
+        $penjaminLabel = match($kdPj) {
+            'BPJ' => 'BPJS',
+            'ASURANSI' => 'Asuransi',
+            'INHEALTH' => 'Mandiri Inhealth & Askes Inhealth',
+            'SEMUA' => 'Semua Penjamin',
+            default => 'Umum',
+        };
+
+        $setting = \Illuminate\Support\Facades\DB::table('setting')->first();
+
+        if ($statusLanjut === 'SEMUA') {
+            $dataRekapRanap = $this->getRekapData($tgl1, $tgl2, $kdPj, 'Ranap');
+            $dataRekapRalan = $this->getRekapData($tgl1, $tgl2, $kdPj, 'Ralan');
+            return view('laporan.rekappendapatanharian', compact('tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 'dataRekapRanap', 'dataRekapRalan', 'setting'));
+        } else {
+            $dataRekap = $this->getRekapData($tgl1, $tgl2, $kdPj, $statusLanjut);
+            return view('laporan.rekappendapatanharian', compact('tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 'dataRekap', 'setting'));
+        }
+    }
+
+    public function printPdf(Request $request)
+    {
+        $tgl1 = $request->tgl1 ?? date('Y-m-01');
+        $tgl2 = $request->tgl2 ?? date('Y-m-d');
+        $kdPj = $request->kd_pj ?? 'UMU';
+        $statusLanjut = $request->status_lanjut ?? 'Ranap';
+
+        $penjaminLabel = match($kdPj) {
+            'BPJ' => 'BPJS',
+            'ASURANSI' => 'Asuransi',
+            'INHEALTH' => 'Mandiri Inhealth & Askes Inhealth',
+            'SEMUA' => 'Semua Penjamin',
+            default => 'Umum',
+        };
+
+        $dataRekapRanap = collect();
+        $dataRekapRalan = collect();
+        $dataRekap = collect();
+
+        if ($statusLanjut === 'SEMUA') {
+            $dataRekapRanap = $this->getRekapData($tgl1, $tgl2, $kdPj, 'Ranap');
+            $dataRekapRalan = $this->getRekapData($tgl1, $tgl2, $kdPj, 'Ralan');
+        } else {
+            $dataRekap = $this->getRekapData($tgl1, $tgl2, $kdPj, $statusLanjut);
+        }
+
+        $setting = DB::table('setting')->first();
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.rekappendapatanharian-pdf', compact(
+            'tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 
+            'setting', 'dataRekapRanap', 'dataRekapRalan', 'dataRekap'
+        ))->setPaper('a1', 'landscape');
+
+        return $pdf->stream('Rekap_Pendapatan_Harian_'.$tgl1.'_sd_'.$tgl2.'.pdf');
+    }
+
+    private function getRekapData($tgl1, $tgl2, $kdPj, $statusLanjut)
+    {
+
         // Tentukan filter status_lanjut
         if ($statusLanjut === 'Ralan') {
             $statusLanjutClause = "AND rp.status_lanjut = 'Ralan'";
@@ -307,7 +366,8 @@ class RekapPendapatanHarianController extends Controller
         $labPerTgl = $labQuery->select(
             'ni.tanggal',
             DB::raw('SUM(pl.bagian_rs) as js'),
-            DB::raw('SUM(pl.bhp) as bhp')
+            DB::raw('SUM(pl.bhp) as bhp'),
+            DB::raw('SUM(pl.tarif_tindakan_dokter + pl.tarif_tindakan_petugas + pl.tarif_perujuk) as jm_lab')
         )
         ->groupBy('ni.tanggal')
         ->get()
@@ -496,6 +556,7 @@ class RekapPendapatanHarianController extends Controller
             $labItem = $labPerTgl->get($tglStr);
             $labJsVal  = $labItem ? (float)$labItem->js : 0;
             $labBhpVal = $labItem ? (float)$labItem->bhp : 0;
+            $labJmVal  = $labItem ? (float)$labItem->jm_lab : 0;
 
             $roItem = $roPerTgl->get($tglStr);
             $roJsVal      = $roItem ? (float)$roItem->js : 0;
@@ -524,14 +585,14 @@ class RekapPendapatanHarianController extends Controller
                 $eksesVal = $eksesRanapVal + $eksesRalanVal;
             }
 
-            // Only add PJ if no penjamin filter is active, or if it's UMU (since PJ is likely general patients). 
-            // We don't have kd_pj in tagihan_sadewa, so we can just add it when it's not filtered by specific non-umum. 
-            // Wait, for safety I'll just include it always, or ask the user. I'll include it always as it was in Bulanan.
             $pjVal = (float) $pjPerTgl->get($tglStr, 0);
+            if ($statusLanjut === 'Ranap') {
+                $pjVal = 0;
+            }
 
             $rowTotal = $regVal + $jsVal + $bhpVal + $jmDrVal + $prVal + $ksoVal
                 + $obatVal + $returVal
-                + $labJsVal + $labBhpVal
+                + $labJsVal + $labBhpVal + $labJmVal
                 + $roJsVal + $roBhpVal + $roJmPjVal + $roPetugasVal + $roPerujukVal
                 + $potVal + $tbmVal + $kmrVal
                 + $okJmDrVal + $okJmPrVal + $okJsVal;
@@ -548,6 +609,7 @@ class RekapPendapatanHarianController extends Controller
                 'retur'      => $returVal,
                 'lab_js'     => $labJsVal,
                 'lab_bhp'    => $labBhpVal,
+                'lab_jm'     => $labJmVal,
                 'ro_js'      => $roJsVal,
                 'ro_bhp'     => $roBhpVal,
                 'ro_jm_pj'   => $roJmPjVal,
@@ -566,14 +628,6 @@ class RekapPendapatanHarianController extends Controller
             ]);
         }
 
-        $penjaminLabel = match($kdPj) {
-            'BPJ' => 'BPJS',
-            'ASURANSI' => 'Asuransi',
-            'INHEALTH' => 'Mandiri Inhealth & Askes Inhealth',
-            'SEMUA' => 'Semua Penjamin',
-            default => 'Umum',
-        };
-
-        return view('laporan.rekappendapatanharian', compact('tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 'dataRekap'));
+        return $dataRekap;
     }
 }
