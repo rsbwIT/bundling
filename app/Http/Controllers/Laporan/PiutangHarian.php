@@ -62,21 +62,13 @@ class PiutangHarian extends Controller
 
 
         // hanya no_rawat yg 1 penjamin
-        $singlePenjab = DB::table(
-            'detail_piutang_pasien'
-        )
+        $singlePenjab = DB::table('detail_piutang_pasien')->select('no_rawat');
 
-            ->select(
-                'no_rawat'
-            )
+        if ($filterType == 'tempo' && $tgl1 && $tgl2) {
+            $singlePenjab->whereBetween('tgltempo', [$tgl1, $tgl2]);
+        }
 
-            ->groupBy(
-                'no_rawat'
-            )
-
-            ->havingRaw(
-                'COUNT(*) = 1'
-            );
+        $singlePenjab->groupBy('no_rawat')->havingRaw('COUNT(*) = 1');
 
 
 
@@ -359,7 +351,7 @@ class PiutangHarian extends Controller
             ->leftJoinSub(
 
                 DB::table('detail_piutang_pasien as dpp')
-
+                    ->whereIn('dpp.no_rawat', $noRawats)
                     ->leftJoin(
                         'akun_piutang as ap',
                         'ap.nama_bayar',
