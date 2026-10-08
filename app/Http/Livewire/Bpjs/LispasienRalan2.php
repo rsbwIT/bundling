@@ -23,7 +23,6 @@ class LispasienRalan2 extends Component
     {
         $this->tanggal1 = date('Y-m-d');
         $this->tanggal2 = date('Y-m-d');
-        $this->getListPasienRalan();
     }
     public function render()
     {
