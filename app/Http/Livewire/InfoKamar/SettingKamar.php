@@ -21,8 +21,6 @@ class SettingKamar extends Component
     {
         $this->select_kamar = 'Anggrek';
         $this->input_kelas = 'Kelas 1';
-        $this->getKamar();
-        $this->getRuang();
     }
     public function render()
     {
@@ -45,33 +43,38 @@ class SettingKamar extends Component
     public function getKamar()
     {
         try {
-            $this->getRuangan = DB::table('bw_display_bad')
-                ->select('bw_display_bad.id', 'bw_display_bad.ruangan')
-                ->where('bw_display_bad.ruangan', $this->select_kamar)
-                ->groupBy('bw_display_bad.ruangan')
+            $allBeds = DB::table('bw_display_bad')
+                ->select(
+                    'id',
+                    'ruangan',
+                    'kamar',
+                    'bad',
+                    'status',
+                    'kelas',
+                    'kd_kelas_bpjs',
+                    'nm_ruangan_bpjs'
+                )
+                ->where('ruangan', $this->select_kamar)
                 ->get();
-            $this->getRuangan->map(function ($item) {
-                $item->getKamar = DB::table('bw_display_bad')
-                    ->select('bw_display_bad.kamar', 'bw_display_bad.kelas', 'bw_display_bad.kelas', 'bw_display_bad.nm_ruangan_bpjs')
-                    ->where('bw_display_bad.ruangan', $item->ruangan)
-                    ->groupBy('bw_display_bad.kamar')
-                    ->get();
-                $item->getKamar->map(function ($item) {
-                    $item->getBed = DB::table('bw_display_bad')
-                        ->select(
-                            'bw_display_bad.id',
-                            'bw_display_bad.ruangan',
-                            'bw_display_bad.kamar',
-                            'bw_display_bad.bad',
-                            'bw_display_bad.status',
-                            'bw_display_bad.kelas',
-                            'bw_display_bad.kd_kelas_bpjs',
-                            'bw_display_bad.nm_ruangan_bpjs'
-                        )
-                        ->where('bw_display_bad.kamar', $item->kamar)
-                        ->get();
-                });
-            });
+
+            if ($allBeds->isNotEmpty()) {
+                $this->getRuangan = collect([
+                    (object)[
+                        'id' => $allBeds->first()->id,
+                        'ruangan' => $this->select_kamar,
+                        'getKamar' => $allBeds->groupBy('kamar')->map(function ($beds, $kamarName) {
+                            return (object)[
+                                'kamar' => $kamarName,
+                                'kelas' => $beds->first()->kelas,
+                                'nm_ruangan_bpjs' => $beds->first()->nm_ruangan_bpjs,
+                                'getBed' => $beds->values()
+                            ];
+                        })->values()
+                    ]
+                ]);
+            } else {
+                $this->getRuangan = collect();
+            }
         } catch (\Throwable $th) {
         }
     }
