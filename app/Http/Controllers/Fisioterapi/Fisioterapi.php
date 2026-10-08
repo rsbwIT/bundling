@@ -35,20 +35,37 @@ class Fisioterapi extends Controller
                 'poliklinik.nm_poli',
                 'dokter.nm_dokter'
             )
-            ->addSelect([
-                'adaKunjungan' => DB::table('fisioterapi_kunjungan')
-                    ->selectRaw('count(*)')
-                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis')
-                    ->whereColumn('tanggal', 'reg_periksa.tgl_registrasi')
-                    ->limit(1),
-                'maxLembForm' => DB::table('fisioterapi_form')
-                    ->selectRaw('MAX(lembar)')
-                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis'),
-                'maxLembKunj' => DB::table('fisioterapi_kunjungan')
-                    ->selectRaw('MAX(lembar)')
-                    ->whereColumn('no_rkm_medis', 'reg_periksa.no_rkm_medis')
-            ])
             ->get();
+
+        $noRkmMedisList = $data->pluck('no_rkm_medis')->unique()->toArray();
+
+        if (!empty($noRkmMedisList)) {
+            $kunjunganData = DB::table('fisioterapi_kunjungan')
+                ->whereIn('no_rkm_medis', $noRkmMedisList)
+                ->select('no_rkm_medis', 'tanggal', 'lembar')
+                ->get();
+                
+            $formData = DB::table('fisioterapi_form')
+                ->whereIn('no_rkm_medis', $noRkmMedisList)
+                ->select('no_rkm_medis', DB::raw('MAX(lembar) as max_lembar'))
+                ->groupBy('no_rkm_medis')
+                ->pluck('max_lembar', 'no_rkm_medis');
+                
+            $adaKunjunganMap = [];
+            $maxLembKunjMap = [];
+            foreach ($kunjunganData as $k) {
+                $adaKunjunganMap[$k->no_rkm_medis . '_' . $k->tanggal] = true;
+                if (!isset($maxLembKunjMap[$k->no_rkm_medis]) || $k->lembar > $maxLembKunjMap[$k->no_rkm_medis]) {
+                    $maxLembKunjMap[$k->no_rkm_medis] = $k->lembar;
+                }
+            }
+
+            foreach ($data as $d) {
+                $d->adaKunjungan = isset($adaKunjunganMap[$d->no_rkm_medis . '_' . $d->tgl_registrasi]) ? 1 : 0;
+                $d->maxLembForm = $formData[$d->no_rkm_medis] ?? null;
+                $d->maxLembKunj = $maxLembKunjMap[$d->no_rkm_medis] ?? null;
+            }
+        }
 
         return view('fisioterapi.fisioterapi', compact(
             'data',
