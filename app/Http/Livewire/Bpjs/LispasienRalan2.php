@@ -83,10 +83,10 @@ class LispasienRalan2 extends Component
             $p->sudah_triase = isset($triases[$p->no_rawat]) ? 1 : 0;
             $p->sudah_pemeriksaan = isset($pemeriksaans[$p->no_rawat]) ? 1 : 0;
             $p->sudah_mati = isset($matis[$p->no_rkm_medis]) ? 1 : 0;
-            return (array) $p;
+            return $p;
         });
 
-        $this->getPasien = json_decode(json_encode($mapped), true);
+        $this->getPasien = $mapped;
     }
 
     // 2 PROSES UPLOAD ==================================================================================
