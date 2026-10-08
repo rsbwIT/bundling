@@ -37,7 +37,7 @@ class LispasienRalan2 extends Component
     {
         $cariKode = $this->carinomor;
 
-        $pasiens = DB::table('reg_periksa')
+        $this->getPasien = DB::table('reg_periksa')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -45,7 +45,12 @@ class LispasienRalan2 extends Component
                 DB::raw('COALESCE(bridging_sep.no_sep, "-") as no_sep'),
                 'pasien.nm_pasien',
                 'bridging_sep.tglsep',
-                'poliklinik.nm_poli'
+                'poliklinik.nm_poli',
+                DB::raw('(SELECT file FROM bw_file_casemix_hasil WHERE bw_file_casemix_hasil.no_rawat = reg_periksa.no_rawat LIMIT 1) as file'),
+                DB::raw('EXISTS(SELECT 1 FROM resume_pasien WHERE resume_pasien.no_rawat = reg_periksa.no_rawat) as sudah_resume'),
+                DB::raw('EXISTS(SELECT 1 FROM data_triase_igd WHERE data_triase_igd.no_rawat = reg_periksa.no_rawat) as sudah_triase'),
+                DB::raw('EXISTS(SELECT 1 FROM pemeriksaan_ralan WHERE pemeriksaan_ralan.no_rawat = reg_periksa.no_rawat) as sudah_pemeriksaan'),
+                DB::raw('EXISTS(SELECT 1 FROM pasien_mati WHERE pasien_mati.no_rkm_medis = reg_periksa.no_rkm_medis) as sudah_mati')
             )
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
@@ -66,27 +71,8 @@ class LispasienRalan2 extends Component
             })
             ->whereNotIn('reg_periksa.stts', ['Batal'])
             ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->groupBy('reg_periksa.no_rawat', 'reg_periksa.no_rkm_medis')
             ->get();
-
-        $noRawats = $pasiens->pluck('no_rawat')->toArray();
-        $noRkmMedis = $pasiens->pluck('no_rkm_medis')->toArray();
-        
-        $files = !empty($noRawats) ? DB::table('bw_file_casemix_hasil')->whereIn('no_rawat', $noRawats)->pluck('file', 'no_rawat') : collect();
-        $resumes = !empty($noRawats) ? DB::table('resume_pasien')->whereIn('no_rawat', $noRawats)->pluck('no_rawat')->flip() : collect();
-        $triases = !empty($noRawats) ? DB::table('data_triase_igd')->whereIn('no_rawat', $noRawats)->pluck('no_rawat')->flip() : collect();
-        $pemeriksaans = !empty($noRawats) ? DB::table('pemeriksaan_ralan')->whereIn('no_rawat', $noRawats)->pluck('no_rawat')->flip() : collect();
-        $matis = !empty($noRkmMedis) ? DB::table('pasien_mati')->whereIn('no_rkm_medis', $noRkmMedis)->pluck('no_rkm_medis')->flip() : collect();
-        
-        $mapped = $pasiens->map(function($p) use ($files, $resumes, $triases, $pemeriksaans, $matis) {
-            $p->file = $files[$p->no_rawat] ?? null;
-            $p->sudah_resume = isset($resumes[$p->no_rawat]) ? 1 : 0;
-            $p->sudah_triase = isset($triases[$p->no_rawat]) ? 1 : 0;
-            $p->sudah_pemeriksaan = isset($pemeriksaans[$p->no_rawat]) ? 1 : 0;
-            $p->sudah_mati = isset($matis[$p->no_rkm_medis]) ? 1 : 0;
-            return $p;
-        });
-
-        $this->getPasien = $mapped;
     }
 
     // 2 PROSES UPLOAD ==================================================================================
