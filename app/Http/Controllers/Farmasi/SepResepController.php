@@ -31,21 +31,26 @@ class SepResepController extends Controller
             )
             ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->leftJoin('bridging_sep','bridging_sep.no_rawat','=','reg_periksa.no_rawat')
-            ->join('piutang',function($join) {
-                $join->on('piutang.no_rkm_medis','=','pasien.no_rkm_medis')
-                     ->on('reg_periksa.no_rawat','=','piutang.nota_piutang');
-            })
+            ->join('piutang', 'piutang.nota_piutang', '=', 'reg_periksa.no_rawat')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
             ->where('reg_periksa.kd_pj','=', 'BPJ')
             ->whereBetween('piutang.tgl_piutang',[$tanggl1, $tanggl2])
             ->orderBy('reg_periksa.no_rawat','asc')
             ->get();
 
-        $downloadBerkas = DB::table('file_farmasi')
-            ->select('no_rawat')
-            ->whereIn('no_rawat', $daftarPasien->pluck('no_rawat')->toArray())
-            ->where('jenis_berkas', 'SEP-RESEP')
-            ->get();
+        $noRawats = $daftarPasien->pluck('no_rawat')->toArray();
+        $downloadBerkas = collect();
+        if (!empty($noRawats)) {
+            $chunks = array_chunk($noRawats, 1000);
+            foreach ($chunks as $chunk) {
+                $res = DB::table('file_farmasi')
+                    ->select('no_rawat')
+                    ->whereIn('no_rawat', $chunk)
+                    ->where('jenis_berkas', 'SEP-RESEP')
+                    ->get();
+                $downloadBerkas = $downloadBerkas->merge($res);
+            }
+        }
 
         // ================= RINGKASAN =================
         $totalPasien = $daftarPasien->count();
@@ -97,10 +102,7 @@ class SepResepController extends Controller
             )
             ->join('pasien','reg_periksa.no_rkm_medis','=','pasien.no_rkm_medis')
             ->leftJoin('bridging_sep','bridging_sep.no_rawat','=','reg_periksa.no_rawat')
-            ->join('piutang',function($join) {
-                $join->on('piutang.no_rkm_medis','=','pasien.no_rkm_medis')
-                     ->on('reg_periksa.no_rawat','=','piutang.nota_piutang');
-            })
+            ->join('piutang', 'piutang.nota_piutang', '=', 'reg_periksa.no_rawat')
             ->join('poliklinik','reg_periksa.kd_poli','=','poliklinik.kd_poli')
             ->where('reg_periksa.kd_pj','=', 'BPJ')
             ->whereBetween('piutang.tgl_piutang',[$tanggl1, $tanggl2])
@@ -116,11 +118,19 @@ class SepResepController extends Controller
             ->orderBy('reg_periksa.no_rawat','asc')
             ->get();
 
-        $downloadBerkas = DB::table('file_farmasi')
-            ->select('no_rawat')
-            ->whereIn('no_rawat', $daftarPasien->pluck('no_rawat')->toArray())
-            ->where('jenis_berkas', 'SEP-RESEP')
-            ->get();
+        $noRawats = $daftarPasien->pluck('no_rawat')->toArray();
+        $downloadBerkas = collect();
+        if (!empty($noRawats)) {
+            $chunks = array_chunk($noRawats, 1000);
+            foreach ($chunks as $chunk) {
+                $res = DB::table('file_farmasi')
+                    ->select('no_rawat')
+                    ->whereIn('no_rawat', $chunk)
+                    ->where('jenis_berkas', 'SEP-RESEP')
+                    ->get();
+                $downloadBerkas = $downloadBerkas->merge($res);
+            }
+        }
 
         // ================= RINGKASAN =================
         $totalPasien = $daftarPasien->count();
@@ -149,3 +159,4 @@ class SepResepController extends Controller
         ]);
     }
 }
+
