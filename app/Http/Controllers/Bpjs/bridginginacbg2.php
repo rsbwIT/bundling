@@ -581,63 +581,67 @@ class bridginginacbg2 extends Controller
                 DB::table('diagnosa_pasien')->where('no_rawat', $norawat)->delete();
                 $items = explode('#', $request->diagnosa);
                 $prioritas = 1;
-                foreach ($items as $diag) {
-                    $diag = trim($diag);
-                    if ($diag === '' || !DB::table('penyakit')->where('kd_penyakit', $diag)->exists()) continue;
-                    DB::table('diagnosa_pasien')->insert([
-                        'no_rawat'    => $norawat,
-                        'kd_penyakit' => $diag,
-                        'status'      => 'R',
-                        'prioritas'   => $prioritas++
-                    ]);
-                    $arrDiag[] = $diag;
+                $insertData = [];
+                
+                $items = array_filter(array_map('trim', $items));
+                if (!empty($items)) {
+                    $validDiags = DB::table('penyakit')->whereIn('kd_penyakit', $items)->pluck('kd_penyakit')->toArray();
+                    foreach ($items as $diag) {
+                        if (!in_array($diag, $validDiags)) continue;
+                        $insertData[] = [
+                            'no_rawat'    => $norawat,
+                            'kd_penyakit' => $diag,
+                            'status'      => 'R',
+                            'prioritas'   => $prioritas++
+                        ];
+                        $arrDiag[] = $diag;
+                    }
+                    if (!empty($insertData)) {
+                        DB::table('diagnosa_pasien')->insert($insertData);
+                    }
                 }
             }
 
             // --- PROSES UPDATE PROSEDUR DARI FORM ---
             $arrProc = [];
+            $arrProcWithJumlah = [];
             DB::table('prosedur_pasien')->where('no_rawat', $norawat)->delete();
             if ($request->filled('procedure')) {
                 $procs = explode('#', $request->procedure);
-                foreach ($procs as $proc) {
-                    $proc = trim($proc);
-                    // Jika ada format jumlah (misal 39.95+2) ambil kodenya saja untuk dicek
-                    $procCode = $proc;
-                    if (str_contains($proc, '+')) {
-                        $parts = explode('+', $proc);
-                        $procCode = trim($parts[0]);
+                $procs = array_filter(array_map('trim', $procs));
+                
+                if (!empty($procs)) {
+                    $procCodesToCheck = [];
+                    foreach ($procs as $proc) {
+                        $procCode = str_contains($proc, '+') ? trim(explode('+', $proc)[0]) : $proc;
+                        $procCodesToCheck[] = $procCode;
                     }
-                    if ($procCode === '' || !DB::table('icd9')->where('kode', $procCode)->exists()) continue;
+
+                    $validProcs = DB::table('icd9')->whereIn('kode', $procCodesToCheck)->pluck('kode')->toArray();
                     
-                    DB::table('prosedur_pasien')->insert([
-                        'no_rawat' => $norawat,
-                        'kode'     => $procCode
-                    ]);
-                    $arrProc[] = $procCode;
+                    $insertProcData = [];
+                    foreach ($procs as $proc) {
+                        $procCode = str_contains($proc, '+') ? trim(explode('+', $proc)[0]) : $proc;
+                        if (!in_array($procCode, $validProcs)) continue;
+                        
+                        $insertProcData[] = [
+                            'no_rawat' => $norawat,
+                            'kode'     => $procCode
+                        ];
+                        $arrProc[] = $procCode;
+                        $arrProcWithJumlah[] = $proc;
+                    }
+                    if (!empty($insertProcData)) {
+                        DB::table('prosedur_pasien')->insert($insertProcData);
+                    }
                 }
             }
 
             $this->updateResumePasien($norawat, $arrDiag, $arrProc);
 
             // --- RE-CALCULATE DIAGNOSA INACBG & PROCEDURE INACBG ---
-            $newDiagnosainacbg = DB::table('diagnosa_pasien')
-                ->join('penyakit', 'diagnosa_pasien.kd_penyakit', '=', 'penyakit.kd_penyakit')
-                ->where('diagnosa_pasien.no_rawat', $norawat)
-                ->orderBy('diagnosa_pasien.prioritas')
-                ->pluck('diagnosa_pasien.kd_penyakit')
-                ->implode('#');
-
-            $newProcedureinacbg = DB::table('prosedur_pasien')
-                ->join('icd9', 'prosedur_pasien.kode', '=', 'icd9.kode')
-                ->where('prosedur_pasien.no_rawat', $norawat)
-                ->orderBy('prosedur_pasien.prioritas')
-                ->get()
-                ->map(function ($item) {
-                    return $item->jumlah > 1
-                        ? $item->kode . '+' . $item->jumlah
-                        : $item->kode;
-                })
-                ->implode('#');
+            $newDiagnosainacbg = implode('#', $arrDiag);
+            $newProcedureinacbg = implode('#', $arrProcWithJumlah);
 
             //  1. NEW CLAIM
 
