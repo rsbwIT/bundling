@@ -300,21 +300,25 @@ $programList = [
                     </td>
 
                    <td>
-                        <div class="signature-container">
+                        <div class="signature-container" id="container_pasien_{{ $i }}">
                             @if($row && $row->ttd_pasien)
                                 <img src="{{ asset('storage/ttd/'.$row->ttd_pasien) }}" class="ttd-preview" id="img_pasien_{{ $i }}">
+                                <canvas id="pad_pasien_{{ $i }}" data-role="pasien" data-index="{{ $i }}" class="signature-pad" style="display:none;"></canvas>
                             @else
                                 <canvas id="pad_pasien_{{ $i }}" data-role="pasien" data-index="{{ $i }}" class="signature-pad"></canvas>
                             @endif
                         </div>
 
-                        @if(!$row || !$row->ttd_pasien)
-                            <input type="hidden" name="ttd_pasien[{{ $i }}]" id="input_pasien_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-danger mt-1"
+                        <input type="hidden" name="ttd_pasien[{{ $i }}]" id="input_pasien_{{ $i }}">
+
+                        @if($row && $row->ttd_pasien)
+                            <button type="button" id="btn_edit_pasien_{{ $i }}" class="btn btn-sm btn-outline-warning mt-1"
+                                    onclick="editTtd('pasien', {{ $i }})">Edit</button>
+                            <button type="button" id="btn_clear_pasien_{{ $i }}" class="btn btn-sm btn-outline-danger mt-1" style="display:none;"
                                     onclick="clearPad('pasien',{{ $i }})">Hapus</button>
                         @else
-                            <button type="button" class="btn btn-sm btn-outline-warning mt-1"
-                                    onclick="editTtd('pasien', {{ $i }})">Edit</button>
+                            <button type="button" id="btn_clear_pasien_{{ $i }}" class="btn btn-sm btn-outline-danger mt-1"
+                                    onclick="clearPad('pasien',{{ $i }})">Hapus</button>
                         @endif
                     </td>
 
@@ -340,21 +344,25 @@ $programList = [
                     </td>
 
                     <td>
-                        <div class="signature-container">
+                        <div class="signature-container" id="container_terapis_{{ $i }}">
                             @if($row && $row->ttd_terapis)
                                 <img src="{{ asset('storage/ttd/'.$row->ttd_terapis) }}" class="ttd-preview" id="img_terapis_{{ $i }}">
+                                <canvas id="pad_terapis_{{ $i }}" data-role="terapis" data-index="{{ $i }}" class="signature-pad" style="display:none;"></canvas>
                             @else
                                 <canvas id="pad_terapis_{{ $i }}" data-role="terapis" data-index="{{ $i }}" class="signature-pad"></canvas>
                             @endif
                         </div>
 
-                        @if(!$row || !$row->ttd_terapis)
-                            <input type="hidden" name="ttd_terapis[{{ $i }}]" id="input_terapis_{{ $i }}">
-                            <button type="button" class="btn btn-sm btn-outline-danger mt-1"
+                        <input type="hidden" name="ttd_terapis[{{ $i }}]" id="input_terapis_{{ $i }}">
+
+                        @if($row && $row->ttd_terapis)
+                            <button type="button" id="btn_edit_terapis_{{ $i }}" class="btn btn-sm btn-outline-warning mt-1"
+                                    onclick="editTtd('terapis', {{ $i }})">Edit</button>
+                            <button type="button" id="btn_clear_terapis_{{ $i }}" class="btn btn-sm btn-outline-danger mt-1" style="display:none;"
                                     onclick="clearPad('terapis',{{ $i }})">Hapus</button>
                         @else
-                            <button type="button" class="btn btn-sm btn-outline-warning mt-1"
-                                    onclick="editTtd('terapis', {{ $i }})">Edit</button>
+                            <button type="button" id="btn_clear_terapis_{{ $i }}" class="btn btn-sm btn-outline-danger mt-1"
+                                    onclick="clearPad('terapis',{{ $i }})">Hapus</button>
                         @endif
                     </td>
 
@@ -391,6 +399,8 @@ let pads = {};
 
 function initPads() {
     document.querySelectorAll('.signature-pad').forEach(c => {
+        if (c.style.display === 'none') return;
+        
         // Set internal canvas dimensions to match its CSS layout size
         c.width = c.offsetWidth;
         c.height = c.offsetHeight;
@@ -412,6 +422,32 @@ function clearPad(role, idx) {
     const pad = pads[`${role}_${idx}`];
     if (pad) pad.clear();
     document.getElementById(`input_${role}_${idx}`).value = '';
+}
+
+function editTtd(role, idx) {
+    const img = document.getElementById(`img_${role}_${idx}`);
+    if (img) img.style.display = 'none';
+
+    const canvas = document.getElementById(`pad_${role}_${idx}`);
+    if (canvas) {
+        canvas.style.display = 'block';
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        if (!pads[`${role}_${idx}`]) {
+            const pad = new SignaturePad(canvas, { backgroundColor: '#ffffff' });
+            pads[`${role}_${idx}`] = pad;
+            pad.addEventListener('endStroke', () => {
+                const input = document.getElementById(`input_${role}_${idx}`);
+                input.value = pad.toDataURL();
+            });
+        }
+    }
+
+    const btnEdit = document.getElementById(`btn_edit_${role}_${idx}`);
+    const btnClear = document.getElementById(`btn_clear_${role}_${idx}`);
+    if (btnEdit) btnEdit.style.display = 'none';
+    if (btnClear) btnClear.style.display = 'inline-block';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
