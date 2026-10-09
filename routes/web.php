@@ -221,6 +221,12 @@ Route::group(['middleware' => 'default'], function () {
         // LIST PASIEN (Diubah menjadi Bridging LIS)
         Route::get('/bridging-lis', [Listpasien::class, 'Listpasien']);
 
+        // PANTAU UGD
+        Route::get('/pantau-ugd', function () {
+            return view('ugd.pantau-ugd');
+        });
+        Route::get('/pantau-ugd/export', [\App\Http\Controllers\PantauUgdExportController::class, 'export'])->name('pantau-ugd.export');
+
         // DASHBOARD UTAMA (Home diganti ke Monitoring Signal)
         Route::get('/', [App\Http\Controllers\Bpjs\MonitoringSignalController::class, 'index']);
 

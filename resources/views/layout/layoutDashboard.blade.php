@@ -484,6 +484,14 @@
                                 <p>Bridging LIS</p>
                             </a>
                         </li>
+                        
+                        {{-- MENU PANTAU UGD --}}
+                        <li class="nav-item">
+                            <a href="{{ url('/pantau-ugd') }}" class="nav-link">
+                                <i class="nav-icon fas fa-ambulance"></i>
+                                <p>Pantau UGD</p>
+                            </a>
+                        </li>
                         {{-- <li class="nav-item">
                             <a href="{{ url('/chat') }}" class="nav-link">
                                 <i class="nav-icon fas fa-robot"></i>
