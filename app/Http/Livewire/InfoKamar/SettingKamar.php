@@ -167,60 +167,12 @@ class SettingKamar extends Component
     public function UpdateKamarMJKN($kd_kelas_bpjs, $nm_ruangan_bpjs)
     {
         try {
-            $udapteKamar =  DB::table('bw_display_bad')
-                ->select(
-                    'bw_display_bad.ruangan',
-                    'bw_display_bad.nm_ruangan_bpjs',
-                    'bw_display_bad.kd_ruang',
-                    'bw_display_bad.kd_kelas_bpjs',
-                    DB::raw('COUNT(bw_display_bad.status) AS kapasitas'),
-                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia'),
-                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_wanita'),
-                    DB::raw('COUNT(CASE WHEN bw_display_bad.status = 0 THEN 0 END) AS tersedia_pria_wanita')
-                )
-                ->where('bw_display_bad.kd_kelas_bpjs', $kd_kelas_bpjs)
-                ->where('bw_display_bad.nm_ruangan_bpjs', $nm_ruangan_bpjs)
-                ->groupBy('bw_display_bad.kd_kelas_bpjs')
-                ->first();
-            $data = [
-                'kodekelas' =>   $udapteKamar->kd_kelas_bpjs,
-                'koderuang' =>   $udapteKamar->kd_ruang,
-                // 'namaruang' => 'R ' . $udapteKamar->nm_ruangan_bpjs,
-                'namaruang' => $udapteKamar->nm_ruangan_bpjs,
-                'kapasitas' => $udapteKamar->kapasitas,
-                'tersedia' => $udapteKamar->tersedia,
-                'tersediapria' => 0,
-                'tersediawanita' => 0,
-                'tersediapriawanita' => $udapteKamar->tersedia,
-            ];
-            // dd($data);
-            // $respone = json_decode($this->referensi->addRuangan(json_encode($data)));
-
-
-            // $respone = json_decode($this->referensi->updateRuangan(json_encode($data)));
-            // $this->respone = (array)$respone->metadata;
-
-            $response = $this->referensi->updateRuangan(json_encode($data));
-            $decodedResponse = json_decode($response, true);
-            $metadata = $decodedResponse['metadata'] ?? [];
-            $message = trim((string) ($metadata['message'] ?? 'Sinkronisasi kamar selesai.'));
-            $code = $metadata['code'] ?? null;
-            $action = $metadata['action'] ?? '';
-            $success = false;
-
-            if (in_array((int) $code, [1, 200, 201], true)) {
-                $success = true;
-            } elseif ($message !== '') {
-                $normalizedMessage = strtolower($message);
-                $success = str_contains($normalizedMessage, 'berhasil')
-                    || str_contains($normalizedMessage, 'sukses')
-                    || str_contains($normalizedMessage, 'ok');
-            }
+            \App\Jobs\UpdateKamarBPJSJob::dispatch($kd_kelas_bpjs, $nm_ruangan_bpjs);
 
             $this->respone = [
-                'code' => $success ? 1 : 0,
-                'message' => $message,
-                'action' => $action,
+                'code' => 1,
+                'message' => 'Proses sinkronisasi kamar ke BPJS sedang berjalan di background.',
+                'action' => '',
             ];
         } catch (\Throwable $th) {
             $this->respone = [
