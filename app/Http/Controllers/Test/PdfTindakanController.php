@@ -114,9 +114,9 @@ class PdfTindakanController extends Controller
             $templateData = collect($this->jmUmumController->templateJM)->firstWhere('id_khanza', $kdDokter);
             $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
 
-            $nmDokter = $nmDokterFromTemplate 
-                ?? DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
                 ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
+                ?? $nmDokterFromTemplate 
                 ?? $kdDokter;
 
             // 1. Data Umum
@@ -250,7 +250,10 @@ class PdfTindakanController extends Controller
                 $pdf = \PDF::loadView('test.pdf-tindakan-export', $viewData);
                 $pdf->setPaper('a4', 'landscape');
 
-                $filename = 'Detail_Tindakan_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $nmDokter) . '_' . $tanggl1 . '_sd_' . $tanggl2 . '.pdf';
+                $bulanTahun = \Carbon\Carbon::parse($tanggl1)->locale('id')->translatedFormat('F Y');
+                $jenisStr = (count($selectedJenis) === 1) ? ' ' . strtolower($selectedJenis[0]) : ' jm';
+                $safeNmDokter = preg_replace('/[\/\\\\:*?"<>|]/', '', $nmDokter);
+                $filename = $safeNmDokter . ' slip' . $jenisStr . ' ' . $bulanTahun . '.pdf';
                 
                 if ($request->action === 'download') {
                     return $pdf->download($filename);
@@ -340,9 +343,9 @@ class PdfTindakanController extends Controller
             $templateData = collect($this->jmUmumController->templateJM)->firstWhere('id_khanza', $kdDokter);
             $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
 
-            $nmDokter = $nmDokterFromTemplate 
-                ?? \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            $nmDokter = \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
                 ?? \Illuminate\Support\Facades\DB::table('petugas')->where('nip', $kdDokter)->value('nama')
+                ?? $nmDokterFromTemplate 
                 ?? $kdDokter;
 
             $detailsRalanUmum = collect();
@@ -469,7 +472,10 @@ class PdfTindakanController extends Controller
             $pdf = \PDF::loadView('test.pdf-tindakan-export', $viewData);
             $pdf->setPaper('a4', 'landscape');
 
-            $pdfFilename = 'Detail_Tindakan_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $nmDokter) . '_' . $tanggl1 . '_sd_' . $tanggl2 . '.pdf';
+            $bulanTahun = \Carbon\Carbon::parse($tanggl1)->locale('id')->translatedFormat('F Y');
+            $jenisStr = (count($selectedJenis) === 1) ? ' ' . strtolower($selectedJenis[0]) : ' jm';
+            $safeNmDokter = preg_replace('/[\/\\\\:*?"<>|]/', '', $nmDokter);
+            $pdfFilename = $safeNmDokter . ' slip' . $jenisStr . ' ' . $bulanTahun . '.pdf';
             
             // Masukkan PDF yang di-generate ke dalam ZIP
             $zip->addFromString($pdfFilename, $pdf->output());

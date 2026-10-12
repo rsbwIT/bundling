@@ -158,6 +158,7 @@ class JMUmumController extends Controller
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
         $tanggl2 = $request->tgl2 ?? date('Y-m-t');
         $kdDokter = ($request->input('kdDokter')  == null) ? "" : explode(',', $request->input('kdDokter'));
+        $khususNips = array_column($this->templateJM, 'id_khanza');
 
         // 1. Query rawat_jl_dr (Dokter Saja)
         $queryDr = DB::table('pasien')
@@ -909,7 +910,7 @@ class JMUmumController extends Controller
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(NS)%')
                    ->where('petugas.nama', 'not like', '(LAB)%')
@@ -918,7 +919,8 @@ class JMUmumController extends Controller
                    ->where('petugas.nama', 'not like', '(BD)%')
                    ->where('petugas.nama', 'not like', '(PDF)%')
                    ->where('petugas.nama', '!=', 'Dahyar');
-            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
+            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+              ->orWhereIn('petugas.nip', $khususNips);
         })
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -952,7 +954,7 @@ class JMUmumController extends Controller
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
         ->where('reg_periksa.status_lanjut', 'Ralan')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
                    ->where('petugas.nama', 'not like', '(NS)%')
@@ -961,7 +963,8 @@ class JMUmumController extends Controller
                    ->where('petugas.nama', 'not like', '(BD)%')
                    ->where('petugas.nama', 'not like', '(PDF)%')
                    ->where('petugas.nama', '!=', 'Dahyar');
-            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
+            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+              ->orWhereIn('petugas.nip', $khususNips);
         })
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -995,7 +998,7 @@ class JMUmumController extends Controller
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
                    ->where('petugas.nama', 'not like', '(NS)%')
@@ -1004,7 +1007,8 @@ class JMUmumController extends Controller
                    ->where('petugas.nama', 'not like', '(BD)%')
                    ->where('petugas.nama', 'not like', '(PDF)%')
                    ->where('petugas.nama', '!=', 'Dahyar');
-            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
+            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+              ->orWhereIn('petugas.nip', $khususNips);
         })
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -1038,7 +1042,7 @@ class JMUmumController extends Controller
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
         ->where('reg_periksa.status_lanjut', 'Ranap')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
                    ->where('petugas.nama', 'not like', '(NS)%')
@@ -1047,7 +1051,8 @@ class JMUmumController extends Controller
                    ->where('petugas.nama', 'not like', '(BD)%')
                    ->where('petugas.nama', 'not like', '(PDF)%')
                    ->where('petugas.nama', '!=', 'Dahyar');
-            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%');
+            })->orWhere('jns_perawatan.nm_perawatan', 'like', '%jasa operator hd%')
+              ->orWhereIn('petugas.nip', $khususNips);
         })
         ->whereBetween('billing.tgl_byr', [$tanggl1, $tanggl2])
         ->where(function ($query) use ($cariNomor) {
@@ -1080,7 +1085,7 @@ class JMUmumController extends Controller
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
                    ->where('petugas.nama', 'not like', '(NS)%')
@@ -1122,7 +1127,7 @@ class JMUmumController extends Controller
         ->join('billing', 'billing.no_rawat', '=', 'reg_periksa.no_rawat')
         ->where('billing.no', '=', 'No.Nota')
         ->where('penjab.kd_pj', 'UMU')
-        ->where(function($q) {
+        ->where(function($q) use ($khususNips) {
             $q->where(function($q2) {
                 $q2->where('petugas.nama', 'not like', '(PR)%')
                    ->where('petugas.nama', 'not like', '(NS)%')
