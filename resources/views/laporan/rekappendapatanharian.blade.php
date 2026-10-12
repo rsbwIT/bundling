@@ -122,6 +122,14 @@ function downloadExcel() {
             th, td { border: 1px solid black; padding: 4px; vertical-align: middle; }
             th { background-color: #f4f6f9; font-weight: bold; }
             .no-border { border: none !important; }
+            .num-cell, td.num-cell, tr td.num-cell,
+            .table-primary.num-cell, .table-light.num-cell, .table-warning.num-cell, .table-info.num-cell,
+            .table-primary td.num-cell, .table-light td.num-cell, .table-warning td.num-cell, .table-info td.num-cell { 
+                mso-number-format: "\#\,\#\#0" !important; 
+                text-align: right !important; 
+            }
+            .date-cell, td.date-cell { mso-number-format: "\@"; text-align: center; }
+            .text-cell, td.text-cell { mso-number-format: "\@"; }
             /* Bootstrap Colors for Excel */
             .table-primary, .table-primary > th, .table-primary > td { background-color: #cfe2ff !important; }
             .table-secondary, .table-secondary > th, .table-secondary > td { background-color: #e2e3e5 !important; }
@@ -234,6 +242,32 @@ function downloadExcel() {
             } else if (td.classList.contains('text-left')) {
                 align = 'left';
             }
+
+            let text = td.innerText.trim();
+
+            // Tanggal
+            if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+                align = 'center';
+                td.classList.add('date-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@"; text-align: center;');
+            } 
+            // Tanda strip (-) nilai 0
+            else if (text === '-') {
+                align = 'center';
+                td.classList.add('date-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@"; text-align: center;');
+            } 
+            // Format angka ribuan / nominal rupiah (hilangkan titik agar Excel membacanya sebagai angka murni dengan pemisah ribuan)
+            else if (/^-?[\d\.]+$/.test(text) && text !== '') {
+                let rawNum = text.replace(/\./g, '');
+                td.innerText = rawNum;
+                td.classList.add('num-cell');
+                align = 'right';
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\#\\,\\#\\#0"; text-align: right;');
+            } else {
+                td.classList.add('text-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@";');
+            }
             
             td.setAttribute('align', align);
             td.style.textAlign = align;
@@ -243,7 +277,21 @@ function downloadExcel() {
         // Insert kopSurat right after <thead>
         tableHtml = tableHtml.replace(/(<thead[^>]*>)/i, '$1' + kopSurat);
         
-
+        // Inject mso-number-format directly into html string to bypass browser DOM attribute stripping
+        tableHtml = tableHtml.replace(/<td([^>]*class="[^"]*\bnum-cell\b[^"]*"[^>]*)>/gi, function(match, p1) {
+            if (/style="/i.test(p1)) {
+                return '<td' + p1.replace(/style="/i, 'style="mso-number-format:\'\\#\\,\\#\\#0\'; text-align: right; ') + '>';
+            } else {
+                return '<td style="mso-number-format:\'\\#\\,\\#\\#0\'; text-align: right;"' + p1 + '>';
+            }
+        });
+        tableHtml = tableHtml.replace(/<td([^>]*class="[^"]*\bdate-cell\b[^"]*"[^>]*)>/gi, function(match, p1) {
+            if (/style="/i.test(p1)) {
+                return '<td' + p1.replace(/style="/i, 'style="mso-number-format:\'\\@\'; text-align: center; ') + '>';
+            } else {
+                return '<td style="mso-number-format:\'\\@\'; text-align: center;"' + p1 + '>';
+            }
+        });
         
         html += tableHtml;
         html += '<br><br>';

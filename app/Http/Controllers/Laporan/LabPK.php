@@ -32,12 +32,14 @@ class LabPK extends Controller
         $status     = $request->statusLunas ?? "Lunas";
         $cari       = $request->cariNomor;
         $jenisPasien = $request->jenis_pasien ?? 'semua';
+        $statusLanjut = $request->status_lanjut ?? 'semua';
 
         $data = DB::table('periksa_lab')
             ->select(
                 'periksa_lab.no_rawat',
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
+                'reg_periksa.status_lanjut',
 
                 'periksa_lab.kd_jenis_prw',
                 'jns_perawatan_lab.nm_perawatan',
@@ -87,6 +89,9 @@ class LabPK extends Controller
                 } else {
                     return $query->where('penjab.png_jawab', 'not like', '%umum%');
                 }
+            })
+            ->when($statusLanjut != 'semua' && !empty($statusLanjut), function ($query) use ($statusLanjut) {
+                return $query->where('reg_periksa.status_lanjut', $statusLanjut);
             })
 
             ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status, $tgl1, $tgl2) {
@@ -150,7 +155,8 @@ class LabPK extends Controller
             'petugas',
             'dokter',
             'data',
-            'jenisPasien'
+            'jenisPasien',
+            'statusLanjut'
         ));
     }
 }

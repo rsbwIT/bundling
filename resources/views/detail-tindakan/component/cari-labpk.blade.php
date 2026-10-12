@@ -1,7 +1,7 @@
 <form action="{{ url($action) }}">
     @csrf
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <div class="form-group">
                 <div class="input-group input-group-xs">
                     <input type="text" name="cariNomor" class="form-control form-control-xs"
@@ -23,6 +23,14 @@
         </div>
 
         <div class="col-md-2">
+            <select class="form-control form-control-xs" name="status_lanjut">
+                <option value="semua" {{ request('status_lanjut', 'semua') == 'semua' ? 'selected' : '' }}>Semua (Ralan & Ranap)</option>
+                <option value="Ralan" {{ request('status_lanjut') == 'Ralan' ? 'selected' : '' }}>Ralan (Rawat Jalan)</option>
+                <option value="Ranap" {{ request('status_lanjut') == 'Ranap' ? 'selected' : '' }}>Ranap (Rawat Inap)</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
             <select class="form-control form-control-xs" name="jenis_pasien">
                 <option value="semua" {{ request('jenis_pasien') == 'semua' ? 'selected' : '' }}>Semua Jenis Bayar</option>
                 <option value="umum" {{ request('jenis_pasien') == 'umum' ? 'selected' : '' }}>Umum (Tunai)</option>
@@ -36,8 +44,6 @@
                 <option value="Belum Lunas" {{ request('statusLunas') == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
             </select>
         </div>
-
-
 
         <!-- BUTTON CARI -->
         <div class="col-md-2">
