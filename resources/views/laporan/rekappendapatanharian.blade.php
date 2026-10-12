@@ -40,9 +40,28 @@
                 </h5>
                 <small class="text-muted">Laporan rincian pendapatan harian {{ $statusLanjut == 'Ralan' ? 'rawat jalan' : ($statusLanjut == 'SEMUA' ? 'rawat inap dan rawat jalan' : 'rawat inap') }} dengan penjamin {{ $penjaminLabel }} <span class="badge badge-light border ml-1">{{ $kdPj == 'UMU' ? 'Berdasarkan Tanggal Nota' : ($kdPj == 'SEMUA' ? 'Umum: Tgl Nota | BPJS & Asr: Tgl Bayar Piutang' : 'Berdasarkan Tanggal Pembayaran Piutang') }}</span></small>
             </div>
-                <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadExcel()">
-                    <i class="fas fa-file-excel mr-1"></i> Download Excel
-                </button>
+                <div class="d-flex align-items-center">
+                    <div class="btn-group mr-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger dropdown-toggle shadow-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file-pdf mr-1"></i> Cetak PDF (8.8 x 11 in)
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow border-0" style="min-width: 230px;">
+                            <a class="dropdown-item py-2" href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut=Ranap" target="_blank">
+                                <i class="fas fa-bed text-primary mr-2"></i> Cetak Rawat Inap (Ranap)
+                            </a>
+                            <a class="dropdown-item py-2" href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut=Ralan" target="_blank">
+                                <i class="fas fa-walking text-success mr-2"></i> Cetak Rawat Jalan (Ralan)
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item py-2 font-weight-bold" href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut=SEMUA" target="_blank">
+                                <i class="fas fa-layer-group text-info mr-2"></i> Cetak Semua (Ranap & Ralan)
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success shadow-sm" onclick="downloadExcel()">
+                        <i class="fas fa-file-excel mr-1"></i> Download Excel
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -87,10 +106,20 @@
 
         {{-- Tabel Rekap --}}
         @if($statusLanjut == 'SEMUA')
-            <h6 class="font-weight-bold text-dark mb-2">RAWAT INAP (RANAP)</h6>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="font-weight-bold text-dark mb-0">RAWAT INAP (RANAP)</h6>
+                <a href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut=Ranap" target="_blank" class="btn btn-xs btn-outline-danger shadow-sm">
+                    <i class="fas fa-print mr-1"></i> Cetak Rawat Inap (PDF)
+                </a>
+            </div>
             @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekapRanap, 'statusLanjutLocal' => 'Ranap'])
             
-            <h6 class="font-weight-bold text-dark mb-2 mt-4">RAWAT JALAN (RALAN)</h6>
+            <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+                <h6 class="font-weight-bold text-dark mb-0">RAWAT JALAN (RALAN)</h6>
+                <a href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut=Ralan" target="_blank" class="btn btn-xs btn-outline-danger shadow-sm">
+                    <i class="fas fa-print mr-1"></i> Cetak Rawat Jalan (PDF)
+                </a>
+            </div>
             @php
                 $totalSemua = $dataRekapRanap->sum('grand_total') + $dataRekapRalan->sum('grand_total');
             @endphp
@@ -101,6 +130,12 @@
                 'totalKeseluruhan' => $totalSemua
             ])
         @else
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="font-weight-bold text-dark mb-0">{{ $statusLanjut == 'Ralan' ? 'RAWAT JALAN (RALAN)' : 'RAWAT INAP (RANAP)' }}</h6>
+                <a href="{{ url('/rekap-pendapatan-harian/cetak-pdf') }}?tgl1={{ $tgl1 }}&tgl2={{ $tgl2 }}&kd_pj={{ $kdPj }}&status_lanjut={{ $statusLanjut }}" target="_blank" class="btn btn-xs btn-outline-danger shadow-sm">
+                    <i class="fas fa-print mr-1"></i> Cetak {{ $statusLanjut == 'Ralan' ? 'Rawat Jalan' : 'Rawat Inap' }} (PDF)
+                </a>
+            </div>
             @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekap, 'statusLanjutLocal' => $statusLanjut])
         @endif
 

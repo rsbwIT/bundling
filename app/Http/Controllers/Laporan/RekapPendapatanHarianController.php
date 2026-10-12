@@ -64,14 +64,22 @@ class RekapPendapatanHarianController extends Controller
             $dataRekap = $this->getRekapData($tgl1, $tgl2, $kdPj, $statusLanjut);
         }
 
-        $setting = DB::table('setting')->first();
-        
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.rekappendapatanharian-pdf', compact(
-            'tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 
-            'setting', 'dataRekapRanap', 'dataRekapRalan', 'dataRekap'
-        ))->setPaper('a1', 'landscape');
+        $kertas = $request->kertas ?? 'letter'; // default 8.8 x 11 in
 
-        return $pdf->stream('Rekap_Pendapatan_Harian_'.$tgl1.'_sd_'.$tgl2.'.pdf');
+        $paperMap = [
+            'letter' => [0, 0, 8.8 * 72, 11 * 72], // 8.8 x 11 in (633.6 x 792 pt)
+            'folio'  => 'folio',  // 8.5 x 13 in
+            'legal'  => 'legal',  // 8.5 x 14 in
+        ];
+        $selectedPaper = $paperMap[$kertas] ?? [0, 0, 8.8 * 72, 11 * 72];
+        $setting = DB::table('setting')->first();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.rekappendapatanharian-pdf', compact(
+            'tgl1', 'tgl2', 'kdPj', 'statusLanjut', 'penjaminLabel', 'kertas',
+            'setting', 'dataRekapRanap', 'dataRekapRalan', 'dataRekap'
+        ))->setPaper($selectedPaper, 'landscape');
+
+        return $pdf->stream('Rekap_Pendapatan_Harian_'.$statusLanjut.'_'.$kdPj.'_'.$tgl1.'_sd_'.$tgl2.'.pdf');
     }
 
     private function getRekapData($tgl1, $tgl2, $kdPj, $statusLanjut)

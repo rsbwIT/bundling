@@ -462,6 +462,7 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/rekap-pendapatan-bulanan', [RekapPendapatanBulanan::class, 'index']);
         Route::get('/rekap-pendapatan-harian', [RekapPendapatanHarianController::class, 'index']);
+        Route::get('/rekap-pendapatan-harian/cetak-pdf', [RekapPendapatanHarianController::class, 'printPdf']);
         Route::get('/rekap-pendapatan-asuransi', [RekapPendapatanAsuransiController::class, 'index']);
         Route::get('/rekap-pendapatan-asuransi/detail', [RekapPendapatanAsuransiController::class, 'detailTindakan']);
         
