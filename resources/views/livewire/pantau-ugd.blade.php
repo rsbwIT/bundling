@@ -136,19 +136,19 @@
                 </div>
                 <div class="card-body" style="padding: 1.5rem;">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6 mb-2">
                             <div class="form-group mb-0">
                                 <label class="form-label-clean">Tanggal Awal</label>
                                 <input type="date" class="form-control form-control-clean" wire:model="tgl_awal">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6 mb-2">
                             <div class="form-group mb-0">
                                 <label class="form-label-clean">Tanggal Akhir</label>
                                 <input type="date" class="form-control form-control-clean" wire:model="tgl_akhir">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6 mb-2">
                             <div class="form-group mb-0">
                                 <label class="form-label-clean">Jenis Bayar</label>
                                 <select class="form-control form-control-clean" wire:model="jenis_bayar">
@@ -159,11 +159,37 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6 mb-2">
+                            <div class="form-group mb-0">
+                                <label class="form-label-clean">Status Lanjut</label>
+                                <select class="form-control form-control-clean" wire:model="status_lanjut">
+                                    <option value="">Semua (Ralan & Ranap)</option>
+                                    <option value="Ralan">Rawat Jalan (Ralan)</option>
+                                    <option value="Ranap">Rawat Inap (Ranap)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 mb-2">
+                            <div class="form-group mb-0">
+                                <label class="form-label-clean">Status Periksa</label>
+                                <select class="form-control form-control-clean" wire:model="status_periksa">
+                                    <option value="">Semua Status</option>
+                                    <option value="Belum">Belum</option>
+                                    <option value="Sudah">Sudah</option>
+                                    <option value="Dirawat">Dirawat</option>
+                                    <option value="Batal">Batal</option>
+                                    <option value="Berkas Diterima">Berkas Diterima</option>
+                                    <option value="Dirujuk">Dirujuk</option>
+                                    <option value="Pulang Paksa">Pulang Paksa</option>
+                                    <option value="Meninggal">Meninggal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-12 mb-2">
                             <div class="form-group mb-0">
                                 <label class="form-label-clean">Cari Pasien</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control form-control-clean" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" wire:model="search" placeholder="No Rawat / Nama...">
+                                    <input type="text" class="form-control form-control-clean" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" wire:model="search" placeholder="No Rawat / RM / Nama...">
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; background-color: var(--c-navy); border-color: var(--c-navy); z-index: 0; box-shadow: none;">
                                             <i class="fas fa-search"></i>
@@ -186,6 +212,8 @@
                     'tgl_awal' => $tgl_awal,
                     'tgl_akhir' => $tgl_akhir,
                     'search' => $search,
+                    'status_lanjut' => $status_lanjut,
+                    'stts' => $status_periksa,
                 ]);
             @endphp
 

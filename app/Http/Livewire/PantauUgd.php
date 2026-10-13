@@ -11,6 +11,8 @@ class PantauUgd extends Component
     public $tgl_awal;
     public $tgl_akhir;
     public $jenis_bayar = '';
+    public $status_lanjut = '';
+    public $status_periksa = '';
     public $search = '';
     
     protected $paginationTheme = 'bootstrap';
@@ -51,6 +53,16 @@ class PantauUgd extends Component
         $this->resetPage();
     }
 
+    public function updatingStatusLanjut()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusPeriksa()
+    {
+        $this->resetPage();
+    }
+
     public function cari()
     {
         $this->resetPage();
@@ -85,6 +97,14 @@ class PantauUgd extends Component
 
         if (!empty($this->jenis_bayar)) {
             $query->where('reg_periksa.kd_pj', $this->jenis_bayar);
+        }
+
+        if (!empty($this->status_lanjut)) {
+            $query->where('reg_periksa.status_lanjut', $this->status_lanjut);
+        }
+
+        if (!empty($this->status_periksa)) {
+            $query->where('reg_periksa.stts', $this->status_periksa);
         }
 
         if (!empty($this->search)) {

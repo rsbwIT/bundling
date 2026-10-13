@@ -14,10 +14,12 @@ class PantauUgdExportController extends Controller
      */
     public function export(Request $request)
     {
-        $tglAwal  = $request->get('tgl_awal') ?: date('Y-m-d');
-        $tglAkhir = $request->get('tgl_akhir') ?: date('Y-m-d');
-        $kdPj     = $request->get('kd_pj');
-        $search   = $request->get('search');
+        $tglAwal       = $request->get('tgl_awal') ?: date('Y-m-d');
+        $tglAkhir      = $request->get('tgl_akhir') ?: date('Y-m-d');
+        $kdPj          = $request->get('kd_pj');
+        $statusLanjut  = $request->get('status_lanjut');
+        $stts          = $request->get('stts');
+        $search        = $request->get('search');
 
         $query = DB::table('reg_periksa')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
@@ -45,6 +47,14 @@ class PantauUgdExportController extends Controller
 
         if (!empty($kdPj)) {
             $query->where('reg_periksa.kd_pj', $kdPj);
+        }
+
+        if (!empty($statusLanjut)) {
+            $query->where('reg_periksa.status_lanjut', $statusLanjut);
+        }
+
+        if (!empty($stts)) {
+            $query->where('reg_periksa.stts', $stts);
         }
 
         if (!empty($search)) {
