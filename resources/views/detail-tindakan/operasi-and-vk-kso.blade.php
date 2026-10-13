@@ -158,8 +158,8 @@
                                 <td>{{ $item->operator1 }}</td>
                                 <td title="Nilai Asli: {{ $item->biayaoperator1 }}">{{ round($item->biayaoperator1) }}</td>
                                 @php
-                                    // Perhitungan INACBG untuk Operator 1 berdasarkan $hasil_akhir
-                                    $operator1_inacbg_val = $hasil_akhir * 0.20;
+                                    // Perhitungan INACBG untuk Operator 1 berdasarkan $total_terbayar
+                                    $operator1_inacbg_val = $total_terbayar * 0.20;
 
                                     // Inisialisasi semua biaya JM ke 0
                                     $asisten_op1_inacbg_val = 0;
@@ -186,6 +186,12 @@
                                     $dokter_anak_trimmed = trim($item->dokter_anak);
                                     if (!empty($dokter_anak_trimmed) && $dokter_anak_trimmed != '-') {
                                         $dokter_anak_inacbg_val = $operator1_inacbg_val * 0.15;
+                                    }
+
+                                    // jika Biaya Dokter Anak (15% JM Operator) dan biaya dokter umum ada maka hasil dari Biaya Dokter Anak (15% JM Operator) di bagi 2
+                                    $dokter_umum_trimmed = trim($item->dokter_umum);
+                                    if ($dokter_anak_inacbg_val > 0 && !empty($dokter_umum_trimmed) && $dokter_umum_trimmed != '-') {
+                                        $dokter_anak_inacbg_val = $dokter_anak_inacbg_val / 2;
                                     }
                                 @endphp
                                 <td title="Nilai Asli: {{ $operator1_inacbg_val }}">

@@ -164,13 +164,28 @@ class OperasiAndVKKSO extends Controller
             ->where('detail_piutang_pasien.kd_pj', '!=', 'BPJ')
             ->get()->groupBy('no_rawat');
             
-        $ksoDetails = DB::table('rawat_inap_dr as r')
-            ->select('r.no_rawat', DB::raw('SUM(IF(COALESCE(p.uangmuka, 0) - COALESCE(p.totalpiutang, 0) < 0, jpi.kso, r.kso)) as total_kso'))
-            ->leftJoin('piutang_pasien as p', 'p.no_rawat', '=', 'r.no_rawat')
-            ->leftJoin('jns_perawatan_inap as jpi', 'jpi.kd_jenis_prw', '=', 'r.kd_jenis_prw')
-            ->whereIn('r.no_rawat', $noRawats)
-            ->groupBy('r.no_rawat')
-            ->get()->keyBy('no_rawat');
+        $ksoDetails = DB::table(function ($query) use ($noRawats) {
+            $query->select('no_rawat', 'kso')
+                ->from('rawat_inap_dr')
+                ->whereIn('no_rawat', $noRawats)
+                ->where('kso', '>', 0)
+                ->unionAll(
+                    DB::table('rawat_inap_pr')
+                        ->select('no_rawat', 'kso')
+                        ->whereIn('no_rawat', $noRawats)
+                        ->where('kso', '>', 0)
+                )
+                ->unionAll(
+                    DB::table('rawat_inap_drpr')
+                        ->select('no_rawat', 'kso')
+                        ->whereIn('no_rawat', $noRawats)
+                        ->where('kso', '>', 0)
+                );
+        }, 'tindakan_kso')
+        ->select('no_rawat', DB::raw('SUM(kso) as total_kso'))
+        ->groupBy('no_rawat')
+        ->get()
+        ->keyBy('no_rawat');
 
         $OperasiAndVK->map(function ($item) use ($rawatCounts, $billings, $cobDetails, $ksoDetails) {
             // Tambahkan properti is_double untuk menandai nomor rawat yang muncul lebih dari sekali
