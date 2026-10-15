@@ -143,15 +143,20 @@
         <div class="modal fade" id="modalDetail" tabindex="-1" role="dialog" aria-labelledby="modalDetailLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header text-dark border-0" style="background-color: #ffeb3b !important;">
-                        <h5 class="modal-title fw-bold" id="modalDetailLabel"><i class="fas fa-list"></i> Detail Pembayaran Non Medis</h5>
-                        <button type="button" class="close text-dark" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <div class="modal-header text-dark border-0 align-items-center" style="background-color: #ffeb3b !important;">
+                        <h5 class="modal-title fw-bold mb-0" id="modalDetailLabel"><i class="fas fa-list me-1"></i> Detail Pembayaran Non Medis</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <button type="button" class="btn btn-success btn-sm font-weight-bold shadow-sm" onclick="exportDetailExcel()">
+                                <i class="fas fa-file-excel me-1"></i> Excel
+                            </button>
+                            <button type="button" class="close text-dark ml-2" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" style="opacity: 0.8; font-size: 1.5rem;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="modal-body bg-light">
                         <div class="table-responsive bg-white p-3 rounded shadow-sm">
-                            <table class="table table-bordered table-sm table-hover align-middle">
+                            <table class="table table-bordered table-sm table-hover align-middle" id="tableDetailPengeluaran">
                                 <thead class="text-dark sticky-top" style="background-color: #ffeb3b !important;">
                                     <tr class="text-center">
                                         <th class="py-2">No</th>
@@ -221,6 +226,79 @@
                 } catch(err) {
                     alert('Gagal menyalin data.');
                 }
+            }
+
+            function exportDetailExcel() {
+                let table = document.getElementById('tableDetailPengeluaran');
+                if (!table) return;
+
+                let tempTable = table.cloneNode(true);
+
+                // Format setiap cell untuk Excel
+                let rows = tempTable.querySelectorAll('tr');
+                rows.forEach((row, rIdx) => {
+                    let cells = row.querySelectorAll('th, td');
+                    cells.forEach((cell, cIdx) => {
+                        let text = cell.innerText.trim();
+                        // Bersihkan teks badge atau format span
+                        if (cIdx === 1) { // Tanggal
+                            cell.setAttribute('style', 'mso-number-format:"\\@"; text-align: center;');
+                        } else if (cIdx === 2) { // No Bukti
+                            cell.setAttribute('style', 'mso-number-format:"\\@"; text-align: left;');
+                        } else if (cIdx === 6 || (row.parentElement.tagName === 'TFOOT' && cIdx === 1)) { // Besar Bayar
+                            // Ambil angka murni
+                            let num = text.replace(/[^0-9,-]/g, '').replace(/\./g, '');
+                            if (num !== '') {
+                                cell.innerText = num;
+                                cell.setAttribute('style', 'mso-number-format:"\\#\\,\\#\\#0"; text-align: right;');
+                            }
+                        }
+                    });
+                });
+
+                let filterText = "{{ $filter_type == 'tanggal' ? $tglAwal . ' s.d ' . $tglAkhir : 'Bulan ' . date('F', mktime(0, 0, 0, (int)$bulan, 10)) . ' ' . $tahunSekarang }}";
+                let filename = "Detail_Pengeluaran_Non_Medis_{{ $filter_type == 'tanggal' ? $tglAwal . '_sd_' . $tglAkhir : $bulan . '_' . $tahunSekarang }}.xls";
+
+                let html = `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                            th, td { border: 1px solid #999; padding: 6px 8px; font-size: 11pt; }
+                            th { background-color: #ffeb3b; font-weight: bold; text-align: center; }
+                            .title-row { font-size: 14pt; font-weight: bold; text-align: center; }
+                            .sub-title { font-size: 11pt; text-align: center; color: #555; }
+                        </style>
+                    </head>
+                    <body>
+                        <table style="border: none; margin-bottom: 15px;">
+                            <tr style="border: none;">
+                                <td colspan="7" class="title-row" style="border: none; text-align: center; height: 30px; vertical-align: middle;">
+                                    DETAIL PEMBAYARAN NON MEDIS
+                                </td>
+                            </tr>
+                            <tr style="border: none;">
+                                <td colspan="7" class="sub-title" style="border: none; text-align: center; height: 20px;">
+                                    Periode: ${filterText}
+                                </td>
+                            </tr>
+                            <tr style="border: none;"><td colspan="7" style="border: none; height: 10px;"></td></tr>
+                        </table>
+                        ${tempTable.outerHTML}
+                    </body>
+                    </html>
+                `;
+
+                let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             }
         </script>
 
