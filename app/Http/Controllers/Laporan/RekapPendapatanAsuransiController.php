@@ -108,7 +108,13 @@ class RekapPendapatanAsuransiController extends Controller
         // 5. LAB
         $labQuery = DB::table('periksa_lab as pl')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'pl.no_rawat');
-        $labPerTgl = $labQuery->select('ni.status_lanjut', 'ni.tanggal', DB::raw('SUM(pl.bagian_rs) as js'), DB::raw('SUM(pl.bhp) as bhp'))
+        $labPerTgl = $labQuery->select(
+            'ni.status_lanjut',
+            'ni.tanggal',
+            DB::raw('SUM(pl.bagian_rs) as js'),
+            DB::raw('SUM(pl.bhp) as bhp'),
+            DB::raw('SUM(pl.tarif_tindakan_dokter + pl.tarif_tindakan_petugas) as jm_pj')
+        )
             ->groupBy('ni.status_lanjut', 'ni.tanggal')
             ->get()->keyBy(function($item) {
                 return $item->status_lanjut . '|' . $item->tanggal;
@@ -165,7 +171,13 @@ class RekapPendapatanAsuransiController extends Controller
         $okPerTgl = $okQuery->select(
             'ni.status_lanjut', 'ni.tanggal',
             DB::raw("SUM(
-                o.biayaoperator1 + o.biayaoperator2 + o.biayaoperator3 + o.biayadokter_anak + o.biayadokter_anestesi + o.biaya_dokter_pjanak + o.biaya_dokter_umum
+                (CASE WHEN o.operator1 NOT IN ('-', '') THEN o.biayaoperator1 ELSE 0 END)
+                + (CASE WHEN o.operator2 NOT IN ('-', '') THEN o.biayaoperator2 ELSE 0 END)
+                + (CASE WHEN o.operator3 NOT IN ('-', '') THEN o.biayaoperator3 ELSE 0 END)
+                + (CASE WHEN o.dokter_anak NOT IN ('-', '') THEN o.biayadokter_anak ELSE 0 END)
+                + (CASE WHEN o.dokter_anestesi NOT IN ('-', '') THEN o.biayadokter_anestesi ELSE 0 END)
+                + (CASE WHEN o.dokter_pjanak NOT IN ('-', '') THEN o.biaya_dokter_pjanak ELSE 0 END)
+                + (CASE WHEN o.dokter_umum NOT IN ('-', '') THEN o.biaya_dokter_umum ELSE 0 END)
                 + CASE WHEN o.asisten_operator1 IN ($nipIn) THEN o.biayaasisten_operator1 ELSE 0 END
                 + CASE WHEN o.asisten_operator2 IN ($nipIn) THEN o.biayaasisten_operator2 ELSE 0 END
                 + CASE WHEN o.asisten_operator3 IN ($nipIn) THEN o.biayaasisten_operator3 ELSE 0 END
@@ -184,24 +196,49 @@ class RekapPendapatanAsuransiController extends Controller
                 + CASE WHEN o.omloop5 IN ($nipIn) THEN o.biaya_omloop5 ELSE 0 END
             ) as jm_dr"),
             DB::raw("SUM(
-                CASE WHEN o.asisten_operator1 NOT IN ($nipIn) THEN o.biayaasisten_operator1 ELSE 0 END
-                + CASE WHEN o.asisten_operator2 NOT IN ($nipIn) THEN o.biayaasisten_operator2 ELSE 0 END
-                + CASE WHEN o.asisten_operator3 NOT IN ($nipIn) THEN o.biayaasisten_operator3 ELSE 0 END
-                + CASE WHEN o.asisten_anestesi NOT IN ($nipIn) THEN o.biayaasisten_anestesi ELSE 0 END
-                + CASE WHEN o.asisten_anestesi2 NOT IN ($nipIn) THEN o.biayaasisten_anestesi2 ELSE 0 END
-                + CASE WHEN o.bidan NOT IN ($nipIn) THEN o.biayabidan ELSE 0 END
-                + CASE WHEN o.bidan2 NOT IN ($nipIn) THEN o.biayabidan2 ELSE 0 END
-                + CASE WHEN o.bidan3 NOT IN ($nipIn) THEN o.biayabidan3 ELSE 0 END
-                + CASE WHEN o.instrumen NOT IN ($nipIn) THEN o.biayainstrumen ELSE 0 END
-                + CASE WHEN o.perawaat_resusitas NOT IN ($nipIn) THEN o.biayaperawaat_resusitas ELSE 0 END
-                + CASE WHEN o.perawat_luar NOT IN ($nipIn) THEN o.biayaperawat_luar ELSE 0 END
-                + CASE WHEN o.omloop NOT IN ($nipIn) THEN o.biaya_omloop ELSE 0 END
-                + CASE WHEN o.omloop2 NOT IN ($nipIn) THEN o.biaya_omloop2 ELSE 0 END
-                + CASE WHEN o.omloop3 NOT IN ($nipIn) THEN o.biaya_omloop3 ELSE 0 END
-                + CASE WHEN o.omloop4 NOT IN ($nipIn) THEN o.biaya_omloop4 ELSE 0 END
-                + CASE WHEN o.omloop5 NOT IN ($nipIn) THEN o.biaya_omloop5 ELSE 0 END
+                CASE WHEN o.asisten_operator1 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator1 ELSE 0 END
+                + CASE WHEN o.asisten_operator2 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator2 ELSE 0 END
+                + CASE WHEN o.asisten_operator3 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator3 ELSE 0 END
+                + CASE WHEN o.asisten_anestesi NOT IN ($nipIn, '-', '') THEN o.biayaasisten_anestesi ELSE 0 END
+                + CASE WHEN o.asisten_anestesi2 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_anestesi2 ELSE 0 END
+                + CASE WHEN o.bidan NOT IN ($nipIn, '-', '') THEN o.biayabidan ELSE 0 END
+                + CASE WHEN o.bidan2 NOT IN ($nipIn, '-', '') THEN o.biayabidan2 ELSE 0 END
+                + CASE WHEN o.bidan3 NOT IN ($nipIn, '-', '') THEN o.biayabidan3 ELSE 0 END
+                + CASE WHEN o.instrumen NOT IN ($nipIn, '-', '') THEN o.biayainstrumen ELSE 0 END
+                + CASE WHEN o.perawaat_resusitas NOT IN ($nipIn, '-', '') THEN o.biayaperawaat_resusitas ELSE 0 END
+                + CASE WHEN o.perawat_luar NOT IN ($nipIn, '-', '') THEN o.biayaperawat_luar ELSE 0 END
+                + CASE WHEN o.omloop NOT IN ($nipIn, '-', '') THEN o.biaya_omloop ELSE 0 END
+                + CASE WHEN o.omloop2 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop2 ELSE 0 END
+                + CASE WHEN o.omloop3 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop3 ELSE 0 END
+                + CASE WHEN o.omloop4 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop4 ELSE 0 END
+                + CASE WHEN o.omloop5 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop5 ELSE 0 END
             ) as jm_pr"),
-            DB::raw('SUM(o.biayaalat + o.biayasewaok + o.akomodasi + o.bagian_rs + o.biayasarpras) as js')
+            DB::raw("SUM(
+                o.biayaalat + o.biayasewaok + o.akomodasi + o.bagian_rs + o.biayasarpras
+                + (CASE WHEN o.operator1 IN ('-', '') THEN o.biayaoperator1 ELSE 0 END)
+                + (CASE WHEN o.operator2 IN ('-', '') THEN o.biayaoperator2 ELSE 0 END)
+                + (CASE WHEN o.operator3 IN ('-', '') THEN o.biayaoperator3 ELSE 0 END)
+                + (CASE WHEN o.dokter_anak IN ('-', '') THEN o.biayadokter_anak ELSE 0 END)
+                + (CASE WHEN o.dokter_anestesi IN ('-', '') THEN o.biayadokter_anestesi ELSE 0 END)
+                + (CASE WHEN o.dokter_pjanak IN ('-', '') THEN o.biaya_dokter_pjanak ELSE 0 END)
+                + (CASE WHEN o.dokter_umum IN ('-', '') THEN o.biaya_dokter_umum ELSE 0 END)
+                + (CASE WHEN o.asisten_operator1 IN ('-', '') THEN o.biayaasisten_operator1 ELSE 0 END)
+                + (CASE WHEN o.asisten_operator2 IN ('-', '') THEN o.biayaasisten_operator2 ELSE 0 END)
+                + (CASE WHEN o.asisten_operator3 IN ('-', '') THEN o.biayaasisten_operator3 ELSE 0 END)
+                + (CASE WHEN o.asisten_anestesi IN ('-', '') THEN o.biayaasisten_anestesi ELSE 0 END)
+                + (CASE WHEN o.asisten_anestesi2 IN ('-', '') THEN o.biayaasisten_anestesi2 ELSE 0 END)
+                + (CASE WHEN o.bidan IN ('-', '') THEN o.biayabidan ELSE 0 END)
+                + (CASE WHEN o.bidan2 IN ('-', '') THEN o.biayabidan2 ELSE 0 END)
+                + (CASE WHEN o.bidan3 IN ('-', '') THEN o.biayabidan3 ELSE 0 END)
+                + (CASE WHEN o.instrumen IN ('-', '') THEN o.biayainstrumen ELSE 0 END)
+                + (CASE WHEN o.perawaat_resusitas IN ('-', '') THEN o.biayaperawaat_resusitas ELSE 0 END)
+                + (CASE WHEN o.perawat_luar IN ('-', '') THEN o.biayaperawat_luar ELSE 0 END)
+                + (CASE WHEN o.omloop IN ('-', '') THEN o.biaya_omloop ELSE 0 END)
+                + (CASE WHEN o.omloop2 IN ('-', '') THEN o.biaya_omloop2 ELSE 0 END)
+                + (CASE WHEN o.omloop3 IN ('-', '') THEN o.biaya_omloop3 ELSE 0 END)
+                + (CASE WHEN o.omloop4 IN ('-', '') THEN o.biaya_omloop4 ELSE 0 END)
+                + (CASE WHEN o.omloop5 IN ('-', '') THEN o.biaya_omloop5 ELSE 0 END)
+            ) as js")
         )->groupBy('ni.status_lanjut', 'ni.tanggal')
         ->get()->keyBy(function($item) {
             return $item->status_lanjut . '|' . $item->tanggal;
@@ -371,9 +408,9 @@ class RekapPendapatanAsuransiController extends Controller
             $returVal = (float) $returPerTgl->get($keyStr, 0);
 
             $labItem = $labPerTgl->get($keyStr);
-            $labJsVal  = $labItem ? (float)$labItem->js : 0;
-            $labBhpVal = $labItem ? (float)$labItem->bhp : 0;
-            $labJmPjVal = 0; // belum ada logic
+            $labJsVal   = $labItem ? (float)$labItem->js : 0;
+            $labBhpVal  = $labItem ? (float)$labItem->bhp : 0;
+            $labJmPjVal = $labItem ? (float)$labItem->jm_pj : 0;
 
             $roItem = $roPerTgl->get($keyStr);
             $roJsVal      = $roItem ? (float)$roItem->js : 0;
@@ -395,7 +432,7 @@ class RekapPendapatanAsuransiController extends Controller
 
             $rowTotal = $regVal + $jsVal + $bhpVal + $jmDrVal + $prVal + $ksoVal
                 + $obatVal + $returVal
-                + $labJsVal + $labBhpVal
+                + $labJsVal + $labBhpVal + $labJmPjVal
                 + $roJsVal + $roBhpVal + $roJmPjVal + $roPetugasVal + $roPerujukVal
                 + $potVal + $tbmVal + $kmrVal
                 + $okJmDrVal + $okJmPrVal + $okJsVal;
@@ -557,11 +594,11 @@ class RekapPendapatanAsuransiController extends Controller
 
         // 4. LAB
         $sqlLab = "
-            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_periksa as tgl_tindakan, jl.nm_perawatan, d.nm_dokter, p2.nama as nm_petugas, t.bagian_rs as js, t.bhp, t.tarif_tindakan_dokter as jm_dr, t.tarif_tindakan_petugas as pr, t.kso
+            SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_periksa as tgl_tindakan, jl.nm_perawatan, COALESCE(d.nm_dokter, '-') as nm_dokter, COALESCE(p2.nama, '-') as nm_petugas, t.bagian_rs as js, t.bhp, t.tarif_tindakan_dokter as jm_dr, t.tarif_tindakan_petugas as pr, t.kso
             FROM periksa_lab t 
             JOIN jns_perawatan_lab jl ON t.kd_jenis_prw = jl.kd_jenis_prw
-            JOIN dokter d ON t.kd_dokter = d.kd_dokter
-            JOIN petugas p2 ON t.nip = p2.nip
+            LEFT JOIN dokter d ON t.kd_dokter = d.kd_dokter
+            LEFT JOIN petugas p2 ON t.nip = p2.nip
             JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
         ";
         $detailLab = DB::select($sqlLab);
@@ -583,9 +620,40 @@ class RekapPendapatanAsuransiController extends Controller
         // 6. OK
         $sqlOk = "
             SELECT ni.no_rawat, ni.no_rkm_medis, ni.nm_pasien, t.tgl_operasi as tgl_tindakan, p.nm_perawatan, d.nm_dokter as operator,
-                (t.biayaalat + t.biayasewaok + t.akomodasi + t.bagian_rs + t.biayasarpras) as js,
                 (
-                    t.biayaoperator1 + t.biayaoperator2 + t.biayaoperator3 + t.biayadokter_anak + t.biayadokter_anestesi + t.biaya_dokter_pjanak + t.biaya_dokter_umum
+                    t.biayaalat + t.biayasewaok + t.akomodasi + t.bagian_rs + t.biayasarpras
+                    + (CASE WHEN t.operator1 IN ('-', '') THEN t.biayaoperator1 ELSE 0 END)
+                    + (CASE WHEN t.operator2 IN ('-', '') THEN t.biayaoperator2 ELSE 0 END)
+                    + (CASE WHEN t.operator3 IN ('-', '') THEN t.biayaoperator3 ELSE 0 END)
+                    + (CASE WHEN t.dokter_anak IN ('-', '') THEN t.biayadokter_anak ELSE 0 END)
+                    + (CASE WHEN t.dokter_anestesi IN ('-', '') THEN t.biayadokter_anestesi ELSE 0 END)
+                    + (CASE WHEN t.dokter_pjanak IN ('-', '') THEN t.biaya_dokter_pjanak ELSE 0 END)
+                    + (CASE WHEN t.dokter_umum IN ('-', '') THEN t.biaya_dokter_umum ELSE 0 END)
+                    + (CASE WHEN t.asisten_operator1 IN ('-', '') THEN t.biayaasisten_operator1 ELSE 0 END)
+                    + (CASE WHEN t.asisten_operator2 IN ('-', '') THEN t.biayaasisten_operator2 ELSE 0 END)
+                    + (CASE WHEN t.asisten_operator3 IN ('-', '') THEN t.biayaasisten_operator3 ELSE 0 END)
+                    + (CASE WHEN t.asisten_anestesi IN ('-', '') THEN t.biayaasisten_anestesi ELSE 0 END)
+                    + (CASE WHEN t.asisten_anestesi2 IN ('-', '') THEN t.biayaasisten_anestesi2 ELSE 0 END)
+                    + (CASE WHEN t.bidan IN ('-', '') THEN t.biayabidan ELSE 0 END)
+                    + (CASE WHEN t.bidan2 IN ('-', '') THEN t.biayabidan2 ELSE 0 END)
+                    + (CASE WHEN t.bidan3 IN ('-', '') THEN t.biayabidan3 ELSE 0 END)
+                    + (CASE WHEN t.instrumen IN ('-', '') THEN t.biayainstrumen ELSE 0 END)
+                    + (CASE WHEN t.perawaat_resusitas IN ('-', '') THEN t.biayaperawaat_resusitas ELSE 0 END)
+                    + (CASE WHEN t.perawat_luar IN ('-', '') THEN t.biayaperawat_luar ELSE 0 END)
+                    + (CASE WHEN t.omloop IN ('-', '') THEN t.biaya_omloop ELSE 0 END)
+                    + (CASE WHEN t.omloop2 IN ('-', '') THEN t.biaya_omloop2 ELSE 0 END)
+                    + (CASE WHEN t.omloop3 IN ('-', '') THEN t.biaya_omloop3 ELSE 0 END)
+                    + (CASE WHEN t.omloop4 IN ('-', '') THEN t.biaya_omloop4 ELSE 0 END)
+                    + (CASE WHEN t.omloop5 IN ('-', '') THEN t.biaya_omloop5 ELSE 0 END)
+                ) as js,
+                (
+                    (CASE WHEN t.operator1 NOT IN ('-', '') THEN t.biayaoperator1 ELSE 0 END)
+                    + (CASE WHEN t.operator2 NOT IN ('-', '') THEN t.biayaoperator2 ELSE 0 END)
+                    + (CASE WHEN t.operator3 NOT IN ('-', '') THEN t.biayaoperator3 ELSE 0 END)
+                    + (CASE WHEN t.dokter_anak NOT IN ('-', '') THEN t.biayadokter_anak ELSE 0 END)
+                    + (CASE WHEN t.dokter_anestesi NOT IN ('-', '') THEN t.biayadokter_anestesi ELSE 0 END)
+                    + (CASE WHEN t.dokter_pjanak NOT IN ('-', '') THEN t.biaya_dokter_pjanak ELSE 0 END)
+                    + (CASE WHEN t.dokter_umum NOT IN ('-', '') THEN t.biaya_dokter_umum ELSE 0 END)
                     + CASE WHEN t.asisten_operator1 IN ($nipIn) THEN t.biayaasisten_operator1 ELSE 0 END
                     + CASE WHEN t.asisten_operator2 IN ($nipIn) THEN t.biayaasisten_operator2 ELSE 0 END
                     + CASE WHEN t.asisten_operator3 IN ($nipIn) THEN t.biayaasisten_operator3 ELSE 0 END
@@ -604,22 +672,22 @@ class RekapPendapatanAsuransiController extends Controller
                     + CASE WHEN t.omloop5 IN ($nipIn) THEN t.biaya_omloop5 ELSE 0 END
                 ) as jm_dr,
                 (
-                    CASE WHEN t.asisten_operator1 NOT IN ($nipIn) THEN t.biayaasisten_operator1 ELSE 0 END
-                    + CASE WHEN t.asisten_operator2 NOT IN ($nipIn) THEN t.biayaasisten_operator2 ELSE 0 END
-                    + CASE WHEN t.asisten_operator3 NOT IN ($nipIn) THEN t.biayaasisten_operator3 ELSE 0 END
-                    + CASE WHEN t.asisten_anestesi NOT IN ($nipIn) THEN t.biayaasisten_anestesi ELSE 0 END
-                    + CASE WHEN t.asisten_anestesi2 NOT IN ($nipIn) THEN t.biayaasisten_anestesi2 ELSE 0 END
-                    + CASE WHEN t.bidan NOT IN ($nipIn) THEN t.biayabidan ELSE 0 END
-                    + CASE WHEN t.bidan2 NOT IN ($nipIn) THEN t.biayabidan2 ELSE 0 END
-                    + CASE WHEN t.bidan3 NOT IN ($nipIn) THEN t.biayabidan3 ELSE 0 END
-                    + CASE WHEN t.instrumen NOT IN ($nipIn) THEN t.biayainstrumen ELSE 0 END
-                    + CASE WHEN t.perawaat_resusitas NOT IN ($nipIn) THEN t.biayaperawaat_resusitas ELSE 0 END
-                    + CASE WHEN t.perawat_luar NOT IN ($nipIn) THEN t.biayaperawat_luar ELSE 0 END
-                    + CASE WHEN t.omloop NOT IN ($nipIn) THEN t.biaya_omloop ELSE 0 END
-                    + CASE WHEN t.omloop2 NOT IN ($nipIn) THEN t.biaya_omloop2 ELSE 0 END
-                    + CASE WHEN t.omloop3 NOT IN ($nipIn) THEN t.biaya_omloop3 ELSE 0 END
-                    + CASE WHEN t.omloop4 NOT IN ($nipIn) THEN t.biaya_omloop4 ELSE 0 END
-                    + CASE WHEN t.omloop5 NOT IN ($nipIn) THEN t.biaya_omloop5 ELSE 0 END
+                    CASE WHEN t.asisten_operator1 NOT IN ($nipIn, '-', '') THEN t.biayaasisten_operator1 ELSE 0 END
+                    + CASE WHEN t.asisten_operator2 NOT IN ($nipIn, '-', '') THEN t.biayaasisten_operator2 ELSE 0 END
+                    + CASE WHEN t.asisten_operator3 NOT IN ($nipIn, '-', '') THEN t.biayaasisten_operator3 ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi NOT IN ($nipIn, '-', '') THEN t.biayaasisten_anestesi ELSE 0 END
+                    + CASE WHEN t.asisten_anestesi2 NOT IN ($nipIn, '-', '') THEN t.biayaasisten_anestesi2 ELSE 0 END
+                    + CASE WHEN t.bidan NOT IN ($nipIn, '-', '') THEN t.biayabidan ELSE 0 END
+                    + CASE WHEN t.bidan2 NOT IN ($nipIn, '-', '') THEN t.biayabidan2 ELSE 0 END
+                    + CASE WHEN t.bidan3 NOT IN ($nipIn, '-', '') THEN t.biayabidan3 ELSE 0 END
+                    + CASE WHEN t.instrumen NOT IN ($nipIn, '-', '') THEN t.biayainstrumen ELSE 0 END
+                    + CASE WHEN t.perawaat_resusitas NOT IN ($nipIn, '-', '') THEN t.biayaperawaat_resusitas ELSE 0 END
+                    + CASE WHEN t.perawat_luar NOT IN ($nipIn, '-', '') THEN t.biayaperawat_luar ELSE 0 END
+                    + CASE WHEN t.omloop NOT IN ($nipIn, '-', '') THEN t.biaya_omloop ELSE 0 END
+                    + CASE WHEN t.omloop2 NOT IN ($nipIn, '-', '') THEN t.biaya_omloop2 ELSE 0 END
+                    + CASE WHEN t.omloop3 NOT IN ($nipIn, '-', '') THEN t.biaya_omloop3 ELSE 0 END
+                    + CASE WHEN t.omloop4 NOT IN ($nipIn, '-', '') THEN t.biaya_omloop4 ELSE 0 END
+                    + CASE WHEN t.omloop5 NOT IN ($nipIn, '-', '') THEN t.biaya_omloop5 ELSE 0 END
                 ) as jm_pr
             FROM operasi t
             JOIN paket_operasi p ON t.kode_paket = p.kode_paket
