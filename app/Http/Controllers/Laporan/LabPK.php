@@ -33,6 +33,8 @@ class LabPK extends Controller
         $cari       = $request->cariNomor;
         $jenisPasien = $request->jenis_pasien ?? 'semua';
         $statusLanjut = $request->status_lanjut ?? 'semua';
+        $jenisTanggal = $request->jenis_tanggal ?? 'default';
+        $kategoriLab  = $request->kategori ?? 'semua';
 
         $data = DB::table('periksa_lab')
             ->select(
@@ -41,6 +43,7 @@ class LabPK extends Controller
                 'pasien.nm_pasien',
                 'reg_periksa.status_lanjut',
 
+                'periksa_lab.kategori as kategori_lab',
                 'periksa_lab.kd_jenis_prw',
                 'jns_perawatan_lab.nm_perawatan',
 
@@ -66,6 +69,7 @@ class LabPK extends Controller
                 'periksa_lab.menejemen',
                 'periksa_lab.biaya',
                 DB::raw("IF(penjab.png_jawab LIKE '%umum%', COALESCE(nota_inap.tanggal, nota_jalan.tanggal), bayar_piutang.tgl_bayar) as tgl_bayar"),
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tgl_nota"),
                 DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota")
             )
 
@@ -82,7 +86,9 @@ class LabPK extends Controller
             ->leftJoin('nota_jalan', 'periksa_lab.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('nota_inap', 'periksa_lab.no_rawat', '=', 'nota_inap.no_rawat')
 
-            ->where('periksa_lab.kategori', 'PK')
+            ->when($kategoriLab != 'semua', function($query) use ($kategoriLab) {
+                return $query->where('periksa_lab.kategori', $kategoriLab);
+            })
             ->when($jenisPasien != 'semua', function($query) use ($jenisPasien) {
                 if ($jenisPasien == 'umum') {
                     return $query->where('penjab.png_jawab', 'like', '%umum%');
@@ -94,38 +100,60 @@ class LabPK extends Controller
                 return $query->where('reg_periksa.status_lanjut', $statusLanjut);
             })
 
-            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status, $tgl1, $tgl2) {
+            ->where(function ($query) use ($kdPenjamin, $kdPetugas, $status, $tgl1, $tgl2, $jenisTanggal, $jenisPasien, $penjab) {
 
-                if ($kdPenjamin) {
-                    $query->whereIn('penjab.kd_pj', $kdPenjamin);
+                // Jika penjamin dipilih secara spesifik (dan bukan memilih hampir semua/seluruhnya)
+                if ($kdPenjamin && $jenisPasien != 'umum') {
+                    $totalActivePenjab = count($penjab);
+                    // Jika jumlah yang dipilih kurang dari total penjamin, baru filter whereIn agar query ringan
+                    if (count($kdPenjamin) < ($totalActivePenjab - 5)) {
+                        $query->whereIn('penjab.kd_pj', $kdPenjamin);
+                    }
                 }
 
                 if ($kdPetugas) {
                     $query->whereIn('periksa_lab.kd_dokter', $kdPetugas);
                 }
 
-                if ($status == "Lunas") {
+                if ($jenisTanggal == 'bayar_piutang') {
+                    // Berdasarkan Tanggal Bayar Piutang
+                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tgl1, $tgl2]);
+                    if ($status == "Lunas") {
+                        $query->where('piutang_pasien.status', 'Lunas');
+                    } elseif ($status == "Belum Lunas") {
+                        $query->where('piutang_pasien.status', 'Belum Lunas');
+                    }
+                } elseif ($jenisTanggal == 'cetak_nota') {
+                    // Berdasarkan Tanggal Cetak Nota (tidak memfilter Lunas / Belum Lunas)
                     $query->where(function($q) use ($tgl1, $tgl2) {
-                        // Untuk UMUM (CASH)
-                        $q->where(function($sq) use ($tgl1, $tgl2) {
-                            $sq->where('penjab.png_jawab', 'like', '%umum%')
-                               ->where(function ($ssq) use ($tgl1, $tgl2) {
-                                   $ssq->whereBetween('nota_jalan.tanggal', [$tgl1, $tgl2])
-                                       ->orWhereBetween('nota_inap.tanggal', [$tgl1, $tgl2]);
-                               });
-                        })
-                        // Untuk ASURANSI (PIUTANG)
-                        ->orWhere(function($sq) use ($tgl1, $tgl2) {
-                            $sq->where('penjab.png_jawab', 'not like', '%umum%')
-                               ->whereBetween('bayar_piutang.tgl_bayar', [$tgl1, $tgl2])
-                               ->where('piutang_pasien.status', 'Lunas');
-                        });
+                        $q->whereBetween('nota_jalan.tanggal', [$tgl1, $tgl2])
+                          ->orWhereBetween('nota_inap.tanggal', [$tgl1, $tgl2]);
                     });
-                } elseif ($status == "Belum Lunas") {
-                    // Belum Lunas biasanya hanya untuk Asuransi/Piutang
-                    $query->where('penjab.png_jawab', 'not like', '%umum%')
-                          ->whereBetween('piutang_pasien.tgl_piutang', [$tgl1, $tgl2])
-                          ->where('piutang_pasien.status', 'Belum Lunas');
+                } else {
+                    // Default filter
+                    if ($status == "Lunas") {
+                        $query->where(function($q) use ($tgl1, $tgl2) {
+                            // Untuk UMUM (CASH)
+                            $q->where(function($sq) use ($tgl1, $tgl2) {
+                                $sq->where('penjab.png_jawab', 'like', '%umum%')
+                                   ->where(function ($ssq) use ($tgl1, $tgl2) {
+                                       $ssq->whereBetween('nota_jalan.tanggal', [$tgl1, $tgl2])
+                                           ->orWhereBetween('nota_inap.tanggal', [$tgl1, $tgl2]);
+                                   });
+                            })
+                            // Untuk ASURANSI (PIUTANG)
+                            ->orWhere(function($sq) use ($tgl1, $tgl2) {
+                                $sq->where('penjab.png_jawab', 'not like', '%umum%')
+                                   ->whereBetween('bayar_piutang.tgl_bayar', [$tgl1, $tgl2])
+                                   ->where('piutang_pasien.status', 'Lunas');
+                            });
+                        });
+                    } elseif ($status == "Belum Lunas") {
+                        // Belum Lunas biasanya hanya untuk Asuransi/Piutang
+                        $query->where('penjab.png_jawab', 'not like', '%umum%')
+                              ->whereBetween('piutang_pasien.tgl_piutang', [$tgl1, $tgl2])
+                              ->where('piutang_pasien.status', 'Belum Lunas');
+                    }
                 }
             })
 
@@ -156,7 +184,9 @@ class LabPK extends Controller
             'dokter',
             'data',
             'jenisPasien',
-            'statusLanjut'
+            'statusLanjut',
+            'jenisTanggal',
+            'kategoriLab'
         ));
     }
 }

@@ -1,6 +1,6 @@
 @extends('..layout.layoutDashboard')
 
-@section('title', 'Periksa Lab PK')
+@section('title', 'Periksa Laboratorium (PK & PA)')
 
 @section('konten')
 
@@ -27,13 +27,17 @@
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Kategori</th>
                         <th>No.Rawat</th>
                         <th>Status Rawat</th>
                         <th>No Nota</th>
+                        <th>Tgl Nota</th>
                         <th>Tgl Bayar</th>
                         <th>No.RM</th>
                         <th>Nama Pasien</th>
+                        @if(($jenisTanggal ?? '') != 'cetak_nota' && ($jenisPasien ?? '') != 'umum')
                         <th>Status</th>
+                        @endif
                         <th>Kd.Pemeriksaan</th>
                         <th>Pemeriksaan</th>
                         <th>Kd Dokter Lab</th>
@@ -58,6 +62,11 @@
                     @foreach ($data as $key => $item)
                     <tr>
                         <td>{{ $key+1 }}</td>
+                        <td>
+                            <span class="badge {{ ($item->kategori_lab ?? '') == 'PA' ? 'badge-primary' : 'badge-secondary' }}">
+                                {{ $item->kategori_lab ?? '-' }}
+                            </span>
+                        </td>
                         <td>{{ $item->no_rawat }}</td>
                         <td>
                             <span class="badge {{ $item->status_lanjut == 'Ranap' ? 'badge-warning' : 'badge-info' }}">
@@ -65,10 +74,13 @@
                             </span>
                         </td>
                         <td>{{ $item->no_nota }}</td>
+                        <td>{{ $item->tgl_nota ?? '-' }}</td>
                         <td>{{ $item->tgl_bayar }}</td>
                         <td>{{ $item->no_rkm_medis }}</td>
                         <td>{{ $item->nm_pasien }}</td>
+                        @if(($jenisTanggal ?? '') != 'cetak_nota' && ($jenisPasien ?? '') != 'umum')
                         <td>{{ $item->status_lunas }}</td>
+                        @endif
                         <td>{{ $item->kd_jenis_prw }}</td>
                         <td>{{ $item->nm_perawatan }}</td>
                         <td>{{ $item->kd_dokter_lab }}</td>

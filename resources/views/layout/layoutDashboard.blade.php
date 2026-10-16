@@ -511,7 +511,7 @@
                         <li class="nav-item">
                             <a href="{{ url('/lab-pk') }}" class="nav-link" target="_blank">
                                 <i class="nav-icon fas fa-flask"></i>
-                                <p>Laporan Lab PK</p>
+                                <p>Laporan Lab (PK & PA)</p>
                             </a>
                         </li>
                         @endif
@@ -960,12 +960,12 @@
                                         <p>Jasdok</p>
                                     </a>
                                 </li> --}}
-                                {{-- <li class="nav-item">
+                                <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-bulanan') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Rekap Pendapatan Bulanan</p>
                                     </a>
-                                </li> --}}
+                                </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-harian') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
