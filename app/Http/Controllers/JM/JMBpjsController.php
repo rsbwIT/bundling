@@ -20,9 +20,11 @@ class JMBpjsController extends Controller
         'Injeksi obat SC (Lovenox dan sejenisnya)',
         'Pasang NGT / Selang Lambung (Dokter Spesialis)',
         'Tindakan Ekstubasi dr. Radin Intan Sp.AN R. ICU 3',
+        'Tindakan Ekstubasi dr. Radin Intan Sp.AN Kelas 1',        
         'Tindakan Ekstubasi dr. Radin Intan Sp.AN Kelas 3',
         'Tindakan Ekstubasi dr. Radin Intan Sp.AN R. ICU 1',
         'Fisioterapi TENS',
+        'Irigasi Telinga',
         // tambahkan nama/keyword tindakan lain di sini
     ];
 
@@ -860,7 +862,10 @@ class JMBpjsController extends Controller
                 $isVisiteSp = stripos($item->nm_perawatan, 'Visite Dokter Spesialis') !== false;
                 $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                 $isSpirometri = stripos($item->nm_perawatan, 'spirometri') !== false;
-                $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false);
+                $isUsgSp = (stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false))
+                    && stripos($item->nm_perawatan, 'Vascular') === false
+                    && stripos($item->nm_perawatan, 'Dopler') === false
+                    && stripos($item->nm_perawatan, 'Doppler') === false;
                 $isJasaDokterJaga = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Jaga') !== false;
                 $isDokterUmumHD = stripos($item->nm_perawatan, 'Dokter Umum HD') !== false;
                 $isVisiteHD = stripos($item->nm_perawatan, 'Visite HD') !== false;
@@ -2005,7 +2010,8 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' THEN 0
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN 0
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%katarak%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%glucoma%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%glaucoma%') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%a.l%')) THEN 0
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
                             (CASE 
                                 WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
@@ -2013,9 +2019,9 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END) * 0.15
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan' OR reg_periksa.status_lanjut = 'Ralan')) THEN 20250
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' THEN CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
-                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan' OR reg_periksa.status_lanjut = 'Ralan')) THEN 150000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN (CASE WHEN operasi.biayaoperator1 > 0 THEN operasi.biayaoperator1 ELSE 135000 END) * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' THEN CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%sedang%' THEN operasi.biayaoperator1 * 0.15
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
@@ -2072,9 +2078,12 @@ class JMBpjsController extends Controller
             'petugas.nama as nm_petugas',
             DB::raw("SUM(ROUND(
                 CASE 
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' THEN 0
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN 0
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%katarak%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%glucoma%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%glaucoma%') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%a.l%')) THEN 0
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan' OR reg_periksa.status_lanjut = 'Ralan')) THEN 20250
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan' OR reg_periksa.status_lanjut = 'Ralan')) THEN 150000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN (CASE WHEN operasi.biayaoperator1 > 0 THEN operasi.biayaoperator1 ELSE 135000 END) * 0.15
                         ELSE CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
                     END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2)) as total_ralan"),
             DB::raw("COUNT(DISTINCT operasi.no_rawat) as jml_tindakan"),
@@ -2882,7 +2891,8 @@ class JMBpjsController extends Controller
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
                 DB::raw("ROUND(
                     CASE 
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' THEN 0
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN 0
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%katarak%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%glucoma%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%glaucoma%') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%a.l%')) THEN 0
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN
                             (CASE 
                                 WHEN (SELECT kamar.kelas FROM kamar_inap INNER JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar WHERE kamar_inap.no_rawat = operasi.no_rawat ORDER BY kamar_inap.tgl_masuk ASC LIMIT 1) = 'Kelas 1' THEN 5580000
@@ -2890,9 +2900,9 @@ class JMBpjsController extends Controller
                                 ELSE 3750000
                             END) * 0.15
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan')) THEN 20250
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' THEN CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
-                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN
-                            GREATEST((COALESCE((SELECT SUM(besar_cicilan) FROM bayar_piutang WHERE no_rawat = operasi.no_rawat), 0) + COALESCE(piutang_pasien.uangmuka, 0) + COALESCE((SELECT SUM(sisapiutang) FROM detail_piutang_pasien WHERE no_rawat = operasi.no_rawat AND kd_pj != reg_periksa.kd_pj), 0)), 0) * 0.225 * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan')) THEN 150000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN (CASE WHEN operasi.biayaoperator1 > 0 THEN operasi.biayaoperator1 ELSE 135000 END) * 0.15
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' THEN CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab NOT LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) LIKE '%khusus%' AND (COALESCE(piutang_pasien.totalpiutang, 0) = 0 OR (COALESCE(rvp_klaim_bpjs.dibayarbpjs, 0) + COALESCE(rvp_klaim_bpjs.sudahdibayar, 0) + COALESCE(rvp_klaim_bpjs.uangmuka, 0)) >= COALESCE(piutang_pasien.totalpiutang, 0)) THEN operasi.biayaoperator1 * 0.15
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND penjab.png_jawab LIKE '%COB%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%khusus%' AND LOWER(paket_operasi.nm_perawatan) NOT LIKE '%sedang%' THEN operasi.biayaoperator1 * 0.15
                         WHEN operasi.operator1 IN ('D0000111', 'D0000110') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%intratimpani%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%') THEN operasi.biayaoperator1 * 0.15
@@ -2917,9 +2927,12 @@ class JMBpjsController extends Controller
             ->select('reg_periksa.no_rawat', 'pasien.nm_pasien', 'paket_operasi.nm_perawatan',
                 DB::raw("ROUND(
                     CASE 
-                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' THEN 0
+                        WHEN (SELECT spesialis.nm_sps FROM dokter INNER JOIN spesialis ON dokter.kd_sps = spesialis.kd_sps WHERE dokter.kd_dokter = operasi.operator1 LIMIT 1) LIKE '%MATA%' THEN 0
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%phaco%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%fako%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%katarak%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%glucoma%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%glaucoma%') AND (LOWER(paket_operasi.nm_perawatan) LIKE '%lokal%' OR LOWER(paket_operasi.nm_perawatan) LIKE '%a.l%')) THEN 0
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%bonggol%' THEN 3750000 * 0.15
                         WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%eksisi%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan')) THEN 20250
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino (rj)%' OR (LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' AND (LOWER(paket_operasi.nm_perawatan) LIKE '%(rj)%' OR operasi.status = 'Ralan')) THEN 150000
+                        WHEN LOWER(paket_operasi.nm_perawatan) LIKE '%cimino%' THEN (CASE WHEN operasi.biayaoperator1 > 0 THEN operasi.biayaoperator1 ELSE 135000 END) * 0.15
                         ELSE CASE WHEN operasi.biayaasisten_operator1 > 0 THEN operasi.biayaasisten_operator1 ELSE operasi.biayaoperator1 * 0.15 END
                     END / GREATEST((SELECT COUNT(op3.asisten_operator1) FROM operasi op3 WHERE op3.no_rawat = operasi.no_rawat AND op3.kode_paket = operasi.kode_paket AND op3.asisten_operator1 <> '-'), 1), 2) as tarif"),
                 DB::raw("'Operasi - Asisten Operator 1' as sumber"), DB::raw("'Ralan' as status"))
@@ -3535,7 +3548,10 @@ class JMBpjsController extends Controller
                     $isVisite = stripos($item->nm_perawatan, 'visite') !== false && stripos($item->nm_perawatan, 'visite hd') === false;
                     $isKonsultasi = stripos($item->nm_perawatan, 'konsultasi') !== false;
                     $isSpirometri = stripos($item->nm_perawatan, 'spirometri') !== false;
-                    $isUsgSp = stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false);
+                    $isUsgSp = (stripos($item->nm_perawatan, 'USG Dokter Spesialis') !== false || stripos($item->nm_perawatan, 'Ultrasonografi (USG)') !== false || (stripos($item->nm_perawatan, 'USG') !== false && stripos($item->nm_perawatan, 'Kebidanan') === false))
+                        && stripos($item->nm_perawatan, 'Vascular') === false
+                        && stripos($item->nm_perawatan, 'Dopler') === false
+                        && stripos($item->nm_perawatan, 'Doppler') === false;
                     $isEkg = stripos($item->nm_perawatan, 'ekg') !== false || stripos($item->nm_perawatan, 'elektrocardiografi') !== false;
                     $isEcho = stripos($item->nm_perawatan, 'echo') !== false;
                     $isJasaPeriksaSp = stripos($item->nm_perawatan, 'Jasa Periksa Dokter Spesialis') !== false;
@@ -4111,8 +4127,16 @@ class JMBpjsController extends Controller
             return true; // Rawat Inap => Excluded
         }
 
+        // Irigasi Telinga => Ralan DAPAT, Ranap TIDAK
+        if (stripos($namaPerawatan, 'Irigasi Telinga') !== false || (stripos($namaPerawatan, 'Irigasi') !== false && stripos($namaPerawatan, 'Telinga') !== false)) {
+            if ($status && (stripos($status, 'Ralan') !== false || stripos($status, 'Jalan') !== false)) {
+                return false; // Rawat Jalan => Tetap Dapat
+            }
+            return true; // Rawat Inap => Excluded
+        }
+
         foreach ($this->tindakanDikecualikan as $keyword) {
-            if (stripos($keyword, 'Pasang NGT') !== false || stripos($keyword, 'Fisioterapi TENS') !== false || stripos($keyword, 'Pemeriksaan Internal') !== false || stripos($keyword, 'Nebulizer') !== false || stripos($keyword, 'Tonometri') !== false || stripos($keyword, 'Jasa Periksa Dokter Umum') !== false || stripos($keyword, 'Injeksi obat SC') !== false || stripos($keyword, 'Lovenox') !== false) {
+            if (stripos($keyword, 'Pasang NGT') !== false || stripos($keyword, 'Fisioterapi TENS') !== false || stripos($keyword, 'Pemeriksaan Internal') !== false || stripos($keyword, 'Nebulizer') !== false || stripos($keyword, 'Tonometri') !== false || stripos($keyword, 'Jasa Periksa Dokter Umum') !== false || stripos($keyword, 'Injeksi obat SC') !== false || stripos($keyword, 'Lovenox') !== false || stripos($keyword, 'Irigasi Telinga') !== false) {
                 continue;
             }
             if (stripos($namaPerawatan, $keyword) !== false) {
