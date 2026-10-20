@@ -281,21 +281,29 @@ class LispasienRalan2 extends Component
             $local_path = $file->storeAs('temp', $file_name, 'local');
             $local_full_path = storage_path('app/' . $local_path);
 
-            // 🔹 Koneksi SFTP menggunakan phpseclib
-            $sftp = new SFTP(env('SFTP_HOST'), env('SFTP_PORT'));
-            if (!$sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
-                throw new \Exception('Gagal login ke server SFTP.');
-            }
-
             // Path relatif untuk database
             $remote_path = 'pages/upload/' . $file_name;
 
-            // Path full di server Linux untuk SFTP
-            $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
+            // 🔹 1. Upload ke Server SFTP sesuai settingan .env (server2@192.168.100.88)
+            $sftpUploaded = false;
+            try {
+                $sftp = new SFTP(env('SFTP_HOST'), env('SFTP_PORT', 22));
+                if ($sftp->login(env('SFTP_USERNAME'), env('SFTP_PASSWORD'))) {
+                    $sftp_full_path = '/opt/lampp/htdocs/webapps/berkasrawat/' . $remote_path;
+                    if ($sftp->put($sftp_full_path, $local_full_path, SFTP::SOURCE_LOCAL_FILE)) {
+                        $sftpUploaded = true;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Catat log jika SFTP gagal
+            }
 
-            // Upload file via SFTP
-            if (!$sftp->put($sftp_full_path, $local_full_path, SFTP::SOURCE_LOCAL_FILE)) {
-                throw new \Exception('Gagal upload file ke server SFTP.');
+            // 🔹 2. Fallback / Salinan ke folder lokal jika SFTP gagal atau untuk backup
+            $local_berkasrawat = 'C:/xampp/htdocs/webapps/berkasrawat/pages/upload/';
+            if (is_dir($local_berkasrawat)) {
+                copy($local_full_path, $local_berkasrawat . $file_name);
+            } elseif (!$sftpUploaded) {
+                throw new \Exception('Gagal upload file ke server SFTP (' . env('SFTP_HOST') . '). Pastikan koneksi atau SSH port 22 aktif.');
             }
 
             // 🔹 Copy file ke public storage (public/storage/file_scan)

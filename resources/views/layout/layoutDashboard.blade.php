@@ -33,7 +33,7 @@
     {{-- Modal skrining --}}
     <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     
-    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
     {{-- DUALIS --}}
@@ -319,6 +319,7 @@
         @php
             $getSeting = DB::table('setting')->select('setting.nama_instansi', 'setting.logo')->first();
             $auth = session('user') ?? null;
+            $bpjsQuickStatus = \App\Http\Controllers\AntrianPendaftaran\AntrianPendaftaranBaru::getBpjsTvStatus();
         @endphp
         <!-- Preloader -->
         {{-- <div class="preloader flex-column justify-content-center align-items-center">
@@ -340,6 +341,18 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+
+                {{-- 🚨 TOMBOL CEPAT STATUS BPJS TV --}}
+                <li class="nav-item d-flex align-items-center mr-2">
+                    <button type="button" id="btnQuickToggleBpjs" 
+                        class="btn btn-sm px-2 py-1 {{ !empty($bpjsQuickStatus['is_gangguan']) ? 'btn-danger font-weight-bold shadow-sm' : 'btn-outline-success font-weight-bold' }}"
+                        onclick="toggleBpjsQuickStatus(event)"
+                        style="border-radius: 20px; font-size: 11.5px; transition: all 0.3s ease;"
+                        title="Klik untuk ubah status gangguan BPJS di Layar TV Antrian">
+                        <i id="quickBpjsIcon" class="fas {{ !empty($bpjsQuickStatus['is_gangguan']) ? 'fa-exclamation-triangle' : 'fa-broadcast-tower' }} mr-1"></i>
+                        <span id="quickBpjsText">BPJS TV: {{ !empty($bpjsQuickStatus['is_gangguan']) ? 'GANGGUAN' : 'NORMAL' }}</span>
+                    </button>
+                </li>
 
                 {{-- 🌙☀️ TOGGLE DARK MODE --}}
                 <li class="nav-item">
@@ -978,6 +991,12 @@
                                         <p>Rekap Pendapatan Asuransi</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/rekap-pendapatan-bpjs') }}" class="nav-link" target="_blank">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rekap Pendapatan BPJS</p>
+                                    </a>
+                                </li>
                                 @if(\App\Helpers\AksesHelper::cek('/pendapatan-alat-dokter'))
                                 <li class="nav-item">
                                     <a href="{{ url('/pendapatan-alat-dokter') }}" class="nav-link" target="_blank">
@@ -1198,6 +1217,17 @@
                                     <a href="{{ url('antrian/tv') }}" class="nav-link" target="_blank">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Display TV Baru <span class="badge bg-success">Baru</span></p>
+                                    </a>
+                                </li>
+                            <li class="nav-item">
+                                    <a href="{{ route('antrian.status-bpjs.view') }}" class="nav-link {{ request()->is('antrian/tv/status-bpjs*') ? 'active' : '' }}">
+                                        <i class="fas fa-broadcast-tower nav-icon text-warning"></i>
+                                        <p>
+                                            Status BPJS TV
+                                            <span id="sidebarBpjsBadge" class="badge {{ !empty($bpjsQuickStatus['is_gangguan']) ? 'badge-danger' : 'badge-success' }} right">
+                                                {{ !empty($bpjsQuickStatus['is_gangguan']) ? 'GANGGUAN' : 'NORMAL' }}
+                                            </span>
+                                        </p>
                                     </a>
                                 </li>
                             <li class="nav-item">
@@ -1738,6 +1768,12 @@
                                         <p>Pasien HIV</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/lab/gambaran-darah-tepi') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gambaran Darah Tepi</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -2043,6 +2079,104 @@
             });
         @endif
     });
+</script>
+
+{{-- ⚡ SCRIPT CEPAT STATUS BPJS TV --}}
+<script>
+    function toggleBpjsQuickStatus(e) {
+        if (e) e.preventDefault();
+
+        const btn = document.getElementById('btnQuickToggleBpjs');
+        const text = document.getElementById('quickBpjsText');
+
+        const isCurrentlyGangguan = text ? text.innerText.includes('GANGGUAN') : false;
+        const confirmTitle = isCurrentlyGangguan 
+            ? 'Kembalikan TV ke Mode Normal?' 
+            : 'Aktifkan Mode Gangguan BPJS di TV?';
+        const confirmText = isCurrentlyGangguan 
+            ? 'TV Antrian akan kembali menampilkan daftar antrian loket biasa.' 
+            : 'TV Antrian (http://localhost/antrian/tv) akan menampilkan pemberitahuan layar penuh.';
+        const confirmBtnColor = isCurrentlyGangguan ? '#28a745' : '#d33';
+        const confirmBtnText = isCurrentlyGangguan ? 'Ya, Normal Kembali' : 'Ya, Aktifkan Gangguan!';
+
+        Swal.fire({
+            title: confirmTitle,
+            text: confirmText,
+            icon: isCurrentlyGangguan ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: confirmBtnColor,
+            confirmButtonText: confirmBtnText,
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...';
+                }
+
+                fetch("{{ route('antrian.status-bpjs.toggle') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        syncQuickNavbarBtn(data.is_gangguan);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Status TV Berhasil Diubah!',
+                            text: data.message,
+                            timer: 2500,
+                            showConfirmButton: false
+                        });
+
+                        // Jika saat ini di halaman status-bpjs, sync tampilan form
+                        if (typeof applyVisualStatus === 'function') {
+                            applyVisualStatus(data.is_gangguan, data.data);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Gagal mengubah status');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    syncQuickNavbarBtn(isCurrentlyGangguan);
+                    Swal.fire('Gagal', 'Terjadi kesalahan sistem saat mengubah status.', 'error');
+                });
+            }
+        });
+    }
+
+    function syncQuickNavbarBtn(isGangguan) {
+        const btn = document.getElementById('btnQuickToggleBpjs');
+        const sidebarBadge = document.getElementById('sidebarBpjsBadge');
+
+        if (btn) {
+            btn.disabled = false;
+            if (isGangguan) {
+                btn.className = 'btn btn-sm px-2 py-1 btn-danger font-weight-bold shadow-sm';
+                btn.innerHTML = '<i id="quickBpjsIcon" class="fas fa-exclamation-triangle mr-1"></i> <span id="quickBpjsText">BPJS TV: GANGGUAN</span>';
+            } else {
+                btn.className = 'btn btn-sm px-2 py-1 btn-outline-success font-weight-bold';
+                btn.innerHTML = '<i id="quickBpjsIcon" class="fas fa-broadcast-tower mr-1"></i> <span id="quickBpjsText">BPJS TV: NORMAL</span>';
+            }
+        }
+
+        if (sidebarBadge) {
+            if (isGangguan) {
+                sidebarBadge.className = 'badge badge-danger right';
+                sidebarBadge.innerText = 'GANGGUAN';
+            } else {
+                sidebarBadge.className = 'badge badge-success right';
+                sidebarBadge.innerText = 'NORMAL';
+            }
+        }
+    }
 </script>
 
 </body>

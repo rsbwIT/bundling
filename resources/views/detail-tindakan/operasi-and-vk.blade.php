@@ -50,6 +50,7 @@
                         <th>Biaya Instrumen</th>
                         <th>Dokter Anak</th>
                         <th>Biaya Dokter Anak</th>
+                        <th>Biaya Dokter Anak (15% JM Operator)</th>
                         <th>Perawat Resusitas</th>
                         <th>Biaya Perawat Resusitas</th>
                         <th>Dokter Anestesi</th>
@@ -134,17 +135,50 @@
                             <td>{{ $item->uangmuka }}</td>
                             @php
                                 $total_terbayar = $item->besar_cicilan + $item->uangmuka;
+                                
+                                // Perhitungan INACBG untuk Operator 1 berdasarkan $total_terbayar
+                                $operator1_inacbg_val = $total_terbayar * 0.20;
+
+                                // Inisialisasi semua biaya JM ke 0
+                                $asisten_op1_inacbg_val = 0;
+                                $dokter_anestesi_inacbg_val = 0;
+                                $asisten_anestesi_inacbg_val = 0;
+                                $dokter_anak_inacbg_val = 0;
+
+                                // Lakukan perhitungan hanya jika ada nama personil
+                                $asisten_op1_trimmed = trim($item->asisten_operator1);
+                                if (!empty($asisten_op1_trimmed) && $asisten_op1_trimmed != '-') {
+                                    $asisten_op1_inacbg_val = $operator1_inacbg_val * 0.15;
+                                }
+
+                                $dokter_anestesi_trimmed = trim($item->dokter_anestesi);
+                                if (!empty($dokter_anestesi_trimmed) && $dokter_anestesi_trimmed != '-') {
+                                    $dokter_anestesi_inacbg_val = $operator1_inacbg_val * 0.35;
+                                }
+
+                                $asisten_anestesi_trimmed = trim($item->asisten_anestesi);
+                                if (!empty($asisten_anestesi_trimmed) && $asisten_anestesi_trimmed != '-') {
+                                    $asisten_anestesi_inacbg_val = $operator1_inacbg_val * 0.10;
+                                }
+
+                                $dokter_anak_trimmed = trim($item->dokter_anak);
+                                if (!empty($dokter_anak_trimmed) && $dokter_anak_trimmed != '-') {
+                                    $dokter_anak_inacbg_val = $operator1_inacbg_val * 0.15;
+                                }
+
+                                // jika Biaya Dokter Anak (15% JM Operator) dan biaya dokter umum ada maka hasil dari Biaya Dokter Anak (15% JM Operator) di bagi 2
+                                $dokter_umum_trimmed = trim($item->dokter_umum);
+                                if ($dokter_anak_inacbg_val > 0 && !empty($dokter_umum_trimmed) && $dokter_umum_trimmed != '-') {
+                                    $dokter_anak_inacbg_val = $dokter_anak_inacbg_val / 2;
+                                }
                             @endphp
                             <td>{{ $total_terbayar }}</td>
                             <td>{{ $item->besar_cicilan - $total_piutang_rs + $item->uangmuka }}</td>
                             <td>{{ $item->operator1 }}</td>
                             <td>{{ round($item->biayaoperator1) }}</td>
-                            @php
-                                $oprator1INACBG = $total_terbayar * 0.2;
-                            @endphp
                             <td>
                                 @if ($item->kd_pj == 'BPJ')
-                                    {{ round($oprator1INACBG) }}
+                                    {{ round($operator1_inacbg_val) }}
                                 @else
                                     -
                                 @endif
@@ -157,7 +191,7 @@
                             <td>{{ round($item->biayaasisten_operator1) }}</td>
                             <td>
                                 @if ($item->kd_pj == 'BPJ')
-                                    {{ round($oprator1INACBG * 0.15) }}
+                                    {{ round($asisten_op1_inacbg_val) }}
                                 @else
                                     -
                                 @endif
@@ -170,13 +204,20 @@
                             <td>{{ round($item->biayainstrumen) }}</td>
                             <td>{{ $item->dokter_anak }}</td>
                             <td>{{ round($item->biayadokter_anak) }}</td>
+                            <td>
+                                @if ($item->kd_pj == 'BPJ')
+                                    {{ round($dokter_anak_inacbg_val) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $item->perawaat_resusitas }}</td>
                             <td>{{ round($item->biayaperawaat_resusitas) }}</td>
                             <td>{{ $item->dokter_anestesi }}</td>
                             <td>{{ round($item->biayadokter_anestesi) }}</td>
                             <td>
                                 @if ($item->kd_pj == 'BPJ')
-                                    {{ round($oprator1INACBG * 0.35) }}
+                                    {{ round($dokter_anestesi_inacbg_val) }}
                                 @else
                                     -
                                 @endif
@@ -185,7 +226,7 @@
                             <td>{{ round($item->biayaasisten_anestesi) }}</td>
                             <td>
                                 @if ($item->kd_pj == 'BPJ')
-                                    {{ round($oprator1INACBG * 0.1) }}
+                                    {{ round($asisten_anestesi_inacbg_val) }}
                                 @else
                                     -
                                 @endif

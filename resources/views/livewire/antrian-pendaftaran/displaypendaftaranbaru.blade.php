@@ -9,6 +9,11 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
+        body.bpjs-mode-active {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
+
         /* ✅ Header Modern */
         .header-tv {
             background: linear-gradient(135deg, #198754, #157347);
@@ -192,11 +197,241 @@
             white-space: nowrap;
             padding-left: 100%;
             animation: marquee 15s linear infinite;
-
             font-weight: 700;   /* ✅ lebih tebal */
-            letter-spacing: 1px; /* opsional: agak renggang */
         }
 
+        /* 🚨 FULLSCREEN OVERLAY BPJS GANGGUAN */
+        #bpjs-fullscreen-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999999 !important;
+            background: radial-gradient(circle at 50% 25%, #1e293b 0%, #0f172a 55%, #020617 100%) !important;
+            color: #ffffff !important;
+            display: none;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+            animation: fadeInOverlay 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #bpjs-fullscreen-overlay.active {
+            display: flex !important;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; transform: scale(1.02); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .bpjs-fs-header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            padding: 0.8rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bpjs-fs-brand-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.4rem 1.2rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+        }
+
+        .bpjs-fs-clock-box {
+            text-align: center;
+        }
+        .bpjs-fs-time {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #38bdf8;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+        }
+        .bpjs-fs-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+        }
+
+        .bpjs-fs-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .bpjs-glow-ambient {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.08) 50%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+            pointer-events: none;
+            animation: ambientPulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes ambientPulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .bpjs-alert-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(185, 28, 28, 0.4));
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            color: #fca5a5;
+            padding: 0.5rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+        }
+
+        .bpjs-pulse-beacon {
+            width: 14px;
+            height: 14px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+            animation: beaconPulse 1.6s infinite;
+        }
+
+        @keyframes beaconPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .bpjs-fs-title {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 30px rgba(245, 158, 11, 0.3);
+            margin-bottom: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .bpjs-fs-message {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #ffffff;
+            max-width: 1200px;
+            margin-bottom: 1.8rem;
+            line-height: 1.5;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .bpjs-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.6rem;
+            width: 100%;
+            max-width: 1300px;
+            margin-bottom: 1.5rem;
+        }
+
+        .bpjs-info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 1.5rem 1.4rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bpjs-info-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .bpjs-card-icon-wrap {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .bpjs-card-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 0.4rem;
+        }
+
+        .bpjs-card-desc {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .bpjs-subpesan-note {
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            border-radius: 12px;
+            padding: 0.8rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #7dd3fc;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .bpjs-fs-footer {
+            background: linear-gradient(90deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
+            border-top: 3px solid #f87171;
+            box-shadow: 0 -8px 25px rgba(220, 38, 38, 0.4);
+            color: #ffffff;
+            padding: 0.8rem 0;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .bpjs-fs-footer span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marqueeBpjs 18s linear infinite;
+        }
+
+        @keyframes marqueeBpjs {
+            0%   { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 
     <!-- ✅ Header dengan logo kiri & kanan, judul center -->
@@ -237,9 +472,84 @@
         </div>
     </div>
 
-    <!-- ✅ Running Text -->
+    <!-- ✅ Running Text Normal -->
     <div class="footer-tv">
         <span>Selamat datang di Rumah Sakit Bumi Waras | Layanan cepat, nyaman, dan profesional | Terima kasih telah menunggu dengan sabar 🙏</span>
+    </div>
+
+    {{-- 🚨 FULLSCREEN PEMBERITAHUAN GANGGUAN BPJS KESEHATAN --}}
+    <div id="bpjs-fullscreen-overlay" class="{{ !empty($bpjsStatus['is_gangguan']) ? 'active' : '' }}" style="display: {{ !empty($bpjsStatus['is_gangguan']) ? 'flex !important' : 'none !important' }};">
+        <div class="bpjs-glow-ambient"></div>
+
+        <!-- Header Fullscreen -->
+        <div class="bpjs-fs-header">
+            <div class="bpjs-fs-brand-box">
+                <img src="{{ asset('img/bw2.png') }}" style="height:70px; max-height:9.5vh;" alt="Logo RS Bumi Waras">
+            </div>
+
+            <div class="bpjs-fs-clock-box">
+                <div class="bpjs-fs-time" id="bpjs-live-time">--:--:-- WIB</div>
+                <div class="bpjs-fs-date" id="bpjs-live-date">--</div>
+            </div>
+
+            <div class="bpjs-fs-brand-box">
+                <img src="{{ asset('img/bpjs.png') }}" style="height:36px; max-height:7.5vh;" alt="Logo BPJS Kesehatan">
+            </div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="bpjs-fs-center">
+            <div class="bpjs-alert-badge">
+                <span class="bpjs-pulse-beacon"></span>
+                <span>PEMBERITAHUAN GANGGUAN SISTEM BPJS</span>
+            </div>
+
+            <h1 class="bpjs-fs-title" id="bpjs-tv-judul">
+                {{ $bpjsStatus['judul'] ?? 'PEMBERITAHUAN GANGGUAN SISTEM BPJS KESEHATAN' }}
+            </h1>
+
+            <p class="bpjs-fs-message" id="bpjs-tv-pesan">
+                {{ $bpjsStatus['pesan'] ?? 'Mohon maaf atas ketidaknyamanannya. Saat ini sistem / server BPJS Kesehatan pusat sedang mengalami kendala teknis jaringan.' }}
+            </p>
+
+            <!-- 3 Informational Cards -->
+            <div class="bpjs-card-grid">
+                <div class="bpjs-info-card">
+                    <div class="bpjs-card-icon-wrap" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35);">
+                        <i class="fas fa-hospital-user"></i>
+                    </div>
+                    <div class="bpjs-card-title">PENDAFTARAN TETAP DILAYANI</div>
+                    <div class="bpjs-card-desc">Pelayanan pendaftaran pasien tetap dibuka dan dilayani secara manual oleh petugas loket pendaftaran.</div>
+                </div>
+
+                <div class="bpjs-info-card">
+                    <div class="bpjs-card-icon-wrap" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="bpjs-card-title">SIAPKAN DOKUMEN / KTP</div>
+                    <div class="bpjs-card-desc">Mohon siapkan Kartu BPJS / KIS, KTP / NIK asli, serta Surat Kontrol / Rujukan untuk verifikasi langsung.</div>
+                </div>
+
+                <div class="bpjs-info-card">
+                    <div class="bpjs-card-icon-wrap" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35);">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="bpjs-card-title">MOHON KESABARAN ANDA</div>
+                    <div class="bpjs-card-desc">Petugas kami sedang berupaya maksimal memproses antrian. Silakan menunggu giliran panggilan Anda.</div>
+                </div>
+            </div>
+
+            <!-- Sub-pesan / Catatan Petunjuk -->
+            <div class="bpjs-subpesan-note" id="bpjs-tv-subpesan">
+                <i class="fas fa-info-circle me-2 text-warning"></i>
+                <span id="bpjs-tv-subpesan-text">{{ $bpjsStatus['sub_pesan'] ?? 'Pelayanan pendaftaran tetap dilayani secara manual oleh petugas loket pendaftaran. Silakan menunggu antrian Anda dipanggil.' }}</span>
+            </div>
+        </div>
+
+        <!-- Footer Running Text Peringatan -->
+        <div class="bpjs-fs-footer">
+            <span id="bpjs-tv-running">{{ $bpjsStatus['running_text'] ?? 'PENGUMUMAN RESMI: SISTEM BRIDGING BPJS KESEHATAN SEDANG MENGALAMI GANGGUAN TEKNIS. PENDAFTARAN PASIEN TETAP DILAYANI SECARA MANUAL DI LOKET PENDAFTARAN. TERIMA KASIH ATAS KESABARAN ANDA 🙏' }}</span>
+        </div>
     </div>
 
     <audio id="bell-sound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
@@ -248,6 +558,69 @@
     <script>
     let lastDipanggil = {};
     const loketFix = ["Loket 1","Loket 2","Loket 3","Loket 4","Loket 5","Loket 6","Loket 7"];
+    let prevGangguanState = {{ !empty($bpjsStatus['is_gangguan']) ? 'true' : 'false' }};
+
+    // Jam Digital Realtime TV
+    function updateLiveTvClock() {
+        const now = new Date();
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        const dayName = days[now.getDay()];
+        const date = String(now.getDate()).padStart(2, '0');
+        const monthName = months[now.getMonth()];
+        const year = now.getFullYear();
+
+        const hours = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+
+        const timeEl = document.getElementById('bpjs-live-time');
+        const dateEl = document.getElementById('bpjs-live-date');
+        if (timeEl) timeEl.innerText = `${hours}:${mins}:${secs} WIB`;
+        if (dateEl) dateEl.innerText = `${dayName}, ${date} ${monthName} ${year}`;
+    }
+    setInterval(updateLiveTvClock, 1000);
+    updateLiveTvClock();
+
+    // Handler update status overlay BPJS
+    function handleBpjsOverlay(bpjs) {
+        if (!bpjs) return;
+        const overlay = document.getElementById("bpjs-fullscreen-overlay");
+        if (!overlay) return;
+
+        const isGangguan = Boolean(bpjs.is_gangguan);
+
+        if (isGangguan) {
+            document.body.classList.add("bpjs-mode-active");
+            overlay.classList.add("active");
+            overlay.style.setProperty("display", "flex", "important");
+
+            if (bpjs.judul) document.getElementById("bpjs-tv-judul").innerText = bpjs.judul;
+            if (bpjs.pesan) document.getElementById("bpjs-tv-pesan").innerText = bpjs.pesan;
+            if (bpjs.sub_pesan) document.getElementById("bpjs-tv-subpesan-text").innerText = bpjs.sub_pesan;
+            if (bpjs.running_text) document.getElementById("bpjs-tv-running").innerText = bpjs.running_text;
+
+            // Suara pengumuman saat status berubah ke gangguan
+            if (!prevGangguanState) {
+                prevGangguanState = true;
+                let bell = document.getElementById("bell-sound");
+                if (bell) {
+                    bell.play().catch(e => console.log("Audio notify:", e));
+                }
+                if (window.responsiveVoice) {
+                    setTimeout(() => {
+                        responsiveVoice.speak("Pemberitahuan kepada seluruh pasien. Saat ini sistem jaringan BPJS Kesehatan sedang mengalami kendala teknis. Pelayanan pendaftaran tetap dilayani secara manual oleh petugas loket. Terima kasih atas kesabaran Anda.", "Indonesian Female", {pitch: 1, rate: 0.9, volume: 1});
+                    }, 800);
+                }
+            }
+        } else {
+            document.body.classList.remove("bpjs-mode-active");
+            overlay.classList.remove("active");
+            overlay.style.setProperty("display", "none", "important");
+            prevGangguanState = false;
+        }
+    }
 
     // ambil loket yang aktif dari checkbox
     function getActiveLokets() {
@@ -304,8 +677,8 @@
                     </div>
                 `;
 
-                // mainkan bell & suara hanya kalau pasien DIPANGGIL baru
-                if (pasien.status.toUpperCase() === "DIPANGGIL") {
+                // mainkan bell & suara hanya kalau pasien DIPANGGIL baru dan tidak dalam mode gangguan
+                if (pasien.status.toUpperCase() === "DIPANGGIL" && !prevGangguanState) {
                     let pasienDipanggil = pasien.nm_pasien.toUpperCase();
                     if (lastDipanggil[loket] !== pasienDipanggil) {
                         lastDipanggil[loket] = pasienDipanggil;
@@ -331,8 +704,13 @@
         fetch("{{ route('antrian.apiTv') }}")
             .then(res => res.json())
             .then(data => {
-                console.log("Data antrian API:", data); // debug
-                renderAntrian(data);
+                let antrianList = Array.isArray(data) ? data : (data.antrian || []);
+                let bpjsStatus = data.bpjs || null;
+
+                if (bpjsStatus) {
+                    handleBpjsOverlay(bpjsStatus);
+                }
+                renderAntrian(antrianList);
             })
             .catch(err => console.error("Gagal ambil data:", err));
     }
@@ -343,8 +721,11 @@
     });
 
     document.addEventListener("DOMContentLoaded", function() {
+        if ({{ !empty($bpjsStatus['is_gangguan']) ? 'true' : 'false' }}) {
+            document.body.classList.add("bpjs-mode-active");
+        }
         fetchAntrian();
-        setInterval(fetchAntrian, 5000); // update tiap 5 detik
+        setInterval(fetchAntrian, 4000); // cek update tiap 4 detik secara berkala
     });
 </script>
 </div>

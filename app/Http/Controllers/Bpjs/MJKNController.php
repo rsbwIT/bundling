@@ -128,18 +128,62 @@ class MJKNController extends Controller
                 ]);
             }
 
-            $surat = DB::table('bridging_surat_kontrol_bpjs as sk')
+            // Ambil seluruh daftar surat kontrol pasien
+            $listSurat = DB::table('bridging_surat_kontrol_bpjs as sk')
                 ->join('bridging_sep as bs', 'bs.no_sep', '=', 'sk.no_sep')
-                ->join('reg_periksa as rp', 'rp.no_rawat', '=', 'bs.no_rawat')
-                ->where('rp.no_rkm_medis', $pasien->no_rkm_medis)
+                ->where(function ($q) use ($pasien, $request) {
+                    $q->where('bs.nomr', $pasien->no_rkm_medis)
+                      ->orWhere('bs.no_kartu', $request->nomorkartu);
+                })
+                ->select(
+                    'sk.no_surat',
+                    'sk.tgl_rencana',
+                    'sk.tgl_surat',
+                    'sk.kd_poli_bpjs',
+                    'sk.nm_poli_bpjs',
+                    'sk.kd_dokter_bpjs',
+                    'sk.nm_dokter_bpjs'
+                )
                 ->orderByDesc('sk.tgl_rencana')
-                ->first();
+                ->limit(10)
+                ->get();
+
+            $surat = null;
+
+            // Jika dikirim nomor surat spesifik
+            if ($request->filled('nomorsurat')) {
+                $surat = $listSurat->firstWhere('no_surat', $request->nomorsurat);
+            }
+
+            // Prioritaskan surat kontrol aktif yang tanggal rencananya masih >= hari ini (terdekat)
+            if (!$surat) {
+                $today = date('Y-m-d');
+                $surat = $listSurat->filter(function ($item) use ($today) {
+                    return $item->tgl_rencana >= $today;
+                })->sortBy('tgl_rencana')->first();
+            }
+
+            // Jika tidak ada surat kontrol ke depan, gunakan surat kontrol terbaru yang dibuat
+            if (!$surat) {
+                $surat = $listSurat->sortByDesc('tgl_surat')->sortByDesc('tgl_rencana')->first();
+            }
 
             $jampraktek = '';
 
             if ($surat) {
+                $hariMap = [
+                    'Sun' => 'AKHAD',
+                    'Mon' => 'SENIN',
+                    'Tue' => 'SELASA',
+                    'Wed' => 'RABU',
+                    'Thu' => 'KAMIS',
+                    'Fri' => 'JUMAT',
+                    'Sat' => 'SABTU'
+                ];
+                $dayName = date('D', strtotime($surat->tgl_rencana));
+                $hari = $hariMap[$dayName] ?? '';
 
-                $jadwal = DB::table('jadwal')
+                $jadwalQuery = DB::table('jadwal')
                     ->join(
                         'maping_poli_bpjs',
                         'jadwal.kd_poli',
@@ -162,12 +206,14 @@ class MJKNController extends Controller
                     )
                     ->select(
                         'jadwal.jam_mulai',
-                        'jadwal.jam_selesai'
-                    )
-                    ->first();
+                        'jadwal.jam_selesai',
+                        'jadwal.hari_kerja'
+                    );
+
+                $jadwal = (clone $jadwalQuery)->where('jadwal.hari_kerja', $hari)->first()
+                          ?? $jadwalQuery->first();
 
                 if ($jadwal) {
-
                     $jampraktek =
                         substr($jadwal->jam_mulai, 0, 5)
                         . '-'
@@ -187,7 +233,8 @@ class MJKNController extends Controller
                 'kodedokter'  => $surat->kd_dokter_bpjs ?? '',
                 'namadokter'  => $surat->nm_dokter_bpjs ?? '',
                 'tanggal'     => $surat->tgl_rencana ?? '',
-                'jampraktek'  => $jampraktek
+                'jampraktek'  => $jampraktek,
+                'list_surat'  => $listSurat
             ]);
 
         } catch (\Exception $e) {

@@ -422,6 +422,23 @@
                                         );
                                         http_response_code(200);
                                     }else {
+                                        // VALIDASI KETAT SURAT KONTROL: TANGGAL WAJIB SAMA DENGAN TANGGAL SURAT KONTROL
+                                        if (($decode['jeniskunjungan'] == "3" || !empty($decode['nomorreferensi'])) && !empty($decode['nomorreferensi'])) {
+                                            $suratKontrol = fetch_array(bukaquery2("SELECT tgl_rencana, kd_poli_bpjs, kd_dokter_bpjs FROM bridging_surat_kontrol_bpjs WHERE no_surat='".validTeks4($decode['nomorreferensi'],30)."'"));
+                                            if (!empty($suratKontrol['tgl_rencana'])) {
+                                                if ($decode['tanggalperiksa'] != $suratKontrol['tgl_rencana']) {
+                                                    $response = array(
+                                                        'metadata' => array(
+                                                            'message' => 'Pendaftaran gagal. Tanggal periksa harus sesuai dengan tanggal rencana pada Surat Kontrol ('.$suratKontrol['tgl_rencana'].'). Silakan pilih tanggal yang sesuai.',
+                                                            'code' => 201
+                                                        )
+                                                    );
+                                                    http_response_code(200);
+                                                    echo json_encode($response);
+                                                    exit;
+                                                }
+                                            }
+                                        }
                                         $jammulai   = validTeks4(substr($decode['jampraktek'],0,5),20);
                                         $jamselesai = validTeks4(substr($decode['jampraktek'],6,5),20);
                                         $kddokter   = getOne2("SELECT kd_dokter FROM maping_dokter_dpjpvclaim WHERE kd_dokter_bpjs='".validTeks4($decode['kodedokter'],20)."'");

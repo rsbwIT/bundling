@@ -158,6 +158,7 @@ use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\Laporan\RekapPendapatanHarianController;
 use App\Http\Controllers\Laporan\RekapPendapatanAsuransiController;
+use App\Http\Controllers\Laporan\RekapPendapatanBpjsController;
 use App\Http\Controllers\Laporan\PendapatanAlatDokterController;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
 use App\Http\Controllers\Pkpa\MonitoringPkpaController;
@@ -465,6 +466,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/rekap-pendapatan-harian/cetak-pdf', [RekapPendapatanHarianController::class, 'printPdf']);
         Route::get('/rekap-pendapatan-asuransi', [RekapPendapatanAsuransiController::class, 'index']);
         Route::get('/rekap-pendapatan-asuransi/detail', [RekapPendapatanAsuransiController::class, 'detailTindakan']);
+        Route::get('/rekap-pendapatan-bpjs', [RekapPendapatanBpjsController::class, 'index']);
+        Route::get('/rekap-pendapatan-bpjs/detail', [RekapPendapatanBpjsController::class, 'detailTindakan']);
         
         Route::get('/pendapatan-alat-dokter', [PendapatanAlatDokterController::class, 'index']);
         Route::get('/pendapatan-alat-dokter/pdf', [PendapatanAlatDokterController::class, 'printPdf']);
@@ -780,9 +783,12 @@ Route::group(['middleware' => 'default'], function () {
 
         Route::get('/antrian', [AntrianPendaftaranBaru::class, 'index'])->name('antrian.index');
         Route::post('/loket/update-status', [AntrianPendaftaranBaru::class, 'updateStatus'])->name('loket.update');
-        Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
-        Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
         Route::post('/antrian/selesai', [AntrianPendaftaranBaru::class, 'selesai'])->name('antrian.selesai');
+
+        // Status & Kontrol Gangguan BPJS TV (Dashboard)
+        Route::get('/antrian/tv/status-bpjs', [AntrianPendaftaranBaru::class, 'settingBpjsView'])->name('antrian.status-bpjs.view');
+        Route::post('/antrian/tv/status-bpjs', [AntrianPendaftaranBaru::class, 'updateBpjsStatus'])->name('antrian.status-bpjs.update');
+        Route::post('/antrian/tv/status-bpjs/toggle', [AntrianPendaftaranBaru::class, 'toggleBpjsStatus'])->name('antrian.status-bpjs.toggle');
 
         // kamarinapdr
         Route::get('/kamar-inap-dr', [App\Http\Controllers\PasienKamarInap\KamarInapDr::class, 'index'])
@@ -876,6 +882,11 @@ Route::group(['middleware' => 'default'], function () {
     Route::get('/info-kamar', [InfoKamar::class, 'InfoKamar']);
     Route::get('/info-kamar2', [InfoKamar::class, 'InfoKamar2']);
     Route::get('/info-kamar3', [InfoKamar::class, 'InfoKamar3']);
+
+    // 📺 Display TV Antrian Pendaftaran & API (Publik untuk Layar TV Lobby / Ruang Tunggu)
+    Route::get('/antrian/tv', [AntrianPendaftaranBaru::class, 'displayTv'])->name('antrian.tv');
+    Route::get('/api/antrian/tv', [AntrianPendaftaranBaru::class, 'apiTv'])->name('antrian.apiTv');
+    Route::get('/api/antrian/tv/status-bpjs', [AntrianPendaftaranBaru::class, 'apiBpjsStatus'])->name('antrian.status-bpjs.api');
 });
 
 //display informasi kamar igd
@@ -945,3 +956,11 @@ Route::get('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarian
 Route::post('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'simpanMapping'])->name('laporan.mapping-suplier.simpan');
 
 Route::get('/lab-pk', [\App\Http\Controllers\Laporan\LabPK::class, 'index'])->name('laporan.lab_pk');
+
+// Gambaran Darah Tepi
+Route::get('/lab/gambaran-darah-tepi', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'index'])->name('lab.darah-tepi.index');
+Route::get('/lab/gambaran-darah-tepi/form/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'form'])->name('lab.darah-tepi.form');
+Route::post('/lab/gambaran-darah-tepi/store/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'store'])->name('lab.darah-tepi.store');
+Route::delete('/lab/gambaran-darah-tepi/destroy/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'destroy'])->name('lab.darah-tepi.destroy');
+Route::get('/lab/gambaran-darah-tepi/cetak/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'cetak'])->name('lab.darah-tepi.cetak');
+

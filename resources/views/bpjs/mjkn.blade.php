@@ -77,10 +77,16 @@
             <div class="col-md-6">
 
                 <label>Nomor Surat Kontrol / Referensi</label>
+                <div id="wrapper_pilih_surat" style="display:none;" class="mb-2">
+                    <select id="pilih_surat" class="form-control bg-light border-primary" onchange="pilihSuratKontrol(this.value)">
+                        <option value="">-- Pilih Surat Kontrol Pasien --</option>
+                    </select>
+                </div>
                 <input
                     type="text"
                     id="nomorreferensi"
-                    class="form-control mb-2">
+                    class="form-control mb-2"
+                    placeholder="Nomor Surat Kontrol">
 
                 <label>Kode Poli BPJS</label>
                 <input
@@ -215,6 +221,48 @@
 
 <script>
 
+let currentSuratList = [];
+
+function populateSuratDropdown(list, selectedNoSurat) {
+    const wrapper = document.getElementById("wrapper_pilih_surat");
+    const select = document.getElementById("pilih_surat");
+    if (!wrapper || !select) return;
+    select.innerHTML = "<option value=\"\">-- Pilih Surat Kontrol Pasien --</option>";
+    if (list && list.length > 0) {
+        currentSuratList = list;
+        wrapper.style.display = "block";
+        list.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.no_surat;
+            opt.textContent = item.no_surat + " | Tgl: " + item.tgl_rencana + " (" + (item.nm_poli_bpjs || item.kd_poli_bpjs) + " - " + (item.nm_dokter_bpjs || item.kd_dokter_bpjs) + ")";
+            if (item.no_surat === selectedNoSurat) {
+                opt.selected = true;
+            }
+            select.appendChild(opt);
+        });
+    } else {
+        currentSuratList = [];
+        wrapper.style.display = "none";
+    }
+}
+
+function pilihSuratKontrol(noSurat) {
+    if (!noSurat) return;
+    const item = currentSuratList.find(s => s.no_surat === noSurat);
+    if (item) {
+        document.getElementById("nomorreferensi").value = item.no_surat;
+        if (item.tgl_rencana) {
+            document.getElementById("tanggalperiksa").value = item.tgl_rencana;
+        }
+        if (item.kd_poli_bpjs) {
+            document.getElementById("kodepoli").value = item.kd_poli_bpjs;
+        }
+        if (item.kd_dokter_bpjs) {
+            document.getElementById("kodedokter").value = item.kd_dokter_bpjs;
+        }
+    }
+}
+
 const csrf =
     document.querySelector(
         'meta[name="csrf-token"]'
@@ -300,11 +348,16 @@ async function cariPasien()
         kodedokter.value =
             data.kodedokter || '';
 
-        tanggalperiksa.value =
-            data.tanggal || '';
+        if (data.tanggal) {
+            tanggalperiksa.value = data.tanggal;
+        }
 
         jampraktek.value =
-            data.jampraktek || '';
+            data.jampraktek || "";
+
+        if (data.list_surat) {
+            populateSuratDropdown(data.list_surat, data.nomorsurat);
+        }
 
     }
     catch(err){

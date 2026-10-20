@@ -1,639 +1,315 @@
 @extends('..layout.layoutDashboard')
 
-@section('title','REKAPAN BULANAN')
+@section('title', 'Rekap Pendapatan Harian - ' . ($statusLanjut == 'Ralan' ? 'Rawat Jalan' : ($statusLanjut == 'SEMUA' ? 'Semua Pelayanan' : 'Rawat Inap')) . ' (' . $penjaminLabel . ')')
 
 @section('konten')
 
 <style>
-
-.kategori{
-background:#d9d9d9;
-font-weight:bold;
-}
-
-.sub1{
-padding-left:25px !important;
-}
-
-.jm{
-background:#fff200;
-font-weight:bold;
-}
-
-.grand{
-background:#e6b8b7;
-font-weight:bold;
-}
-
-#tableToCopy th{
-text-align:center;
-vertical-align:middle;
-}
-
-#tableToCopy td:nth-child(1){
-text-align:center;
-width:60px;
-}
-
-#tableToCopy td:nth-child(3),
-#tableToCopy td:nth-child(4){
-text-align:right;
-}
-
+    .table-rekap {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    .table-rekap th {
+        text-align: center;
+        vertical-align: middle;
+        text-transform: uppercase;
+        background-color: #f4f6f9 !important;
+        font-weight: bold;
+        color: #333;
+        padding: 8px 4px !important;
+    }
+    .table-rekap td {
+        vertical-align: middle;
+        padding: 6px 4px !important;
+    }
+    .table-rekap tbody td:nth-child(1) {
+        text-align: center;
+    }
+    .table-rekap tbody td:nth-child(n+2) {
+        text-align: right;
+    }
 </style>
 
 <div class="card shadow-sm border-0">
-<div class="card-body">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="mb-1 font-weight-bold text-dark">
+                    <i class="fas fa-file-invoice-dollar text-primary mr-2"></i> Rekap Pendapatan Harian ({{ $statusLanjut == 'Ralan' ? 'Rawat Jalan' : ($statusLanjut == 'SEMUA' ? 'Rawat Inap & Jalan' : 'Rawat Inap') }}) - <span class="text-primary">{{ $penjaminLabel }}</span>
+                </h5>
+                <small class="text-muted">Laporan rincian pendapatan harian {{ $statusLanjut == 'Ralan' ? 'rawat jalan' : ($statusLanjut == 'SEMUA' ? 'rawat inap dan rawat jalan' : 'rawat inap') }} dengan penjamin {{ $penjaminLabel }} <span class="badge badge-light border ml-1">{{ $kdPj == 'UMU' ? 'Berdasarkan Tanggal Nota' : ($kdPj == 'SEMUA' ? 'Umum: Tgl Nota | BPJS & Asr: Tgl Bayar Piutang' : 'Berdasarkan Tanggal Pembayaran Piutang') }}</span></small>
+            </div>
+                <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadExcel()">
+                    <i class="fas fa-file-excel mr-1"></i> Download Excel
+                </button>
+            </div>
+        </div>
+    </div>
 
-@include('laporan.component.searchpendapatanbulanan')
+    <div class="card-body">
+        {{-- Form Filter Periode & Jenis Pelayanan --}}
+        <form method="GET" action="{{ url('/rekap-pendapatan-harian') }}" class="mb-4">
+            <div class="row align-items-end">
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <label class="font-weight-bold text-xs">Tanggal Awal:</label>
+                    <input type="date" name="tgl1" class="form-control form-control-sm" value="{{ $tgl1 }}">
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <label class="font-weight-bold text-xs">Tanggal Akhir:</label>
+                    <input type="date" name="tgl2" class="form-control form-control-sm" value="{{ $tgl2 }}">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="font-weight-bold text-xs">Jenis Pelayanan:</label>
+                    <select name="status_lanjut" class="form-control form-control-sm">
+                        <option value="Ranap" {{ $statusLanjut == 'Ranap' ? 'selected' : '' }}>Rawat Inap (Ranap)</option>
+                        <option value="Ralan" {{ $statusLanjut == 'Ralan' ? 'selected' : '' }}>Rawat Jalan (Ralan)</option>
+                        <option value="SEMUA" {{ $statusLanjut == 'SEMUA' ? 'selected' : '' }}>-- Semua (Ranap & Ralan) --</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="font-weight-bold text-xs">Penjamin:</label>
+                    <select name="kd_pj" class="form-control form-control-sm select2">
+                        <option value="UMU" {{ $kdPj == 'UMU' ? 'selected' : '' }}>Umum</option>
+                        <option value="BPJ" {{ $kdPj == 'BPJ' ? 'selected' : '' }}>BPJS</option>
+                        <option value="ASURANSI" {{ $kdPj == 'ASURANSI' ? 'selected' : '' }}>Asuransi</option>
+                        <option value="INHEALTH" {{ $kdPj == 'INHEALTH' ? 'selected' : '' }}>Mandiri Inhealth & Askes Inhealth</option>
+                        <option value="SEMUA" {{ $kdPj == 'SEMUA' ? 'selected' : '' }}>-- Semua Penjamin --</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-12 mb-2">
+                    <button type="submit" class="btn btn-sm btn-primary btn-block">
+                        <i class="fas fa-search mr-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
 
-<div class="d-flex justify-content-between align-items-center mb-3 no-print">
-<h6 class="mb-0 fw-bold">Laporan Pendapatan Pasien Bulanan</h6>
+        {{-- Tabel Rekap --}}
+        @if($statusLanjut == 'SEMUA')
+            <h6 class="font-weight-bold text-dark mb-2">RAWAT INAP (RANAP)</h6>
+            @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekapRanap, 'statusLanjutLocal' => 'Ranap'])
+            
+            <h6 class="font-weight-bold text-dark mb-2 mt-4">RAWAT JALAN (RALAN)</h6>
+            @php
+                $totalSemua = $dataRekapRanap->sum('grand_total') + $dataRekapRalan->sum('grand_total');
+            @endphp
+            @include('laporan.partials.table_rekap', [
+                'dataRekapLocal' => $dataRekapRalan, 
+                'statusLanjutLocal' => 'Ralan',
+                'showTotalKeseluruhan' => true,
+                'totalKeseluruhan' => $totalSemua
+            ])
+        @else
+            @include('laporan.partials.table_rekap', ['dataRekapLocal' => $dataRekap, 'statusLanjutLocal' => $statusLanjut])
+        @endif
 
-<button type="button" class="btn btn-sm btn-outline-secondary" id="copyButton">
-<i class="fas fa-copy"></i> Copy Table
-</button>
+        @include('laporan.partials.summary_table')
+    </div>
 </div>
 
-<div class="table-responsive">
+<script>
+function downloadExcel() {
+    let tables = document.querySelectorAll('.table-rekap');
+    if (tables.length === 0) return;
 
-<table class="table table-bordered table-sm align-middle" id="tableToCopy">
+    let html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            table { border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 11pt; }
+            th, td { border: 1px solid black; padding: 4px; vertical-align: middle; }
+            th { background-color: #f4f6f9; font-weight: bold; }
+            .no-border { border: none !important; }
+            .num-cell, td.num-cell, tr td.num-cell,
+            .table-primary.num-cell, .table-light.num-cell, .table-warning.num-cell, .table-info.num-cell,
+            .table-primary td.num-cell, .table-light td.num-cell, .table-warning td.num-cell, .table-info td.num-cell { 
+                mso-number-format: "\#\,\#\#0" !important; 
+                text-align: right !important; 
+            }
+            .date-cell, td.date-cell { mso-number-format: "\@"; text-align: center; }
+            .text-cell, td.text-cell { mso-number-format: "\@"; }
+            /* Bootstrap Colors for Excel */
+            .table-primary, .table-primary > th, .table-primary > td { background-color: #cfe2ff !important; }
+            .table-secondary, .table-secondary > th, .table-secondary > td { background-color: #e2e3e5 !important; }
+            .table-success, .table-success > th, .table-success > td { background-color: #d1e7dd !important; }
+            .table-warning, .table-warning > th, .table-warning > td { background-color: #fff3cd !important; }
+            .table-info, .table-info > th, .table-info > td { background-color: #cff4fc !important; }
+            .table-light, .table-light > th, .table-light > td { background-color: #f8f9fa !important; }
+            .table-dark, .table-dark > th, .table-dark > td { background-color: #212529 !important; color: #fff !important; }
+            .bg-primary { background-color: #0d6efd !important; color: #fff !important; }
+            .bg-success { background-color: #198754 !important; color: #fff !important; }
+            .bg-info { background-color: #0dcaf0 !important; color: #000 !important; }
+            .bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+            .bg-danger { background-color: #dc3545 !important; color: #fff !important; }
+            .bg-light { background-color: #f8f9fa !important; }
+            .text-dark { color: #212529 !important; }
+            .text-muted { color: #6c757d !important; }
+            .text-white { color: #fff !important; }
+            .text-primary { color: #0d6efd !important; }
+            .font-weight-bold { font-weight: bold !important; }
+        </style>
+    </head>
+    <body>
+    `;
 
-<thead class="table-secondary">
+    tables.forEach((table) => {
+        let title = '';
+        let titleElement = table.previousElementSibling;
+        
+        while (titleElement) {
+            if (titleElement.tagName === 'H4' || titleElement.tagName === 'H5') {
+                title = titleElement.innerText.trim();
+                break;
+            }
+            titleElement = titleElement.previousElementSibling;
+        }
 
-<tr>
-<th rowspan="2">NO</th>
-<th rowspan="2" style="width:450px;">Keterangan</th>
-<th colspan="2">UMUM</th>
-<th colspan="2">BPJS</th>
-<th colspan="2">PERUSAHAAN</th>
-<th colspan="2">ASKES INHEALTH</th>
-<th colspan="2">CASH BASIK</th>
-<th colspan="2">PIUTANG KARYAWAN</th>
-<th colspan="2">PIUTANG YANG SUDAH DILUNASI</th>
-<th colspan="3">TOTAL</th>
-</tr>
+        if (!title && table.parentElement) {
+            let parentPrev = table.parentElement.previousElementSibling;
+            while (parentPrev) {
+                if (parentPrev.tagName === 'H4' || parentPrev.tagName === 'H5') {
+                    title = parentPrev.innerText.trim();
+                    break;
+                }
+                parentPrev = parentPrev.previousElementSibling;
+            }
+        }
 
-<tr>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">R.Inap</th>
-<th style="width:200px;">R.Jalan</th>
-<th style="width:200px;">Jumlah</th>
-</tr>
+        let maxCols = 0;
+        for (let i = 0; i < table.rows.length; i++) {
+            let cols = 0;
+            for (let j = 0; j < table.rows[i].cells.length; j++) {
+                cols += table.rows[i].cells[j].colSpan;
+            }
+            if (cols > maxCols) maxCols = cols;
+        }
 
-</thead>
+        @php
+            $bulanIndo = ['01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'];
+            $bln = date('m', strtotime($tgl1));
+            $namaBulan = $bulanIndo[$bln] ?? '';
+            $thn = date('Y', strtotime($tgl1));
+            $judulRekap = "REKAP BULAN " . strtoupper($namaBulan) . " " . $thn;
+            $pelayanan = $statusLanjut == 'Ralan' ? 'Rawat Jalan' : ($statusLanjut == 'SEMUA' ? 'Rawat Inap & Jalan' : 'Rawat Inap');
+        @endphp
 
-<tbody>
+        let kopSurat = `
+            <tr>
+                <td colspan="${maxCols}" class="no-border" align="center" style="text-align: center; vertical-align: middle;">
+                    <h2 style="margin: 0; font-size: 16pt;">{{ $setting->nama_instansi }}</h2>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">{{ $setting->alamat_instansi }}, {{ $setting->kabupaten }}, {{ $setting->propinsi }}</p>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">Kontak: {{ $setting->kontak }} | Email: {{ $setting->email }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="border-bottom: 2px solid black !important;"></td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="height: 10px;"></td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" align="center" style="text-align: center;">
+                    <h3 style="margin: 0; font-size: 14pt;">{{ $judulRekap }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11pt;">Jenis Pelayanan: {{ $pelayanan }} | Penjamin: {{ $penjaminLabel }}</p>
+                    <h4 style="margin: 10px 0 5px 0; font-size: 12pt;">${title}</h4>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="${maxCols}" class="no-border" style="height: 10px;"></td>
+            </tr>
+        `;
 
-<tr class="kategori">
-<td>1</td>
-<td>REGISTER</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = table.outerHTML;
 
-<tr>
-<td></td>
-<td class="sub1">Register</td>
-<td>{{ number_format($registerRanap ?? 0) }}</td>
-<td>{{ number_format($registerRalan ?? 0) }}</td>
-<td>{{ number_format($registerRanapBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($registerRalanBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
+        // Force Excel to respect alignments by injecting the HTML 'align' attribute directly
+        let ths = tempDiv.querySelectorAll('th');
+        ths.forEach(th => {
+            th.setAttribute('align', 'center');
+            th.style.textAlign = 'center';
+        });
 
-<tr class="kategori">
-<td>2</td>
-<td>JASA TINDAKAN</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
+        let tds = tempDiv.querySelectorAll('td');
+        tds.forEach(td => {
+            let align = 'right'; // Default numbers to right
+            
+            if (td.style.textAlign) {
+                align = td.style.textAlign; // Respect existing inline styles from summary table
+            } else if (td.classList.contains('text-center') || td.classList.contains('no-border')) {
+                align = 'center';
+            } else if (td.classList.contains('text-left')) {
+                align = 'left';
+            }
 
-<tr class="jasasarana">
-<td></td>
-<td class="sub1">Jasa Sarana</td>
-<td>{{ number_format($grandTotalmaterialRIumu ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($totalMaterial ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($TotalJasaSarana ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
+            let text = td.innerText.trim();
 
-<tr class="paketbhp">
-<td></td>
-<td class="sub1">Paket BHP</td>
-<td>{{ number_format($totalBHPRIumu) }}</td>
-<td>{{ number_format($totalBHPUMUM ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($TotalBHP ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
+            // Tanggal
+            if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+                align = 'center';
+                td.classList.add('date-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@"; text-align: center;');
+            } 
+            // Tanda strip (-) nilai 0
+            else if (text === '-') {
+                align = 'center';
+                td.classList.add('date-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@"; text-align: center;');
+            } 
+            // Format angka ribuan / nominal rupiah (hilangkan titik agar Excel membacanya sebagai angka murni dengan pemisah ribuan)
+            else if (/^-?[\d\.]+$/.test(text) && text !== '') {
+                let rawNum = text.replace(/\./g, '');
+                td.innerText = rawNum;
+                td.classList.add('num-cell');
+                align = 'right';
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\#\\,\\#\\#0"; text-align: right;');
+            } else {
+                td.classList.add('text-cell');
+                td.setAttribute('style', (td.getAttribute('style') || '') + '; mso-number-format:"\\@";');
+            }
+            
+            td.setAttribute('align', align);
+            td.style.textAlign = align;
+        });
 
-<tr class="jmdokter">
-<td></td>
-<td class="sub1">JM Dokter</td>
-<td>{{ number_format($totalJMDokterUMURI) }}</td>
-<td>{{ number_format($totalJMDokterUMUM ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($TotalJMDokter ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
+        let tableHtml = tempDiv.innerHTML;
+        // Insert kopSurat right after <thead>
+        tableHtml = tableHtml.replace(/(<thead[^>]*>)/i, '$1' + kopSurat);
+        
+        // Inject mso-number-format directly into html string to bypass browser DOM attribute stripping
+        tableHtml = tableHtml.replace(/<td([^>]*class="[^"]*\bnum-cell\b[^"]*"[^>]*)>/gi, function(match, p1) {
+            if (/style="/i.test(p1)) {
+                return '<td' + p1.replace(/style="/i, 'style="mso-number-format:\'\\#\\,\\#\\#0\'; text-align: right; ') + '>';
+            } else {
+                return '<td style="mso-number-format:\'\\#\\,\\#\\#0\'; text-align: right;"' + p1 + '>';
+            }
+        });
+        tableHtml = tableHtml.replace(/<td([^>]*class="[^"]*\bdate-cell\b[^"]*"[^>]*)>/gi, function(match, p1) {
+            if (/style="/i.test(p1)) {
+                return '<td' + p1.replace(/style="/i, 'style="mso-number-format:\'\\@\'; text-align: center; ') + '>';
+            } else {
+                return '<td style="mso-number-format:\'\\@\'; text-align: center;"' + p1 + '>';
+            }
+        });
+        
+        html += tableHtml;
+        html += '<br><br>';
+    });
 
-<tr class="jmparamedis">
-<td></td>
-<td class="sub1">Paramedis</td>
-<td>{{ number_format($totaljmparamedisumumri) }}</td>
-<td>{{ number_format($total1Paramedisumu?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($totalParamedis ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
+    html += `</body></html>`;
 
-<tr class="kategori">
-<td>3</td>
-<td>KSO</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr class="alatbw">
-<td></td>
-<td class="sub1">Alat BW</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format($totalALATDokterKSO ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format((float) ($ksoPR->total_kso_pr ?? 0), 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
-
-<tr class="alatdokter">
-<td></td>
-<td class="sub1">Alat Dokter</td>
-<td>{{ number_format($totalAlatDokterRIUMUM) }}</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format((float) ($totalKsoDR ?? 0), 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
-
-<tr class="ambulancebw">
-<td></td>
-<td class="sub1">Ambulance BW</td>
-<td>{{ number_format($totalAmbulanceBWRIUMU) }}</td>
-<td>{{ number_format($totalAMBULANCEDokterKSO ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format((float) ($totalAmbulanceValue ?? 0), 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
-
-<tr class="ambulancesap">
-<td></td>
-<td class="sub1">Ambulance SAP</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
-
-<tr class="kategori">
-<td>3</td>
-<td>PEND. OBAT & ALAT KESEHATAN</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Obat + Embalase + Tuslah</td>
-<td>{{ number_format($obatRanap ?? 0) }}</td>
-<td>{{ number_format($obatRalan1 ?? 0) }}</td>
-<td>{{ number_format($RanapObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Retur Obat</td>
-<td>{{ number_format($returRanap ?? 0) }}</td>
-<td>{{ number_format($returRalan ?? 0) }}</td>
-<td>{{ number_format($RanapReturObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanReturObatBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Resep Pulang</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format(0) }}</td>
-<td>{{ number_format((float) $totalResepPulangValue, 0, ',', '.') }}</td>
-<td>{{ number_format(0) }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Obat PJ</td>
-<td>0</td>
-<td>{{ number_format($totalPJ ?? 0) }}</td>
-<td>0</td>
-<td>0</td>
-</tr>
-
-{{-- <tr class="jm">
-<td></td>
-<td class="sub1">JM Dokter</td>
-<td>{{ number_format($jmDokterRanap ?? 0) }}</td>
-<td>{{ number_format($jmDokterRalan ?? 0) }}</td>
-<td>0</td>
-<td>0</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Paramedis</td>
-<td>{{ number_format($paramedisRanap ?? 0) }}</td>
-<td>{{ number_format($paramedisRalan ?? 0) }}</td>
-<td>0</td>
-<td>0</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Dr Paramedis</td>
-<td>{{ number_format($drparamedisRanap ?? 0) }}</td>
-<td>{{ number_format($drparamedisRalan ?? 0) }}</td>
-<td>0</td>
-<td>0</td>
-</tr> --}}
-
-
-
-<tr class="kategori">
-<td>4</td>
-<td>HEMODIALISA</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Alkes HD</td>
-<td>{{ number_format($totalHDRanap ?? 0) }}</td>
-<td>{{ number_format($totalHDRalan ?? 0) }}</td>
-<td>{{ number_format($totalHDRanapBpjs ?? 0) }}</td>
-<td>{{ number_format($totalHDRalanBpjs ?? 0) }}</td>
-</tr>
-
-<tr class="kategori">
-<td>4</td>
-<td>PENDAPATAN LABORATORIUM</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Laboratorium</td>
-<td>{{ number_format($labRanap ?? 0) }}</td>
-<td>{{ number_format($labRalan ?? 0) }}</td>
-<td>{{ number_format($RanapLaboratBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanLaboratBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr class="kategori">
-<td>5</td>
-<td>RADIOLOGI</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Jasa Sarana</td>
-<td>{{ number_format($totalBagianRSumuRI) }}</td>
-<td>{{ number_format($totalBagianRSumu) }}</td>
-<td>{{ number_format($hasilAkhir ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Paket BHP</td>
-<td>{{ number_format($totalBhpumuradiologiRI) }}</td>
-<td>{{ number_format($totalBhpumuradiologi) }}</td>
-<td>{{ number_format($RanapRadiologiBpjsBHP1 ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">JM Dokter PJ</td>
-<td>{{ number_format($totalDokterperujukRadiologiUmuRI) }}</td>
-<td>{{ number_format($totalDokterperujukRadiologiUmu) }}</td>
-<td>{{ number_format($RanapRadiologiJmDokterPj ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Petugas</td>
-<td>{{ number_format($totalPetugasRadiologiUmuRI) }}</td>
-<td>{{ number_format($totalPetugasRadiologiUmu) }}</td>
-<td>{{ number_format($RanapRadiologiJmPetugas ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">JM Perujuk</td>
-<td>{{ number_format($totalPerujukRadiologiUmuRI) }}</td>
-<td>{{ number_format($totalPerujukRadiologiUmu) }}</td>
-<td>{{ number_format($RanapRadiologiPerujuk ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-{{-- <tr class="kategori">
-<td>6</td>
-<td>Rad tes</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Radiologi</td>
-<td>{{ number_format($radiologiRanap ?? 0) }}</td>
-<td>{{ number_format($radiologiRalan ?? 0) }}</td>
-<td>{{ number_format($RanapRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RanapRadiologiBpjs1 ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanRadiologiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr> --}}
-
-<tr class="kategori">
-<td>6</td>
-<td>KAMAR INAP</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Kamar</td>
-<td>{{ number_format($kamarRanap ?? 0) }}</td>
-<td>{{ number_format($kamarRalan ?? 0) }}</td>
-<td>{{ number_format($RanapKamarBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanKamarBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr class="kategori">
-<td>7</td>
-<td>OPERASI</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Operasi</td>
-<td>{{ number_format($operasiRanap ?? 0) }}</td>
-<td>{{ number_format($operasiRalan ?? 0) }}</td>
-<td>{{ number_format($RanapOperasiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanOperasiBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr class="kategori">
-<td>8</td>
-<td>TAMBAHAN / EXSES</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-
-{{-- <tr>
-<td></td>
-<td class="sub1">Tambahan Non Umum</td>
-<td>{{ number_format($tambahanNonUmumRanap ?? 0) }}</td>
-<td>{{ number_format($tambahanNonUmumRalan ?? 0) }}</td>
-</tr> --}}
-
-<tr>
-<td></td>
-<td class="sub1">Exses</td>
-<td>{{ number_format($totalEksesRanap ?? 0) }}</td>
-<td>{{ number_format($totalEksesRalan ?? 0) }}</td>
-<td>{{ number_format($ExsesBPJS ?? 0, 0, ',', '.') }}</td>
-<td>0</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Potongan</td>
-<td>{{ number_format($potonganRanap ?? 0) }}</td>
-<td>{{ number_format($potonganRalan ?? 0) }}</td>
-<td>{{ number_format($RanapPotonganBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($RalanPotonganBpjs->sum('totalbiaya') ?? 0, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">COB</td>
-<td>0</td>
-<td>0</td>
-<td>{{ number_format($cobranapbpjs ?? 0, 0, ',', '.') }}</td>
-<td>{{ number_format($totalCicilan, 0, ',', '.') }}</td>
-</tr>
-
-<tr>
-<td></td>
-<td class="sub1">Adm Transfer</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-
-<tr class="grand">
-<td></td>
-<td>GRAND TOTAL</td>
-<td>{{ number_format($grandRanap ?? 0) }}</td>
-<td>{{ number_format($grandRalan ?? 0) }}</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-</div>
-</div>
-
+    let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob);
+    
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'Rekap_Pendapatan_Harian.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
 
 @endsection
