@@ -2178,6 +2178,7 @@
         }
     }
 </script>
+@stack('scripts')
 
 </body>
 

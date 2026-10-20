@@ -453,8 +453,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);
         Route::get('/invoice-asuransi', [InvoiceAsuransi::class, 'InvoiceAsuransi']);
-        Route::get('/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
+        Route::match(['get', 'post'], '/simpan-invoice-asuransi', [InvoiceAsuransi::class, 'simpanNomor']);
         Route::get('/cetak-invoice-asuransi/{nomor_tagihan}/{template}', [InvoiceAsuransi::class, 'cetakInvoice']);
+        Route::get('/export-excel-single-invoice', [InvoiceAsuransi::class, 'exportExcelSingleInvoice']);
+        Route::get('/export-excel-invoice-asuransi/{nomor_tagihan?}', [InvoiceAsuransi::class, 'exportExcelSingleInvoice'])->where('nomor_tagihan', '.*');
+        Route::get('/export-rekap-invoice-asuransi', [InvoiceAsuransi::class, 'exportExcelRekap']);
         Route::get('/cob-harian', [CobHarian::class, 'CobHarian']);
         Route::post('/simpan-cob', [CobHarian::class, 'simpanCob']);
         Route::get('/piutang-harian', [PiutangHarian::class, 'index']);

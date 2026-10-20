@@ -1,7 +1,11 @@
 <table border="0px" width="1000px" class="mt-4">
     <tr>
-        <th></th>
-        <th></th>
+        @if ($is_preview ?? false)
+            <th width="40px" class="text-center align-middle">
+                <input type="checkbox" id="check-all-pasien" checked title="Pilih Semua / Batal Semua" style="cursor: pointer; width: 18px; height: 18px;">
+            </th>
+        @endif
+        <th width="30px">No.</th>
         <th>Nama </th>
         <th>Jumlah Biaya</th>
         <th>No Kwit</th>
@@ -12,12 +16,18 @@
     </tr>
     @if ($getPasien)
         @foreach ($getPasien as $key => $item)
-            <tr>
-                <td width="50px"></td>
-                <td width="15px">{{ $key + 1 }}. </td>
-                <td>{{ $item->nm_pasien }}</td>
-                {{-- <td><u>Rp. {{ number_format($item->total_biaya, 0, ',', '.') }}</u> ,</td> --}}
-                <td>Rp. {{ number_format($item->getTotalBiaya->sum('totalpiutang'), 0, ',', '.') }}</td>
+            @php
+                $biayaItem = $item->getTotalBiaya->sum('totalpiutang');
+            @endphp
+            <tr class="row-pasien" id="row-pasien-{{ $key }}" style="cursor: pointer;">
+                @if ($is_preview ?? false)
+                    <td width="40px" class="text-center align-middle">
+                        <input type="checkbox" name="selected_pasien[]" value="{{ $item->no_rawat }}" class="pasien-checkbox" checked data-biaya="{{ $biayaItem }}" data-key="{{ $key }}" style="cursor: pointer; width: 18px; height: 18px;">
+                    </td>
+                @endif
+                <td width="30px" class="nomor-urut" data-original="{{ $key + 1 }}">{{ $key + 1 }}. </td>
+                <td class="cell-nama">{{ $item->nm_pasien }}</td>
+                <td class="cell-biaya" data-biaya="{{ $biayaItem }}">Rp. {{ number_format($biayaItem, 0, ',', '.') }}</td>
                 <td>
                     @foreach ($item->getNomorNota as $detail)
                         {{ substr(str_replace(':', '', $detail->nm_perawatan), -6) }}
@@ -42,22 +52,22 @@
                 </td>
             </tr>
         @endforeach
-        <tr>
+        <tr class="font-weight-bold">
+            @if ($is_preview ?? false)
+                <td></td>
+            @endif
             <td></td>
-            <td></td>
-            <td></td>
-            {{-- <td><b>Rp. {{ number_format($getPasien->sum('total_biaya'), 0, ',', '.') }}</b></td> --}}
-            <td><b>Rp.
-                    {{ number_format(
+            <td><b>Total</b></td>
+            <td><b>Rp. <span id="preview-total-biaya">{{ number_format(
                         $getPasien->sum(function ($item) {
                             return $item->getTotalBiaya->sum('totalpiutang');
                         }),
                         0,
                         ',',
                         '.',
-                    ) }}</b>
+                    ) }}</span></b>
             </td>
-            </td>
+            <td colspan="5"></td>
         </tr>
     @endif
 </table>
