@@ -97,6 +97,36 @@
             text-overflow: ellipsis;
         }
 
+        .antrian-waktu {
+            margin-top: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 0.45rem 1.4rem;
+            border-radius: 30px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status-dipanggil .antrian-waktu {
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-menunggu .antrian-waktu {
+            background: rgba(0, 0, 0, 0.08);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .antrian-waktu i {
+            margin-right: 4px;
+        }
+
         /* --- Keterangan Bawah --- */
         .keterangan-bawah {
             text-align: center;
@@ -224,6 +254,17 @@
             text-overflow: ellipsis;
             padding: 0 4px;
         }
+        .next-queue-time-grid {
+            display: inline-block;
+            font-size: 0.78rem;
+            color: #00796b;
+            font-weight: 700;
+            margin-top: 0.35rem;
+            background: #e0f2f1;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #b2dfdb;
+        }
         .next-queue-empty {
             text-align: center;
             color: #90a4ae;
@@ -277,15 +318,25 @@
                     <div class="status-dipanggil">
                         <div class="antrian-no">{{ $utama->nomor_antrian }}</div>
                         <div class="antrian-pasien">{{ strtoupper($utama->nama_pasien) }}</div>
+                        <div class="antrian-waktu">
+                            <span><i class="far fa-clock"></i> Ambil: <strong>{{ $utama->jam_ambil }}</strong></span>
+                            <span>•</span>
+                            <span><i class="fas fa-stopwatch"></i> Tunggu: <strong>{{ $utama->lama_tunggu }}</strong></span>
+                        </div>
                     </div>
                     <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
-                        📢 PANGGIL
+                        📢 PANGGIL PENYERAHAN RESEP
                     </div>
 
                 @elseif($status_utama == 'MENUNGGU')
                     <div class="status-menunggu">
                         <div class="antrian-no">{{ $utama->nomor_antrian }}</div>
                         <div class="antrian-pasien">{{ strtoupper($utama->nama_pasien) }}</div>
+                        <div class="antrian-waktu">
+                            <span><i class="far fa-clock"></i> Ambil: <strong>{{ $utama->jam_ambil }}</strong></span>
+                            <span>•</span>
+                            <span><i class="fas fa-stopwatch"></i> Tunggu: <strong>{{ $utama->lama_tunggu }}</strong></span>
+                        </div>
                     </div>
                     <div class="keterangan-bawah {{ $jenis == 'RACIKAN' ? 'racikan' : 'nonracik' }}">
                         <span class="emoji">💊</span> Obat sedang disiapkan...
@@ -307,6 +358,9 @@
                                     <div class="next-queue-card">
                                         <span class="next-queue-no-grid">{{ $next->nomor_antrian }}</span>
                                         <span class="next-queue-name-grid">{{ strtoupper($next->nama_pasien) }}</span>
+                                        <span class="next-queue-time-grid">
+                                            <i class="far fa-clock"></i> {{ $next->jam_ambil }} • ⏱️ {{ $next->lama_tunggu_singkat }}
+                                        </span>
                                     </div>
                                 @endforeach
                                 @if($selanjutnya->count() > 4)
