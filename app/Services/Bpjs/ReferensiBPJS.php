@@ -7,7 +7,7 @@ use App\Services\Bpjs\cUrl;
 use Bpjs\Bridging\Icare\BridgeIcare;
 use Bpjs\Bridging\Antrol\BridgeAntrol;
 use Bpjs\Bridging\Vclaim\BridgeVclaim;
-use Bpjs\Bridging\Aplicare\BridgeAplicares;
+use App\Services\Bpjs\BridgeAplicareService;
 
 class ReferensiBPJS
 {
@@ -25,7 +25,7 @@ class ReferensiBPJS
         $this->bridging = new BridgeVclaim();
         $this->antrol = new BridgeAntrol();
         $this->icare = new cUrl();
-        $this->aplicare = new BridgeAplicares();
+        $this->aplicare = new BridgeAplicareService();
     }
 
     // 1 VCLAIM ======================================================
