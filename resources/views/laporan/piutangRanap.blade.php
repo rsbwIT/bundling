@@ -164,7 +164,7 @@
                                         </td>
                                 @endforeach
                                 <tr class="font-weight-bold">
-                                    <td colspan="7">Total :</td>
+                                    <td colspan="8">Total :</td>
                                     <td>
                                         {{ $piutangRanap->sum(function ($item) {
                                             return $item->getRegistrasi->sum('totalbiaya');
