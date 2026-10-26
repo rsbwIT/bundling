@@ -58,6 +58,7 @@ use App\Http\Controllers\DetailTindakan\RanapDokter3;
 use App\Http\Controllers\Keperawatan\HomeKeperawatan;
 use App\Http\Controllers\Keperawatan\LaporanLogBook2;
 use App\Http\Controllers\Laporan\BayarPiutangKaryawan;
+use App\Http\Controllers\Keuangan\PiutangBelumLunasController;
 use App\Http\Controllers\DetailTindakan\RalanParamedis;
 use App\Http\Controllers\DetailTindakanBulanan\RalanParamedis2;
 use App\Http\Controllers\DetailTindakan\RanapParamedis;
@@ -449,6 +450,12 @@ Route::group(['middleware' => 'default'], function () {
         // Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza']);
         Route::get('/bayar-piutang-khanza', [BayarPiutangKhanza::class, 'BayarPiutangKhanza'])
             ->name('bayar.piutang.khanza');
+        Route::get('/keuangan-piutang-belum-lunas', [PiutangBelumLunasController::class, 'index'])
+            ->name('keuangan.piutang.belum-lunas');
+        Route::post('/keuangan-piutang-belum-lunas/simpan', [PiutangBelumLunasController::class, 'simpanBayar'])
+            ->name('keuangan.piutang.simpan-bayar');
+        Route::post('/keuangan-piutang-belum-lunas/batal-bayar', [PiutangBelumLunasController::class, 'batalBayarHariIni'])
+            ->name('keuangan.piutang.batal-bayar');
         Route::get('/bayar-piutang-karyawan', [BayarPiutangKaryawan::class, 'bayarPiutangKaryawan']);
         Route::get('/cari-cob-bayar-piutang', [CobBayarPiutang::class, 'CobBayarPiutang']);
         Route::get('/cari-bayar-umum', [BayarUmum::class, 'CariBayarUmum']);

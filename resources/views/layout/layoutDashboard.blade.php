@@ -528,7 +528,7 @@
                             </a>
                         </li>
                         @endif
-@if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar']))
+@if(\App\Helpers\AksesHelper::cekAny(['/laporan-pengeluaran-harian', '/returObat', '/pembayaran-ralan', '/cari-piutang-ralan', '/cari-piutang-ranap', '/cari-bayar-piutang', '/bayar-piutang-khanza', '/keuangan-piutang-belum-lunas', '/cari-cob-bayar-piutang', '/cob-harian', '/piutang-harian', '/cari-bayar-umum', '/bayar-piutang-karyawan', '/invoice-asuransi', '/pasien-terdaftar']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-credit-card"></i>
@@ -541,86 +541,92 @@
                                 @if(\App\Helpers\AksesHelper::cek('/laporan-pengeluaran-harian'))
 <li class="nav-item">
                                     <a href="{{ url('/laporan-pengeluaran-harian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-invoice-dollar nav-icon text-warning"></i>
                                         <p>Pengeluaran Harian</p>
                                     </a>
                                 </li>
 @endif
                             <li class="nav-item">
                                     <a href="{{ url('/returObat') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-pills nav-icon text-danger"></i>
                                         <p>Retur Obat</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/pembayaran-ralan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-cash-register nav-icon text-info"></i>
                                         <p>Pembayaran Ralan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/cari-piutang-ralan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-receipt nav-icon text-primary"></i>
                                         <p>Piutang Ralan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/cari-piutang-ranap') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-procedures nav-icon text-warning"></i>
                                         <p>Piutang Ranap</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/cari-bayar-piutang') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-money-bill-wave nav-icon text-success"></i>
                                         <p>Bayar Piutang</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/bayar-piutang-khanza') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-coins nav-icon text-warning"></i>
                                         <p>Bayar Piutang <span class="text-xs">(Khanza)</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
+                                    <a href="{{ url('/keuangan-piutang-belum-lunas') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-hand-holding-usd nav-icon text-success"></i>
+                                        <p>Pelunasan Piutang <span class="badge badge-success text-xxs">JS</span></p>
+                                    </a>
+                                </li>
+                            <li class="nav-item">
                                     <a href="{{ url('/cari-cob-bayar-piutang') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-handshake nav-icon text-teal"></i>
                                         <p>COB</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/cob-harian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-check nav-icon text-teal"></i>
                                         <p>Pasien COB <span class="text-xs">(Harian)</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/piutang-harian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-alt nav-icon text-orange"></i>
                                         <p>Pasien Piutang <span class="text-xs">(Harian)</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/cari-bayar-umum') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-wallet nav-icon text-info"></i>
                                         <p>Bayar Umum</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/bayar-piutang-karyawan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-id-badge nav-icon text-purple"></i>
                                         <p>Bayar Piutang Karyawan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/invoice-asuransi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-medical-alt nav-icon text-danger"></i>
                                         <p>Invoice Asuransi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/pasien-terdaftar') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-clipboard-list nav-icon text-cyan"></i>
                                         <p>Pasien Terdaftar</p>
                                     </a>
                                 </li>
@@ -641,61 +647,61 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-md nav-icon text-info"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-paramedis') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-nurse nav-icon text-teal"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter-paramedis') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-friends nav-icon text-primary"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/operasi-and-vk') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-syringe nav-icon text-danger"></i>
                                         <p>Operasi & VK</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/operasi-and-vk-kso') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-handshake nav-icon text-warning"></i>
                                         <p>Operasi & VK (KSO)</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-stethoscope nav-icon text-success"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-paramedis') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-heartbeat nav-icon text-pink"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter-paramedis') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hospital nav-icon text-indigo"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-x-ray nav-icon text-warning"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksalabpa') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-microscope nav-icon text-purple"></i>
                                         <p>
                                             Periksa LAB PA
                                             <span class="badge badge-danger right">NEW</span>
@@ -704,7 +710,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/jm-asuransi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hand-holding-usd nav-icon text-success"></i>
                                         <p>
                                             JM Medis (Asuransi)
                                         </p>
@@ -725,55 +731,55 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-md nav-icon text-info"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-paramedis2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-nurse nav-icon text-teal"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter-paramedis2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-friends nav-icon text-primary"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter4') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-stethoscope nav-icon text-success"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-paramedis2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-heartbeat nav-icon text-pink"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter-paramedis2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hospital nav-icon text-indigo"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-x-ray nav-icon text-warning"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/operasi-and-vk1') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-syringe nav-icon text-danger"></i>
                                         <p>Operasi & VK</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksalabpabulanan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-microscope nav-icon text-purple"></i>
                                         <p>
                                             Periksa LAB PA
                                             <span class="badge badge-danger right">NEW</span>
@@ -782,7 +788,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/jm-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hand-holding-usd nav-icon text-success"></i>
                                         <p>
                                             JM Medis (BPJS)
                                         </p>
@@ -805,55 +811,55 @@
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ url('/ralan-dokter-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-user-md nav-icon text-info"></i>
                                             <p>Ralan Dokter <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/ralan-paramedis-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-user-nurse nav-icon text-teal"></i>
                                             <p>Ralan Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/ralan-dokter-paramedis-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-user-friends nav-icon text-primary"></i>
                                             <p>Ralan Dokter Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/operasi-and-vk-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-syringe nav-icon text-danger"></i>
                                             <p>Operasi & VK <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/ranap-dokter-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-stethoscope nav-icon text-success"></i>
                                             <p>Ranap Dokter <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/ranap-paramedis-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-heartbeat nav-icon text-pink"></i>
                                             <p>Ranap Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/ranap-dokter-paramedis-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-hospital nav-icon text-indigo"></i>
                                             <p>Ranap Dokter Paramedis <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('/periksa-radiologi-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-x-ray nav-icon text-warning"></i>
                                             <p>Periksa Radiologi <span class="text-xs">(um)</span></p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/periksalabpaumum') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-microscope nav-icon text-purple"></i>
                                         <p>
                                             Periksa LAB PA (um)
                                             <span class="badge badge-danger right">NEW</span>
@@ -862,7 +868,7 @@
                                 </li>
                             <li class="nav-item">
                                         <a href="{{ url('/jm-umum') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-hand-holding-usd nav-icon text-success"></i>
                                             <p>
                                                 JM Medis (Umum)
                                             </p>
@@ -885,55 +891,55 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-md nav-icon text-info"></i>
                                         <p>Ralan Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-paramedis-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-nurse nav-icon text-teal"></i>
                                         <p>Ralan Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ralan-dokter-paramedis-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-friends nav-icon text-primary"></i>
                                         <p>Ralan Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-stethoscope nav-icon text-success"></i>
                                         <p>Ranap Dokter</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-paramedis-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-heartbeat nav-icon text-pink"></i>
                                         <p>Ranap Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/ranap-dokter-paramedis-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hospital nav-icon text-indigo"></i>
                                         <p>Ranap Dokter Paramedis</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksa-radiologi-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-x-ray nav-icon text-warning"></i>
                                         <p>Periksa Radiologi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/operasi-and-vk-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-syringe nav-icon text-danger"></i>
                                         <p>Operasi & VK</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/periksalabpabpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-microscope nav-icon text-purple"></i>
                                         <p>
                                             Periksa LAB PA
                                             <span class="badge badge-danger right">NEW</span>
@@ -942,7 +948,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/jm-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hand-holding-usd nav-icon text-success"></i>
                                         <p>
                                             JM Medis (BPJS)
                                         </p>
@@ -963,7 +969,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/pdf-tindakan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-pdf nav-icon text-danger"></i>
                                         <p>PDF Tindakan</p>
                                     </a>
                                 </li>
@@ -975,32 +981,32 @@
                                 </li> --}}
                                 <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-bulanan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-alt nav-icon text-primary"></i>
                                         <p>Rekap Pendapatan Bulanan</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-harian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-day nav-icon text-info"></i>
                                         <p>Rekap Pendapatan Harian</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-asuransi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-shield-alt nav-icon text-teal"></i>
                                         <p>Rekap Pendapatan Asuransi</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/rekap-pendapatan-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-clinic-medical nav-icon text-success"></i>
                                         <p>Rekap Pendapatan BPJS</p>
                                     </a>
                                 </li>
                                 @if(\App\Helpers\AksesHelper::cek('/pendapatan-alat-dokter'))
                                 <li class="nav-item">
                                     <a href="{{ url('/pendapatan-alat-dokter') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tools nav-icon text-warning"></i>
                                         <p>Rekap Alat Dokter</p>
                                     </a>
                                 </li>
@@ -1022,49 +1028,49 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/list-pasein-ralan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-injured nav-icon text-info"></i>
                                         <p>List Pasien Ralan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/list-pasein-ralan2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-users nav-icon text-teal"></i>
                                         <p>List Pasien Ralan 2</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/list-pasein-ranap') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bed nav-icon text-warning"></i>
                                         <p>List Pasien Ranap</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/list-pasein-ranap2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-procedures nav-icon text-orange"></i>
                                         <p>List Pasien Ranap 2</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/data-inacbg') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-laptop-medical nav-icon text-primary"></i>
                                         <p>Inacbg</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/casemix-home') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-archive nav-icon text-purple"></i>
                                         <p>Gabung Berkas</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/bpjs/croscek-pasien-pulang') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-check nav-icon text-success"></i>
                                         <p>Croscek Pasien Pulang</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/croscheck-coding') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-spell-check nav-icon text-danger"></i>
                                         <p>Cross Check Coding</p>
                                     </a>
                                 </li>
@@ -1073,7 +1079,7 @@
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-sliders-h nav-icon text-secondary"></i>
                                             <p>Setting Casemix</p>
                                         </a>
                                     </li>
@@ -1094,19 +1100,19 @@
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ url('list-pasien-farmasi') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-file-invoice-dollar nav-icon text-warning"></i>
                                             <p>Piutang Obat & Alkes</p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('list-pasien-farmasi2') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-receipt nav-icon text-info"></i>
                                             <p>Piutang Obat & Alkes 2</p>
                                         </a>
                                     </li>
                                 <li class="nav-item">
                                         <a href="{{ url('minimal-stok-obat') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-exclamation-triangle nav-icon text-danger"></i>
                                             <p>Stok Minimal Obat</p>
                                         </a>
                                     </li>
@@ -1125,7 +1131,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('pre-claim-validator') }}" class="nav-link" target="_blank">
-                                        <i class="fas fa-clipboard-check nav-icon"></i>
+                                        <i class="fas fa-clipboard-check nav-icon text-success"></i>
                                         <p>
                                             Kroscek Klaim BPJS
                                             <span class="badge badge-success right">New</span>
@@ -1134,7 +1140,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('kirim-taskid-bpjs') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-paper-plane nav-icon text-info"></i>
                                         <p>
                                             Cekin / Kirim TaskID
                                             <span class="badge badge-info right">dev</span>
@@ -1143,7 +1149,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('kirim-taskid-bpjs2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-share-square nav-icon text-teal"></i>
                                         <p>
                                             Kirim TaskID 2
                                             <span class="badge badge-info right">dev</span>
@@ -1152,7 +1158,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('update-jadwal-dokter') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-alt nav-icon text-primary"></i>
                                         <p>
                                             HFIS
                                             <span class="badge badge-info right">dev</span>
@@ -1161,7 +1167,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('sep-vclaim') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-contract nav-icon text-success"></i>
                                         <p>
                                             Simpan SEP Vclaim
                                             <span class="badge badge-info right">dev</span>
@@ -1170,7 +1176,7 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('icare') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-heartbeat nav-icon text-danger"></i>
                                         <p>
                                             Icare
                                             <span class="badge badge-info right">dev</span>
@@ -1194,7 +1200,7 @@
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ url('anjungan-mandiri') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-desktop nav-icon text-info"></i>
                                             <p>Anjungan Mandiri</p>
                                         </a>
                                     </li>
@@ -1203,19 +1209,19 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('antrian-pendaftaran') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-list-ol nav-icon text-primary"></i>
                                         <p>List Pendaftaran</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('antrian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bullhorn nav-icon text-success"></i>
                                         <p>Panggil Pasien <span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('antrian/tv') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tv nav-icon text-teal"></i>
                                         <p>Display TV Baru <span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
@@ -1232,43 +1238,43 @@
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('regperiksabilling') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-notes-medical nav-icon text-info"></i>
                                         <p>Reg Periksa</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('info-kamar-ruangan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-cogs nav-icon text-secondary"></i>
                                         <p>Setting Ruangan/Kamar</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('info-kamar') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-door-open nav-icon text-warning"></i>
                                         <p>Info Kamar</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('info-kamar2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-hotel nav-icon text-orange"></i>
                                         <p>Info Kamar 2</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/info-kamar3') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-mobile-alt nav-icon text-success"></i>
                                         <p>Info Kamar 3 <span class="text-xs">(MJKN)</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('info-kamar-baru') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bed nav-icon text-teal"></i>
                                         <p>Info Kamar 4<span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('setting-antrian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-sliders-h nav-icon text-primary"></i>
                                         <p>Setting Antrian</p>
                                     </a>
                                 </li>
@@ -1287,19 +1293,19 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('antrian-poli') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-desktop nav-icon text-info"></i>
                                         <p>List Display</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('setting-antrian-poli') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-cog nav-icon text-warning"></i>
                                         <p>Setting Poli</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('jadwal-dokter') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-check nav-icon text-success"></i>
                                         <p>Jadwal Dokter</p>
                                     </a>
                                 </li>
@@ -1317,43 +1323,43 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('antrian-farmasi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-ticket-alt nav-icon text-primary"></i>
                                         <p>Ambil Antrian</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('farmasi/antrian') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bullhorn nav-icon text-info"></i>
                                         <p>Panggil Antrian</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('antrian-farmasi/panggil') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-volume-up nav-icon text-teal"></i>
                                         <p>Panggil Antrian<span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('antrian-farmasi-baru') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tv nav-icon text-success"></i>
                                         <p>Display Farmasi<span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('antrian-farmasi/display-v2') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-desktop nav-icon text-warning"></i>
                                         <p>Display Farmasi V2<span class="badge bg-success">Baru</span></p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('display-farmasi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-photo-video nav-icon text-info"></i>
                                         <p>Display TV</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/waktu-tunggu-farmasi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-stopwatch nav-icon text-danger"></i>
                                         <p>Waktu Tunggu Farmasi</p>
                                     </a>
                                 </li>
@@ -1371,109 +1377,109 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('laporan-borlosetc') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-chart-pie nav-icon text-primary"></i>
                                         <p>Sensus Bulanan</p>
                                     </a>
                                 </li>
                                    <li class="nav-item">
                                     <a href="{{ url('kroscek-pasien') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-check nav-icon text-success"></i>
                                         <p>Kroscek Pasien</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('kroscek-general-consent') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-signature nav-icon text-info"></i>
                                         <p>Kroscek General Consent</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('laporan-pasien') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-medical nav-icon text-teal"></i>
                                         <p>Laporan Pasien</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('rm/diagnosa') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-stethoscope nav-icon text-warning"></i>
                                         <p>Diagnosa Pasien</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('berkas-rm') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-folder-open nav-icon text-success"></i>
                                         <p>Berkas Pasien BPJS</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('waktu-tunggu-pasien-bayar') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-cash-register nav-icon text-info"></i>
                                         <p>Pasien Bayar</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('rawat-jalan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-walking nav-icon text-primary"></i>
                                         <p>Rawat Jalan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('kunjungan-ralan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-calendar-day nav-icon text-cyan"></i>
                                         <p>Kunjungan Ralan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('status-data-rm') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tasks nav-icon text-warning"></i>
                                         <p>Status Data RM</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('pasien-pulang-ranap') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-door-open nav-icon text-success"></i>
                                         <p>Pasien Pulang Ranap</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('pasien-ranap-igd') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-ambulance nav-icon text-danger"></i>
                                         <p>Pasien Ranap IGD</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('pasien-per-episode') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-history nav-icon text-indigo"></i>
                                         <p>Pasien Per Episode</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('tabulasi-igd') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-table nav-icon text-danger"></i>
                                         <p>Tabulasi Pasien IGD</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('pasien-meninggal') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-ribbon nav-icon text-secondary"></i>
                                         <p>Pasien Meninggal</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('jumlah-pasien') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-chart-bar nav-icon text-info"></i>
                                         <p>Jumlah Pasien</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('skrining-ispa') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-head-side-mask nav-icon text-warning"></i>
                                         <p>Skrining ISPA</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('kodingan-rm') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-code nav-icon text-purple"></i>
                                         <p>Kodingan Versi RM</p>
                                     </a>
                                 </li>
@@ -1491,19 +1497,19 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('rawat-inap') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-procedures nav-icon text-warning"></i>
                                         <p>Rawat Inap</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('infokamarinap') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bed nav-icon text-info"></i>
                                         <p>Info Kamar Inap</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('kamar-inap-dr') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-md nav-icon text-success"></i>
                                         <p>Rawat Inap DPJP</p>
                                     </a>
                                 </li>
@@ -1512,7 +1518,7 @@
 
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-boxes-stacked"></i>
+                                <i class="nav-icon fas fa-boxes"></i>
                                 <p>
                                     Inventaris
                                     <i class="right fas fa-angle-left"></i>
@@ -1521,7 +1527,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('inventaris-barang') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-print nav-icon text-teal"></i>
                                         <p>Cetak Inventaris</p>
                                     </a>
                                 </li>
@@ -1538,7 +1544,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('laboratorium') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-vial nav-icon text-danger"></i>
                                         <p>Pemeriksaan LAB</p>
                                     </a>
                                 </li>
@@ -1556,38 +1562,38 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.rajal.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-fingerprint nav-icon text-info"></i>
                                         <p>Biometrik Rajal</p>
                                     </a>
                                 </li>
                                 {{-- kalau ada tambahan submenu, tinggal taruh di sini --}}
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.ranap.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-fingerprint nav-icon text-warning"></i>
                                         <p>Biometrik Ranap</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.rajal.listSuratRj') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-list nav-icon text-teal"></i>
                                         <p>List Biometrik Rajal</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.rajal.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-edit nav-icon text-primary"></i>
                                         <p>Input SEP Biom Rajal</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.ranap.listSuratRi') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-clipboard-list nav-icon text-orange"></i>
                                         <p>List Biometrik Ranap</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('biometrik.ranap.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-medical nav-icon text-success"></i>
                                         <p>Input SEP Biom Ranap</p>
                                     </a>
                                 </li>
@@ -1608,19 +1614,19 @@
 
                                 <li class="nav-item">
                                     <a href="{{ url('/mjkn') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-mobile-alt nav-icon text-success"></i>
                                         <p>Ambil Antrean M-JKN</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/mjkn/taskid') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tasks nav-icon text-info"></i>
                                         <p>Task ID BPJS</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/bpjs/mjkn/antrean') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-paper-plane nav-icon text-primary"></i>
                                         <p>Kirim Task Id M-JKN</p>
                                     </a>
                                 </li>
@@ -1649,7 +1655,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/gizi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-utensils nav-icon text-warning"></i>
                                         <p>Data Diet Pasien</p>
                                     </a>
                                 </li>
@@ -1667,7 +1673,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/urologi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-x-ray nav-icon text-teal"></i>
                                         <p>Urologi USG</p>
                                     </a>
                                 </li>
@@ -1686,13 +1692,13 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/skriningtbc') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-lungs-virus nav-icon text-danger"></i>
                                         <p>Skrining TBC</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/skrining-tbc') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-medical-alt nav-icon text-warning"></i>
                                         <p>Data Skrining TBC</p>
                                     </a>
                                 </li>
@@ -1710,13 +1716,13 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('home-keperawatan') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-nurse nav-icon text-pink"></i>
                                         <p>Kegiatan Keperawtan</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/pasien-lebih-dari-1') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-injured nav-icon text-warning"></i>
                                         <p>Pasien >1 Berobat</p>
                                     </a>
                                 </li>
@@ -1735,19 +1741,19 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/fisioterapi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-running nav-icon text-success"></i>
                                         <p>Pasien Fisioterapi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/antrian-fisioterapi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-bullhorn nav-icon text-info"></i>
                                         <p>Panggil Pasien</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/display-fisioterapi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tv nav-icon text-teal"></i>
                                         <p>Display Panggilan</p>
                                     </a>
                                 </li>
@@ -1764,13 +1770,13 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/laporan-lab/anti-hiv') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-ribbon nav-icon text-danger"></i>
                                         <p>Pasien HIV</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/lab/gambaran-darah-tepi') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-tint nav-icon text-red"></i>
                                         <p>Gambaran Darah Tepi</p>
                                     </a>
                                 </li>
@@ -1788,13 +1794,13 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/pemesanan-farmasi') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-truck-loading nav-icon text-info"></i>
                                         <p>Pemesanan Farmasi</p>
                                     </a>
                                 </li>
                             <li class="nav-item">
                                     <a href="{{ url('/belanja') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-shopping-cart nav-icon text-success"></i>
                                         <p>Rencana Belanja Farmasi</p>
                                     </a>
                                 </li>
@@ -1812,7 +1818,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ route('pkpa.monitoring') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-user-graduate nav-icon text-purple"></i>
                                         <p>Monitoring PKPA</p>
                                     </a>
                                 </li>
@@ -1829,7 +1835,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/listnama') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-envelope nav-icon text-info"></i>
                                         <p>List Nama Pasien</p>
                                     </a>
                                 </li>
@@ -1859,7 +1865,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="{{ url('/berkas-pegawai') }}" class="nav-link" target="_blank">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-file-upload nav-icon text-danger"></i>
                                         <p>Upload Berkas Pegawai
                                             <span class="badge badge-danger right">NEW</span>
                                         </p>
@@ -1867,7 +1873,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ route('berkas.pegawai.semua') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                        <i class="fas fa-folder-open nav-icon text-primary"></i>
                                         <p>Semua Berkas Pegawai</p>
                                     </a>
                                 </li>
@@ -1961,7 +1967,6 @@
         </aside>
     </div>
 
-    @stack('scripts')
     <script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
     <script>
         $.widget.bridge("uibutton", $.ui.button);

@@ -184,20 +184,23 @@
         .footer-tv {
             background: #004d40;
             color: #fff;
-            padding: 1rem 2rem;
+            padding: .7rem 1.5rem;
             font-size: 1.2rem;
             position: fixed;
             bottom: 0;
+            left: 0;
+            right: 0;
             width: 100%;
             overflow: hidden;
-            z-index: 999;
+            z-index: 9999;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
         }
 
         .footer-tv span {
             display: inline-block;
             white-space: nowrap;
             padding-left: 100%;
-            animation: marquee 20s linear infinite;
+            animation: marquee 55s linear infinite;
             font-weight: 700;
             letter-spacing: 1px;
         }
@@ -381,7 +384,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="footer-tv">
-        <span>Selamat datang di Rumah Sakit Bumi Waras - Harap menunggu panggilan sesuai nomor antrian Anda.</span>
+    <div class="footer-tv" wire:ignore>
+        <span>Selamat datang di Rumah Sakit Bumi Waras | Layanan cepat, nyaman, dan profesional | Terima kasih telah menunggu dengan sabar 🙏 &nbsp;&bull;&nbsp; 📋 <strong>5 JANJI LAYANAN JAMINAN KESEHATAN NASIONAL (JKN):</strong> 1. Tanpa Fotokopi Dokumen (Menerima KTP/KK/KIS/KIS Digital) &bull; 2. Pelayanan Sesuai Jadwal Praktik Dokter &bull; 3. Obat Sesuai Indikasi Medis & Formularium Nasional &bull; 4. Tanpa Biaya Tambahan di Luar Ketentuan &bull; 5. Pelayanan Ramah, Responsif, dan Informatif tanpa diskriminasi &nbsp;&bull;&nbsp; 📢 <strong>INFORMASI LAYANAN KURANG JELAS?</strong> Sampaikan kepada kami dengan Scan QR POROS (1 QR Code untuk 3 Akses Layanan: SIPP Informasi & Pengaduan, KESSAN Kesan & Pesan, dan Web Skrining Riwayat Kesehatan) | Suara Anda membantu kami memperbaiki kualitas pelayanan JKN | 📞 PANDAWA: 0811 8 165 165 | ☎️ Care Center: 165 | 📲 Mobile JKN</span>
     </div>
 </div>
