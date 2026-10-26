@@ -1085,7 +1085,7 @@
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
-                                            <i class="far fa-circle nav-icon"></i>
+                                            <i class="fas fa-sliders-h nav-icon text-secondary"></i>
                                             <p>Setting Casemix</p>
                                         </a>
                                     </li>

@@ -11,7 +11,7 @@
                 </div>
             @endif
             <section class="content ">
-                <<div class="row">
+                <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
                             <div class="input-group input-group-xs">
