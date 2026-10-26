@@ -16,13 +16,13 @@ class SettingBpjs extends Component
     public function mount()
     {
         $this->loadSetting();
-        $this->loadCasemix();
+        $this->loadDataCasemix = collect([]);
     }
 
     public function render()
     {
         return view('livewire.bpjs.setting-bpjs', [
-            'getDataListCasemix' => $this->loadDataCasemix,
+            'getDataListCasemix' => $this->loadDataCasemix ?? collect([]),
         ]);
     }
 
@@ -31,7 +31,12 @@ class SettingBpjs extends Component
      */
     public function loadCasemix()
     {
-        $query = DB::table('file_casemix')
+        if (empty(trim((string) $this->cariNomor))) {
+            $this->loadDataCasemix = collect([]);
+            return;
+        }
+
+        $this->loadDataCasemix = DB::table('file_casemix')
             ->select(
                 'id',
                 'no_rkm_medis',
@@ -39,17 +44,12 @@ class SettingBpjs extends Component
                 'nama_pasein',
                 'jenis_berkas',
                 'file'
-            );
-
-        if (!empty($this->cariNomor)) {
-            $query->where(function ($q) {
+            )
+            ->where(function ($q) {
                 $q->where('no_rkm_medis', $this->cariNomor)
                     ->orWhere('no_rawat', $this->cariNomor)
                     ->orWhere('nama_pasein', 'like', '%' . $this->cariNomor . '%');
-            });
-        }
-
-        $this->loadDataCasemix = $query
+            })
             ->orderByDesc('id')
             ->limit(500)
             ->get();
