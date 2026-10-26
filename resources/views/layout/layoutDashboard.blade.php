@@ -1075,18 +1075,22 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
-                                        <i class="fas fa-layer-group nav-icon text-secondary"></i>
-                                        <p>Setting Bundling</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a href="{{ url('/setting-kunjungan-fisio') }}" class="nav-link" target="_blank">
                                         <i class="fas fa-stethoscope nav-icon text-success"></i>
                                         <p>Setting Kunjungan Fisio</p>
                                     </a>
                                 </li>
                             </ul>
+                            @if (session('obat') === 'true')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Setting Casemix</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endif
                         </li>
 @endif
                         {{-- MENU FARMASI --}}
