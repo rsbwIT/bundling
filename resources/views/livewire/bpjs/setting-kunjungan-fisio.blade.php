@@ -1,9 +1,14 @@
 <div>
     <div class="card card-outline card-success shadow-sm">
-        <div class="card-header bg-success text-white">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
             <h5 class="card-title font-weight-bold mb-0">
                 <i class="fas fa-stethoscope mr-2"></i> Setting Nilai Kunjungan Fisio (Suhu Tubuh)
             </h5>
+            <div class="card-tools">
+                <a href="{{ url('/setting-bpjs-casemix') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-layer-group mr-1"></i> Ke Setting Bundling
+                </a>
+            </div>
         </div>
         <div class="card-body">
             @if (Session::has('message'))

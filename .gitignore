@@ -17,3 +17,5 @@ scratch*
 breakdown.txt
 dump_pa.txt
 fix_controller.php
+/public/hasil_farmasi_pdf/*.pdf
+/public/hasil_pdf/*.pdf
