@@ -271,7 +271,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/print-casemix', [PrintCesmikController::class, 'printCasemix']);
         Route::post('/gabung-berkas-casemix', [GabungBerkas::class, 'gabungBerkas']);
         Route::get('/data-inacbg', [DataInacbg::class, 'Inacbg']);
-        Route::get('/setting-bpjs-casemix', [SettingBpjs::class, 'settingBpjsCasemix']);
+        Route::get('/setting-bpjs-casemix', [SettingBpjs::class, 'settingBpjsCasemix'])->name('setting.bpjs.casemix');
+        Route::get('/setting-kunjungan-fisio', function () {
+            return view('bpjs.setting-kunjungan-fisio');
+        })->name('setting.kunjungan.fisio');
         Route::get('/croscheck-coding', [HomeCasemix::class, 'crosCheckCoding']);
         Route::get('/bpjs/croscek-pasien-pulang', [CroscekPasienPulang::class, 'index'])
             ->name('bpjs.croscekpasienpulang');

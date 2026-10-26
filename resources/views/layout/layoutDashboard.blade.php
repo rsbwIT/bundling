@@ -1016,7 +1016,7 @@
                         {{-- MENU CASEMIX --}}
                         <li class="nav-header user-panel"></li>
                         <li class="nav-header">Gabung Berkas - Tools</li>
-@if(\App\Helpers\AksesHelper::cekAny(['/list-pasein-ralan', '/list-pasein-ralan2', '/list-pasein-ranap', '/list-pasein-ranap2', '/data-inacbg', '/casemix-home', '/bpjs/croscek-pasien-pulang', '/croscheck-coding', '/setting-bpjs-casemix']))
+@if(\App\Helpers\AksesHelper::cekAny(['/list-pasein-ralan', '/list-pasein-ralan2', '/list-pasein-ranap', '/list-pasein-ranap2', '/data-inacbg', '/casemix-home', '/bpjs/croscek-pasien-pulang', '/croscheck-coding', '/setting-bpjs-casemix', '/setting-kunjungan-fisio']))
                         <li class="nav-item">{{-- menu-open --}}
                             <a href="#" class="nav-link">{{-- active --}}
                                 <i class="nav-icon fas fa-hospital"></i>
@@ -1074,17 +1074,19 @@
                                         <p>Cross Check Coding</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-layer-group nav-icon text-secondary"></i>
+                                        <p>Setting Bundling</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/setting-kunjungan-fisio') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-stethoscope nav-icon text-success"></i>
+                                        <p>Setting Kunjungan Fisio</p>
+                                    </a>
+                                </li>
                             </ul>
-                            @if (session('obat') === 'true')
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ url('/setting-bpjs-casemix') }}" class="nav-link" target="_blank">
-                                            <i class="fas fa-sliders-h nav-icon text-secondary"></i>
-                                            <p>Setting Casemix</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            @endif
                         </li>
 @endif
                         {{-- MENU FARMASI --}}
@@ -1751,10 +1753,16 @@
                                         <p>Panggil Pasien</p>
                                     </a>
                                 </li>
-                            <li class="nav-item">
+                                <li class="nav-item">
                                     <a href="{{ url('/display-fisioterapi') }}" class="nav-link" target="_blank">
                                         <i class="fas fa-tv nav-icon text-teal"></i>
                                         <p>Display Panggilan</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/setting-kunjungan-fisio') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-sliders-h nav-icon text-warning"></i>
+                                        <p>Setting Kunjungan Fisio</p>
                                     </a>
                                 </li>
                             </ul>

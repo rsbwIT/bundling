@@ -47,14 +47,26 @@
                                         @csrf
                                         <input name="cariNorawat" value="{{ $printNoRawat }}" hidden>
                                         <input name="cariNoSep" value="{{ $cariNoSep }}" hidden>
-                                        <button type="submit" class="btn btn-success float-right">
-                                            <i class="fas fa-save"> Simpan PDF</i>
+                                        <button type="submit" class="btn btn-success float-right ml-2">
+                                            <i class="fas fa-save mr-1"></i> Simpan PDF
                                         </button>
                                     </form>
+                                    <a href="{{ url('/setting-kunjungan-fisio') }}" target="_blank" class="btn btn-outline-success float-right ml-2">
+                                        <i class="fas fa-stethoscope mr-1"></i> Setting Fisio
+                                    </a>
+                                    <a href="{{ url('/setting-bpjs-casemix') }}" target="_blank" class="btn btn-outline-secondary float-right">
+                                        <i class="fas fa-layer-group mr-1"></i> Setting Bundling
+                                    </a>
                                 </div>
                             </div>
                         @else
                             <div class="col-md-8">
+                                <a href="{{ url('/setting-kunjungan-fisio') }}" target="_blank" class="btn btn-outline-success float-right ml-2">
+                                    <i class="fas fa-stethoscope mr-1"></i> Setting Fisio
+                                </a>
+                                <a href="{{ url('/setting-bpjs-casemix') }}" target="_blank" class="btn btn-outline-secondary float-right">
+                                    <i class="fas fa-layer-group mr-1"></i> Setting Bundling
+                                </a>
                             </div>
                         @endif
                     </div>
