@@ -932,6 +932,9 @@ Route::get('/bpjs/monitoring-bridging', [MonitoringBridgingController::class, 'i
 
 // BPJS Signal Monitoring Route (Status Ping)
 Route::get('/bpjs/monitoring-signal', [MonitoringSignalController::class, 'index'])->name('bpjs.signal');
+Route::post('/bpjs/monitoring-signal/check', [MonitoringSignalController::class, 'checkSignal'])->name('bpjs.monitoring.check');
+Route::get('/bpjs/monitoring-signal/logs', [MonitoringSignalController::class, 'getLogs'])->name('bpjs.monitoring.logs');
+Route::get('/bpjs/monitoring-signal/pdf', [MonitoringSignalController::class, 'exportPdf'])->name('bpjs.monitoring.pdf');
 Route::get('/pre-claim-validator', [App\Http\Controllers\Bpjs\PreClaimValidatorController::class, 'index'])->name('bpjs.pre_claim_validator');
 
 // -- MJKN --
