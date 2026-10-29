@@ -350,7 +350,14 @@ class bridginginacbg2 extends Controller
             $diastole = trim($pecah[1] ?? 90);
         }
 
-        $prosedur_non_bedah = 0;
+        $prosedur_non_bedah = DB::table('billing')
+            ->where('no_rawat', $norawat)
+            ->whereIn('status', ['Ralan Dokter Paramedis', 'Ranap Dokter Paramedis'])
+            ->where(function ($q) {
+                $q->where('nm_perawatan', 'not like', '%terapi%')
+                    ->where('nm_perawatan', 'not like', '%Electrical%');
+            })
+            ->sum('totalbiaya');
 
         $prosedur_bedah = DB::table('billing')
             ->where('no_rawat', $norawat)
@@ -391,7 +398,10 @@ class bridginginacbg2 extends Controller
             ->where('status', 'Laborat')
             ->sum('totalbiaya');
 
-        $pelayanan_darah = 0;
+        $pelayanan_darah = DB::table('billing')
+            ->where('no_rawat', $norawat)
+            ->where('nm_perawatan', 'like', '%tranfusi darah%')
+            ->sum('totalbiaya');
 
         $rehabilitasi = DB::table('billing')
             ->where('no_rawat', $norawat)
@@ -439,6 +449,11 @@ class bridginginacbg2 extends Controller
             ->where('no_rawat', $norawat)
             ->whereIn('status', ['Harian', 'Service'])
             ->sum('totalbiaya');
+
+        $total_tarif_rs = $prosedur_non_bedah + $prosedur_bedah + $konsultasi + $tenaga_ahli + $keperawatan
+            + $penunjang + $radiologi + $laboratorium + $pelayanan_darah + $rehabilitasi
+            + $kamar + $rawat_intensif + $obat + $obat_kronis + $obat_kemoterapi
+            + $alkes + $bmhp + $sewa_alat;
 
         $resume = null;
         if ($pasien->status_lanjut == 'Ranap') {
@@ -541,7 +556,8 @@ class bridginginacbg2 extends Controller
             'triaseDetailSkala',
             'masterKasus',
             'petugasTriase',
-            'infoPasienTriase'
+            'infoPasienTriase',
+            'total_tarif_rs'
         ));
     }
 

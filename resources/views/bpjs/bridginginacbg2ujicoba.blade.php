@@ -716,6 +716,12 @@ body.dark-mode .readonly {
                     <tr><td class="tarif-name">Biaya Alkes</td><td><input type="number" name="alkes" value="{{ $alkes }}"></td></tr>
                     <tr><td class="tarif-name">Biaya BMHP</td><td><input type="number" name="bmhp" value="{{ $bmhp }}"></td></tr>
                     <tr><td class="tarif-name">Biaya Sewa Alat</td><td><input type="number" name="sewa_alat" value="{{ $sewa_alat }}"></td></tr>
+                    <tr style="background:#eaf2fd; border-top: 2px solid #0d6efd;">
+                        <td class="tarif-name" style="font-weight: bold; color: #0d6efd;">Total Tarif Rumah Sakit</td>
+                        <td>
+                            <input type="text" id="total_tarif_rs" readonly style="font-weight: bold; color: #0d6efd; background: #eaf2fd;" value="Rp {{ number_format($total_tarif_rs ?? 0, 0, ',', '.') }}">
+                        </td>
+                    </tr>
                 </table>
 
                 <div class="btn-area d-flex flex-wrap" style="gap: 10px;">
