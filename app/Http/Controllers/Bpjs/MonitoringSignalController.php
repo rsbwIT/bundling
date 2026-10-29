@@ -12,6 +12,10 @@ class MonitoringSignalController extends Controller
 {
     public function index()
     {
+        // SEMENTARA DIMATIKAN: tampilkan pesan dashboard belum bisa diakses.
+        // Hapus baris return di bawah untuk mengaktifkan kembali.
+        return view('bpjs.monitoring_signal_off');
+
         // Daftar Endpoint Layanan Terintegrasi
         $services = [
             // Kategori: BPJS Kesehatan Cloud
