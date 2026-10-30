@@ -59,13 +59,16 @@ class SettingFisioService
     }
 
     /**
-     * Simpan array nilai suhu_tubuh ke database (bw_setting_fisio) dan file JSON backup.
+     * Simpan array nilai suhu_tubuh ke database (bw_setting_fisio), catat ke tracker log, dan file JSON backup.
      * 
      * @param array $values
+     * @param string|null $keteranganCustom
      * @return bool
      */
-    public static function setSuhuTubuhFisio(array $values): bool
+    public static function setSuhuTubuhFisio(array $values, ?string $keteranganCustom = null): bool
     {
+        $oldValues = self::getSuhuTubuhFisio();
+
         $cleaned = array_values(array_unique(array_filter(array_map('trim', array_map('strval', $values)), function ($val) {
             return $val !== '';
         })));
@@ -92,7 +95,14 @@ class SettingFisioService
             return false;
         }
 
-        // 2. Simpan juga backup ke file JSON
+        // 2. Catat ke Tracker Log (bw_setting_fisio_log dan bw_tracker_log_reg2)
+        try {
+            self::recordTrackerLog($oldValues, $cleaned, $keteranganCustom);
+        } catch (\Throwable $e) {
+            Log::warning('SettingFisioService Tracker Log Error: ' . $e->getMessage());
+        }
+
+        // 3. Simpan juga backup ke file JSON
         try {
             $dir = storage_path('app');
             if (!is_dir($dir)) {
@@ -110,6 +120,84 @@ class SettingFisioService
         }
 
         return true;
+    }
+
+    /**
+     * Catat log aktivitas perubahan ke tabel database tracker
+     */
+    public static function recordTrackerLog(array $oldValues, array $newValues, ?string $keteranganCustom = null): void
+    {
+        $auth = session('auth');
+        $userObj = session('user');
+
+        $userId = null;
+        $userName = null;
+
+        // Ambil ID User / NIK
+        if (is_array($auth) && isset($auth['id_user'])) {
+            $userId = (string) $auth['id_user'];
+        } elseif (is_object($auth) && isset($auth->id_user)) {
+            $userId = (string) $auth->id_user;
+        } elseif (is_object($userObj)) {
+            $userId = (string) ($userObj->nik ?? ($userObj->id_user ?? null));
+        } elseif (is_array($userObj)) {
+            $userId = (string) ($userObj['nik'] ?? ($userObj['id_user'] ?? null));
+        }
+
+        // Ambil Nama User
+        if (is_object($userObj) && !empty($userObj->nama)) {
+            $userName = (string) $userObj->nama;
+        } elseif (is_array($userObj) && !empty($userObj['nama'])) {
+            $userName = (string) $userObj['nama'];
+        } elseif (is_array($auth) && !empty($auth['nama'])) {
+            $userName = (string) $auth['nama'];
+        }
+
+        // Cari ke database pegawai jika nama belum didapat
+        if (!$userName && $userId) {
+            try {
+                $peg = DB::table('pegawai')->select('nama')->where('nik', $userId)->first();
+                if ($peg) {
+                    $userName = $peg->nama;
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
+
+        $userId = $userId ?: '01091999';
+        $userName = $userName ?: $userId;
+
+        $oldStr = !empty($oldValues) ? '[' . implode(', ', $oldValues) . ']' : '[Kosong]';
+        $newStr = !empty($newValues) ? '[' . implode(', ', $newValues) . ']' : '[Kosong]';
+        
+        $keterangan = $keteranganCustom ?: "Mengubah nilai kunjungan fisio dari {$oldStr} menjadi {$newStr}";
+        $ip = request()->ip() ?? '127.0.0.1';
+
+        // 1. Simpan ke tabel tracker khusus bw_setting_fisio_log
+        if (Schema::hasTable('bw_setting_fisio_log')) {
+            DB::table('bw_setting_fisio_log')->insert([
+                'id_user' => $userId,
+                'nama_user' => $userName,
+                'aksi' => 'UPDATE_SETTING',
+                'nilai_lama' => json_encode($oldValues),
+                'nilai_baru' => json_encode($newValues),
+                'keterangan' => $keterangan,
+                'ip_address' => $ip,
+                'created_at' => now(),
+            ]);
+        }
+
+        // 2. Simpan juga ke bw_tracker_log_reg2 agar sinkron dengan log global
+        if (Schema::hasTable('bw_tracker_log_reg2')) {
+            DB::table('bw_tracker_log_reg2')->insert([
+                'id_user' => $userId,
+                'nama_user' => $userName,
+                'tanggal' => now(),
+                'status' => 'UPDATE_SETTING_FISIO',
+                'keterangan' => $keterangan,
+            ]);
+        }
     }
 
     /**

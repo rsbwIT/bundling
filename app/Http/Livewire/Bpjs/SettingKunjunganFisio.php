@@ -3,23 +3,59 @@
 namespace App\Http\Livewire\Bpjs;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Services\SettingFisioService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 
 class SettingKunjunganFisio extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
     public $suhuTubuhFisio = [];
     public $customSuhuFisio = '';
+    public $searchTracker = '';
 
     public function mount()
     {
         $this->loadSetting();
     }
 
+    public function updatingSearchTracker()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $currentUserId = (string) (session('auth')['id_user'] ?? (session('user')['id_user'] ?? ''));
+        $canViewTracker = ($currentUserId === '01091999');
+
+        $logs = [];
+        if ($canViewTracker && Schema::hasTable('bw_setting_fisio_log')) {
+            $query = DB::table('bw_setting_fisio_log')
+                ->orderBy('created_at', 'desc');
+
+            if (!empty($this->searchTracker)) {
+                $search = '%' . trim($this->searchTracker) . '%';
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_user', 'like', $search)
+                      ->orWhere('id_user', 'like', $search)
+                      ->orWhere('keterangan', 'like', $search)
+                      ->orWhere('ip_address', 'like', $search);
+                });
+            }
+
+            $logs = $query->paginate(10);
+        }
+
         return view('livewire.bpjs.setting-kunjungan-fisio', [
             'suhuTubuhFisio' => $this->suhuTubuhFisio,
+            'logs' => $logs,
+            'canViewTracker' => $canViewTracker,
         ]);
     }
 
