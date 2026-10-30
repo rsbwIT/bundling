@@ -17,46 +17,17 @@
                         <label class="font-weight-bold text-xs">Pilih Dokter / Petugas:</label>
                         <select name="kd_dokter" class="form-control form-control-sm select2" style="width: 100%;" required>
                             <option value="">-- Pilih Dokter / Petugas --</option>
-                            
-                            @if(count($listDokterSpesialis) > 0)
-                                <optgroup label="Dokter Spesialis">
-                                    @foreach ($listDokterSpesialis as $doc)
-                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-
-                            @if(count($listDokterUmum) > 0)
-                                <optgroup label="Dokter Umum">
-                                    @foreach ($listDokterUmum as $doc)
-                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-
-                            @if(count($listPetugasHD) > 0)
-                                <optgroup label="Tim Hemodialisa (HD)">
-                                    @foreach ($listPetugasHD as $doc)
-                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
-
-                            @if(count($listPetugas) > 0)
-                                <optgroup label="Petugas / Paramedis">
-                                    @foreach ($listPetugas as $doc)
-                                        <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                            {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endif
+                            @foreach ($categories as $cat)
+                                @if(count($cat['items']) > 0)
+                                    <optgroup label="{{ $cat['nama'] }} ({{ $cat['badge'] }})">
+                                        @foreach ($cat['items'] as $doc)
+                                            <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
+                                                {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 col-sm-6 mb-2">
@@ -92,8 +63,8 @@
                         <button type="submit" class="btn btn-sm btn-primary flex-fill mr-1">
                             <i class="fas fa-search mr-1"></i> Tampilkan
                         </button>
-                        <button type="button" class="btn btn-sm btn-success flex-fill mr-1" data-toggle="modal" data-target="#modalDownloadBanyakDokter">
-                            <i class="fas fa-file-pdf mr-1"></i> Cetak PDF (Banyak Dokter)
+                        <button type="button" class="btn btn-sm btn-success flex-fill mr-1 font-weight-bold" data-toggle="modal" data-target="#modalDownloadBanyakDokter">
+                            <i class="fas fa-layer-group mr-1"></i> Cetak PDF Banyak (Per Kategori)
                         </button>
                         @if ($kdDokter)
                             @php
@@ -722,136 +693,184 @@
         </div>
     </div>
 
-    {{-- Modal Download PDF Banyak Dokter --}}
+    {{-- Modal Download PDF Banyak Dokter & Petugas Per Kategori --}}
     <div class="modal fade" id="modalDownloadBanyakDokter" tabindex="-1" role="dialog" aria-labelledby="modalDownloadBanyakDokterLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <form action="{{ url('/pdf-tindakan') }}" method="GET" target="_blank">
                     <input type="hidden" name="filter_submitted" value="1">
                     <input type="hidden" name="export" value="zip">
                     
-                    <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold" id="modalDownloadBanyakDokterLabel">Cetak PDF Banyak Dokter</h5>
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title font-weight-bold text-dark" id="modalDownloadBanyakDokterLabel">
+                            <i class="fas fa-layer-group text-primary mr-2"></i> Cetak / Download PDF Banyak (Pilih Per Kategori)
+                        </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="font-weight-bold text-xs">Tanggal Awal:</label>
+                        {{-- Periode & Pilihan Penjamin --}}
+                        <div class="row bg-light rounded p-2 mb-3 border">
+                            <div class="col-md-3 col-sm-6 mb-2">
+                                <label class="font-weight-bold text-xs mb-1">Tanggal Awal:</label>
                                 <input type="date" name="tgl1" class="form-control form-control-sm" value="{{ $tanggl1 }}" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="font-weight-bold text-xs">Tanggal Akhir:</label>
+                            <div class="col-md-3 col-sm-6 mb-2">
+                                <label class="font-weight-bold text-xs mb-1">Tanggal Akhir:</label>
                                 <input type="date" name="tgl2" class="form-control form-control-sm" value="{{ $tanggl2 }}" required>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="font-weight-bold text-xs d-block">Pilihan Penjamin / Tindakan:</label>
-                            <div class="d-flex align-items-center pt-1">
-                                <div class="custom-control custom-checkbox mr-3">
-                                    <input class="custom-control-input" type="checkbox" id="modalCheckUmum" name="jenis[]" value="umum" {{ in_array('umum', $selectedJenis) ? 'checked' : '' }}>
-                                    <label for="modalCheckUmum" class="custom-control-label font-weight-bold text-xs">Umum</label>
-                                </div>
-                                <div class="custom-control custom-checkbox mr-3">
-                                    <input class="custom-control-input" type="checkbox" id="modalCheckAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
-                                    <label for="modalCheckAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
-                                </div>
-                                <div class="custom-control custom-checkbox mr-3">
-                                    <input class="custom-control-input" type="checkbox" id="modalCheckInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
-                                    <label for="modalCheckInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input class="custom-control-input" type="checkbox" id="modalCheckBpjs" name="jenis[]" value="bpjs" {{ in_array('bpjs', $selectedJenis) ? 'checked' : '' }}>
-                                    <label for="modalCheckBpjs" class="custom-control-label font-weight-bold text-xs">BPJS</label>
+                            <div class="col-md-6 col-sm-12 mb-2">
+                                <label class="font-weight-bold text-xs mb-1 d-block">Pilihan Penjamin / Tindakan:</label>
+                                <div class="d-flex align-items-center pt-1 flex-wrap">
+                                    <div class="custom-control custom-checkbox mr-3 mb-1">
+                                        <input class="custom-control-input" type="checkbox" id="modalCheckUmum" name="jenis[]" value="umum" {{ in_array('umum', $selectedJenis) ? 'checked' : '' }}>
+                                        <label for="modalCheckUmum" class="custom-control-label font-weight-bold text-xs">Umum</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox mr-3 mb-1">
+                                        <input class="custom-control-input" type="checkbox" id="modalCheckAsuransi" name="jenis[]" value="asuransi" {{ in_array('asuransi', $selectedJenis) ? 'checked' : '' }}>
+                                        <label for="modalCheckAsuransi" class="custom-control-label font-weight-bold text-xs">Asuransi</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox mr-3 mb-1">
+                                        <input class="custom-control-input" type="checkbox" id="modalCheckInhealth" name="jenis[]" value="inhealth" {{ in_array('inhealth', $selectedJenis) ? 'checked' : '' }}>
+                                        <label for="modalCheckInhealth" class="custom-control-label font-weight-bold text-xs">Inhealth</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox mb-1">
+                                        <input class="custom-control-input" type="checkbox" id="modalCheckBpjs" name="jenis[]" value="bpjs" {{ in_array('bpjs', $selectedJenis) ? 'checked' : '' }}>
+                                        <label for="modalCheckBpjs" class="custom-control-label font-weight-bold text-xs">BPJS</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <hr>
-                        <label class="font-weight-bold text-xs d-block mb-2">Pilih Dokter / Petugas (Bisa Lebih Dari Satu):</label>
-                        <div class="d-flex mb-2">
-                            <button type="button" class="btn btn-xs btn-outline-primary mr-2" id="btnSelectAllDokter">Pilih Semua</button>
-                            <button type="button" class="btn btn-xs btn-outline-danger" id="btnDeselectAllDokter">Hapus Semua</button>
+
+                        {{-- Info Auto-Skip Gaji 0 --}}
+                        <div class="alert alert-light border py-2 px-3 mb-3 text-xs d-flex align-items-center rounded">
+                            <i class="fas fa-info-circle text-info mr-2 fa-lg"></i>
+                            <div>
+                                <strong>Catatan:</strong> Dokter atau petugas yang tidak memiliki tindakan atau nominalnya <strong>Rp 0 (tidak ada jasa/gaji)</strong> pada rentang tanggal tersebut otomatis dilewati dan tidak dimasukkan ke dalam file ZIP.
+                            </div>
                         </div>
-                        <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
-                            {{-- DOKTER SPESIALIS --}}
-                            @if(count($listDokterSpesialis) > 0)
-                                <h6 class="font-weight-bold text-primary mb-2 mt-2 border-bottom pb-1">Dokter Spesialis</h6>
-                                <div class="row">
-                                    @foreach ($listDokterSpesialis as $doc)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
-                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
-                                                    {{ $doc['nama'] }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
 
-                            {{-- DOKTER UMUM --}}
-                            @if(count($listDokterUmum) > 0)
-                                <h6 class="font-weight-bold text-success mb-2 mt-3 border-bottom pb-1">Dokter Umum</h6>
-                                <div class="row">
-                                    @foreach ($listDokterUmum as $doc)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
-                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
-                                                    {{ $doc['nama'] }}
-                                                </label>
+                        {{-- Section 1: PILIH CEPAT PER KATEGORI --}}
+                        <div class="card card-outline card-secondary mb-3 shadow-none border">
+                            <div class="card-header py-2 d-flex justify-content-between align-items-center bg-white">
+                                <span class="font-weight-bold text-xs text-dark mb-0">
+                                    <i class="fas fa-check-square text-primary mr-1"></i> Pilih Cepat Berdasarkan Kategori:
+                                </span>
+                                <div>
+                                    <button type="button" class="btn btn-xs btn-primary mr-1 shadow-sm" id="btnSelectAllDokter">
+                                        <i class="fas fa-check-double mr-1"></i> Pilih Semua ({{ $listDokter->count() }})
+                                    </button>
+                                    <button type="button" class="btn btn-xs btn-outline-danger shadow-sm" id="btnDeselectAllDokter">
+                                        <i class="fas fa-times mr-1"></i> Hapus Semua
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-2 bg-light">
+                                <div class="row no-gutters">
+                                    @foreach($categories as $cat)
+                                        @if(count($cat['items']) > 0)
+                                            <div class="col-md-3 col-sm-6 p-1">
+                                                <div class="custom-control custom-checkbox p-2 rounded border bg-white shadow-sm h-100 d-flex align-items-center">
+                                                    <input type="checkbox" class="custom-control-input chk-category-all" id="catAll_{{ $cat['key'] }}" data-cat="{{ $cat['key'] }}">
+                                                    <label class="custom-control-label text-xs font-weight-bold d-flex justify-content-between align-items-center w-100 pr-2 cursor-pointer mb-0" for="catAll_{{ $cat['key'] }}" style="cursor: pointer;">
+                                                        <span><i class="{{ $cat['icon'] }} text-{{ $cat['color'] }} mr-1"></i> {{ $cat['nama'] }}</span>
+                                                        <span class="badge badge-{{ $cat['color'] }} ml-1">{{ count($cat['items']) }}</span>
+                                                    </label>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     @endforeach
                                 </div>
-                            @endif
+                            </div>
+                        </div>
 
-                            {{-- TIM HD --}}
-                            @if(count($listPetugasHD) > 0)
-                                <h6 class="font-weight-bold text-primary mb-2 mt-3 border-bottom pb-1">Tim Hemodialisa (HD)</h6>
-                                <div class="row">
-                                    @foreach ($listPetugasHD as $doc)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
-                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
-                                                    {{ $doc['nama'] }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                        {{-- Section 2: FILTER & PENCARIAN ANGGOTA --}}
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
+                            {{-- Category Tabs Filter --}}
+                            <div class="btn-group btn-group-sm mb-1 flex-wrap" role="group" id="filterCategoryTabs">
+                                <button type="button" class="btn btn-xs btn-secondary active font-weight-bold btn-tab-cat mr-1 mb-1" data-target="all">
+                                    Semua ({{ $listDokter->count() }})
+                                </button>
+                                @foreach($categories as $cat)
+                                    @if(count($cat['items']) > 0)
+                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-tab-cat mr-1 mb-1" data-target="{{ $cat['key'] }}">
+                                            <i class="{{ $cat['icon'] }} mr-1"></i> {{ $cat['badge'] }} ({{ count($cat['items']) }})
+                                        </button>
+                                    @endif
+                                @endforeach
+                            </div>
+                            {{-- Search Input --}}
+                            <div class="mb-1" style="min-width: 250px;">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i class="fas fa-search text-xs text-muted"></i></span>
+                                    </div>
+                                    <input type="text" id="searchDokterModal" class="form-control form-control-sm" placeholder="Cari nama, kode (SP1, U1..), ID...">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="btnClearSearchModal"><i class="fas fa-times text-xs"></i></button>
+                                    </div>
                                 </div>
-                            @endif
+                            </div>
+                        </div>
 
-                            @if(count($listPetugas) > 0)
-                                <h6 class="font-weight-bold text-info mb-2 mt-3 border-bottom pb-1">Petugas / Paramedis</h6>
-                                <div class="row">
-                                    @foreach ($listPetugas as $doc)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input chk-dokter" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}">
-                                                <label class="custom-control-label text-xs" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}">
-                                                    {{ $doc['nama'] }}
-                                                </label>
+                        {{-- Section 3: DAFTAR DOKTER / PETUGAS TERKELOMPOK PER KATEGORI --}}
+                        <div class="border rounded p-3 bg-white" style="max-height: 380px; overflow-y: auto;" id="containerDokterList">
+                            @foreach($categories as $cat)
+                                @if(count($cat['items']) > 0)
+                                    <div class="category-block mb-3" data-cat="{{ $cat['key'] }}" id="block_cat_{{ $cat['key'] }}">
+                                        <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded border mb-2 sticky-top" style="top: -16px; z-index: 5;">
+                                            <span class="font-weight-bold text-dark text-xs">
+                                                <i class="{{ $cat['icon'] }} text-{{ $cat['color'] }} mr-1"></i> {{ $cat['nama'] }} ({{ $cat['badge'] }})
+                                                <span class="badge badge-{{ $cat['color'] }} ml-1">{{ count($cat['items']) }} orang</span>
+                                            </span>
+                                            <div>
+                                                <button type="button" class="btn btn-xs btn-outline-{{ $cat['color'] }} btn-cat-select" data-cat="{{ $cat['key'] }}">
+                                                    <i class="fas fa-check mr-1"></i> Pilih Semua {{ $cat['badge'] }}
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary btn-cat-deselect ml-1" data-cat="{{ $cat['key'] }}">
+                                                    <i class="fas fa-times mr-1"></i> Batal
+                                                </button>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                            @endif
+                                        <div class="row">
+                                            @foreach ($cat['items'] as $doc)
+                                                <div class="col-md-6 mb-2 item-dokter-wrap" data-cat="{{ $cat['key'] }}" data-nama="{{ strtolower($doc['nama']) }}" data-kode="{{ strtolower($doc['kode']) }}" data-id="{{ strtolower($doc['id_khanza']) }}">
+                                                    <div class="custom-control custom-checkbox p-1 pl-4 rounded border-bottom" style="border-bottom-style: dashed !important;">
+                                                        <input class="custom-control-input chk-dokter chk-cat-{{ $cat['key'] }}" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}" data-cat="{{ $cat['key'] }}">
+                                                        <label class="custom-control-label text-xs font-weight-normal text-truncate d-block" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}" title="{{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]">
+                                                            <span class="badge badge-light border text-dark font-weight-bold mr-1">{{ $doc['kode'] }}</span>
+                                                            <strong>{{ $doc['nama'] }}</strong>
+                                                            <small class="text-muted ml-1">({{ $doc['id_khanza'] }})</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                            <div id="noResultSearch" class="text-center py-4 text-muted d-none">
+                                <i class="fas fa-search fa-2x mb-2 text-secondary"></i>
+                                <p class="text-xs mb-0">Tidak ada dokter/petugas yang cocok dengan pencarian.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-danger btn-sm" id="btnDownloadMultiple">
-                            <i class="fas fa-file-pdf mr-1"></i> Download PDF (Terpisah)
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm" id="btnDownloadZip">
-                            <i class="fas fa-file-archive mr-1"></i> Download ZIP
-                        </button>
+                    <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge badge-primary px-3 py-2 shadow-sm" style="font-size: 12px;">
+                                <i class="fas fa-user-check mr-1"></i> Terpilih: <strong id="lblCountSelected">0</strong> orang
+                            </span>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm mr-1" data-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-danger btn-sm shadow-sm mr-1" id="btnDownloadMultiple">
+                                <i class="fas fa-file-pdf mr-1"></i> Download PDF (<span class="selectedCountText">0</span> Terpisah)
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm shadow-sm" id="btnDownloadZip">
+                                <i class="fas fa-file-archive mr-1"></i> Download ZIP (<span class="selectedCountText">0</span> Per Kategori)
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -869,18 +888,135 @@
                 });
             }
 
+            // Fungsi kalkulasi counter terpilih & update status checkbox kategori
+            function updateSelectionCounters() {
+                let totalChecked = $('.chk-dokter:checked').length;
+                $('#lblCountSelected').text(totalChecked);
+                $('.selectedCountText').text(totalChecked);
+
+                // Update status checkbox master per kategori
+                $('.chk-category-all').each(function() {
+                    let cat = $(this).data('cat');
+                    let totalInCat = $('.chk-cat-' + cat).length;
+                    let checkedInCat = $('.chk-cat-' + cat + ':checked').length;
+
+                    if (checkedInCat === 0) {
+                        $(this).prop('checked', false).prop('indeterminate', false);
+                    } else if (checkedInCat === totalInCat) {
+                        $(this).prop('checked', true).prop('indeterminate', false);
+                    } else {
+                        $(this).prop('checked', false).prop('indeterminate', true);
+                    }
+                });
+            }
+
+            // Klik checkbox master per kategori
+            $(document).on('change', '.chk-category-all', function() {
+                let cat = $(this).data('cat');
+                let isChecked = $(this).is(':checked');
+                $('.chk-cat-' + cat).prop('checked', isChecked);
+                updateSelectionCounters();
+            });
+
+            // Klik checkbox dokter individual
+            $(document).on('change', '.chk-dokter', function() {
+                updateSelectionCounters();
+            });
+
+            // Tombol Global Pilih Semua & Hapus Semua
             $('#btnSelectAllDokter').on('click', function() {
                 $('.chk-dokter').prop('checked', true);
+                updateSelectionCounters();
             });
             $('#btnDeselectAllDokter').on('click', function() {
                 $('.chk-dokter').prop('checked', false);
+                updateSelectionCounters();
             });
 
+            // Tombol Pilih Semua & Batal di Header Kategori
+            $(document).on('click', '.btn-cat-select', function() {
+                let cat = $(this).data('cat');
+                $('.chk-cat-' + cat).prop('checked', true);
+                updateSelectionCounters();
+            });
+            $(document).on('click', '.btn-cat-deselect', function() {
+                let cat = $(this).data('cat');
+                $('.chk-cat-' + cat).prop('checked', false);
+                updateSelectionCounters();
+            });
+
+            // Filter Tabs Kategori
+            $('.btn-tab-cat').on('click', function() {
+                $('.btn-tab-cat').removeClass('btn-secondary active font-weight-bold').addClass('btn-outline-secondary');
+                $(this).removeClass('btn-outline-secondary').addClass('btn-secondary active font-weight-bold');
+
+                let target = $(this).data('target');
+                if (target === 'all') {
+                    $('.category-block').show();
+                } else {
+                    $('.category-block').hide();
+                    $('#block_cat_' + target).show();
+                }
+            });
+
+            // Live Search Filter
+            $('#searchDokterModal').on('keyup', function() {
+                let val = $(this).val().toLowerCase().trim();
+                if (val === '') {
+                    $('.item-dokter-wrap').show();
+                    $('.category-block').show();
+                    $('#noResultSearch').addClass('d-none');
+                    let activeTab = $('.btn-tab-cat.active').data('target');
+                    if (activeTab && activeTab !== 'all') {
+                        $('.category-block').hide();
+                        $('#block_cat_' + activeTab).show();
+                    }
+                    return;
+                }
+
+                let totalVisible = 0;
+                $('.category-block').each(function() {
+                    let catBlock = $(this);
+                    let catHasMatch = false;
+
+                    catBlock.find('.item-dokter-wrap').each(function() {
+                        let nama = $(this).data('nama') || '';
+                        let kode = $(this).data('kode') || '';
+                        let id = $(this).data('id') || '';
+
+                        if (nama.indexOf(val) !== -1 || kode.indexOf(val) !== -1 || id.indexOf(val) !== -1) {
+                            $(this).show();
+                            catHasMatch = true;
+                            totalVisible++;
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+
+                    if (catHasMatch) {
+                        catBlock.show();
+                    } else {
+                        catBlock.hide();
+                    }
+                });
+
+                if (totalVisible === 0) {
+                    $('#noResultSearch').removeClass('d-none');
+                } else {
+                    $('#noResultSearch').addClass('d-none');
+                }
+            });
+
+            $('#btnClearSearchModal').on('click', function() {
+                $('#searchDokterModal').val('').trigger('keyup');
+            });
+
+            // Download ZIP
             $('#btnDownloadZip').on('click', function(e) {
                 let form = $('#modalDownloadBanyakDokter form');
                 let dokters = form.find('input[name="kd_dokter[]"]:checked');
                 if (dokters.length === 0) {
-                    alert('Silakan pilih minimal satu dokter.');
+                    alert('Silakan pilih minimal satu dokter/petugas untuk didownload.');
                     return;
                 }
                 form.find('input[name="export"]').val('zip');
@@ -888,6 +1024,7 @@
                 $('#modalDownloadBanyakDokter').modal('hide');
             });
 
+            // Download PDF Terpisah
             $('#btnDownloadMultiple').on('click', function(e) {
                 let form = $('#modalDownloadBanyakDokter form');
                 let tgl1 = form.find('input[name="tgl1"]').val();
@@ -904,7 +1041,7 @@
                 });
                 
                 if (dokters.length === 0) {
-                    alert('Silakan pilih minimal satu dokter.');
+                    alert('Silakan pilih minimal satu dokter/petugas untuk didownload.');
                     return;
                 }
                 
@@ -920,7 +1057,7 @@
                         iframe.src = url;
                         document.body.appendChild(iframe);
                     }, delay);
-                    delay += 800; // sedikit diperlambat
+                    delay += 800; // jeda waktu agar browser tidak memblokir multiple download
                 });
                 
                 $('#modalDownloadBanyakDokter').modal('hide');

@@ -968,6 +968,9 @@ class JMBpjsController extends Controller
                     $calculatedTariff = 15000;
                 }
 
+                // NGT (Dokter Spesialis) salah input oleh Dokter Umum => max 65.000
+                $calculatedTariff = $this->capNgtSpesialisDokterUmum($item->nm_perawatan, $item->kd_dokter ?? null, $calculatedTariff);
+
                 $itemStatus = $item->status_lanjut ?? $item->status ?? 'Ranap';
                 if (!empty($item->is_duplicate_punksi)) {
                     $calculatedTariff = 0;
@@ -3620,6 +3623,11 @@ class JMBpjsController extends Controller
                         $item->tarif = 15000;
                     }
 
+                    // NGT (Dokter Spesialis) salah input oleh Dokter Umum => max 65.000
+                    if (stripos($item->sumber ?? '', 'Paramedis') === false) {
+                        $item->tarif = $this->capNgtSpesialisDokterUmum($item->nm_perawatan, $kdDokter ?? null, $item->tarif);
+                    }
+
                     if (!empty($item->is_duplicate_punksi)) {
                         $item->tarif = 0;
                     } elseif (stripos($item->sumber ?? '', 'Paramedis') === false && $this->isTindakanDikecualikan($item->nm_perawatan, $kdDokter ?? null, $item->status ?? null) && stripos($item->nm_perawatan, 'Punksi') === false) {
@@ -3830,6 +3838,11 @@ class JMBpjsController extends Controller
                         $item->tarif = 15000;
                     }
 
+                    // NGT (Dokter Spesialis) salah input oleh Dokter Umum => max 65.000
+                    if (stripos($item->sumber ?? '', 'Paramedis') === false) {
+                        $item->tarif = $this->capNgtSpesialisDokterUmum($item->nm_perawatan, $kdDokter ?? null, $item->tarif);
+                    }
+
                     if (!empty($item->is_duplicate_punksi)) {
                         $item->tarif = 0;
                     } elseif (stripos($item->sumber ?? '', 'Paramedis') === false && $this->isTindakanDikecualikan($item->nm_perawatan, $kdDokter ?? null, $item->status ?? null) && stripos($item->nm_perawatan, 'Punksi') === false) {
@@ -3997,6 +4010,43 @@ class JMBpjsController extends Controller
         ]);
     }
 
+    /**
+     * Cek apakah kode adalah dokter (terdaftar di tabel dokter) dengan spesialis UMUM.
+     */
+    private function isDokterUmumKhanza($kdDokter)
+    {
+        static $cache = [];
+        if (!$kdDokter) return false;
+        if (!array_key_exists($kdDokter, $cache)) {
+            $doc = DB::table('dokter')
+                ->leftJoin('spesialis', 'dokter.kd_sps', '=', 'spesialis.kd_sps')
+                ->where('dokter.kd_dokter', $kdDokter)
+                ->select('spesialis.nm_sps')
+                ->first();
+            if (!$doc) {
+                $cache[$kdDokter] = false; // bukan dokter (petugas/paramedis)
+            } else {
+                $sps = strtoupper(trim($doc->nm_sps ?? ''));
+                $cache[$kdDokter] = ($sps === 'UMUM' || $sps === '' || $sps === '-');
+            }
+        }
+        return $cache[$kdDokter];
+    }
+
+    /**
+     * Pasang NGT / Selang Lambung (Dokter Spesialis) yang salah diinput oleh Dokter Umum
+     * => maksimal mendapat 65.000.
+     */
+    private function capNgtSpesialisDokterUmum($namaPerawatan, $kdDokter, $tarif)
+    {
+        if (stripos($namaPerawatan ?? '', 'Pasang NGT / Selang Lambung (Dokter Spesialis)') !== false
+            && $tarif > 65000
+            && $this->isDokterUmumKhanza($kdDokter)) {
+            return 65000;
+        }
+        return $tarif;
+    }
+
     private function isTindakanDikecualikan($namaPerawatan, $kdDokter = null, $status = null)
     {
         static $docSpsCache = [];
@@ -4077,7 +4127,11 @@ class JMBpjsController extends Controller
         }
 
         if (stripos($namaPerawatan, 'Pasang NGT / Selang Lambung (Dokter Spesialis)') !== false) {
-            return true;
+            // Dokter Umum yang salah input NGT (Dokter Spesialis) => tetap DAPAT, tapi dibatasi max 65.000 (lihat capNgtSpesialisDokterUmum)
+            if ($this->isDokterUmumKhanza($kdDokter)) {
+                return false;
+            }
+            return true; // Dokter Spesialis => Excluded
         }
 
         if (stripos($namaPerawatan, 'Pasang NGT / Selang Lambung (Dokter Umum)') !== false) {
