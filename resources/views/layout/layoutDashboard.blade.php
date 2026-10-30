@@ -6,6 +6,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RSBW | @yield('title')</title>
+
+    {{-- Instant Theme Initialization (Zero FOUC) --}}
+    <script>
+        (function() {
+            var mode = localStorage.getItem('theme_mode') || localStorage.getItem('theme') || 'light';
+            var color = localStorage.getItem('theme_color') || 'emerald';
+            if (mode === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+            document.documentElement.setAttribute('data-theme-color', color);
+        })();
+    </script>
     <link rel="icon" href="/img/rs.png" type="image/png">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback" />
@@ -53,132 +67,370 @@
     </style>
 
     <style>
-        .main-sidebar {
-            background-color: #1d7969 !important;
+        /* ================= THEME COLOR PALETTES (CSS VARIABLES) ================= */
+        :root, html[data-theme-color="emerald"], body[data-theme-color="emerald"] {
+            --theme-primary: #1d7969;
+            --theme-primary-hover: #166255;
+            --theme-accent: #eb6e25;
+            --theme-sidebar-bg: #1d7969;
+            --theme-gradient: linear-gradient(135deg, #1d7969, #166255);
         }
 
-        .brand-link {
-            background-color: #1d7969 !important;
+        html[data-theme-color="blue"], body[data-theme-color="blue"] {
+            --theme-primary: #1d4ed8;
+            --theme-primary-hover: #1e40af;
+            --theme-accent: #0284c7;
+            --theme-sidebar-bg: #1d4ed8;
+            --theme-gradient: linear-gradient(135deg, #1d4ed8, #1e40af);
         }
 
-        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
-            background-color: #eb6e25 !important;
+        html[data-theme-color="purple"], body[data-theme-color="purple"] {
+            --theme-primary: #6d28d9;
+            --theme-primary-hover: #5b21b6;
+            --theme-accent: #a855f7;
+            --theme-sidebar-bg: #6d28d9;
+            --theme-gradient: linear-gradient(135deg, #6d28d9, #5b21b6);
         }
-    </style>
-    <style>
+
+        html[data-theme-color="crimson"], body[data-theme-color="crimson"] {
+            --theme-primary: #991b1b;
+            --theme-primary-hover: #7f1d1d;
+            --theme-accent: #f43f5e;
+            --theme-sidebar-bg: #991b1b;
+            --theme-gradient: linear-gradient(135deg, #991b1b, #7f1d1d);
+        }
+
+        html[data-theme-color="teal"], body[data-theme-color="teal"] {
+            --theme-primary: #0f766e;
+            --theme-primary-hover: #115e59;
+            --theme-accent: #14b8a6;
+            --theme-sidebar-bg: #0f766e;
+            --theme-gradient: linear-gradient(135deg, #0f766e, #115e59);
+        }
+
+        html[data-theme-color="midnight"], body[data-theme-color="midnight"] {
+            --theme-primary: #1e293b;
+            --theme-primary-hover: #0f172a;
+            --theme-accent: #38bdf8;
+            --theme-sidebar-bg: #1e293b;
+            --theme-gradient: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+
+        /* Accent on buttons & primary elements */
+        .btn-primary {
+            background-color: var(--theme-primary) !important;
+            border-color: var(--theme-primary) !important;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--theme-primary-hover) !important;
+            border-color: var(--theme-primary-hover) !important;
+        }
+        .text-primary {
+            color: var(--theme-primary) !important;
+        }
+        .badge-primary, .bg-primary {
+            background-color: var(--theme-primary) !important;
+        }
+
+        /* ================= SIDEBAR (LIGHT MODE) ================= */
+        body:not(.dark-mode) .main-sidebar,
+        html:not(.dark-mode) .main-sidebar {
+            background-color: var(--theme-sidebar-bg) !important;
+            transition: background-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .brand-link,
+        html:not(.dark-mode) .brand-link {
+            background-color: var(--theme-sidebar-bg) !important;
+            transition: background-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: var(--theme-accent) !important;
+            color: #ffffff !important;
+        }
+
         /* ================= DARK MODE CORE ================= */
+        html.dark-mode,
         body.dark-mode {
-            background-color: #1f1f20 !important;
-            color: #e5e7eb !important;
+            background-color: #18181b !important;
+            color: #e4e4e7 !important;
         }
 
-        /* ================= WRAPPER / CONTENT ================= */
-        body.dark-mode .content-wrapper {
-            background-color: #1f1f20 !important;
+        /* Content Wrapper */
+        body.dark-mode .content-wrapper,
+        html.dark-mode .content-wrapper {
+            background-color: #18181b !important;
         }
 
-        /* ================= NAVBAR ================= */
-        body.dark-mode .main-header {
-            background-color: #1f1f20 !important;
-            border-bottom: 1px solid #2a2a2c;
+        /* Navbar */
+        body.dark-mode .main-header,
+        html.dark-mode .main-header {
+            background-color: #1f1f23 !important;
+            border-bottom: 1px solid #27272a !important;
         }
 
         body.dark-mode .main-header .nav-link,
         body.dark-mode .main-header i {
-            color: #e5e7eb !important;
+            color: #e4e4e7 !important;
         }
 
-        /* ================= SIDEBAR ================= */
-        body.dark-mode .main-sidebar {
-            background-color: #1f1f20 !important;
+        /* Sidebar Dark */
+        body.dark-mode .main-sidebar,
+        html.dark-mode .main-sidebar {
+            background-color: #18181b !important;
+            border-right: 1px solid #27272a !important;
         }
 
-        body.dark-mode .nav-sidebar .nav-link {
-            color: #d1d5db !important;
-        }
-
-        body.dark-mode .nav-sidebar .nav-link.active {
-            background-color: #2a2a2c !important;
-            color: #93c5fd !important;
-        }
-
-        /* ================= CARD ================= */
-        body.dark-mode .card {
-            background-color: #252527 !important;
-            color: #e5e7eb !important;
-            border: 1px solid #2a2a2c !important;
-            box-shadow: 0 8px 20px rgba(0,0,0,.35);
-        }
-
-        /* ================= TABLE ================= */
-        body.dark-mode .table {
-            background-color: #252527 !important;
-            color: #e5e7eb !important;
-        }
-
-        body.dark-mode .table thead th {
-            background-color: #2a2a2c !important;
-            color: #93c5fd !important;
-            border-color: #3a3a3c !important;
-        }
-
-        body.dark-mode .table td {
-            border-color: #3a3a3c !important;
-        }
-
-        body.dark-mode .table tbody tr:hover {
-            background-color: #2f2f32 !important;
-        }
-
-        /* ================= FORM ================= */
-        body.dark-mode input,
-        body.dark-mode select,
-        body.dark-mode textarea {
-            background-color: #252527 !important;
-            color: #e5e7eb !important;
-            border: 1px solid #3a3a3c !important;
-        }
-
-        body.dark-mode input:focus,
-        body.dark-mode select:focus,
-        body.dark-mode textarea:focus {
-            border-color: #93c5fd !important;
-            box-shadow: 0 0 0 .15rem rgba(147,197,253,.25);
-        }
-
-        /* ================= BUTTON ================= */
-        body.dark-mode .btn {
-            background-color: #2a2a2c;
-            color: #e5e7eb;
-            border-color: #3a3a3c;
-        }
-
-        body.dark-mode .btn:hover {
-            background-color: #333336;
-        }
-
-        /* ================= DROPDOWN ================= */
-        body.dark-mode .dropdown-menu {
-            background-color: #252527 !important;
-            border-color: #3a3a3c !important;
-        }
-
-        body.dark-mode .dropdown-item {
-            color: #e5e7eb !important;
-        }
-
-        body.dark-mode .dropdown-item:hover {
-            background-color: #2f2f32 !important;
-        }
-
-        body.dark-mode .brand-link {
-            background-color: #1f1f20 !important;
-            border-bottom: 1px solid #2a2a2c;
-            color: #e5e7eb !important;
+        body.dark-mode .brand-link,
+        html.dark-mode .brand-link {
+            background-color: #1f1f23 !important;
+            border-bottom: 1px solid #27272a !important;
+            color: #e4e4e7 !important;
         }
 
         body.dark-mode .brand-link img {
             filter: brightness(0.95);
+        }
+
+        body.dark-mode .nav-sidebar .nav-link {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .nav-sidebar .nav-link:hover {
+            background-color: #27272a !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .nav-sidebar .nav-link.active,
+        body.dark-mode .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #27272a !important;
+            color: var(--theme-accent) !important;
+            border-left: 3px solid var(--theme-accent) !important;
+        }
+
+        /* Cards */
+        body.dark-mode .card,
+        html.dark-mode .card {
+            background-color: #202024 !important;
+            color: #e4e4e7 !important;
+            border: 1px solid #2e2e33 !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3) !important;
+        }
+
+        body.dark-mode .card-header,
+        html.dark-mode .card-header {
+            background-color: #202024 !important;
+            border-bottom: 1px solid #2e2e33 !important;
+        }
+
+        body.dark-mode .card-header.bg-white,
+        body.dark-mode .bg-white {
+            background-color: #202024 !important;
+            color: #e4e4e7 !important;
+        }
+
+        body.dark-mode .text-dark,
+        html.dark-mode .text-dark {
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .text-muted,
+        html.dark-mode .text-muted {
+            color: #a1a1aa !important;
+        }
+
+        /* Tables */
+        body.dark-mode .table,
+        html.dark-mode .table {
+            background-color: #202024 !important;
+            color: #e4e4e7 !important;
+        }
+
+        body.dark-mode .table thead th,
+        html.dark-mode .table thead th {
+            background-color: #27272a !important;
+            color: #f4f4f5 !important;
+            border-color: #3f3f46 !important;
+        }
+
+        body.dark-mode .table td,
+        body.dark-mode .table th,
+        html.dark-mode .table td,
+        html.dark-mode .table th {
+            border-color: #2e2e33 !important;
+        }
+
+        body.dark-mode .table tbody tr:hover,
+        html.dark-mode .table tbody tr:hover {
+            background-color: #2a2a30 !important;
+        }
+
+        body.dark-mode .table-secondary,
+        html.dark-mode .table-secondary {
+            background-color: #27272a !important;
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .table-light,
+        html.dark-mode .table-light {
+            background-color: #27272e !important;
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .table-primary,
+        html.dark-mode .table-primary {
+            background-color: #1e3a5f !important;
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .table-warning,
+        html.dark-mode .table-warning {
+            background-color: #3f2d12 !important;
+            color: #fef08a !important;
+        }
+
+        body.dark-mode .table-info,
+        html.dark-mode .table-info {
+            background-color: #133954 !important;
+            color: #7dd3fc !important;
+        }
+
+        /* Forms */
+        body.dark-mode input.form-control,
+        body.dark-mode select.form-control,
+        body.dark-mode textarea.form-control,
+        body.dark-mode input:not([type="checkbox"]):not([type="radio"]),
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #27272a !important;
+            color: #f4f4f5 !important;
+            border: 1px solid #3f3f46 !important;
+        }
+
+        body.dark-mode input.form-control:focus,
+        body.dark-mode select.form-control:focus,
+        body.dark-mode textarea.form-control:focus {
+            border-color: var(--theme-primary) !important;
+            box-shadow: 0 0 0 .15rem rgba(29, 121, 105, .25) !important;
+        }
+
+        body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        /* Buttons in Dark Mode */
+        body.dark-mode .btn-outline-secondary {
+            color: #d4d4d8 !important;
+            border-color: #52525b !important;
+        }
+        body.dark-mode .btn-outline-secondary:hover {
+            background-color: #3f3f46 !important;
+            color: #ffffff !important;
+        }
+
+        /* Modals & Dropdowns */
+        body.dark-mode .modal-content {
+            background-color: #202024 !important;
+            color: #e4e4e7 !important;
+            border: 1px solid #2e2e33 !important;
+        }
+
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer {
+            border-color: #2e2e33 !important;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background-color: #202024 !important;
+            border-color: #2e2e33 !important;
+            color: #e4e4e7 !important;
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #e4e4e7 !important;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background-color: #2a2a30 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .dropdown-divider {
+            border-top: 1px solid #2e2e33 !important;
+        }
+
+        /* Tabs & Alerts */
+        body.dark-mode .nav-tabs {
+            border-bottom: 1px solid #2e2e33 !important;
+        }
+        body.dark-mode .nav-tabs .nav-link {
+            color: #a1a1aa;
+        }
+        body.dark-mode .nav-tabs .nav-link.active {
+            background-color: #202024 !important;
+            color: #ffffff !important;
+            border-color: #2e2e33 #2e2e33 #202024 !important;
+        }
+
+        body.dark-mode .alert-info {
+            background-color: #172554 !important;
+            border-color: #1e3a8a !important;
+            color: #bfdbfe !important;
+        }
+
+        /* ================= THEME SWITCHER DROPDOWN & SWATCHES ================= */
+        .theme-dropdown-menu {
+            transition: all 0.25s ease;
+        }
+        .theme-swatches-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .theme-swatch {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            padding: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .theme-swatch:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .theme-swatch.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px var(--theme-primary), 0 4px 10px rgba(0,0,0,0.35);
+            transform: scale(1.1);
+        }
+
+        .theme-swatch .swatch-check {
+            color: #ffffff;
+            font-size: 13px;
+            display: none;
+        }
+
+        .theme-swatch.active .swatch-check {
+            display: block;
+        }
+
+        .mode-btn.active {
+            background-color: var(--theme-primary) !important;
+            color: #ffffff !important;
+            border-color: var(--theme-primary) !important;
         }
 
         .footer-animal {
@@ -354,9 +606,67 @@
                     </button>
                 </li>
 
-                {{-- 🌙☀️ TOGGLE DARK MODE --}}
+                {{-- 🎨 DROPDOWN PENGATURAN TEMA & WARNA --}}
+                <li class="nav-item dropdown mr-1">
+                    <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#" title="Ganti Tema & Warna Aplikasi" id="themeDropdownBtn" role="button" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;">
+                        <i class="fas fa-palette text-warning" style="font-size: 1.15rem;"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right p-3 shadow-lg border-0 theme-dropdown-menu" style="width: 290px; border-radius: 12px; z-index: 1050;">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <h6 class="mb-0 font-weight-bold" style="font-size: 13px;">
+                                <i class="fas fa-paint-brush mr-1 text-primary"></i> Pengaturan Tema
+                            </h6>
+                            <button type="button" class="btn btn-xs btn-outline-secondary" onclick="resetTheme()" title="Reset ke Default" style="font-size: 10px; border-radius: 6px;">
+                                <i class="fas fa-undo mr-1"></i> Reset
+                            </button>
+                        </div>
+
+                        {{-- Mode Tampilan: Terang vs Gelap --}}
+                        <div class="mb-3">
+                            <label class="text-muted text-uppercase mb-1 font-weight-bold d-block" style="font-size: 10px; letter-spacing: 0.5px;">Mode Tampilan</label>
+                            <div class="btn-group btn-group-sm w-100" role="group">
+                                <button type="button" class="btn btn-outline-secondary font-weight-bold mode-btn" id="btnModeLight" onclick="setThemeMode('light')">
+                                    <i class="fas fa-sun text-warning mr-1"></i> Terang
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary font-weight-bold mode-btn" id="btnModeDark" onclick="setThemeMode('dark')">
+                                    <i class="fas fa-moon text-info mr-1"></i> Gelap
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Pilihan Warna Aksen --}}
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="text-muted text-uppercase mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 0.5px;">Warna Aksen</label>
+                                <small id="currentThemeLabel" class="font-weight-bold text-primary" style="font-size: 11px;">Hijau RSBW</small>
+                            </div>
+                            <div class="theme-swatches-grid pt-1">
+                                <button type="button" class="theme-swatch" data-theme="emerald" style="background: #1d7969;" onclick="setThemeColor('emerald', 'Hijau RSBW')" title="Hijau RSBW (Default)">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="blue" style="background: #1d4ed8;" onclick="setThemeColor('blue', 'Biru Bahari')" title="Biru Bahari">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="purple" style="background: #6d28d9;" onclick="setThemeColor('purple', 'Ungu Modern')" title="Ungu Modern">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="crimson" style="background: #991b1b;" onclick="setThemeColor('crimson', 'Merah Marun')" title="Merah Marun">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="teal" style="background: #0f766e;" onclick="setThemeColor('teal', 'Teal Tropis')" title="Teal Tropis">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="midnight" style="background: #1e293b;" onclick="setThemeColor('midnight', 'Midnight Slate')" title="Midnight Slate">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                {{-- 🌙☀️ QUICK TOGGLE DARK MODE --}}
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="toggleTheme(event)" title="Dark / Light Mode">
+                    <a href="#" class="nav-link" onclick="toggleTheme(event)" title="Klik Cepat: Mode Terang / Gelap">
                         <i id="themeIcon" class="fas fa-sun rotate-icon"></i>
                     </a>
                 </li>
@@ -995,6 +1305,12 @@
                                     <a href="{{ url('/rekap-pendapatan-asuransi') }}" class="nav-link" target="_blank">
                                         <i class="fas fa-shield-alt nav-icon text-teal"></i>
                                         <p>Rekap Pendapatan Asuransi</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/rekap-pendapatan-asuransi-belum-bayar') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-file-invoice-dollar nav-icon text-danger"></i>
+                                        <p>Asuransi Belum Bayar</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -2018,32 +2334,91 @@
     </script>
     @include('layout.component.allert')
 
-    {{-- navbar js efek malam --}}
-        <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const isDark = localStorage.getItem('theme') === 'dark';
+    {{-- ================= SYSTEM PENGATURAN TEMA & WARNA ================= --}}
+    <script>
+    const THEME_NAMES = {
+        emerald: 'Hijau RSBW',
+        blue: 'Biru Bahari',
+        purple: 'Ungu Modern',
+        crimson: 'Merah Marun',
+        teal: 'Teal Tropis',
+        midnight: 'Midnight Slate'
+    };
 
-        document.body.classList.toggle('dark-mode', isDark);
-        setIcon(isDark);
-    });
+    function applyTheme(mode, color) {
+        mode = mode || localStorage.getItem('theme_mode') || localStorage.getItem('theme') || 'light';
+        color = color || localStorage.getItem('theme_color') || 'emerald';
+
+        const isDark = (mode === 'dark');
+
+        // Apply classes to both html and body
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode');
+            if (document.body) document.body.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            if (document.body) document.body.classList.remove('dark-mode');
+        }
+
+        document.documentElement.setAttribute('data-theme-color', color);
+        if (document.body) document.body.setAttribute('data-theme-color', color);
+
+        // Update Quick Icon
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            icon.classList.remove('fa-sun', 'fa-moon');
+            icon.classList.add(isDark ? 'fa-moon' : 'fa-sun');
+        }
+
+        // Update Mode Buttons in dropdown
+        const btnLight = document.getElementById('btnModeLight');
+        const btnDark = document.getElementById('btnModeDark');
+        if (btnLight && btnDark) {
+            btnLight.classList.toggle('active', !isDark);
+            btnDark.classList.toggle('active', isDark);
+        }
+
+        // Update Swatches in dropdown
+        document.querySelectorAll('.theme-swatch').forEach(el => {
+            const swatchTheme = el.getAttribute('data-theme');
+            el.classList.toggle('active', swatchTheme === color);
+        });
+
+        // Update Color Label
+        const label = document.getElementById('currentThemeLabel');
+        if (label) {
+            label.textContent = THEME_NAMES[color] || 'Hijau RSBW';
+        }
+    }
 
     function toggleTheme(e) {
         if (e) e.preventDefault();
-
-        const isDark = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-        setIcon(isDark);
+        const currentMode = localStorage.getItem('theme_mode') || localStorage.getItem('theme') || 'light';
+        const newMode = (currentMode === 'dark') ? 'light' : 'dark';
+        setThemeMode(newMode);
     }
 
-    function setIcon(isDark) {
-        const icon = document.getElementById('themeIcon');
-        if (!icon) return;
-
-        // ganti ikon
-        icon.classList.remove('fa-sun', 'fa-moon');
-        icon.classList.add(isDark ? 'fa-moon' : 'fa-sun');
+    function setThemeMode(mode) {
+        localStorage.setItem('theme_mode', mode);
+        localStorage.setItem('theme', mode);
+        applyTheme(mode, null);
     }
+
+    function setThemeColor(color, labelText) {
+        localStorage.setItem('theme_color', color);
+        applyTheme(null, color);
+    }
+
+    function resetTheme() {
+        localStorage.setItem('theme_mode', 'light');
+        localStorage.setItem('theme', 'light');
+        localStorage.setItem('theme_color', 'emerald');
+        applyTheme('light', 'emerald');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme();
+    });
     </script>
 
 

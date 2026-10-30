@@ -36,7 +36,7 @@
                 <h5 class="mb-1 font-weight-bold text-dark">
                     <i class="fas fa-file-invoice-dollar text-primary mr-2"></i> Rekap Pendapatan BPJS
                 </h5>
-                <small class="text-muted">Laporan rincian pendapatan BPJS bulanan dengan penambahan ekses dan penyesuaian piutang</small>
+                <small class="text-muted">Laporan rincian pendapatan BPJS berdasarkan tanggal cetak nota</small>
             </div>
             <div>
                 <button type="button" class="btn btn-sm btn-outline-success mr-2" onclick="exportSemuaExcel()">
@@ -51,23 +51,32 @@
 
     <div class="card-body">
         {{-- Form Filter Periode Tanggal --}}
-        <form method="GET" action="{{ url('/rekap-pendapatan-bpjs') }}" class="mb-4">
+        <form method="GET" action="{{ url('/rekap-pendapatan-bpjs') }}" class="mb-4" id="formFilterBpjs">
+            <input type="hidden" name="filter" value="1">
             <div class="row align-items-end">
                 <div class="col-md-2 col-sm-6 mb-2">
-                    <label class="font-weight-bold text-xs">Tanggal Awal:</label>
+                    <label class="font-weight-bold text-xs">Tanggal Awal Nota:</label>
                     <input type="date" name="tgl1" class="form-control form-control-sm" value="{{ $tgl1 }}">
                 </div>
                 <div class="col-md-2 col-sm-6 mb-2">
-                    <label class="font-weight-bold text-xs">Tanggal Akhir:</label>
+                    <label class="font-weight-bold text-xs">Tanggal Akhir Nota:</label>
                     <input type="date" name="tgl2" class="form-control form-control-sm" value="{{ $tgl2 }}">
                 </div>
                 <div class="col-md-2 col-sm-12 mb-2">
-                    <button type="submit" class="btn btn-sm btn-primary btn-block">
+                    <button type="submit" class="btn btn-sm btn-primary btn-block" id="btnFilterBpjs">
                         <i class="fas fa-search mr-1"></i> Filter
                     </button>
                 </div>
             </div>
         </form>
+
+        @if(!request()->has('filter'))
+            <div class="alert alert-info border text-center py-4 mb-4">
+                <i class="fas fa-filter fa-2x mb-2 text-primary"></i>
+                <h6 class="font-weight-bold text-dark mb-1">Data Belum Dimuat</h6>
+                <p class="mb-0 text-muted small">Silakan pilih periode tanggal cetak nota di atas kemudian klik tombol <strong>Filter</strong> untuk menampilkan data Rekap Pendapatan BPJS.</p>
+            </div>
+        @endif
 
         {{-- Tabs Navigation --}}
         <ul class="nav nav-tabs mb-3" id="rekapTabs" role="tablist">
@@ -229,12 +238,17 @@
 
                     @empty
                         <tr>
-                            <td colspan="33" class="text-center py-3 text-muted">
-                                Silakan filter tanggal untuk menampilkan data.
+                            <td colspan="33" class="text-center py-4 text-muted">
+                                @if(request()->has('filter'))
+                                    <i class="fas fa-info-circle mr-1"></i> Tidak ada data pendapatan BPJS pada periode ini.
+                                @else
+                                    <i class="fas fa-info-circle mr-1"></i> Silakan tentukan periode tanggal dan klik tombol <strong>Filter</strong> untuk memunculkan data.
+                                @endif
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
+                @if($dataRekap->isNotEmpty())
                 <tfoot class="table-warning font-weight-bold">
                     <tr>
                         <td class="text-center" colspan="2">TOTAL</td>
@@ -271,6 +285,7 @@
                         <td class="text-right font-weight-bold table-primary text-dark" data-raw="{{ $dataRekap->sum('grand_total') }}">{{ number_format($dataRekap->sum("grand_total"), 0, ",", ".") }}</td>
                     </tr>
                 </tfoot>
+                @endif
             </table>
         </div>
     </div>
@@ -467,8 +482,12 @@
             </table>
         </div>
         @empty
-            <div class="alert alert-info mt-3 text-center">
-                Tidak ada data pembayaran piutang pada rentang tanggal yang dipilih.
+            <div class="alert alert-light border mt-3 text-center text-muted">
+                @if(request()->has('filter'))
+                    <i class="fas fa-info-circle mr-1"></i> Tidak ada data pembayaran piutang pada rentang tanggal yang dipilih.
+                @else
+                    <i class="fas fa-info-circle mr-1"></i> Silakan tentukan periode tanggal dan klik tombol <strong>Filter</strong> untuk memunculkan data rincian bayar piutang.
+                @endif
             </div>
         @endforelse
     </div>
@@ -652,6 +671,11 @@ async function copyTable(tableIdOrElement) {
 
 // Copy active tab table
 function copyActiveTable() {
+    let rekapTable = document.getElementById('tableToCopy');
+    if (!rekapTable || rekapTable.querySelector('tbody tr td[colspan]')) {
+        alert('Tidak ada data untuk disalin. Silakan filter data terlebih dahulu.');
+        return;
+    }
     let rincianPane = document.getElementById('rincian');
     if (rincianPane && rincianPane.classList.contains('active')) {
         copyTable('rincian');
@@ -662,6 +686,11 @@ function copyActiveTable() {
 
 // Export clean Excel file
 function exportSemuaExcel() {
+    let rekapTable = document.getElementById('tableToCopy');
+    if (!rekapTable || rekapTable.querySelector('tbody tr td[colspan]')) {
+        alert('Tidak ada data untuk diekspor. Silakan filter data terlebih dahulu.');
+        return;
+    }
     let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
         <meta charset="utf-8">
@@ -675,7 +704,6 @@ function exportSemuaExcel() {
     </head><body>`;
     
     // Tabel Rekapan
-    let rekapTable = document.getElementById('tableToCopy');
     if (rekapTable) {
         html += "<h2>Rekapan Pendapatan BPJS</h2>" + tableToCleanHtml(rekapTable) + "<br><br>";
     }
@@ -747,6 +775,16 @@ document.addEventListener('copy', function(e) {
         e.clipboardData.setData('text/html', div.innerHTML);
         e.clipboardData.setData('text/plain', plainText);
         e.preventDefault();
+    }
+});
+
+// Loading state on filter submission
+document.getElementById('formFilterBpjs')?.addEventListener('submit', function() {
+    let btn = document.getElementById('btnFilterBpjs');
+    if (btn) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Memuat...';
+        btn.classList.add('disabled');
+        btn.style.pointerEvents = 'none';
     }
 });
 </script>

@@ -159,6 +159,7 @@ use App\Http\Controllers\DetailTindakanBPJS\PeriksaLabPABpjs;
 use App\Http\Controllers\Laporan\RekapPendapatanBulanan;
 use App\Http\Controllers\Laporan\RekapPendapatanHarianController;
 use App\Http\Controllers\Laporan\RekapPendapatanAsuransiController;
+use App\Http\Controllers\Laporan\RekapPendapatanAsuransiBelumBayarController;
 use App\Http\Controllers\Laporan\RekapPendapatanBpjsController;
 use App\Http\Controllers\Laporan\PendapatanAlatDokterController;
 use App\Http\Controllers\BerkasPegawai\BerkasPegawaiController;
@@ -479,6 +480,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/rekap-pendapatan-harian/cetak-pdf', [RekapPendapatanHarianController::class, 'printPdf']);
         Route::get('/rekap-pendapatan-asuransi', [RekapPendapatanAsuransiController::class, 'index']);
         Route::get('/rekap-pendapatan-asuransi/detail', [RekapPendapatanAsuransiController::class, 'detailTindakan']);
+        Route::get('/rekap-pendapatan-asuransi-belum-bayar', [RekapPendapatanAsuransiBelumBayarController::class, 'index']);
+        Route::get('/rekap-pendapatan-asuransi-belum-bayar/detail', [RekapPendapatanAsuransiBelumBayarController::class, 'detailTindakan']);
+        Route::get('/rekap-pendapatan-asuransi-belum-dibayar', [RekapPendapatanAsuransiBelumBayarController::class, 'index']);
+        Route::get('/rekap-pendapatan-asuransi-belum-dibayar/detail', [RekapPendapatanAsuransiBelumBayarController::class, 'detailTindakan']);
         Route::get('/rekap-pendapatan-bpjs', [RekapPendapatanBpjsController::class, 'index']);
         Route::get('/rekap-pendapatan-bpjs/detail', [RekapPendapatanBpjsController::class, 'detailTindakan']);
         

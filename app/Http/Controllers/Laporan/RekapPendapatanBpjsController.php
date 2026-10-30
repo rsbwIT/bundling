@@ -20,25 +20,38 @@ class RekapPendapatanBpjsController extends Controller
 
     public function index(Request $request)
     {
-        set_time_limit(0);
-        ini_set('memory_limit', '1024M');
-
         $tgl1 = $request->tgl1 ?? date('Y-m-01');
         $tgl2 = $request->tgl2 ?? date('Y-m-t');
 
-        // $notaSource groups by status_lanjut AND the first day of the month of the NOTA
+        // Jangan proses data jika filter belum diklik agar halaman dapat dibuka dengan cepat
+        if (!$request->has('filter')) {
+            $dataRekap = collect();
+            $rincianBayarPiutangGrouped = collect();
+            return view('laporan.rekappendapatanbpjs', compact('tgl1', 'tgl2', 'dataRekap', 'rincianBayarPiutangGrouped'));
+        }
+
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
+        // $notaSource groups by status_lanjut AND the first day of the month of the NOTA based on tanggal cetak nota
         $notaSource = "(
-            SELECT DISTINCT 
-                bp.no_rawat, 
-                rp.status_lanjut,
-                DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') as tanggal
-            FROM bayar_piutang bp
-            JOIN reg_periksa rp ON bp.no_rawat = rp.no_rawat
-            LEFT JOIN nota_inap ni ON bp.no_rawat = ni.no_rawat
-            LEFT JOIN nota_jalan nj ON bp.no_rawat = nj.no_rawat
-            WHERE bp.tgl_bayar BETWEEN '{$tgl1}' AND '{$tgl2}'
+            SELECT DISTINCT
+                ni.no_rawat, 
+                'Ranap' as status_lanjut,
+                DATE_FORMAT(ni.tanggal, '%Y-%m-01') as tanggal
+            FROM nota_inap ni
+            JOIN reg_periksa rp ON ni.no_rawat = rp.no_rawat
+            WHERE ni.tanggal BETWEEN '{$tgl1}' AND '{$tgl2}'
             AND rp.kd_pj = 'BPJ'
-            AND COALESCE(ni.tanggal, nj.tanggal) IS NOT NULL
+            UNION
+            SELECT DISTINCT
+                nj.no_rawat, 
+                'Ralan' as status_lanjut,
+                DATE_FORMAT(nj.tanggal, '%Y-%m-01') as tanggal
+            FROM nota_jalan nj
+            JOIN reg_periksa rp ON nj.no_rawat = rp.no_rawat
+            WHERE nj.tanggal BETWEEN '{$tgl1}' AND '{$tgl2}'
+            AND rp.kd_pj = 'BPJ'
         )";
 
         $nipDokterKhusus = [
@@ -50,103 +63,7 @@ class RekapPendapatanBpjsController extends Controller
         ];
         $nipIn = "'" . implode("','", array_unique($nipDokterKhusus)) . "'";
 
-        // =========================================================================
-        // 1. HITUNG JASA MEDIS (JM) SESUAI PERSIS DENGAN HALAMAN JM-BPJS (KLOP 100%)
-        // =========================================================================
-        $jmController = new JMBpjsController($this->cacheService);
-        $viewJm = $jmController->index($request);
-        $mappedTemplate = $viewJm->getData()['mappedTemplate'];
-
-        // Kumpulkan seluruh detail transaksi dokter dari JM BPJS
-        $doctorItems = collect();
-        foreach ($jmController->templateJM as $tpl) {
-            if (!$tpl['id_khanza'] || strpos($tpl['id_khanza'], 'D') !== 0) continue;
-            $subReq = new Request([
-                'kd_dokter' => $tpl['id_khanza'],
-                'tgl1' => $tgl1,
-                'tgl2' => $tgl2
-            ]);
-            $dets = $jmController->detail($subReq, true);
-            foreach ($dets as $d) {
-                $doctorItems->push((object)[
-                    'no_rawat' => $d->no_rawat,
-                    'status'   => $d->status,
-                    'sumber'   => $d->sumber,
-                    'tarif'    => (float) $d->tarif,
-                ]);
-            }
-        }
-
-        // Ambil bulan nota untuk setiap no_rawat
-        $noRawats = $doctorItems->pluck('no_rawat')->unique()->filter()->values();
-        $notas = DB::table('bayar_piutang as bp')
-            ->leftJoin('nota_inap as ni', 'bp.no_rawat', '=', 'ni.no_rawat')
-            ->leftJoin('nota_jalan as nj', 'bp.no_rawat', '=', 'nj.no_rawat')
-            ->whereIn('bp.no_rawat', $noRawats)
-            ->whereBetween('bp.tgl_bayar', [$tgl1, $tgl2])
-            ->select('bp.no_rawat', DB::raw("DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') as bulan_nota"))
-            ->get()
-            ->keyBy('no_rawat');
-
-        $doctorItems = $doctorItems->map(function($item) use ($notas) {
-            $item->bulan_nota = (isset($notas[$item->no_rawat]) && $notas[$item->no_rawat]->bulan_nota)
-                ? $notas[$item->no_rawat]->bulan_nota 
-                : date('Y-m-01');
-            return $item;
-        });
-
-        // Total non-dokter dari mappedTemplate (OK Paramedis, FG, HD, SWL, AD)
-        $okRanapTotal = $mappedTemplate->filter(fn($i) => strpos($i->kode_template, 'OK') === 0)->sum('total_ranap');
-        $okRalanTotal = $mappedTemplate->filter(fn($i) => strpos($i->kode_template, 'OK') === 0)->sum('total_ralan');
-        $otherRanapTotal = $mappedTemplate->filter(fn($i) => preg_match('/^(FG|HD|SWL|AD)/', $i->kode_template))->sum('total_ranap');
-        $otherRalanTotal = $mappedTemplate->filter(fn($i) => preg_match('/^(FG|HD|SWL|AD)/', $i->kode_template))->sum('total_ralan');
-
-        // Bobot per bulan nota untuk distribusi proporsional
-        $ranapWeights = $doctorItems->where('status', 'Ranap')->groupBy('bulan_nota')->map(fn($g) => $g->sum('tarif'));
-        $totalRanapDoc = $ranapWeights->sum();
-        $ralanWeights = $doctorItems->where('status', 'Ralan')->groupBy('bulan_nota')->map(fn($g) => $g->sum('tarif'));
-        $totalRalanDoc = $ralanWeights->sum();
-
-        $groupedDoctors = $doctorItems->groupBy(fn($i) => $i->status . '|' . $i->bulan_nota);
-
-        // Precalculate JM per key (status_lanjut|bulan_nota)
-        $jmPerKey = [];
-        $allKeysJm = $doctorItems->map(fn($i) => $i->status . '|' . $i->bulan_nota)->unique();
-        foreach ($allKeysJm as $k) {
-            list($st, $m) = explode('|', $k);
-            $items = $groupedDoctors->get($k, collect());
-
-            $tindakanDoc = $items->filter(fn($i) => strpos($i->sumber, 'Tindakan') !== false || strpos($i->sumber, 'Tind.') !== false)->sum('tarif');
-            $okDoc = $items->filter(fn($i) => strpos($i->sumber, 'Operasi') !== false)->sum('tarif');
-            $labDoc = $items->filter(fn($i) => strpos($i->sumber, 'Lab') !== false)->sum('tarif');
-            $roDoc = $items->filter(fn($i) => $i->sumber === 'Radiologi - PJ Rad')->sum('tarif');
-            $roPerujuk = $items->filter(fn($i) => $i->sumber === 'Radiologi - Perujuk')->sum('tarif');
-
-            if ($st === 'Ranap') {
-                $w = $totalRanapDoc > 0 ? ($items->sum('tarif') / $totalRanapDoc) : 0;
-                $okPr = $okRanapTotal * $w;
-                $otherPr = $otherRanapTotal * $w;
-            } else {
-                $w = $totalRalanDoc > 0 ? ($items->sum('tarif') / $totalRalanDoc) : 0;
-                $okPr = $okRalanTotal * $w;
-                $otherPr = $otherRalanTotal * $w;
-            }
-
-            $jmPerKey[$k] = (object)[
-                'jm_dr'     => $tindakanDoc + $otherPr,
-                'ok_jm_dr'  => $okDoc,
-                'ok_jm_pr'  => $okPr,
-                'lab_jm_pj' => $labDoc,
-                'ro_jm_pj'  => $roDoc,
-                'ro_perujuk'=> $roPerujuk,
-            ];
-        }
-
-        // =========================================================================
-        // 2. KOMPONEN NON-JM (REGISTRASI, TINDAKAN JS/BHP, OBAT, KAMAR, KSO, DLL)
-        // =========================================================================
-
-        // REGISTRASI
+        // 1. REGISTRASI
         $regQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Registrasi');
@@ -157,32 +74,33 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_reg];
             });
 
-        // TINDAKAN NON-JM (JS, BHP, PR, KSO)
+        // 2. PAKET TINDAKAN
         $sql = "
             SELECT 
                 combined.status_lanjut,
                 combined.tanggal,
                 SUM(combined.material) as js,
                 SUM(combined.bhp) as bhp,
+                SUM(combined.jm_dr) as jm_dr,
                 SUM(combined.pr) as pr,
                 SUM(combined.kso) as kso
             FROM (
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, 0 as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, t.tarif_tindakandr as jm_dr, 0 as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_jl_dr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
                 UNION ALL
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_jl_pr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
                 UNION ALL
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (t.tarif_tindakandr + CASE WHEN t.nip IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_jl_drpr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
                 UNION ALL
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, 0 as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, t.tarif_tindakandr as jm_dr, 0 as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_inap_dr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
                 UNION ALL
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_inap_pr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
                 UNION ALL
-                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
+                SELECT ni.status_lanjut, ni.tanggal, t.material, t.bhp, (t.tarif_tindakandr + CASE WHEN t.nip IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as jm_dr, (CASE WHEN t.nip NOT IN ($nipIn) THEN t.tarif_tindakanpr ELSE 0 END) as pr, COALESCE(t.kso, 0) as kso
                 FROM rawat_inap_drpr t JOIN {$notaSource} ni ON ni.no_rawat = t.no_rawat
             ) as combined
             GROUP BY combined.status_lanjut, combined.tanggal
@@ -191,7 +109,7 @@ class RekapPendapatanBpjsController extends Controller
             return $item->status_lanjut . '|' . $item->tanggal;
         });
 
-        // OBAT
+        // 3. OBAT
         $obatQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Obat');
@@ -201,7 +119,7 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_obat];
             });
 
-        // RETUR OBAT
+        // 4. RETUR OBAT
         $returQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Retur Obat');
@@ -211,20 +129,21 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_retur];
             });
 
-        // LAB NON-JM (JS & BHP)
+        // 5. LAB
         $labQuery = DB::table('periksa_lab as pl')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'pl.no_rawat');
         $labPerTgl = $labQuery->select(
             'ni.status_lanjut',
             'ni.tanggal',
             DB::raw('SUM(pl.bagian_rs) as js'),
-            DB::raw('SUM(pl.bhp) as bhp')
+            DB::raw('SUM(pl.bhp) as bhp'),
+            DB::raw('SUM(pl.tarif_tindakan_dokter + pl.tarif_tindakan_petugas) as jm_pj')
         )->groupBy('ni.status_lanjut', 'ni.tanggal')
         ->get()->keyBy(function($item) {
             return $item->status_lanjut . '|' . $item->tanggal;
         });
 
-        // RADIOLOGI NON-JM (JS, BHP, PETUGAS)
+        // 6. RADIOLOGI
         $roQuery = DB::table('periksa_radiologi as pr')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'pr.no_rawat');
         $roPerTgl = $roQuery->select(
@@ -232,13 +151,15 @@ class RekapPendapatanBpjsController extends Controller
             'ni.tanggal',
             DB::raw("SUM(pr.bagian_rs + CASE WHEN pr.dokter_perujuk = 'D0000091' THEN pr.tarif_perujuk ELSE 0 END) as js"),
             DB::raw('SUM(pr.bhp) as bhp'),
-            DB::raw('SUM(pr.tarif_tindakan_petugas) as petugas')
+            DB::raw('SUM(pr.tarif_tindakan_dokter) as jm_pj'),
+            DB::raw('SUM(pr.tarif_tindakan_petugas) as petugas'),
+            DB::raw("SUM(CASE WHEN pr.dokter_perujuk = 'D0000091' THEN 0 ELSE pr.tarif_perujuk END) as perujuk")
         )->groupBy('ni.status_lanjut', 'ni.tanggal')
         ->get()->keyBy(function($item) {
             return $item->status_lanjut . '|' . $item->tanggal;
         });
 
-        // POTONGAN
+        // 7. POTONGAN
         $potQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Potongan');
@@ -248,7 +169,7 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_pot];
             });
 
-        // TAMBAHAN
+        // 8. TAMBAHAN
         $tbmQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Tambahan');
@@ -258,7 +179,7 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_tbm];
             });
 
-        // KAMAR
+        // 9. KAMAR
         $kmrQuery = DB::table('billing as b')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'b.no_rawat')
             ->where('b.status', 'Kamar');
@@ -268,7 +189,7 @@ class RekapPendapatanBpjsController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_kmr];
             });
 
-        // OPERASI JS
+        // 10. OPERASI
         $okQuery = DB::table('operasi as o')
             ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'o.no_rawat');
         $okPerTgl = $okQuery->select(
@@ -299,54 +220,93 @@ class RekapPendapatanBpjsController extends Controller
                 + (CASE WHEN o.omloop3 IN ('-', '') THEN o.biaya_omloop3 ELSE 0 END)
                 + (CASE WHEN o.omloop4 IN ('-', '') THEN o.biaya_omloop4 ELSE 0 END)
                 + (CASE WHEN o.omloop5 IN ('-', '') THEN o.biaya_omloop5 ELSE 0 END)
-            ) as js")
+            ) as js"),
+            DB::raw("SUM(
+                (CASE WHEN o.operator1 NOT IN ('-', '') THEN o.biayaoperator1 ELSE 0 END)
+                + (CASE WHEN o.operator2 NOT IN ('-', '') THEN o.biayaoperator2 ELSE 0 END)
+                + (CASE WHEN o.operator3 NOT IN ('-', '') THEN o.biayaoperator3 ELSE 0 END)
+                + (CASE WHEN o.dokter_anak NOT IN ('-', '') THEN o.biayadokter_anak ELSE 0 END)
+                + (CASE WHEN o.dokter_anestesi NOT IN ('-', '') THEN o.biayadokter_anestesi ELSE 0 END)
+                + (CASE WHEN o.dokter_pjanak NOT IN ('-', '') THEN o.biaya_dokter_pjanak ELSE 0 END)
+                + (CASE WHEN o.dokter_umum NOT IN ('-', '') THEN o.biaya_dokter_umum ELSE 0 END)
+                + CASE WHEN o.asisten_operator1 IN ($nipIn) THEN o.biayaasisten_operator1 ELSE 0 END
+                + CASE WHEN o.asisten_operator2 IN ($nipIn) THEN o.biayaasisten_operator2 ELSE 0 END
+                + CASE WHEN o.asisten_operator3 IN ($nipIn) THEN o.biayaasisten_operator3 ELSE 0 END
+                + CASE WHEN o.asisten_anestesi IN ($nipIn) THEN o.biayaasisten_anestesi ELSE 0 END
+                + CASE WHEN o.asisten_anestesi2 IN ($nipIn) THEN o.biayaasisten_anestesi2 ELSE 0 END
+                + CASE WHEN o.bidan IN ($nipIn) THEN o.biayabidan ELSE 0 END
+                + CASE WHEN o.bidan2 IN ($nipIn) THEN o.biayabidan2 ELSE 0 END
+                + CASE WHEN o.bidan3 IN ($nipIn) THEN o.biayabidan3 ELSE 0 END
+                + CASE WHEN o.instrumen IN ($nipIn) THEN o.biayainstrumen ELSE 0 END
+                + CASE WHEN o.perawaat_resusitas IN ($nipIn) THEN o.biayaperawaat_resusitas ELSE 0 END
+                + CASE WHEN o.perawat_luar IN ($nipIn) THEN o.biayaperawat_luar ELSE 0 END
+                + CASE WHEN o.omloop IN ($nipIn) THEN o.biaya_omloop ELSE 0 END
+                + CASE WHEN o.omloop2 IN ($nipIn) THEN o.biaya_omloop2 ELSE 0 END
+                + CASE WHEN o.omloop3 IN ($nipIn) THEN o.biaya_omloop3 ELSE 0 END
+                + CASE WHEN o.omloop4 IN ($nipIn) THEN o.biaya_omloop4 ELSE 0 END
+                + CASE WHEN o.omloop5 IN ($nipIn) THEN o.biaya_omloop5 ELSE 0 END
+            ) as jm_dr"),
+            DB::raw("SUM(
+                CASE WHEN o.asisten_operator1 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator1 ELSE 0 END
+                + CASE WHEN o.asisten_operator2 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator2 ELSE 0 END
+                + CASE WHEN o.asisten_operator3 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_operator3 ELSE 0 END
+                + CASE WHEN o.asisten_anestesi NOT IN ($nipIn, '-', '') THEN o.biayaasisten_anestesi ELSE 0 END
+                + CASE WHEN o.asisten_anestesi2 NOT IN ($nipIn, '-', '') THEN o.biayaasisten_anestesi2 ELSE 0 END
+                + CASE WHEN o.bidan NOT IN ($nipIn, '-', '') THEN o.biayabidan ELSE 0 END
+                + CASE WHEN o.bidan2 NOT IN ($nipIn, '-', '') THEN o.biayabidan2 ELSE 0 END
+                + CASE WHEN o.bidan3 NOT IN ($nipIn, '-', '') THEN o.biayabidan3 ELSE 0 END
+                + CASE WHEN o.instrumen NOT IN ($nipIn, '-', '') THEN o.biayainstrumen ELSE 0 END
+                + CASE WHEN o.perawaat_resusitas NOT IN ($nipIn, '-', '') THEN o.biayaperawaat_resusitas ELSE 0 END
+                + CASE WHEN o.perawat_luar NOT IN ($nipIn, '-', '') THEN o.biayaperawat_luar ELSE 0 END
+                + CASE WHEN o.omloop NOT IN ($nipIn, '-', '') THEN o.biaya_omloop ELSE 0 END
+                + CASE WHEN o.omloop2 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop2 ELSE 0 END
+                + CASE WHEN o.omloop3 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop3 ELSE 0 END
+                + CASE WHEN o.omloop4 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop4 ELSE 0 END
+                + CASE WHEN o.omloop5 NOT IN ($nipIn, '-', '') THEN o.biaya_omloop5 ELSE 0 END
+            ) as jm_pr")
         )->groupBy('ni.status_lanjut', 'ni.tanggal')
         ->get()->keyBy(function($item) {
             return $item->status_lanjut . '|' . $item->tanggal;
         });
 
-        // BAYAR PIUTANG
+        // 11. BAYAR PIUTANG
         $bayarPiutangQuery = DB::table('bayar_piutang as bp')
-            ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'bp.no_rawat')
-            ->whereBetween('bp.tgl_bayar', [$tgl1, $tgl2]);
+            ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'bp.no_rawat');
         $bayarPiutangPerTgl = $bayarPiutangQuery->select('ni.status_lanjut', 'ni.tanggal', DB::raw('SUM(bp.besar_cicilan) as total_bayar_piutang'))
             ->groupBy('ni.status_lanjut', 'ni.tanggal')
             ->get()->mapWithKeys(function ($item) {
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_bayar_piutang];
             });
 
-        // RINCIAN BAYAR PIUTANG (Detail Lengkap)
+        // 12. RINCIAN BAYAR PIUTANG (Detail Lengkap berdasarkan Tanggal Cetak Nota)
         $rincianBayarPiutang = DB::table('reg_periksa')
             ->select(
-                'bayar_piutang.tgl_bayar',
+                DB::raw("COALESCE(bayar_piutang.tgl_bayar, '-') as tgl_bayar"),
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
-                'bayar_piutang.besar_cicilan',
-                'bayar_piutang.catatan',
+                DB::raw("COALESCE(bayar_piutang.besar_cicilan, 0) as besar_cicilan"),
+                DB::raw("COALESCE(bayar_piutang.catatan, '') as catatan"),
                 'reg_periksa.no_rawat',
-                'bayar_piutang.diskon_piutang',
-                'bayar_piutang.tidak_terbayar',
+                DB::raw("COALESCE(bayar_piutang.diskon_piutang, 0) as diskon_piutang"),
+                DB::raw("COALESCE(bayar_piutang.tidak_terbayar, 0) as tidak_terbayar"),
                 'reg_periksa.kd_pj',
                 'penjab.png_jawab',
                 'piutang_pasien.status',
-                'piutang_pasien.uangmuka',
+                DB::raw("COALESCE(piutang_pasien.uangmuka, 0) as uangmuka"),
                 'reg_periksa.status_lanjut',
-                DB::raw('COALESCE(ni.tanggal, nj.tanggal) as tgl_nota')
+                'n.tanggal as tgl_nota'
             )
+            ->join(DB::raw("{$notaSource} as n"), 'n.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-            ->join('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
-            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
-            ->leftJoin('nota_inap as ni', 'bayar_piutang.no_rawat', '=', 'ni.no_rawat')
-            ->leftJoin('nota_jalan as nj', 'bayar_piutang.no_rawat', '=', 'nj.no_rawat')
+            ->leftJoin('bayar_piutang', 'reg_periksa.no_rawat', '=', 'bayar_piutang.no_rawat')
+            ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->where('reg_periksa.kd_pj', 'BPJ')
-            ->whereBetween('bayar_piutang.tgl_bayar', [$tgl1, $tgl2])
-            ->whereRaw('COALESCE(ni.tanggal, nj.tanggal) IS NOT NULL')
-            ->orderByRaw('COALESCE(ni.tanggal, nj.tanggal) ASC')
-            ->orderBy('bayar_piutang.no_rawat', 'asc')
+            ->orderBy('n.tanggal', 'asc')
+            ->orderBy('reg_periksa.no_rawat', 'asc')
             ->get();
 
-        $noRawatsRincian = $rincianBayarPiutang->pluck('no_rawat')->toArray();
+        $noRawatsRincian = $rincianBayarPiutang->pluck('no_rawat')->unique()->filter()->toArray();
 
         // Eager load bridging_sep
         $seps = collect();
@@ -381,41 +341,43 @@ class RekapPendapatanBpjsController extends Controller
             })->values();
 
             $itemBillings = $billings->get($item->no_rawat, collect());
+            $byStatus = $itemBillings->groupBy('status');
+            $byNo = $itemBillings->groupBy('no');
 
             // NOMOR NOTA
-            $item->getNomorNota = $itemBillings->where('no', 'No.Nota')->values();
+            $item->getNomorNota = $byNo->get('No.Nota', collect());
             // REGISTRASI
-            $item->getRegistrasi = $itemBillings->where('status', 'Registrasi')->values();
+            $item->getRegistrasi = $byStatus->get('Registrasi', collect());
             // Obat+Emb+Tsl / OBAT
-            $item->getObat = $itemBillings->where('status', 'Obat')->values();
+            $item->getObat = $byStatus->get('Obat', collect());
             // Retur Obat
-            $item->getReturObat = $itemBillings->where('status', 'Retur Obat')->values();
+            $item->getReturObat = $byStatus->get('Retur Obat', collect());
             // Resep Pulang
-            $item->getResepPulang = $itemBillings->where('status', 'Resep Pulang')->values();
+            $item->getResepPulang = $byStatus->get('Resep Pulang', collect());
             // RALAN DOKTER / 1 Paket Tindakan
-            $item->getRalanDokter = $itemBillings->where('status', 'Ralan Dokter')->values();
+            $item->getRalanDokter = $byStatus->get('Ralan Dokter', collect());
             // RALAN DOKTER PARAMEDIS / 2 Paket Tindakan
-            $item->getRalanDrParamedis = $itemBillings->where('status', 'Ralan Dokter Paramedis')->values();
+            $item->getRalanDrParamedis = $byStatus->get('Ralan Dokter Paramedis', collect());
             // RALAN PARAMEDIS / 3 Paket Tindakan
-            $item->getRalanParamedis = $itemBillings->where('status', 'Ralan Paramedis')->values();
+            $item->getRalanParamedis = $byStatus->get('Ralan Paramedis', collect());
             // RANAP DOKTER / 4 Paket Tindakan
-            $item->getRanapDokter = $itemBillings->where('status', 'Ranap Dokter')->values();
+            $item->getRanapDokter = $byStatus->get('Ranap Dokter', collect());
             // RANAP DOKTER PARAMEDIS / 5 Paket Tindakan
-            $item->getRanapDrParamedis = $itemBillings->where('status', 'Ranap Dokter Paramedis')->values();
+            $item->getRanapDrParamedis = $byStatus->get('Ranap Dokter Paramedis', collect());
             // RANAP PARAMEDIS / 6 Ranap Paramedis
-            $item->getRanapParamedis = $itemBillings->where('status', 'Ranap Paramedis')->values();
+            $item->getRanapParamedis = $byStatus->get('Ranap Paramedis', collect());
             // OPRASI
-            $item->getOprasi = $itemBillings->where('status', 'Operasi')->values();
+            $item->getOprasi = $byStatus->get('Operasi', collect());
             // LABORAT
-            $item->getLaborat = $itemBillings->where('status', 'Laborat')->values();
+            $item->getLaborat = $byStatus->get('Laborat', collect());
             // RADIOLOGI
-            $item->getRadiologi = $itemBillings->where('status', 'Radiologi')->values();
+            $item->getRadiologi = $byStatus->get('Radiologi', collect());
             // TAMBAHAN
-            $item->getTambahan = $itemBillings->where('status', 'Tambahan')->values();
+            $item->getTambahan = $byStatus->get('Tambahan', collect());
             // POTONGAN
-            $item->getPotongan = $itemBillings->where('status', 'Potongan')->values();
+            $item->getPotongan = $byStatus->get('Potongan', collect());
             // KAMAR INAP
-            $item->getKamarInap = $itemBillings->where('status', 'Kamar')->values();
+            $item->getKamarInap = $byStatus->get('Kamar', collect());
 
             return $item;
         });
@@ -426,7 +388,7 @@ class RekapPendapatanBpjsController extends Controller
         });
 
         // =========================================================================
-        // 3. SUSUN DATA REKAP FINAL
+        // 13. SUSUN DATA REKAP FINAL
         // =========================================================================
         $allKeys = collect(array_keys($tindakanPerTgl->toArray()))
             ->merge(array_keys($regPerTgl->toArray()))
@@ -439,7 +401,6 @@ class RekapPendapatanBpjsController extends Controller
             ->merge(array_keys($kmrPerTgl->toArray()))
             ->merge(array_keys($okPerTgl->toArray()))
             ->merge(array_keys($bayarPiutangPerTgl->toArray()))
-            ->merge(array_keys($jmPerKey))
             ->filter()
             ->unique()
             ->sort()
@@ -464,12 +425,9 @@ class RekapPendapatanBpjsController extends Controller
             $regVal = (float) $regPerTgl->get($keyStr, 0);
             $jsVal   = $tindakan ? (float)$tindakan->js : 0;
             $bhpVal  = $tindakan ? (float)$tindakan->bhp : 0;
+            $jmDrVal = $tindakan ? (float)$tindakan->jm_dr : 0;
             $prVal   = $tindakan ? (float)$tindakan->pr : 0;
             $ksoVal  = $tindakan ? (float)$tindakan->kso : 0;
-
-            // JM DR diambil dari perhitungan JM BPJS yang klop 100%
-            $jmItem = $jmPerKey[$keyStr] ?? null;
-            $jmDrVal = $jmItem ? (float)$jmItem->jm_dr : 0;
 
             $obatVal  = (float) $obatPerTgl->get($keyStr, 0);
             $returVal = (float) $returPerTgl->get($keyStr, 0);
@@ -477,14 +435,14 @@ class RekapPendapatanBpjsController extends Controller
             $labItem = $labPerTgl->get($keyStr);
             $labJsVal   = $labItem ? (float)$labItem->js : 0;
             $labBhpVal  = $labItem ? (float)$labItem->bhp : 0;
-            $labJmPjVal = $jmItem ? (float)$jmItem->lab_jm_pj : 0;
+            $labJmPjVal = $labItem ? (float)$labItem->jm_pj : 0;
 
             $roItem = $roPerTgl->get($keyStr);
             $roJsVal      = $roItem ? (float)$roItem->js : 0;
             $roBhpVal     = $roItem ? (float)$roItem->bhp : 0;
-            $roJmPjVal    = $jmItem ? (float)$jmItem->ro_jm_pj : 0;
+            $roJmPjVal    = $roItem ? (float)$roItem->jm_pj : 0;
             $roPetugasVal = $roItem ? (float)$roItem->petugas : 0;
-            $roPerujukVal = $jmItem ? (float)$jmItem->ro_perujuk : 0;
+            $roPerujukVal = $roItem ? (float)$roItem->perujuk : 0;
 
             $potVal = (float) $potPerTgl->get($keyStr, 0);
             $tbmVal = (float) $tbmPerTgl->get($keyStr, 0);
@@ -492,8 +450,8 @@ class RekapPendapatanBpjsController extends Controller
 
             $okItem    = $okPerTgl->get($keyStr);
             $okJsVal   = $okItem ? (float)$okItem->js : 0;
-            $okJmDrVal = $jmItem ? (float)$jmItem->ok_jm_dr : 0;
-            $okJmPrVal = $jmItem ? (float)$jmItem->ok_jm_pr : 0;
+            $okJmDrVal = $okItem ? (float)$okItem->jm_dr : 0;
+            $okJmPrVal = $okItem ? (float)$okItem->jm_pr : 0;
 
             $bayarPiutangVal = (float) $bayarPiutangPerTgl->get($keyStr, 0);
 
@@ -556,24 +514,38 @@ class RekapPendapatanBpjsController extends Controller
 
         $notaSource = "(
             SELECT DISTINCT 
-                bp.no_rawat, 
-                rp.status_lanjut,
-                DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') as bulan,
+                ni.no_rawat, 
+                'Ranap' as status_lanjut,
+                DATE_FORMAT(ni.tanggal, '%Y-%m-01') as bulan,
                 p.no_rkm_medis,
                 p.nm_pasien,
-                COALESCE(ni.tanggal, nj.tanggal) as tgl_tindakan,
+                ni.tanggal as tgl_tindakan,
                 d.nm_dokter as pj
-            FROM bayar_piutang bp
-            JOIN reg_periksa rp ON bp.no_rawat = rp.no_rawat
+            FROM nota_inap ni
+            JOIN reg_periksa rp ON ni.no_rawat = rp.no_rawat
             JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
-            LEFT JOIN nota_inap ni ON bp.no_rawat = ni.no_rawat
-            LEFT JOIN nota_jalan nj ON bp.no_rawat = nj.no_rawat
-            WHERE bp.tgl_bayar BETWEEN '{$tgl1}' AND '{$tgl2}'
-            AND DATE_FORMAT(COALESCE(ni.tanggal, nj.tanggal), '%Y-%m-01') = '{$tgl_nota}'
-            AND rp.status_lanjut = '{$status_lanjut}'
+            WHERE ni.tanggal BETWEEN '{$tgl1}' AND '{$tgl2}'
+            AND DATE_FORMAT(ni.tanggal, '%Y-%m-01') = '{$tgl_nota}'
+            AND 'Ranap' = '{$status_lanjut}'
             AND rp.kd_pj = 'BPJ'
-            AND COALESCE(ni.tanggal, nj.tanggal) IS NOT NULL
+            UNION
+            SELECT DISTINCT 
+                nj.no_rawat, 
+                'Ralan' as status_lanjut,
+                DATE_FORMAT(nj.tanggal, '%Y-%m-01') as bulan,
+                p.no_rkm_medis,
+                p.nm_pasien,
+                nj.tanggal as tgl_tindakan,
+                d.nm_dokter as pj
+            FROM nota_jalan nj
+            JOIN reg_periksa rp ON nj.no_rawat = rp.no_rawat
+            JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
+            WHERE nj.tanggal BETWEEN '{$tgl1}' AND '{$tgl2}'
+            AND DATE_FORMAT(nj.tanggal, '%Y-%m-01') = '{$tgl_nota}'
+            AND 'Ralan' = '{$status_lanjut}'
+            AND rp.kd_pj = 'BPJ'
         )";
 
         $nipDokterKhusus = [

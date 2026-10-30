@@ -432,6 +432,135 @@
             0%   { transform: translateX(0%); }
             100% { transform: translateX(-100%); }
         }
+
+        /* 📢 Popup Pengumuman Berkala Scan Wajah / E-KTP */
+        #popup-pengumuman-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(10, 20, 30, 0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        #popup-pengumuman-overlay.show {
+            display: flex !important;
+            opacity: 1;
+        }
+
+        .popup-pengumuman-box {
+            background: linear-gradient(145deg, #ffffff, #f0fdf4);
+            border-radius: 26px;
+            max-width: 1100px;
+            width: 95%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(22, 101, 52, 0.2);
+            border: 4px solid #16a34a;
+            overflow: hidden;
+            animation: zoomInPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes zoomInPopup {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .popup-header-banner {
+            background: linear-gradient(135deg, #15803d, #16a34a, #059669);
+            color: #ffffff;
+            padding: 1.4rem 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .popup-countdown-badge {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fef08a;
+        }
+
+        .popup-body-content {
+            padding: 2.2rem 2.5rem;
+            color: #1e293b;
+        }
+
+        .popup-greeting {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #166534;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .popup-alert-card {
+            background: #fef2f2;
+            border-left: 8px solid #dc2626;
+            border-radius: 14px;
+            padding: 1.3rem 1.6rem;
+            margin-bottom: 1.4rem;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+        }
+
+        .popup-alert-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #991b1b;
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .popup-alert-text .badge-wajib {
+            background: #dc2626;
+            color: #ffffff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+        }
+
+        .popup-info-card {
+            background: #eff6ff;
+            border-left: 8px solid #2563eb;
+            border-radius: 14px;
+            padding: 1.3rem 1.6rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+
+        .popup-info-text {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .popup-progress-track {
+            height: 8px;
+            background: #e2e8f0;
+            width: 100%;
+        }
+
+        .popup-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            width: 100%;
+            transition: width 1s linear;
+        }
     </style>
 
     <!-- ✅ Header dengan logo kiri & kanan, judul center -->
@@ -469,6 +598,47 @@
     <div class="container-fluid mt-4">
         <div class="row g-4" id="antrian-container">
             {{-- data antrian inject di JS --}}
+        </div>
+    </div>
+
+
+    <!-- 📢 POPUP PENGUMUMAN BERKALA (Tampil 30 Detik setiap 1 Menit) -->
+    <div id="popup-pengumuman-overlay">
+        <div class="popup-pengumuman-box">
+            <div class="popup-header-banner">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ asset('img/bw2.png') }}" style="height:50px; background:white; border-radius:8px; padding:4px;" alt="Logo RS">
+                    <span style="font-size:1.6rem; font-weight:800; letter-spacing:1px;">INFORMASI PELAYANAN BPJS KESEHATAN</span>
+                </div>
+                <div class="popup-countdown-badge">
+                    <i class="fas fa-clock me-1"></i> Ditutup dalam <span id="popup-timer-sec">30</span> dtk
+                </div>
+            </div>
+
+            <div class="popup-body-content">
+                <div class="popup-greeting">
+                    <i class="fas fa-heart text-danger"></i>
+                    <span>Selamat pagi peserta BPJS RSBW tercinta ,</span>
+                </div>
+
+                <div class="popup-alert-card">
+                    <p class="popup-alert-text">
+                        <i class="fas fa-bullhorn me-2"></i>
+                        Kami informasikan untuk update pelayanan dari BPJS mulai <strong>tgl 1 November 2026</strong> saat registrasi di pendaftaran <span class="badge-wajib">WAJIB LOLOS SCAN WAJAH</span>
+                    </p>
+                </div>
+
+                <div class="popup-info-card">
+                    <p class="popup-info-text">
+                        <i class="fas fa-id-card text-primary me-2"></i>
+                        Kami menghimbau untuk peserta yang masih terbiasa registrasi dengan sidik jari agar mempermudah pelayanan di pendaftaran segera melakukan <strong>update E-KTP</strong> (dengan cara update KTP lama anda menjadi E-KTP ke <strong>dukcapil terdekat</strong>).
+                    </p>
+                </div>
+            </div>
+
+            <div class="popup-progress-track">
+                <div class="popup-progress-bar" id="popup-progress-fill"></div>
+            </div>
         </div>
     </div>
 
@@ -720,12 +890,85 @@
         cb.addEventListener("change", fetchAntrian);
     });
 
+
+    // 📢 SISTEM POPUP PENGUMUMAN BERKALA (Setiap 1 menit muncul selama 30 detik)
+    const POPUP_INTERVAL_SEC = 60; // Jeda 60 detik (1 menit)
+    const POPUP_DURATION_SEC = 30; // Muncul selama 30 detik
+    let popupTimerCountdown = null;
+
+    function showPengumumanPopup() {
+        const overlay = document.getElementById("popup-pengumuman-overlay");
+        const timerSecEl = document.getElementById("popup-timer-sec");
+        const progressFill = document.getElementById("popup-progress-fill");
+        if (!overlay) return;
+
+        // Jangan muncul jika sedang layar penuh gangguan BPJS
+        if (prevGangguanState) return;
+
+        let remainingSec = POPUP_DURATION_SEC;
+        if (timerSecEl) timerSecEl.innerText = remainingSec;
+        if (progressFill) {
+            progressFill.style.transition = "none";
+            progressFill.style.width = "100%";
+            setTimeout(() => {
+                progressFill.style.transition = "width 1s linear";
+            }, 50);
+        }
+
+        overlay.classList.add("show");
+
+        // Bunyikan notifikasi audio bel lembut jika ada
+        let bell = document.getElementById("bell-sound");
+        if (bell) {
+            bell.play().catch(e => console.log("Audio notify:", e));
+        }
+
+        if (popupTimerCountdown) clearInterval(popupTimerCountdown);
+        popupTimerCountdown = setInterval(() => {
+            remainingSec--;
+            if (timerSecEl) timerSecEl.innerText = remainingSec;
+            if (progressFill) {
+                let percent = (remainingSec / POPUP_DURATION_SEC) * 100;
+                progressFill.style.width = percent + "%";
+            }
+
+            if (remainingSec <= 0) {
+                clearInterval(popupTimerCountdown);
+                hidePengumumanPopup();
+            }
+        }, 1000);
+    }
+
+    function hidePengumumanPopup() {
+        const overlay = document.getElementById("popup-pengumuman-overlay");
+        if (overlay) {
+            overlay.classList.remove("show");
+        }
+        if (popupTimerCountdown) {
+            clearInterval(popupTimerCountdown);
+        }
+    }
+
+    function startPengumumanScheduler() {
+        // Setiap (1 menit + 30 detik) dari awal ke awal, atau jeda 60 detik antar popup:
+        // Muncul tiap (POPUP_INTERVAL_SEC + POPUP_DURATION_SEC) detik sehingga jeda tertutup = 60 detik, tampil = 30 detik.
+        setInterval(() => {
+            showPengumumanPopup();
+        }, (POPUP_INTERVAL_SEC + POPUP_DURATION_SEC) * 1000);
+
+        // Muncul pertama kali 5 detik setelah TV dibuka
+        setTimeout(() => {
+            showPengumumanPopup();
+        }, 5000);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         if ({{ !empty($bpjsStatus['is_gangguan']) ? 'true' : 'false' }}) {
             document.body.classList.add("bpjs-mode-active");
         }
         fetchAntrian();
         setInterval(fetchAntrian, 4000); // cek update tiap 4 detik secara berkala
+        startPengumumanScheduler();
     });
 </script>
 </div>
