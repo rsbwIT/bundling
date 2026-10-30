@@ -13,7 +13,7 @@ class JMAsuransiController extends Controller
 
     // List Template dari Gambar (bisa ditambahkan 'id_khanza' nya nanti jika auto-match meleset)
     public $templateJM = [
-        ['kode' => 'SP1', 'nama' => 'Achmad Gozali, dr, Sp.P', 'id_khanza' => 'D0000138'],
+        ['kode' => 'SP1', 'nama' => 'dr. Astri Pinilih, Sp.A', 'id_khanza' => 'D0000138'],
         ['kode' => 'FG1', 'nama' => 'Agung Rangga Dinata', 'id_khanza' => '0518010327'],
         ['kode' => 'U1', 'nama' => 'Mohamad Farhan, dr', 'id_khanza' => 'D0000113'],
         ['kode' => 'SP2', 'nama' => 'Nindya Sari Diajeng Larasati, dr, SpJP', 'id_khanza' => 'D0000136'],
@@ -1915,9 +1915,10 @@ class JMAsuransiController extends Controller
         $kodeTemplate = $templateData ? $templateData['kode'] : $kdDokter;
         $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
 
-        $nmDokter = $nmDokterFromTemplate 
-            ?? DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+        $nmDokter = DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            ?? DB::table('pegawai')->where('nik', $kdDokter)->value('nama')
             ?? DB::table('petugas')->where('nip', $kdDokter)->value('nama')
+            ?? $nmDokterFromTemplate 
             ?? $kdDokter;
 
         // Base filter for penjamin + bayar_piutang (menggunakan whereExists agar tidak double)

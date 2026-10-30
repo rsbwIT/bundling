@@ -1,5 +1,5 @@
 @extends('..layout.layoutDashboard')
-@section('title', 'Detail JM Asuransi - ' . $nmDokter)
+@section('title', 'Detail JM BPJS - ' . $nmDokter)
 
 @section('konten')
     <div class="card">
