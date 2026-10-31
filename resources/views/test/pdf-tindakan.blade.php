@@ -22,7 +22,7 @@
                                     <optgroup label="{{ $cat['nama'] }} ({{ $cat['badge'] }})">
                                         @foreach ($cat['items'] as $doc)
                                             <option value="{{ $doc['id_khanza'] }}" {{ $kdDokter == $doc['id_khanza'] ? 'selected' : '' }}>
-                                                {{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]
+                                                {{ sprintf('%02d', $doc['no_urut']) }}. {{ $doc['kode'] }} - {{ $doc['nama'] }} ({{ $doc['id_khanza'] }})
                                             </option>
                                         @endforeach
                                     </optgroup>
@@ -838,7 +838,8 @@
                                                 <div class="col-md-6 mb-2 item-dokter-wrap" data-cat="{{ $cat['key'] }}" data-nama="{{ strtolower($doc['nama']) }}" data-kode="{{ strtolower($doc['kode']) }}" data-id="{{ strtolower($doc['id_khanza']) }}">
                                                     <div class="custom-control custom-checkbox p-1 pl-4 rounded border-bottom" style="border-bottom-style: dashed !important;">
                                                         <input class="custom-control-input chk-dokter chk-cat-{{ $cat['key'] }}" type="checkbox" name="kd_dokter[]" value="{{ $doc['id_khanza'] }}" id="modaldoc_{{ $doc['id_khanza'] }}" data-cat="{{ $cat['key'] }}">
-                                                        <label class="custom-control-label text-xs font-weight-normal text-truncate d-block" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}" title="{{ $doc['nama'] }} ({{ $doc['id_khanza'] }}) [{{ $doc['kode'] }}]">
+                                                        <label class="custom-control-label text-xs font-weight-normal text-truncate d-block" style="cursor:pointer;" for="modaldoc_{{ $doc['id_khanza'] }}" title="{{ sprintf('%02d', $doc['no_urut']) }}. [{{ $doc['kode'] }}] {{ $doc['nama'] }} ({{ $doc['id_khanza'] }})">
+                                                            <span class="badge badge-secondary mr-1">{{ sprintf('%02d', $doc['no_urut']) }}</span>
                                                             <span class="badge badge-light border text-dark font-weight-bold mr-1">{{ $doc['kode'] }}</span>
                                                             <strong>{{ $doc['nama'] }}</strong>
                                                             <small class="text-muted ml-1">({{ $doc['id_khanza'] }})</small>

@@ -38,75 +38,27 @@ class PdfTindakanController extends Controller
             $selectedJenis = (array) $request->input('jenis', ['umum', 'asuransi', 'inhealth', 'bpjs']);
         }
 
-        // Gabungkan daftar dokter/petugas dari templateJM
-        $templateUmum = collect($this->jmUmumController->templateJM);
-        $templateAsuransi = collect($this->jmAsuransiController->templateJM);
-        $templateBpjs = collect($this->jmBpjsController->templateJM);
-        $listDokterRaw = $templateUmum->merge($templateAsuransi)->merge($templateBpjs)
-            ->unique('id_khanza')
-            ->filter(function ($item) {
-                return !empty($item['id_khanza']);
-            })
-            ->sortBy('nama')
-            ->values();
-
-        // Categorize
-        // Fetch correct names from DB based on kd_dokter (id_khanza)
-        $idKhanzas = $listDokterRaw->pluck('id_khanza')->filter()->toArray();
-        $dbDokterNames = DB::table('dokter')->whereIn('kd_dokter', $idKhanzas)->pluck('nm_dokter', 'kd_dokter');
-        $dbPetugasNames = DB::table('petugas')->whereIn('nip', $idKhanzas)->pluck('nama', 'nip');
-        $dbPegawaiNames = DB::table('pegawai')->whereIn('nik', $idKhanzas)->pluck('nama', 'nik');
-
+        // Ambil dokter/petugas terurut sesuai urutan master sheet dari atas sampai bawah
+        $masterDoctors = $this->getOrderedMasterDoctors();
         $categoryDefs = $this->getCategoryDefs();
         $categories = [];
         foreach ($categoryDefs as $p => $def) {
             $categories[$p] = $def;
-            $categories[$p]['items'] = collect();
+            $categories[$p]['items'] = $masterDoctors->where('prefix', $p)->values();
         }
 
-        foreach ($listDokterRaw as $doc) {
-            $id = $doc['id_khanza'];
-            if (empty($id)) continue;
-            
-            // Override nama with DB name
-            if ($dbDokterNames->has($id)) {
-                $doc['nama'] = $dbDokterNames[$id];
-            } elseif ($dbPetugasNames->has($id)) {
-                $doc['nama'] = $dbPetugasNames[$id];
-            } elseif ($dbPegawaiNames->has($id)) {
-                $doc['nama'] = $dbPegawaiNames[$id];
-            }
-            
-            $kode = strtoupper($doc['kode'] ?? '');
-            preg_match('/^([A-Z]+)/', $kode, $m);
-            $prefix = $m[1] ?? 'LAINNYA';
-
-            if (!isset($categories[$prefix])) {
-                if (!isset($categories['LAINNYA'])) {
-                    $categories['LAINNYA'] = [
-                        'key' => 'lainnya',
-                        'nama' => 'Lainnya',
-                        'badge' => 'Lain',
-                        'color' => 'secondary',
-                        'icon' => 'fas fa-user',
-                        'folder' => '8. Lainnya',
-                        'items' => collect(),
-                    ];
-                }
-                $prefix = 'LAINNYA';
-            }
-
-            $doc['kategori_key'] = $categories[$prefix]['key'];
-            $doc['kategori_nama'] = $categories[$prefix]['nama'];
-            $doc['kategori_badge'] = $categories[$prefix]['badge'];
-            $categories[$prefix]['items']->push($doc);
+        $otherDocs = $masterDoctors->where('prefix', 'LAINNYA')->values();
+        if ($otherDocs->count() > 0) {
+            $categories['LAINNYA'] = [
+                'key' => 'lainnya',
+                'nama' => 'Lainnya',
+                'badge' => 'Lain',
+                'color' => 'secondary',
+                'icon' => 'fas fa-user',
+                'folder' => '8. Lainnya',
+                'items' => $otherDocs,
+            ];
         }
-        
-        // Sort by the newly fetched DB names inside each category
-        foreach ($categories as $p => &$cat) {
-            $cat['items'] = $cat['items']->sortBy('nama')->values();
-        }
-        unset($cat);
 
         $listDokterSpesialis = $categories['SP']['items'] ?? collect();
         $listDokterUmum = $categories['U']['items'] ?? collect();
@@ -117,7 +69,7 @@ class PdfTindakanController extends Controller
         $listAdministrasi = $categories['AD']['items'] ?? collect();
         $listPetugas = $listPetugasOK->merge($listPetugasHD)->merge($listFisioterapi)->merge($listESWL)->merge($listAdministrasi);
 
-        $listDokter = $listDokterRaw; // keep original for select dropdown
+        $listDokter = $masterDoctors; // master ordered for select dropdown
 
 
         $detailsRalanUmum = collect();
@@ -374,30 +326,45 @@ class PdfTindakanController extends Controller
             return back()->with('error', 'Gagal membuat file zip.');
         }
 
+        $masterDoctors = $this->getOrderedMasterDoctors();
+        $masterMap = $masterDoctors->keyBy('id_khanza');
+
         $categoryDefs = $this->getCategoryDefs();
-        $allTemplate = collect($this->jmUmumController->templateJM)
-            ->merge($this->jmAsuransiController->templateJM)
-            ->merge($this->jmBpjsController->templateJM);
+        $catOrder = array_flip(array_keys($categoryDefs));
+
+        // Urutkan kdDokterInput sesuai urutan master dari atas sampai bawah
+        usort($kdDokterInput, function ($a, $b) use ($masterMap, $catOrder) {
+            $docA = $masterMap->get($a);
+            $docB = $masterMap->get($b);
+
+            $catAOrder = isset($docA['prefix']) && isset($catOrder[$docA['prefix']]) ? $catOrder[$docA['prefix']] : 999;
+            $catBOrder = isset($docB['prefix']) && isset($catOrder[$docB['prefix']]) ? $catOrder[$docB['prefix']] : 999;
+
+            if ($catAOrder !== $catBOrder) {
+                return $catAOrder <=> $catBOrder;
+            }
+
+            $noA = $docA['no_urut'] ?? 9999;
+            $noB = $docB['no_urut'] ?? 9999;
+
+            return $noA <=> $noB;
+        });
 
         $addedFilesCount = 0;
 
         foreach ($kdDokterInput as $kdDokter) {
             if (!$kdDokter) continue;
 
-            $templateData = $allTemplate->firstWhere('id_khanza', $kdDokter);
-            $nmDokterFromTemplate = $templateData ? $templateData['nama'] : null;
-
-            $nmDokter = \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
+            $docInfo = $masterMap->get($kdDokter);
+            $nmDokter = $docInfo['nama'] ?? (
+                \Illuminate\Support\Facades\DB::table('dokter')->where('kd_dokter', $kdDokter)->value('nm_dokter')
                 ?? \Illuminate\Support\Facades\DB::table('pegawai')->where('nik', $kdDokter)->value('nama')
                 ?? \Illuminate\Support\Facades\DB::table('petugas')->where('nip', $kdDokter)->value('nama')
-                ?? $nmDokterFromTemplate 
-                ?? $kdDokter;
+                ?? $kdDokter
+            );
 
             // Tentukan folder kategori untuk file di dalam ZIP
-            $kode = strtoupper($templateData['kode'] ?? '');
-            preg_match('/^([A-Z]+)/', $kode, $m);
-            $prefix = $m[1] ?? 'LAINNYA';
-            $categoryFolder = $categoryDefs[$prefix]['folder'] ?? '8. Lainnya';
+            $categoryFolder = $docInfo['category_folder'] ?? ($categoryDefs[$docInfo['prefix'] ?? 'LAINNYA']['folder'] ?? '8. Lainnya');
 
             $detailsRalanUmum = collect();
             $detailsRanapUmum = collect();
@@ -531,7 +498,19 @@ class PdfTindakanController extends Controller
             $bulanTahun = \Carbon\Carbon::parse($tanggl1)->locale('id')->translatedFormat('F Y');
             $jenisStr = (count($selectedJenis) === 1) ? ' ' . strtolower($selectedJenis[0]) : ' jm';
             $safeNmDokter = preg_replace('/[\/\\\\:*?"<>|]/', '', $nmDokter);
-            $pdfFilename = $safeNmDokter . ' slip' . $jenisStr . ' ' . $bulanTahun . '.pdf';
+
+            $noUrut = $docInfo['no_urut'] ?? null;
+            $kodePrefix = $docInfo['kode'] ?? '';
+            // Nama file memakai nama dari template (sesuai lembar master)
+            $safeNmTemplate = preg_replace('/[\/\\\\:*?"<>|]/', '', $docInfo['nama_template'] ?? $nmDokter);
+
+            if ($noUrut && $kodePrefix) {
+                $pdfFilename = sprintf('%02d. %s - %s slip%s %s.pdf', $noUrut, $kodePrefix, $safeNmTemplate, $jenisStr, $bulanTahun);
+            } elseif ($kodePrefix) {
+                $pdfFilename = sprintf('%s - %s slip%s %s.pdf', $kodePrefix, $safeNmTemplate, $jenisStr, $bulanTahun);
+            } else {
+                $pdfFilename = $safeNmTemplate . ' slip' . $jenisStr . ' ' . $bulanTahun . '.pdf';
+            }
             
             // Masukkan PDF yang di-generate ke dalam ZIP (disusun per folder kategori)
             $zip->addFromString($categoryFolder . '/' . $pdfFilename, $pdf->output());
@@ -611,5 +590,64 @@ class PdfTindakanController extends Controller
                 'folder' => '7. Administrasi',
             ],
         ];
+    }
+
+    public function getOrderedMasterDoctors()
+    {
+        // Ambil template asli terurut (129 baris) dari jmBpjsController
+        $master = collect($this->jmBpjsController->templateJM)
+            ->filter(function ($item) {
+                return !empty($item['id_khanza']);
+            })
+            ->values();
+
+        $idKhanzas = $master->pluck('id_khanza')->filter()->toArray();
+        $dbDokterNames = DB::table('dokter')->whereIn('kd_dokter', $idKhanzas)->pluck('nm_dokter', 'kd_dokter');
+        $dbPetugasNames = DB::table('petugas')->whereIn('nip', $idKhanzas)->pluck('nama', 'nip');
+        $dbPegawaiNames = DB::table('pegawai')->whereIn('nik', $idKhanzas)->pluck('nama', 'nik');
+
+        $categoryDefs = $this->getCategoryDefs();
+        $counters = [];
+
+        return $master->map(function ($item) use ($dbDokterNames, $dbPetugasNames, $dbPegawaiNames, $categoryDefs, &$counters) {
+            $id = $item['id_khanza'];
+            $nama = $item['nama'];
+            if ($dbDokterNames->has($id)) {
+                $nama = $dbDokterNames[$id];
+            } elseif ($dbPetugasNames->has($id)) {
+                $nama = $dbPetugasNames[$id];
+            } elseif ($dbPegawaiNames->has($id)) {
+                $nama = $dbPegawaiNames[$id];
+            }
+
+            $kode = strtoupper($item['kode'] ?? '');
+            preg_match('/^([A-Z]+)/', $kode, $m);
+            $prefix = $m[1] ?? 'LAINNYA';
+
+            if (!isset($categoryDefs[$prefix])) {
+                $prefix = 'LAINNYA';
+            }
+
+            if (!isset($counters[$prefix])) {
+                $counters[$prefix] = 0;
+            }
+            $counters[$prefix]++;
+            $noUrut = $counters[$prefix];
+
+            return [
+                'no_urut' => $noUrut,
+                'kode' => $kode,
+                'nama' => $nama,
+                'nama_template' => $item['nama'],
+                'id_khanza' => $id,
+                'prefix' => $prefix,
+                'kategori_key' => $categoryDefs[$prefix]['key'] ?? 'lainnya',
+                'kategori_nama' => $categoryDefs[$prefix]['nama'] ?? 'Lainnya',
+                'kategori_badge' => $categoryDefs[$prefix]['badge'] ?? 'Lain',
+                'kategori_color' => $categoryDefs[$prefix]['color'] ?? 'secondary',
+                'kategori_icon' => $categoryDefs[$prefix]['icon'] ?? 'fas fa-user',
+                'category_folder' => $categoryDefs[$prefix]['folder'] ?? '8. Lainnya',
+            ];
+        });
     }
 }
