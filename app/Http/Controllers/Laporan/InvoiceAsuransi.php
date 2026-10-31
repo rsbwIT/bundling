@@ -139,7 +139,9 @@ class InvoiceAsuransi extends Controller
             
             $kamar = isset($tglKeluarDB[$item->no_rawat]) ? $tglKeluarDB[$item->no_rawat] : collect();
             $item->getTglKeluar = $kamar->take(1)->values();
+            $item->tgl_keluar = $kamar->isNotEmpty() ? $kamar->first()->tgl_keluar : null;
             $item->tgl_masuk = $kamar->isNotEmpty() ? $item->tgl_registrasi : null;
+            $item->total_biaya = $item->biaya_baris ?? (isset($item->getTotalBiaya) ? $item->getTotalBiaya->sum('totalpiutang') : 0);
             $item->tgl_byr = $item->tgltempo;
             
             $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
@@ -372,7 +374,9 @@ class InvoiceAsuransi extends Controller
             
             $kamar = isset($tglKeluarDB[$item->no_rawat]) ? $tglKeluarDB[$item->no_rawat] : collect();
             $item->getTglKeluar = $kamar->take(1)->values();
+            $item->tgl_keluar = $kamar->isNotEmpty() ? $kamar->first()->tgl_keluar : null;
             $item->tgl_masuk = $kamar->isNotEmpty() ? $item->tgl_registrasi : null;
+            $item->total_biaya = $item->biaya_baris ?? (isset($item->getTotalBiaya) ? $item->getTotalBiaya->sum('totalpiutang') : 0);
             
             $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
             

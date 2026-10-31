@@ -33,7 +33,7 @@
                     @else
                         {{ date('d', strtotime($item->tgl_masuk)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_masuk))) }}
                         -
-                        {{ date('d', strtotime($tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($tgl_keluar))) }}-{{ date('Y', strtotime($tgl_keluar)) }}
+                        {{ date('d', strtotime($item->tgl_keluar)) }}-{{ \App\Services\BulanRomawi::BulanIndo(date('m', strtotime($item->tgl_keluar))) }}-{{ date('Y', strtotime($item->tgl_keluar)) }}
                     @endif
                 </td>
                 <td>{{ $item->nm_pasien }}</td>
