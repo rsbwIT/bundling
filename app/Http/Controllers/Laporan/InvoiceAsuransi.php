@@ -393,14 +393,11 @@ class InvoiceAsuransi extends Controller
             $item->getTambahan = $itemBillings->where('status', 'Tambahan')->values();
         });
 
-        $url = "invoice-asuransi";
-        return view('laporan.component.cetak-invoice-asuransi.layout', [
-            'getListInvoice' => $getListInvoice,
+        return view('laporan.cetak.cetakinvoiceAsuransi', [
             'getDetailAsuransi' => $getDetailAsuransi,
+            'getListInvoice' => $getListInvoice,
             'getPasien' => $getPasien,
             'template' => $template,
-            'url' => $url,
-            'is_preview' => false,
         ]);
     }
 
