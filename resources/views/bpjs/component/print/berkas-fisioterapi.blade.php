@@ -47,8 +47,7 @@
             </table>
         </div>
 
-        {{-- PROTOKOL TERAPI (Hanya ditampilkan jika Ralan) --}}
-        @if(($statusLanjut->status_lanjut ?? null) !== 'Ranap')
+        {{-- PROTOKOL TERAPI --}}
         <h3 style="margin: 5px 0 10px 0; font-size:16px;">Protokol Terapi</h3>
         <table style="width:100%; border-collapse: separate; border-spacing: 15px 0; margin-left:-15px; margin-bottom:20px;">
             <tr>
@@ -63,7 +62,6 @@
                 </td>
             </tr>
         </table>
-        @endif
 
         {{-- TABEL KUNJUNGAN --}}
         <h4 style="margin: 5px 0 10px 0; font-size:15px;">Data Kunjungan</h4>
