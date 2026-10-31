@@ -17,16 +17,30 @@
     @if ($getPasien)
         @foreach ($getPasien as $key => $item)
             @php
-                $biayaItem = $item->getTotalBiaya->sum('totalpiutang');
+                $biayaItem = $item->biaya_baris ?? $item->getTotalBiaya->sum('totalpiutang');
+                $checkboxVal = $item->no_rawat . '|' . ($item->nama_bayar ?? '') . '|' . ($item->kd_pj_piutang ?? '') . '|' . $biayaItem;
             @endphp
             <tr class="row-pasien" id="row-pasien-{{ $key }}" style="cursor: pointer;">
                 @if ($is_preview ?? false)
                     <td width="40px" class="text-center align-middle">
-                        <input type="checkbox" name="selected_pasien[]" value="{{ $item->no_rawat }}" class="pasien-checkbox" checked data-biaya="{{ $biayaItem }}" data-key="{{ $key }}" style="cursor: pointer; width: 18px; height: 18px;">
+                        <input type="checkbox" name="selected_pasien[]" value="{{ $checkboxVal }}" class="pasien-checkbox" checked data-biaya="{{ $biayaItem }}" data-key="{{ $key }}" style="cursor: pointer; width: 18px; height: 18px;">
                     </td>
                 @endif
                 <td width="30px" class="nomor-urut" data-original="{{ $key + 1 }}">{{ $key + 1 }}. </td>
-                <td class="cell-nama">{{ $item->nm_pasien }}</td>
+                <td class="cell-nama">
+                    {{ $item->nm_pasien }}
+                    @if (!empty($item->nama_bayar))
+                        <br>
+                        <span class="badge badge-primary" style="font-size: 11px; font-weight: normal;">
+                            <i class="fas fa-file-invoice-dollar mr-1"></i> {{ $item->nama_bayar }}
+                        </span>
+                    @endif
+                    @if (isset($item->is_cob) && $item->is_cob)
+                        <span class="badge badge-warning ml-1" style="font-size: 10px; font-weight: normal;" title="Pasien memiliki lebih dari 1 piutang penjamin (COB)">
+                            COB
+                        </span>
+                    @endif
+                </td>
                 <td class="cell-biaya" data-biaya="{{ $biayaItem }}">Rp. {{ number_format($biayaItem, 0, ',', '.') }}</td>
                 <td>
                     @foreach ($item->getNomorNota as $detail)
@@ -60,14 +74,18 @@
             <td><b>Total</b></td>
             <td><b>Rp. <span id="preview-total-biaya">{{ number_format(
                         $getPasien->sum(function ($item) {
-                            return $item->getTotalBiaya->sum('totalpiutang');
+                            return $item->biaya_baris ?? $item->getTotalBiaya->sum('totalpiutang');
                         }),
                         0,
                         ',',
                         '.',
                     ) }}</span></b>
             </td>
-            <td colspan="5"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
         </tr>
     @endif
 </table>

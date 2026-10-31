@@ -85,6 +85,7 @@
                 <th>Nama Asuransi</th>
                 <th>Tanggal Cetak</th>
                 <th>Status Lanjut</th>
+                <th>Mode Piutang</th>
                 <th>Lamiran</th>
                 <th>Act</th>
             </tr>
@@ -132,6 +133,13 @@
                     <td>{{ $invoice->nama_asuransi }}</td>
                     <td>{{ $invoice->tgl_cetak }}</td>
                     <td>{{ $invoice->status_lanjut }}</td>
+                    <td>
+                        @if (($invoice->mode_cob ?? 'non_cob') == 'cob')
+                            <span class="badge badge-warning"><i class="fas fa-layer-group mr-1"></i> COB</span>
+                        @else
+                            <span class="badge badge-info">Non-COB</span>
+                        @endif
+                    </td>
                     <td>{{ $invoice->lamiran }}</td>
                     <td>
                         <div>

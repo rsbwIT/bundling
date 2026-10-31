@@ -45,6 +45,7 @@ class RiwayatInvoce extends Component
                 'bw_invoice_asuransi.tanggl2',
                 'bw_invoice_asuransi.tgl_cetak',
                 'bw_invoice_asuransi.status_lanjut',
+                'bw_invoice_asuransi.mode_cob',
                 'bw_invoice_asuransi.lamiran'
             );
 

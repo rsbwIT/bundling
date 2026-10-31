@@ -72,6 +72,7 @@
                             <option value="Ralan" {{ request('status_lanjut', $status_lanjut) == 'Ralan' ? 'selected' : '' }}>Ralan</option>
                         </select>
                     </div>
+                    
                     <div class="col-md-2">
                         <input type="date" name="tgl_cetak" class="form-control form-control-sm"
                             value="{{ request('tgl2', now()->format('Y-m-d')) }}">
@@ -127,6 +128,7 @@
                         <input type="hidden" name="tanggl2" value="{{ $tanggl2 }}">
                         <input type="hidden" name="tgl_cetak" value="{{ $tgl_cetak }}">
                         <input type="hidden" name="status_lanjut" value="{{ $status_lanjut }}">
+                        <input type="hidden" name="mode_cob" value="{{ $mode_cob }}">
                         <input type="hidden" name="lamiran" id="input_lamiran"
                             value="{{ count($getPasien) }} ({{ \App\Services\Keuangan\NomorInvoice::Terbilang(count($getPasien)) }} ) Lembar">
 
@@ -255,7 +257,7 @@
                                     @if ($getPasien)
                                         {{ \App\Services\Keuangan\NomorInvoice::Terbilang(
                                             $getPasien->sum(function ($item) {
-                                                return $item->getTotalBiaya->sum('totalpiutang');
+                                                return $item->biaya_baris ?? $item->getTotalBiaya->sum('totalpiutang');
                                             }),
                                         ) }}
                                     @endif rupiah.
