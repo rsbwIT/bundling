@@ -97,8 +97,6 @@ class InvoiceAsuransi extends Controller
                 ->whereBetween('detail_piutang_pasien.tgltempo', [$tanggl1, $tanggl2])
                 ->where('reg_periksa.status_lanjut', $status_lanjut);
 
-
-
             // Cek invoice yang sudah dibuat berdasarkan no_rawat dan nama_bayar
             $pasienQuery->whereNotExists(function ($subQuery) {
                 $subQuery->select(DB::raw(1))
@@ -139,9 +137,7 @@ class InvoiceAsuransi extends Controller
             
             $kamar = isset($tglKeluarDB[$item->no_rawat]) ? $tglKeluarDB[$item->no_rawat] : collect();
             $item->getTglKeluar = $kamar->take(1)->values();
-            $item->tgl_keluar = $kamar->isNotEmpty() ? $kamar->first()->tgl_keluar : null;
             $item->tgl_masuk = $kamar->isNotEmpty() ? $item->tgl_registrasi : null;
-            $item->total_biaya = $item->biaya_baris ?? (isset($item->getTotalBiaya) ? $item->getTotalBiaya->sum('totalpiutang') : 0);
             $item->tgl_byr = $item->tgltempo;
             
             $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
@@ -302,14 +298,33 @@ class InvoiceAsuransi extends Controller
                 ->get()
                 ->keyBy('no_rawat');
 
+            // Ambil nominal fallback dari detail_piutang_pasien jika totalpiutang di detail_invoice belum ada
+            $fallbackPiutangs = DB::table('detail_piutang_pasien')
+                ->select('no_rawat', 'kd_pj', 'nama_bayar', 'totalpiutang')
+                ->whereIn('no_rawat', $noRawats)
+                ->get()
+                ->groupBy('no_rawat');
+
             $getPasien = collect();
             foreach ($detailRows as $det) {
                 if (isset($pasiensMap[$det->no_rawat])) {
                     $p = clone $pasiensMap[$det->no_rawat];
                     $p->nama_bayar = $det->nama_bayar;
                     $p->kd_pj_piutang = $det->kd_pj;
-                    $p->biaya_baris = $det->totalpiutang ?? 0;
-                    $p->getTotalBiaya = collect([(object)['totalpiutang' => $p->biaya_baris]]);
+
+                    $biayaItem = $det->totalpiutang;
+                    if ($biayaItem === null || $biayaItem == 0) {
+                        $fbList = $fallbackPiutangs[$det->no_rawat] ?? collect();
+                        $matchFb = $fbList->first(function ($f) use ($det) {
+                            return (!empty($det->kd_pj) && $f->kd_pj == $det->kd_pj)
+                                || (!empty($det->nama_bayar) && $f->nama_bayar == $det->nama_bayar);
+                        });
+                        $biayaItem = $matchFb ? $matchFb->totalpiutang : ($fbList->sum('totalpiutang') ?: 0);
+                    }
+
+                    $p->biaya_baris = $biayaItem;
+                    $p->total_biaya = $biayaItem;
+                    $p->getTotalBiaya = collect([(object)['totalpiutang' => $biayaItem]]);
                     $p->tgl_byr = $getListInvoice->tgl_cetak;
                     $getPasien->push($p);
                 }
@@ -358,6 +373,7 @@ class InvoiceAsuransi extends Controller
             $getPasien->map(function ($it) use ($tbDB) {
                 $it->getTotalBiaya = isset($tbDB[$it->no_rawat]) ? $tbDB[$it->no_rawat] : collect();
                 $it->biaya_baris = $it->getTotalBiaya->sum('totalpiutang');
+                $it->total_biaya = $it->biaya_baris;
             });
         }
             
@@ -442,6 +458,12 @@ class InvoiceAsuransi extends Controller
                 ->get()
                 ->keyBy('no_rawat');
 
+            $fallbackPiutangs = DB::table('detail_piutang_pasien')
+                ->select('no_rawat', 'kd_pj', 'nama_bayar', 'totalpiutang')
+                ->whereIn('no_rawat', $noRawats)
+                ->get()
+                ->groupBy('no_rawat');
+
             $billings = DB::table('billing')
                 ->select('no_rawat', 'nm_perawatan', 'no')
                 ->whereIn('no_rawat', $noRawats)
@@ -459,7 +481,17 @@ class InvoiceAsuransi extends Controller
 
             foreach ($detailRows as $idx => $det) {
                 $p = $pasiensMap[$det->no_rawat] ?? null;
-                $biaya = $det->totalpiutang ?? 0;
+
+                $biaya = $det->totalpiutang;
+                if ($biaya === null || $biaya == 0) {
+                    $fbList = $fallbackPiutangs[$det->no_rawat] ?? collect();
+                    $matchFb = $fbList->first(function ($f) use ($det) {
+                        return (!empty($det->kd_pj) && $f->kd_pj == $det->kd_pj)
+                            || (!empty($det->nama_bayar) && $f->nama_bayar == $det->nama_bayar);
+                    });
+                    $biaya = $matchFb ? $matchFb->totalpiutang : ($fbList->sum('totalpiutang') ?: 0);
+                }
+
                 $totalBiaya += $biaya;
 
                 $noKwit = '';
@@ -482,36 +514,33 @@ class InvoiceAsuransi extends Controller
                 $namaPasienDisplay = ($p ? $p->nm_pasien : '-') . ($det->nama_bayar ? ' (' . $det->nama_bayar . ')' : '');
 
                 $rows[] = [
-                    'no' => $idx + 1,
-                    'nm_pasien' => $namaPasienDisplay,
-                    'biaya' => $biaya,
+                    'no' => ($idx + 1) . '.',
+                    'nama' => $namaPasienDisplay,
+                    'jumlah_biaya' => $biaya,
                     'no_kwit' => $noKwit,
-                    'nomor_kartu' => $p ? ($p->nomor_kartu ?: '-') : '-',
-                    'nomor_klaim' => $p ? ($p->nomor_klaim ?: '-') : '-',
-                    'no_rkm_medis' => $p ? $p->no_rkm_medis : '-',
-                    'tgl_rawat' => $tglRawat,
+                    'no_kartu' => $p ? ($p->nomor_kartu ?: '-') : '-',
+                    'no_klaim' => $p ? ($p->nomor_klaim ?: '-') : '-',
+                    'rm' => $p ? $p->no_rkm_medis : '-',
+                    'tanggal_rawat' => $tglRawat,
                 ];
             }
         }
 
-        $cleanNomor = preg_replace('/[^A-Za-z0-9_\-]/', '_', $inv->nomor_tagihan);
-        $filename = 'Invoice_' . $cleanNomor . '.xls';
+        $xml = $this->buildSingleInvoiceSpreadsheetML($inv, $rows, $totalBiaya);
 
-        return response()->streamDownload(function () use ($inv, $rows, $totalBiaya) {
-            echo view('laporan.export.excel-single-invoice', [
-                'inv' => $inv,
-                'rows' => $rows,
-                'totalBiaya' => $totalBiaya,
-            ])->render();
-        }, $filename, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+        $safeName = str_replace(['/', '\\', ' ', ':'], '_', $inv->nomor_tagihan);
+        $filename = 'Invoice_' . $safeName . '.xls';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control' => 'max-age=0',
+            'Pragma' => 'public',
         ]);
     }
 
     /**
-     * Export Excel Rekap Seluruh Invoice (dengan sheet rekap + lembar rincian per invoice).
+     * Export Excel Rekap Seluruh Invoice (Sheet 1: Rincian Pasien, Sheet 2: Rekap Invoice).
      */
     public function exportExcelRekap(Request $request)
     {
@@ -553,7 +582,7 @@ class InvoiceAsuransi extends Controller
             $query->whereBetween('bw_invoice_asuransi.tgl_cetak', [$tgl_cetak1, $tgl_cetak2]);
         }
 
-        if (!empty($status_lanjut)) {
+        if (!empty($status_lanjut) && in_array($status_lanjut, ['Ranap', 'Ralan'])) {
             $query->where('bw_invoice_asuransi.status_lanjut', $status_lanjut);
         }
 
@@ -573,119 +602,597 @@ class InvoiceAsuransi extends Controller
             ->get()
             ->groupBy('nomor_tagihan');
 
+        $allNoRawats = [];
+        foreach ($allDetailRows as $dGroup) {
+            foreach ($dGroup as $dItem) {
+                $allNoRawats[] = $dItem->no_rawat;
+            }
+        }
+        $allNoRawats = array_unique($allNoRawats);
+
+        $pasiensMap = collect();
+        $fallbackPiutangs = collect();
+        $billings = collect();
+        $tglKeluarDB = collect();
+
+        if (!empty($allNoRawats)) {
+            $pasiensMap = DB::table('reg_periksa')
+                ->select(
+                    'reg_periksa.no_rawat',
+                    'pasien.no_rkm_medis',
+                    'pasien.nm_pasien',
+                    'reg_periksa.tgl_registrasi',
+                    'bw_peserta_asuransi.nomor_kartu',
+                    'bw_peserta_asuransi.nomor_klaim'
+                )
+                ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
+                ->whereIn('reg_periksa.no_rawat', $allNoRawats)
+                ->get()
+                ->keyBy('no_rawat');
+
+            $fallbackPiutangs = DB::table('detail_piutang_pasien')
+                ->select('no_rawat', 'kd_pj', 'nama_bayar', 'totalpiutang')
+                ->whereIn('no_rawat', $allNoRawats)
+                ->get()
+                ->groupBy('no_rawat');
+
+            $billings = DB::table('billing')
+                ->select('no_rawat', 'nm_perawatan', 'no')
+                ->whereIn('no_rawat', $allNoRawats)
+                ->where('no', 'No.Nota')
+                ->get()
+                ->groupBy('no_rawat');
+
+            $tglKeluarDB = DB::table('kamar_inap')
+                ->select('no_rawat', 'tgl_keluar', 'jam_keluar')
+                ->whereIn('no_rawat', $allNoRawats)
+                ->orderByDesc('tgl_keluar')
+                ->orderByDesc('jam_keluar')
+                ->get()
+                ->groupBy('no_rawat');
+        }
+
         $rekapData = [];
-        $rincianPerInvoice = [];
+        $detailPasienData = [];
 
         foreach ($invoices as $idx => $inv) {
             $detailRows = isset($allDetailRows[$inv->nomor_tagihan]) ? $allDetailRows[$inv->nomor_tagihan] : collect();
-            $rowsThisInvoice = [];
             $totalBiayaInv = 0;
+            $pasienCountInv = 0;
 
-            if ($detailRows->isNotEmpty()) {
-                $noRawats = $detailRows->pluck('no_rawat')->unique()->toArray();
-                $pasiensMap = DB::table('reg_periksa')
-                    ->select(
-                        'reg_periksa.no_rawat',
-                        'pasien.no_rkm_medis',
-                        'pasien.nm_pasien',
-                        'reg_periksa.tgl_registrasi',
-                        'bw_peserta_asuransi.nomor_kartu',
-                        'bw_peserta_asuransi.nomor_klaim'
-                    )
-                    ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
-                    ->leftJoin('bw_peserta_asuransi', 'pasien.no_rkm_medis', '=', 'bw_peserta_asuransi.no_rkm_medis')
-                    ->whereIn('reg_periksa.no_rawat', $noRawats)
-                    ->get()
-                    ->keyBy('no_rawat');
+            foreach ($detailRows as $det) {
+                $p = $pasiensMap[$det->no_rawat] ?? null;
 
-                $billings = DB::table('billing')
-                    ->select('no_rawat', 'nm_perawatan', 'no')
-                    ->whereIn('no_rawat', $noRawats)
-                    ->where('no', 'No.Nota')
-                    ->get()
-                    ->groupBy('no_rawat');
-
-                $tglKeluarDB = DB::table('kamar_inap')
-                    ->select('no_rawat', 'tgl_keluar', 'jam_keluar')
-                    ->whereIn('no_rawat', $noRawats)
-                    ->orderByDesc('tgl_keluar')
-                    ->orderByDesc('jam_keluar')
-                    ->get()
-                    ->groupBy('no_rawat');
-
-                foreach ($detailRows as $rIdx => $det) {
-                    $p = $pasiensMap[$det->no_rawat] ?? null;
-                    $biaya = $det->totalpiutang ?? 0;
-                    $totalBiayaInv += $biaya;
-
-                    $noKwit = '';
-                    if (isset($billings[$det->no_rawat]) && $billings[$det->no_rawat]->isNotEmpty()) {
-                        $rawNota = $billings[$det->no_rawat]->first()->nm_perawatan;
-                        $noKwit = substr(str_replace(':', '', $rawNota), -6);
-                    }
-
-                    $tglRawat = '-';
-                    if ($p) {
-                        $tglKeluarItem = null;
-                        if (isset($tglKeluarDB[$det->no_rawat]) && $tglKeluarDB[$det->no_rawat]->isNotEmpty()) {
-                            $tglKeluarItem = $tglKeluarDB[$det->no_rawat]->first()->tgl_keluar;
-                        }
-                        $tglMasukStr = $p->tgl_registrasi ? date('d/m/Y', strtotime($p->tgl_registrasi)) : '-';
-                        $tglKeluarStr = $tglKeluarItem ? date('d/m/Y', strtotime($tglKeluarItem)) : '-';
-                        $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglMasukStr;
-                    }
-
-                    $namaPasienDisplay = ($p ? $p->nm_pasien : '-') . ($det->nama_bayar ? ' (' . $det->nama_bayar . ')' : '');
-
-                    $rowsThisInvoice[] = [
-                        'no' => $rIdx + 1,
-                        'nm_pasien' => $namaPasienDisplay,
-                        'biaya' => $biaya,
-                        'no_kwit' => $noKwit,
-                        'nomor_kartu' => $p ? ($p->nomor_kartu ?: '-') : '-',
-                        'nomor_klaim' => $p ? ($p->nomor_klaim ?: '-') : '-',
-                        'no_rkm_medis' => $p ? $p->no_rkm_medis : '-',
-                        'tgl_rawat' => $tglRawat,
-                    ];
+                $biaya = $det->totalpiutang;
+                if ($biaya === null || $biaya == 0) {
+                    $fbList = $fallbackPiutangs[$det->no_rawat] ?? collect();
+                    $matchFb = $fbList->first(function ($f) use ($det) {
+                        return (!empty($det->kd_pj) && $f->kd_pj == $det->kd_pj)
+                            || (!empty($det->nama_bayar) && $f->nama_bayar == $det->nama_bayar);
+                    });
+                    $biaya = $matchFb ? $matchFb->totalpiutang : ($fbList->sum('totalpiutang') ?: 0);
                 }
+
+                $totalBiayaInv += $biaya;
+                $pasienCountInv++;
+
+                $noKwit = '';
+                if (isset($billings[$det->no_rawat]) && $billings[$det->no_rawat]->isNotEmpty()) {
+                    $rawNota = $billings[$det->no_rawat]->first()->nm_perawatan;
+                    $noKwit = substr(str_replace(':', '', $rawNota), -6);
+                }
+
+                $tglRawat = '-';
+                if ($p) {
+                    $tglKeluarItem = null;
+                    if (isset($tglKeluarDB[$det->no_rawat]) && $tglKeluarDB[$det->no_rawat]->isNotEmpty()) {
+                        $tglKeluarItem = $tglKeluarDB[$det->no_rawat]->first()->tgl_keluar;
+                    }
+                    $tglMasukStr = $p->tgl_registrasi ? date('d/m/Y', strtotime($p->tgl_registrasi)) : '-';
+                    $tglKeluarStr = $tglKeluarItem ? date('d/m/Y', strtotime($tglKeluarItem)) : '-';
+                    $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglMasukStr;
+                }
+
+                $namaPasienDisplay = ($p ? $p->nm_pasien : '-') . ($det->nama_bayar ? ' (' . $det->nama_bayar . ')' : '');
+
+                $detailPasienData[] = [
+                    'nama' => $namaPasienDisplay,
+                    'biaya' => $biaya,
+                    'no_kwit' => $noKwit,
+                    'nomor_kartu' => $p ? ($p->nomor_kartu ?: '-') : '-',
+                    'nomor_klaim' => $p ? ($p->nomor_klaim ?: '-') : '-',
+                    'no_rkm_medis' => $p ? $p->no_rkm_medis : '-',
+                    'tgl_rawat' => $tglRawat,
+                    'nomor_tagihan' => $inv->nomor_tagihan,
+                    'nama_asuransi' => $inv->nama_asuransi,
+                ];
             }
 
             $rekapData[] = [
-                'no' => $idx + 1,
+                'tgl_cetak' => $inv->tgl_cetak,
                 'nomor_tagihan' => $inv->nomor_tagihan,
+                'kode_asuransi' => $inv->kode_asuransi,
                 'nama_asuransi' => $inv->nama_asuransi,
+                'periode' => date('d/m/Y', strtotime($inv->tanggl1)) . ' s/d ' . date('d/m/Y', strtotime($inv->tanggl2)),
                 'status_lanjut' => $inv->status_lanjut,
-                'mode_cob' => $inv->mode_cob ?? 'non_cob',
-                'periode_rawat' => date('d/m/Y', strtotime($inv->tanggl1)) . ' - ' . date('d/m/Y', strtotime($inv->tanggl2)),
-                'tgl_cetak' => date('d/m/Y', strtotime($inv->tgl_cetak)),
-                'total_pasien' => count($rowsThisInvoice),
-                'total_biaya' => $totalBiayaInv,
-                'sheet_id' => 'sheet_' . ($idx + 1),
-            ];
-
-            $rincianPerInvoice[] = [
-                'inv' => $inv,
-                'rows' => $rowsThisInvoice,
-                'totalBiaya' => $totalBiayaInv,
-                'sheet_id' => 'sheet_' . ($idx + 1),
+                'jml_pasien' => $pasienCountInv,
+                'total_tagihan' => $totalBiayaInv,
             ];
         }
 
-        $filename = 'Rekap_Invoice_Asuransi_' . date('Ymd_His') . '.xls';
+        $xml = $this->buildRekapSpreadsheetML($rekapData, $detailPasienData, $tgl_cetak1, $tgl_cetak2, $status_lanjut);
 
-        return response()->streamDownload(function () use ($rekapData, $rincianPerInvoice, $tgl_cetak1, $tgl_cetak2, $status_lanjut, $filter_by) {
-            echo view('laporan.export.excel-rekap-invoice', [
-                'rekapData' => $rekapData,
-                'rincianPerInvoice' => $rincianPerInvoice,
-                'tgl_cetak1' => $tgl_cetak1,
-                'tgl_cetak2' => $tgl_cetak2,
-                'status_lanjut' => $status_lanjut,
-                'filter_by' => $filter_by,
-            ])->render();
-        }, $filename, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+        $filename = 'Rekap_Invoice_Asuransi_' . $status_lanjut . '_' . $tgl_cetak1 . '_sd_' . $tgl_cetak2 . '.xls';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control' => 'max-age=0',
+            'Pragma' => 'public',
         ]);
+    }
+
+    // 6 GENERATE EXCEL SPREADSHEETML UNTUK SINGLE INVOICE =================================
+    private function buildSingleInvoiceSpreadsheetML($inv, $rows, $totalBiaya)
+    {
+        $terbilang = \App\Services\Keuangan\NomorInvoice::Terbilang($totalBiaya);
+
+        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n"
+              . ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n"
+              . ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n"
+              . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"' . "\n"
+              . ' xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n";
+
+        $xml .= '<Styles>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Vertical="Center"/>
+      <Borders/>
+      <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#000000"/>
+      <Interior/>
+      <NumberFormat/>
+      <Protection/>
+    </Style>
+    <Style ss:ID="title">
+      <Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1" ss:Color="#0F52BA"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="subtitle">
+      <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#1E293B"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="metaLabel">
+      <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#475569"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="metaVal">
+      <Font ss:FontName="Calibri" ss:Size="10" ss:Color="#0F172A"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="head">
+      <Font ss:FontName="Calibri" ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="headCenter">
+      <Font ss:FontName="Calibri" ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="headRight">
+      <Font ss:FontName="Calibri" ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cell">
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cellCenter">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cellCurrency">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="&quot;Rp. &quot;#,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="totalRow">
+      <Font ss:Bold="1" ss:Color="#0F172A"/>
+      <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="totalCurrency">
+      <Font ss:Bold="1" ss:Color="#0F172A"/>
+      <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="&quot;Rp. &quot;#,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="terbilangStyle">
+      <Font ss:FontName="Calibri" ss:Italic="1" ss:Color="#0F172A"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+    </Style>
+  </Styles>' . "\n";
+
+        $xml .= '<Worksheet ss:Name="Tagihan"><Table>' . "\n";
+        $xml .= '<Column ss:Width="35"/>'   // No
+              . '<Column ss:Width="220"/>'  // Nama
+              . '<Column ss:Width="120"/>'  // Jumlah Biaya
+              . '<Column ss:Width="90"/>'   // No Kwit
+              . '<Column ss:Width="150"/>'  // No Kartu
+              . '<Column ss:Width="100"/>'  // No Klaim
+              . '<Column ss:Width="80"/>'   // Rm
+              . '<Column ss:Width="110"/>'  // Tanggal Rawat
+              . "\n";
+
+        $xml .= '<Row><Cell ss:StyleID="title"><Data ss:Type="String">RUMAH SAKIT BUMI WARAS</Data></Cell></Row>' . "\n";
+        $xml .= '<Row><Cell ss:StyleID="subtitle"><Data ss:Type="String">SURAT TAGIHAN BIAYA PERAWATAN DAN PENGOBATAN</Data></Cell></Row>' . "\n";
+        $xml .= '<Row></Row>' . "\n";
+
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Nomor Tagihan</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . $this->xmlEscape($inv->nomor_tagihan) . '</Data></Cell>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Tanggal Cetak</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . date('d/m/Y', strtotime($inv->tgl_cetak)) . '</Data></Cell>'
+              . '</Row>' . "\n";
+
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Nama Asuransi</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . $this->xmlEscape($inv->nama_asuransi) . '</Data></Cell>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Status Pelayanan</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . $this->xmlEscape($inv->status_lanjut) . '</Data></Cell>'
+              . '</Row>' . "\n";
+
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Periode Rawat</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . date('d/m/Y', strtotime($inv->tanggl1)) . ' s/d ' . date('d/m/Y', strtotime($inv->tanggl2)) . '</Data></Cell>'
+              . '<Cell ss:StyleID="metaLabel"><Data ss:Type="String">Lampiran</Data></Cell>'
+              . '<Cell ss:StyleID="metaVal" ss:MergeAcross="2"><Data ss:Type="String">: ' . $this->xmlEscape($inv->lamiran) . '</Data></Cell>'
+              . '</Row>' . "\n";
+        $xml .= '<Row></Row>' . "\n";
+
+        // Kolom persis permintaan: No., Nama, Jumlah Biaya, No Kwit, No Kartu, No Klaim, Rm, Tanggal Rawat
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No.</Data></Cell>'
+              . '<Cell ss:StyleID="head"><Data ss:Type="String">Nama</Data></Cell>'
+              . '<Cell ss:StyleID="headRight"><Data ss:Type="String">Jumlah Biaya</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Kwit</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Kartu</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Klaim</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">Rm</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">Tanggal Rawat</Data></Cell>'
+              . '</Row>' . "\n";
+
+        foreach ($rows as $r) {
+            $xml .= '<Row>'
+                  . $this->xmlCell($r['no'], 'cellCenter')
+                  . $this->xmlCell($r['nama'], 'cell')
+                  . $this->xmlCell($r['jumlah_biaya'], 'cellCurrency', 'Number')
+                  . $this->xmlCell($r['no_kwit'], 'cellCenter')
+                  . $this->xmlCell($r['no_kartu'], 'cellCenter')
+                  . $this->xmlCell($r['no_klaim'], 'cellCenter')
+                  . $this->xmlCell($r['rm'], 'cellCenter')
+                  . $this->xmlCell($r['tanggal_rawat'], 'cellCenter')
+                  . '</Row>' . "\n";
+        }
+
+        // Total Row
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="totalRow" ss:MergeAcross="1"><Data ss:Type="String">Total</Data></Cell>'
+              . $this->xmlCell($totalBiaya, 'totalCurrency', 'Number')
+              . '<Cell ss:StyleID="totalRow" ss:MergeAcross="4"><Data ss:Type="String"></Data></Cell>'
+              . '</Row>' . "\n";
+
+        // Terbilang Row
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="terbilangStyle" ss:MergeAcross="7"><Data ss:Type="String">Terbilang : ' . trim($terbilang) . ' rupiah.</Data></Cell>'
+              . '</Row>' . "\n";
+
+        $xml .= '</Table></Worksheet>' . "\n";
+        $xml .= '</Workbook>';
+
+        return $xml;
+    }
+
+    // 7 GENERATE MULTI-SHEET REKAP SPREADSHEETML (SHEET 1: RINCIAN PASIEN, SHEET 2: REKAP INVOICE) =================
+    private function buildRekapSpreadsheetML($rekapData, $detailPasienData, $tgl_cetak1, $tgl_cetak2, $status_lanjut)
+    {
+        $periode = date('d/m/Y', strtotime($tgl_cetak1)) . ' s/d ' . date('d/m/Y', strtotime($tgl_cetak2));
+
+        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '
+              . 'xmlns:o="urn:schemas-microsoft-com:office:office" '
+              . 'xmlns:x="urn:schemas-microsoft-com:office:excel" '
+              . 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+
+        $xml .= '<Styles>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Vertical="Center"/>
+      <Borders/>
+      <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#000000"/>
+      <Interior/>
+      <NumberFormat/>
+      <Protection/>
+    </Style>
+    <Style ss:ID="title"><Font ss:Bold="1" ss:Size="14" ss:Color="#0B4F6C"/><Alignment ss:Vertical="Center"/></Style>
+    <Style ss:ID="subtitle"><Font ss:Italic="1" ss:Size="10" ss:Color="#4B5563"/><Alignment ss:Vertical="Center"/></Style>
+    <Style ss:ID="head">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="headCenter">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="headRight">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0284C7" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0369A1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cell">
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cellCenter">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cellNumber">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="#,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cellCurrency">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="&quot;Rp&quot;\ #,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="totalRow">
+      <Font ss:Bold="1" ss:Color="#0F172A"/>
+      <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="totalNumber">
+      <Font ss:Bold="1" ss:Color="#0F172A"/>
+      <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="#,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="totalCurrency">
+      <Font ss:Bold="1" ss:Color="#0F172A"/>
+      <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <NumberFormat ss:Format="&quot;Rp&quot;\ #,##0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#94A3B8"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#94A3B8"/>
+      </Borders>
+    </Style>
+  </Styles>' . "\n";
+
+        // SHEET 1: RINCIAN PASIEN (PERSIS KOLOM: No, Nama, Jumlah Biaya, No Kwit, No Kartu, No Klaim, Rm, Tanggal Rawat)
+        $xml .= '<Worksheet ss:Name="Rincian Pasien"><Table>' . "\n";
+        $xml .= '<Column ss:Width="40"/>'   // No.
+              . '<Column ss:Width="230"/>'  // Nama
+              . '<Column ss:Width="130"/>'  // Jumlah Biaya
+              . '<Column ss:Width="95"/>'   // No Kwit
+              . '<Column ss:Width="160"/>'  // No Kartu
+              . '<Column ss:Width="100"/>'  // No Klaim
+              . '<Column ss:Width="80"/>'   // Rm
+              . '<Column ss:Width="120"/>'  // Tanggal Rawat
+              . '<Column ss:Width="200"/>'  // Nomor Tagihan
+              . '<Column ss:Width="240"/>'  // Nama Asuransi
+              . "\n";
+
+        $xml .= '<Row><Cell ss:StyleID="title"><Data ss:Type="String">RINCIAN DATA PASIEN INVOICE ASURANSI</Data></Cell></Row>' . "\n";
+        $xml .= '<Row><Cell ss:StyleID="subtitle"><Data ss:Type="String">' . $this->xmlEscape("Periode: {$periode} | Pelayanan: {$status_lanjut} | Total: " . count($detailPasienData) . " Pasien") . '</Data></Cell></Row>' . "\n";
+        $xml .= '<Row></Row>' . "\n";
+
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No.</Data></Cell>'
+              . '<Cell ss:StyleID="head"><Data ss:Type="String">Nama</Data></Cell>'
+              . '<Cell ss:StyleID="headRight"><Data ss:Type="String">Jumlah Biaya</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Kwit</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Kartu</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">No Klaim</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">Rm</Data></Cell>'
+              . '<Cell ss:StyleID="headCenter"><Data ss:Type="String">Tanggal Rawat</Data></Cell>'
+              . '<Cell ss:StyleID="head"><Data ss:Type="String">Nomor Tagihan</Data></Cell>'
+              . '<Cell ss:StyleID="head"><Data ss:Type="String">Nama Asuransi</Data></Cell>'
+              . '</Row>' . "\n";
+
+        $totalBiayaDetail = 0;
+        foreach ($detailPasienData as $idx => $d) {
+            $totalBiayaDetail += $d['biaya'];
+
+            $xml .= '<Row>'
+                  . $this->xmlCell(($idx + 1) . '.', 'cellCenter')
+                  . $this->xmlCell($d['nama'], 'cell')
+                  . $this->xmlCell($d['biaya'], 'cellCurrency', 'Number')
+                  . $this->xmlCell($d['no_kwit'], 'cellCenter')
+                  . $this->xmlCell($d['nomor_kartu'], 'cellCenter')
+                  . $this->xmlCell($d['nomor_klaim'], 'cellCenter')
+                  . $this->xmlCell($d['no_rkm_medis'], 'cellCenter')
+                  . $this->xmlCell($d['tgl_rawat'], 'cellCenter')
+                  . $this->xmlCell($d['nomor_tagihan'], 'cell')
+                  . $this->xmlCell($d['nama_asuransi'], 'cell')
+                  . '</Row>' . "\n";
+        }
+
+        // Summary row
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="totalRow" ss:MergeAcross="1"><Data ss:Type="String">Total (' . count($detailPasienData) . ' Pasien)</Data></Cell>'
+              . $this->xmlCell($totalBiayaDetail, 'totalCurrency', 'Number')
+              . '<Cell ss:StyleID="totalRow" ss:MergeAcross="6"><Data ss:Type="String"></Data></Cell>'
+              . '</Row>' . "\n";
+
+        $xml .= '</Table></Worksheet>' . "\n";
+
+        // SHEET 2: REKAP INVOICE
+        $xml .= '<Worksheet ss:Name="Rekap Invoice"><Table>' . "\n";
+        $xml .= '<Column ss:Width="35"/>'   // No
+              . '<Column ss:Width="85"/>'   // Tanggal Cetak
+              . '<Column ss:Width="190"/>'  // Nomor Tagihan
+              . '<Column ss:Width="70"/>'   // Kode Asuransi
+              . '<Column ss:Width="260"/>'  // Nama Asuransi
+              . '<Column ss:Width="160"/>'  // Periode Tagihan
+              . '<Column ss:Width="75"/>'   // Status
+              . '<Column ss:Width="85"/>'   // Pasien/Lembar
+              . '<Column ss:Width="130"/>'  // Total Tagihan
+              . "\n";
+
+        $xml .= '<Row><Cell ss:StyleID="title"><Data ss:Type="String">RUMAH SAKIT BUMI WARAS - REKAP INVOICE ASURANSI</Data></Cell></Row>' . "\n";
+        $xml .= '<Row><Cell ss:StyleID="subtitle"><Data ss:Type="String">' . $this->xmlEscape("Periode: {$periode} | Pelayanan: {$status_lanjut} | Total Invoice: " . count($rekapData)) . '</Data></Cell></Row>' . "\n";
+        $xml .= '<Row></Row>' . "\n";
+
+        $headers1 = ['No.', 'Tgl Cetak', 'Nomor Tagihan', 'Kode Asuransi', 'Nama Asuransi / Perusahaan', 'Periode Rawat (Close Billing)', 'Pelayanan', 'Jml Pasien', 'Total Tagihan (Rp)'];
+        $xml .= '<Row>';
+        foreach ($headers1 as $h) {
+            $xml .= '<Cell ss:StyleID="head"><Data ss:Type="String">' . $this->xmlEscape($h) . '</Data></Cell>';
+        }
+        $xml .= '</Row>' . "\n";
+
+        $totalLembarAll = 0;
+        $totalBiayaAll = 0;
+        foreach ($rekapData as $idx => $r) {
+            $totalLembarAll += $r['jml_pasien'];
+            $totalBiayaAll += $r['total_tagihan'];
+
+            $xml .= '<Row>'
+                  . $this->xmlCell($idx + 1, 'cellCenter', 'Number')
+                  . $this->xmlCell(date('d/m/Y', strtotime($r['tgl_cetak'])), 'cellCenter')
+                  . $this->xmlCell($r['nomor_tagihan'], 'cell')
+                  . $this->xmlCell($r['kode_asuransi'], 'cellCenter')
+                  . $this->xmlCell($r['nama_asuransi'], 'cell')
+                  . $this->xmlCell($r['periode'], 'cellCenter')
+                  . $this->xmlCell($r['status_lanjut'], 'cellCenter')
+                  . $this->xmlCell($r['jml_pasien'], 'cellNumber', 'Number')
+                  . $this->xmlCell($r['total_tagihan'], 'cellCurrency', 'Number')
+                  . '</Row>' . "\n";
+        }
+
+        // Summary row
+        $xml .= '<Row>'
+              . '<Cell ss:StyleID="totalRow" ss:MergeAcross="6"><Data ss:Type="String">TOTAL KESELURUHAN (' . count($rekapData) . ' INVOICE)</Data></Cell>'
+              . $this->xmlCell($totalLembarAll, 'totalNumber', 'Number')
+              . $this->xmlCell($totalBiayaAll, 'totalCurrency', 'Number')
+              . '</Row>' . "\n";
+
+        $xml .= '</Table></Worksheet>' . "\n";
+        $xml .= '</Workbook>';
+
+        return $xml;
+    }
+
+    private function xmlEscape($v)
+    {
+        return htmlspecialchars((string) $v, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    }
+
+    private function xmlCell($value, $style = 'cell', $type = 'String')
+    {
+        return '<Cell ss:StyleID="' . $style . '"><Data ss:Type="' . $type . '">' . $this->xmlEscape($value) . '</Data></Cell>';
     }
 }
