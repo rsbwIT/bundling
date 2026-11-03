@@ -23,6 +23,9 @@ class PdfTindakanController extends Controller
 
     public function index(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+
         $kdDokterInput = $request->input('kd_dokter');
         $kdDokter = is_array($kdDokterInput) ? ($kdDokterInput[0] ?? null) : $kdDokterInput;
         $tanggl1 = $request->tgl1 ?? date('Y-m-01');
