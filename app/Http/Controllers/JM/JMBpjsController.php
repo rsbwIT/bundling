@@ -97,7 +97,7 @@ class JMBpjsController extends Controller
         ['kode' => 'SP25', 'nama' => 'Lily Hayati, dr, Sp. A', 'id_khanza' => 'D0000082'],
         ['kode' => 'SP26', 'nama' => 'Lukna Alinda Putri, Drg', 'id_khanza' => 'D0000061'],
         ['kode' => 'U12', 'nama' => 'Aditya Rustami, dr', 'id_khanza' => 'D0000127'],
-        ['kode' => 'SWL2', 'nama' => 'Indah Lestriana', 'id_khanza' => '214010227'],
+        ['kode' => 'SWL2', 'nama' => 'Indah Lestriana', 'id_khanza' => '0214010227'],
         ['kode' => 'SP27', 'nama' => 'Nanang Suhana, dr, Sp.THT-KL', 'id_khanza' => 'D0000051'],
         ['kode' => 'U26', 'nama' => 'Asyraf Vivaldi Wardoyo, dr', 'id_khanza' => 'D0000122'],
         ['kode' => 'SP28', 'nama' => 'Muhammad Nasrulloh, dr, SpOT', 'id_khanza' => 'D0000044'],
