@@ -137,6 +137,7 @@ class InvoiceAsuransi extends Controller
             
             $kamar = isset($tglKeluarDB[$item->no_rawat]) ? $tglKeluarDB[$item->no_rawat] : collect();
             $item->getTglKeluar = $kamar->take(1)->values();
+            $item->tgl_keluar = $kamar->isNotEmpty() ? $kamar->first()->tgl_keluar : null;
             $item->tgl_masuk = $kamar->isNotEmpty() ? $item->tgl_registrasi : null;
             $item->tgl_byr = $item->tgltempo;
             
