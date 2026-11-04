@@ -47,7 +47,7 @@ class RanapDokterParamedis2 extends Controller
                 'rawat_inap_drpr.no_rawat',
                 'bridging_sep.no_sep',
                 DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
-                'nota_inap.tanggal',
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tanggal"),
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'rawat_inap_drpr.kd_jenis_prw',
@@ -96,7 +96,10 @@ class RanapDokterParamedis2 extends Controller
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_inap_drpr.no_rawat')
             ->where(function ($query) use ($jenisTanggal, $tanggl1, $tanggl2) {
                 if ($jenisTanggal == 'bayar') {
-                    $query->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2]);
+                    $query->where(function ($q) use ($tanggl1, $tanggl2) {
+                        $q->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2])
+                          ->orWhereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                    });
                 } else {
                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2]);
                 }
@@ -144,7 +147,7 @@ class RanapDokterParamedis2 extends Controller
                 'rawat_jl_drpr.no_rawat',
                 'bridging_sep.no_sep',
                 DB::raw("COALESCE(nota_inap.no_nota, nota_jalan.no_nota) as no_nota"),
-                'nota_jalan.tanggal',
+                DB::raw("COALESCE(nota_inap.tanggal, nota_jalan.tanggal) as tanggal"),
                 'reg_periksa.no_rkm_medis',
                 'pasien.nm_pasien',
                 'rawat_jl_drpr.kd_jenis_prw',
@@ -187,7 +190,10 @@ class RanapDokterParamedis2 extends Controller
             ->leftJoin('piutang_pasien', 'piutang_pasien.no_rawat', '=', 'rawat_jl_drpr.no_rawat')
             ->where(function ($query) use ($jenisTanggal, $tanggl1, $tanggl2) {
                 if ($jenisTanggal == 'bayar') {
-                    $query->whereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                    $query->where(function ($q) use ($tanggl1, $tanggl2) {
+                        $q->whereBetween('nota_inap.tanggal', [$tanggl1, $tanggl2])
+                          ->orWhereBetween('nota_jalan.tanggal', [$tanggl1, $tanggl2]);
+                    });
                 } else {
                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2]);
                 }
