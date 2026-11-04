@@ -126,7 +126,9 @@ class InvoiceAsuransi extends Controller
         $tglKeluarDB = DB::table('kamar_inap')->select('no_rawat', 'tgl_keluar', 'jam_keluar')->whereIn('no_rawat', $noRawats)->orderByDesc('tgl_keluar')->orderByDesc('jam_keluar')->get()->groupBy('no_rawat');
         $billings = DB::table('billing')->select('no_rawat', 'nm_perawatan', 'totalbiaya', 'status', 'no')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
 
-        $getPasien->map(function ($item) use ($allPiutangPerPasien, $tglKeluarDB, $billings) {
+        $tglNotaDB = $this->getTanggalNota($noRawats);
+
+        $getPasien->map(function ($item) use ($allPiutangPerPasien, $tglKeluarDB, $billings, $tglNotaDB) {
             $allPiutang = isset($allPiutangPerPasien[$item->no_rawat]) ? $allPiutangPerPasien[$item->no_rawat] : collect();
             $item->getAllPiutang = $allPiutang;
             $item->is_cob = $allPiutang->count() > 1;
@@ -139,7 +141,7 @@ class InvoiceAsuransi extends Controller
             $item->getTglKeluar = $kamar->take(1)->values();
             $item->tgl_keluar = $kamar->isNotEmpty() ? $kamar->first()->tgl_keluar : null;
             $item->tgl_masuk = $kamar->isNotEmpty() ? $item->tgl_registrasi : null;
-            $item->tgl_byr = $item->tgltempo;
+            $item->tgl_byr = $tglNotaDB[$item->no_rawat] ?? $item->tgltempo;
             
             $itemBillings = isset($billings[$item->no_rawat]) ? $billings[$item->no_rawat] : collect();
             
@@ -385,7 +387,12 @@ class InvoiceAsuransi extends Controller
         $tglKeluarDB = DB::table('kamar_inap')->select('no_rawat', 'tgl_keluar', 'jam_keluar')->whereIn('no_rawat', $noRawats)->orderByDesc('tgl_keluar')->orderByDesc('jam_keluar')->get()->groupBy('no_rawat');
         $billings = DB::table('billing')->select('no_rawat', 'nm_perawatan', 'totalbiaya', 'status', 'no')->whereIn('no_rawat', $noRawats)->get()->groupBy('no_rawat');
 
-        $getPasien->map(function ($item) use ($diagnosaDB, $totalBiaya2DB, $tglKeluarDB, $billings) {
+        $tglNotaDB = $this->getTanggalNota($noRawats);
+
+        $getPasien->map(function ($item) use ($diagnosaDB, $totalBiaya2DB, $tglKeluarDB, $billings, $tglNotaDB) {
+            if (!empty($tglNotaDB[$item->no_rawat])) {
+                $item->tgl_byr = $tglNotaDB[$item->no_rawat];
+            }
             $item->getDiagnosa = isset($diagnosaDB[$item->no_rawat]) ? $diagnosaDB[$item->no_rawat] : collect();
             $item->getTotalBiaya2 = isset($totalBiaya2DB[$item->no_rawat]) ? $totalBiaya2DB[$item->no_rawat] : collect();
             
@@ -420,6 +427,19 @@ class InvoiceAsuransi extends Controller
             'getPasien' => $getPasien,
             'template' => $template,
         ]);
+    }
+
+    /**
+     * Ambil tanggal cetak nota (nota_inap / nota_jalan) per no_rawat.
+     */
+    private function getTanggalNota(array $noRawats)
+    {
+        if (empty($noRawats)) {
+            return [];
+        }
+        $jalan = DB::table('nota_jalan')->whereIn('no_rawat', $noRawats)->pluck('tanggal', 'no_rawat')->toArray();
+        $inap = DB::table('nota_inap')->whereIn('no_rawat', $noRawats)->pluck('tanggal', 'no_rawat')->toArray();
+        return array_merge($jalan, $inap);
     }
 
     /**
@@ -480,6 +500,8 @@ class InvoiceAsuransi extends Controller
                 ->get()
                 ->groupBy('no_rawat');
 
+            $tglNotaDB = $this->getTanggalNota($noRawats);
+
             foreach ($detailRows as $idx => $det) {
                 $p = $pasiensMap[$det->no_rawat] ?? null;
 
@@ -509,7 +531,8 @@ class InvoiceAsuransi extends Controller
                     }
                     $tglMasukStr = $p->tgl_registrasi ? date('d/m/Y', strtotime($p->tgl_registrasi)) : '-';
                     $tglKeluarStr = $tglKeluarItem ? date('d/m/Y', strtotime($tglKeluarItem)) : '-';
-                    $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglMasukStr;
+                    $tglNotaStr = !empty($tglNotaDB[$det->no_rawat]) ? date('d/m/Y', strtotime($tglNotaDB[$det->no_rawat])) : $tglMasukStr;
+                    $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglNotaStr;
                 }
 
                 $namaPasienDisplay = ($p ? $p->nm_pasien : '-') . ($det->nama_bayar ? ' (' . $det->nama_bayar . ')' : '');
@@ -652,6 +675,8 @@ class InvoiceAsuransi extends Controller
                 ->orderByDesc('jam_keluar')
                 ->get()
                 ->groupBy('no_rawat');
+
+            $tglNotaDB = $this->getTanggalNota($allNoRawats);
         }
 
         $rekapData = [];
@@ -692,7 +717,8 @@ class InvoiceAsuransi extends Controller
                     }
                     $tglMasukStr = $p->tgl_registrasi ? date('d/m/Y', strtotime($p->tgl_registrasi)) : '-';
                     $tglKeluarStr = $tglKeluarItem ? date('d/m/Y', strtotime($tglKeluarItem)) : '-';
-                    $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglMasukStr;
+                    $tglNotaStr = !empty($tglNotaDB[$det->no_rawat]) ? date('d/m/Y', strtotime($tglNotaDB[$det->no_rawat])) : $tglMasukStr;
+                    $tglRawat = ($tglKeluarItem) ? ($tglMasukStr . ' - ' . $tglKeluarStr) : $tglNotaStr;
                 }
 
                 $namaPasienDisplay = ($p ? $p->nm_pasien : '-') . ($det->nama_bayar ? ' (' . $det->nama_bayar . ')' : '');
