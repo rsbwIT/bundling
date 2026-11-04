@@ -84,6 +84,7 @@ class PendapatanAlatDokterController extends Controller
             LEFT JOIN (SELECT no_rawat, MAX(tgl_bayar) as tgl_bayar FROM bayar_piutang GROUP BY no_rawat) bp ON t.no_rawat = bp.no_rawat
             WHERE (t.nm_perawatan LIKE '%alat%' OR t.nm_perawatan LIKE '%Alat%')
             AND t.nm_perawatan NOT LIKE '%ESWL%'
+            AND t.nm_perawatan NOT LIKE '%USG%'
             AND (
                 (pj.png_jawab LIKE '%UMUM%' AND COALESCE(ni.tanggal, nj.tanggal) BETWEEN ? AND ?)
                 OR 
