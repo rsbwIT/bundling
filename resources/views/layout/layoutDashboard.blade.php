@@ -11,7 +11,11 @@
     <script>
         (function() {
             var mode = localStorage.getItem('theme_mode') || localStorage.getItem('theme') || 'light';
-            var color = localStorage.getItem('theme_color') || 'emerald';
+            var color = localStorage.getItem('theme_color');
+            if (!color || color === 'emerald') {
+                color = 'ocean';
+                localStorage.setItem('theme_color', 'ocean');
+            }
             if (mode === 'dark') {
                 document.documentElement.classList.add('dark-mode');
             } else {
@@ -68,7 +72,16 @@
 
     <style>
         /* ================= THEME COLOR PALETTES (CSS VARIABLES) ================= */
-        :root, html[data-theme-color="emerald"], body[data-theme-color="emerald"] {
+        :root,
+        html[data-theme-color="ocean"], body[data-theme-color="ocean"] {
+            --theme-primary: #0284c7;
+            --theme-primary-hover: #0369a1;
+            --theme-accent: #38bdf8;
+            --theme-sidebar-bg: linear-gradient(180deg, #0284c7 0%, #0f172a 100%);
+            --theme-gradient: linear-gradient(135deg, #0284c7, #0369a1);
+        }
+
+        html[data-theme-color="emerald"], body[data-theme-color="emerald"] {
             --theme-primary: #1d7969;
             --theme-primary-hover: #166255;
             --theme-accent: #eb6e25;
@@ -132,22 +145,38 @@
             background-color: var(--theme-primary) !important;
         }
 
+        /* ================= LIGHT MODE BASE (SERASI LOGIN) ================= */
+        body:not(.dark-mode) .content-wrapper,
+        html:not(.dark-mode) .content-wrapper {
+            background-color: #f5f8fc !important;
+        }
+
+        body:not(.dark-mode) .main-header,
+        html:not(.dark-mode) .main-header {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+        }
+
         /* ================= SIDEBAR (LIGHT MODE) ================= */
         body:not(.dark-mode) .main-sidebar,
         html:not(.dark-mode) .main-sidebar {
-            background-color: var(--theme-sidebar-bg) !important;
-            transition: background-color 0.3s ease;
+            background: var(--theme-sidebar-bg) !important;
+            transition: background 0.3s ease;
         }
 
         body:not(.dark-mode) .brand-link,
         html:not(.dark-mode) .brand-link {
-            background-color: var(--theme-sidebar-bg) !important;
-            transition: background-color 0.3s ease;
+            background: rgba(15, 23, 42, 0.25) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+            transition: background 0.3s ease;
         }
 
         body:not(.dark-mode) .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
-            background-color: var(--theme-accent) !important;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
             color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35) !important;
+            border-radius: 8px !important;
         }
 
         /* ================= DARK MODE CORE ================= */
@@ -641,7 +670,10 @@
                                 <small id="currentThemeLabel" class="font-weight-bold text-primary" style="font-size: 11px;">Hijau RSBW</small>
                             </div>
                             <div class="theme-swatches-grid pt-1">
-                                <button type="button" class="theme-swatch" data-theme="emerald" style="background: #1d7969;" onclick="setThemeColor('emerald', 'Hijau RSBW')" title="Hijau RSBW (Default)">
+                                <button type="button" class="theme-swatch" data-theme="ocean" style="background: linear-gradient(135deg, #0284c7, #0f172a);" onclick="setThemeColor('ocean', 'Biru SIMRS')" title="Biru SIMRS (Serasi Login)">
+                                    <i class="fas fa-check swatch-check"></i>
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="emerald" style="background: #1d7969;" onclick="setThemeColor('emerald', 'Hijau RSBW')" title="Hijau RSBW">
                                     <i class="fas fa-check swatch-check"></i>
                                 </button>
                                 <button type="button" class="theme-swatch" data-theme="blue" style="background: #1d4ed8;" onclick="setThemeColor('blue', 'Biru Bahari')" title="Biru Bahari">
@@ -2337,6 +2369,7 @@
     {{-- ================= SYSTEM PENGATURAN TEMA & WARNA ================= --}}
     <script>
     const THEME_NAMES = {
+        ocean: 'Biru SIMRS (Serasi Login)',
         emerald: 'Hijau RSBW',
         blue: 'Biru Bahari',
         purple: 'Ungu Modern',
@@ -2347,7 +2380,11 @@
 
     function applyTheme(mode, color) {
         mode = mode || localStorage.getItem('theme_mode') || localStorage.getItem('theme') || 'light';
-        color = color || localStorage.getItem('theme_color') || 'emerald';
+        color = color || localStorage.getItem('theme_color') || 'ocean';
+        if (color === 'emerald' && !localStorage.getItem('theme_color_customized')) {
+            color = 'ocean';
+            localStorage.setItem('theme_color', 'ocean');
+        }
 
         const isDark = (mode === 'dark');
 
@@ -2406,14 +2443,16 @@
 
     function setThemeColor(color, labelText) {
         localStorage.setItem('theme_color', color);
+        localStorage.setItem('theme_color_customized', 'true');
         applyTheme(null, color);
     }
 
     function resetTheme() {
         localStorage.setItem('theme_mode', 'light');
         localStorage.setItem('theme', 'light');
-        localStorage.setItem('theme_color', 'emerald');
-        applyTheme('light', 'emerald');
+        localStorage.setItem('theme_color', 'ocean');
+        localStorage.removeItem('theme_color_customized');
+        applyTheme('light', 'ocean');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

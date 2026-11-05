@@ -192,6 +192,7 @@ use App\Http\Controllers\Farmasi\waktutunggufarmasi;
 Route::get('/update', [AuthController::class, 'Maintance']);
 Route::group(['middleware' => 'default'], function () {
     Route::get('/login', [AuthController::class, 'Login'])->name('login');
+    Route::get('/refresh-captcha', [AuthController::class, 'refreshCaptcha']);
     Route::post('/mesinlogin', [AuthController::class, 'mesinLogin']);
 
     Route::group(['middleware' => 'auth-rsbw'], function () {
