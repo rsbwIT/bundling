@@ -110,18 +110,36 @@
                             <td class="text-center status-cell">
                                 @if($a->status == 'MENUNGGU')
                                     <span class="badge badge-warning">MENUNGGU</span>
+                                @elseif($a->status == 'VALIDASI')
+                                    <span class="badge badge-info"><i class="fas fa-stopwatch mr-1"></i> DIVALIDASI</span>
                                 @elseif($a->status == 'SELESAI')
                                     <span class="badge badge-success">SELESAI</span>
                                 @elseif($a->status == 'TIDAK ADA')
                                     <span class="badge badge-danger">TIDAK ADA</span>
                                 @elseif($a->status == 'DIPANGGIL')
-                                    <span class="badge badge-info">PANGGIL</span>
+                                    <span class="badge badge-primary">PANGGIL</span>
                                 @else
-                                    <span class="badge badge-secondary">-</span>
+                                    <span class="badge badge-secondary">{{ $a->status ?? '-' }}</span>
+                                @endif
+
+                                @if(!empty($a->waktu_validasi))
+                                    <div class="mt-1 small text-muted validasi-info" style="font-size: 11px;">
+                                        <i class="fas fa-check-circle text-success"></i> Valid: {{ date('H:i', strtotime($a->waktu_validasi)) }}
+                                    </div>
                                 @endif
                             </td>
                             <td class="text-center">
                                 <div class="d-flex flex-wrap justify-content-center gap-2">
+                                    <button type="button"
+                                        class="btn btn-sm {{ !empty($a->waktu_validasi) ? 'btn-outline-warning' : 'btn-warning' }} btn-validasi font-weight-bold"
+                                        data-nomor="{{ $a->nomor_antrian }}"
+                                        data-pasien="{{ $a->nama_pasien }}"
+                                        data-keterangan="{{ $a->keterangan }}"
+                                        title="{{ !empty($a->waktu_validasi) ? 'Sudah divalidasi pukul ' . date('H:i', strtotime($a->waktu_validasi)) . '. Klik untuk validasi ulang.' : 'Mulai hitung mundur resep (Non-Racik: 45 mnt, Racikan: 60 mnt)' }}">
+                                        <i class="fas fa-stopwatch"></i> 
+                                        <span class="btn-validasi-text">{{ !empty($a->waktu_validasi) ? 'Divalidasi' : 'Validasi' }}</span>
+                                    </button>
+
                                     <button type="button"
                                         class="btn btn-sm btn-call btn-panggil"
                                         data-nomor="{{ $a->nomor_antrian }}"
@@ -217,6 +235,70 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(err => console.error(err));
     }
+
+    // ✅ Validasi antrian (Waktu Mundur: 45 Menit Non-Racik, 60 Menit Racikan)
+    document.querySelectorAll(".btn-validasi").forEach(btn => {
+        btn.addEventListener("click", function() {
+            let nomor = this.dataset.nomor;
+            let pasien = this.dataset.pasien;
+            let keterangan = this.dataset.keterangan || '';
+            let isRacik = keterangan.toUpperCase().includes('RACIK') && !keterangan.toUpperCase().includes('NON');
+            let durasiText = isRacik ? '60 Menit (Racikan)' : '45 Menit (Non-Racik)';
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
+
+            fetch(`{{ url('/farmasi/antrian/validasi') }}/${nomor}`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ tanggal: "{{ $tanggal }}" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    btn.className = "btn btn-sm btn-outline-warning btn-validasi font-weight-bold";
+                    btn.innerHTML = '<i class="fas fa-check-double text-success"></i> Divalidasi';
+                    btn.disabled = false;
+                    btn.title = `Divalidasi pukul ${data.jam_validasi}. Klik untuk validasi ulang.`;
+
+                    const row = document.getElementById(`row-${nomor}`);
+                    if (row) {
+                        let cell = row.querySelector(".status-cell");
+                        if (cell) {
+                            cell.innerHTML = `
+                                <span class="badge badge-info"><i class="fas fa-stopwatch mr-1"></i> DIVALIDASI</span>
+                                <div class="mt-1 small text-muted validasi-info" style="font-size: 11px;">
+                                    <i class="fas fa-check-circle text-success"></i> Valid: ${data.jam_validasi}
+                                </div>
+                            `;
+                        }
+                    }
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Resep Berhasil Divalidasi!',
+                            html: `Waktu mundur <strong>${durasiText}</strong> untuk antrian <strong>${nomor}</strong> (${pasien}) telah dimulai di layar TV display farmasi.`,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                } else {
+                    throw new Error(data.message || 'Gagal validasi');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-stopwatch"></i> Validasi';
+                alert('Gagal memvalidasi antrian: ' + err.message);
+            });
+        });
+    });
 
     // ✅ Cetak antrian tanpa IP
     document.querySelectorAll(".btn-print").forEach(btn => {

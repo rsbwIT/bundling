@@ -600,6 +600,8 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/farmasi/antrian', PanggilanFarmasiBaru::class)->name('farmasi.antrian');
         Route::post('/farmasi/antrian/update-status/{nomor}', [PanggilanFarmasiBaru::class, 'updateStatus'])
             ->name('farmasi.antrian.update-status');
+        Route::post('/farmasi/antrian/validasi/{nomor}', [PanggilanFarmasiBaru::class, 'validasiAntrian'])
+            ->name('farmasi.antrian.validasi');
         Route::get('/display-farmasi', DisplayFarmasiBaru::class)->name('display.farmasi');
 
         //display farmasi

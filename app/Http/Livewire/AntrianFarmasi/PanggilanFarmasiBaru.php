@@ -24,6 +24,9 @@ class PanggilanFarmasiBaru extends Component
                 'antrian.tanggal',
                 'antrian.keterangan',
                 'antrian.status',
+                'antrian.created_at',
+                'antrian.updated_at',
+                'antrian.waktu_validasi',
                 'dokter.nm_dokter'
             )
             ->join('reg_periksa', 'antrian.no_rawat', '=', 'reg_periksa.no_rawat')
@@ -57,22 +60,86 @@ class PanggilanFarmasiBaru extends Component
         ]);
     }
 
-    // ✅ Update status langsung di sini
-    public function updateStatus(Request $request, $nomor)
-        {
+    // ✅ Validasi antrian & mulai hitung mundur (Non-Racik 45 mnt, Racikan 60 mnt)
+    public function validasiAntrian(Request $request, $nomor)
+    {
+        $now = now();
+        $tanggal = $request->input('tanggal', date('Y-m-d'));
+
+        $antrian = DB::table('antrian')
+            ->where('nomor_antrian', $nomor)
+            ->whereDate('tanggal', $tanggal)
+            ->first();
+
+        if ($antrian) {
+            $isRacikan = (stripos($antrian->keterangan, 'RACIK') !== false && stripos($antrian->keterangan, 'NON') === false);
+            $durasiMenit = $isRacikan ? 60 : 45;
+
             DB::table('antrian')
                 ->where('nomor_antrian', $nomor)
-                ->whereDate('tanggal', $request->tanggal) // ✅ gunakan tanggal dari form
+                ->whereDate('tanggal', $tanggal)
                 ->update([
-                    'status' => $request->status,
-                    'updated_at' => now()
+                    'waktu_validasi' => $now,
+                    'status' => 'VALIDASI',
+                    'updated_at' => $now
                 ]);
 
-            return back()->with(
-                'success',
-                "Status antrian $nomor pada tanggal {$request->tanggal} berhasil diubah ke {$request->status}"
-            );
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'nomor' => $nomor,
+                    'waktu_validasi' => $now->format('H:i:s'),
+                    'jam_validasi' => $now->format('H:i'),
+                    'status' => 'VALIDASI',
+                    'durasi' => $durasiMenit . ' Menit',
+                    'message' => "Antrian $nomor berhasil divalidasi ({$durasiMenit} Menit)"
+                ]);
+            }
+
+            return back()->with('success', "Antrian $nomor berhasil divalidasi ({$durasiMenit} Menit)");
         }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => "Antrian $nomor tidak ditemukan"], 404);
+        }
+
+        return back()->with('error', "Antrian $nomor tidak ditemukan");
+    }
+
+    // ✅ Update status langsung di sini
+    public function updateStatus(Request $request, $nomor)
+    {
+        $tanggal = $request->input('tanggal', date('Y-m-d'));
+        $status = $request->input('status');
+
+        $updateData = [
+            'status' => $status,
+            'updated_at' => now()
+        ];
+
+        if ($status === 'VALIDASI') {
+            $updateData['waktu_validasi'] = now();
+        }
+
+        DB::table('antrian')
+            ->where('nomor_antrian', $nomor)
+            ->whereDate('tanggal', $tanggal)
+            ->update($updateData);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'nomor' => $nomor,
+                'status' => $status,
+                'message' => "Status antrian $nomor berhasil diubah ke $status"
+            ]);
+        }
+
+        return back()->with(
+            'success',
+            "Status antrian $nomor pada tanggal {$tanggal} berhasil diubah ke {$status}"
+        );
+    }
 
      public function panggil($nomor)
         {
