@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\MappingSuplierNonMedis;
+use App\Models\MasterKategoriNonMedis;
 
 class PengeluaranHarianController extends Controller
 {
@@ -40,7 +41,7 @@ class PengeluaranHarianController extends Controller
         $queryDetail = clone $querySekarang;
 
         $dataSekarang = $querySekarang
-            ->selectRaw('COALESCE(mapping_suplier_non_medis.kategori, "Belum Dipetakan") as kategori, SUM(bayar_pemesanan_non_medis.besar_bayar) as total')
+            ->selectRaw('COALESCE(NULLIF(TRIM(mapping_suplier_non_medis.kategori), ""), "Belum Dipetakan") as kategori, SUM(bayar_pemesanan_non_medis.besar_bayar) as total')
             ->groupBy('kategori')
             ->get()
             ->keyBy('kategori');
@@ -53,7 +54,7 @@ class PengeluaranHarianController extends Controller
             'bayar_pemesanan_non_medis.keterangan', 
             'bayar_pemesanan_non_medis.nama_bayar', 
             'bayar_pemesanan_non_medis.no_bukti',
-            DB::raw('COALESCE(mapping_suplier_non_medis.kategori, "Belum Dipetakan") as kategori')
+            DB::raw('COALESCE(NULLIF(TRIM(mapping_suplier_non_medis.kategori), ""), "Belum Dipetakan") as kategori')
         )->orderBy('bayar_pemesanan_non_medis.tgl_bayar', 'asc')->get();
 
         if ($showPrevYear) {
@@ -70,7 +71,7 @@ class PengeluaranHarianController extends Controller
             }
 
             $dataSebelumnya = $querySebelumnya
-                ->selectRaw('COALESCE(mapping_suplier_non_medis.kategori, "Belum Dipetakan") as kategori, SUM(bayar_pemesanan_non_medis.besar_bayar) as total')
+                ->selectRaw('COALESCE(NULLIF(TRIM(mapping_suplier_non_medis.kategori), ""), "Belum Dipetakan") as kategori, SUM(bayar_pemesanan_non_medis.besar_bayar) as total')
                 ->groupBy('kategori')
                 ->get()
                 ->keyBy('kategori');
@@ -79,6 +80,9 @@ class PengeluaranHarianController extends Controller
         }
 
         $allCategories = collect($dataSekarang->keys()->merge($dataSebelumnya->keys())->unique()->sort()->values());
+
+        // Ambil mapping jenis (BEBAN vs INVESTASI) dari MasterKategoriNonMedis
+        $masterKategoriMap = MasterKategoriNonMedis::pluck('jenis', 'nama_kategori')->toArray();
 
         $totalBebanSekarang = 0;
         $totalBebanSebelumnya = 0;
@@ -97,7 +101,14 @@ class PengeluaranHarianController extends Controller
                 'grandtotal' => $valSebelumnya + $valSekarang
             ];
 
-            if (stripos($kategori, 'investasi') !== false || stripos($kategori, 'pembelian alat') !== false) {
+            // Tentukan jenis berdasarkan Master Kategori atau fallback
+            $jenisKategori = $masterKategoriMap[$kategori] ?? null;
+            if (!$jenisKategori) {
+                $isInvestasi = (stripos($kategori, 'investasi') !== false || stripos($kategori, 'pembelian alat') !== false);
+                $jenisKategori = $isInvestasi ? 'INVESTASI' : 'BEBAN';
+            }
+
+            if ($jenisKategori === 'INVESTASI') {
                 $totalInvestasiSekarang += $valSekarang;
                 $totalInvestasiSebelumnya += $valSebelumnya;
             } else {
@@ -107,19 +118,26 @@ class PengeluaranHarianController extends Controller
         }
 
         $setting = DB::table('setting')->first();
+        $masterKategori = MasterKategoriNonMedis::orderBy('nama_kategori')->get();
 
         return view('laporan.pengeluaranHarian', compact(
             'bulan', 'tahunSekarang', 'tahunSebelumnya', 'reportData',
             'totalBebanSekarang', 'totalBebanSebelumnya', 
             'totalInvestasiSekarang', 'totalInvestasiSebelumnya',
-            'filter_type', 'tglAwal', 'tglAkhir', 'showPrevYear', 'dataDetail', 'setting'
+            'filter_type', 'tglAwal', 'tglAkhir', 'showPrevYear', 'dataDetail', 'setting',
+            'masterKategori'
         ));
     }
 
     public function mapping()
     {
         $mappings = MappingSuplierNonMedis::orderBy('nama_suplier')->get();
-        return view('laporan.mappingSuplier', compact('mappings'));
+        $masterKategori = MasterKategoriNonMedis::orderBy('nama_kategori')->get();
+        
+        // Ambil daftar supplier dari ipsrssuplier untuk dropdown autocomplete jika ada supplier baru
+        $allSupliers = DB::table('ipsrssuplier')->select('nama_suplier')->distinct()->orderBy('nama_suplier')->pluck('nama_suplier');
+
+        return view('laporan.mappingSuplier', compact('mappings', 'masterKategori', 'allSupliers'));
     }
 
     public function simpanMapping(Request $request)
@@ -138,6 +156,12 @@ class PengeluaranHarianController extends Controller
                             ['nama_suplier' => $nama_suplier],
                             ['kategori' => $kategori]
                         );
+
+                        // Otomatis masukkan ke MasterKategori jika belum terdaftar
+                        MasterKategoriNonMedis::firstOrCreate(
+                            ['nama_kategori' => $kategori],
+                            ['jenis' => (stripos($kategori, 'investasi') !== false || stripos($kategori, 'pembelian alat') !== false) ? 'INVESTASI' : 'BEBAN']
+                        );
                     }
                 }
             }
@@ -145,5 +169,107 @@ class PengeluaranHarianController extends Controller
         }
 
         return redirect()->back()->with('error', 'Data tidak boleh kosong.');
+    }
+
+    // CRUD Master Kategori
+    public function storeMasterKategori(Request $request)
+    {
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+            'jenis' => 'required|in:BEBAN,INVESTASI'
+        ]);
+
+        $nama = trim($request->input('nama_kategori'));
+        $jenis = $request->input('jenis');
+
+        MasterKategoriNonMedis::updateOrCreate(
+            ['nama_kategori' => $nama],
+            ['jenis' => $jenis]
+        );
+
+        return redirect()->back()->with('success', "Kategori '$nama' berhasil disimpan.");
+    }
+
+    public function updateMasterKategori(Request $request, $id)
+    {
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+            'jenis' => 'required|in:BEBAN,INVESTASI'
+        ]);
+
+        $kat = MasterKategoriNonMedis::findOrFail($id);
+        $oldNama = $kat->nama_kategori;
+        $newNama = trim($request->input('nama_kategori'));
+
+        $kat->update([
+            'nama_kategori' => $newNama,
+            'jenis' => $request->input('jenis')
+        ]);
+
+        // Update kategori di mapping_suplier_non_medis jika namanya berubah
+        if ($oldNama !== $newNama) {
+            MappingSuplierNonMedis::where('kategori', $oldNama)->update(['kategori' => $newNama]);
+        }
+
+        return redirect()->back()->with('success', "Kategori '$newNama' berhasil diperbarui.");
+    }
+
+    public function destroyMasterKategori($id)
+    {
+        $kat = MasterKategoriNonMedis::findOrFail($id);
+        $nama = $kat->nama_kategori;
+        $kat->delete();
+
+        return redirect()->back()->with('success', "Kategori '$nama' berhasil dihapus dari master.");
+    }
+
+    // Update Mapping Supplier per baris (baik dari menu mapping maupun modal detail)
+    public function updateMappingSuplier(Request $request)
+    {
+        $namaSuplier = trim($request->input('nama_suplier'));
+        $kategori = trim($request->input('kategori'));
+
+        if (empty($namaSuplier)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Nama supplier tidak boleh kosong'], 422);
+            }
+            return redirect()->back()->with('error', 'Nama supplier tidak boleh kosong.');
+        }
+
+        if (empty($kategori)) {
+            // Hapus mapping jika dikosongkan
+            MappingSuplierNonMedis::where('nama_suplier', $namaSuplier)->delete();
+        } else {
+            MappingSuplierNonMedis::updateOrCreate(
+                ['nama_suplier' => $namaSuplier],
+                ['kategori' => $kategori]
+            );
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'nama_suplier' => $namaSuplier,
+                'kategori' => $kategori ?: 'Belum Dipetakan',
+                'message' => "Mapping untuk supplier '$namaSuplier' berhasil diperbarui!"
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Mapping untuk supplier '$namaSuplier' berhasil disimpan.");
+    }
+
+    public function destroyMappingSuplier($id)
+    {
+        $map = MappingSuplierNonMedis::findOrFail($id);
+        $nama = $map->nama_suplier;
+        $map->delete();
+
+        return redirect()->back()->with('success', "Mapping supplier '$nama' berhasil dihapus.");
+    }
+
+    // Endpoint AJAX untuk ubah kategori langsung dari popup Detail Pembayaran
+    public function updateKategoriDetail(Request $request)
+    {
+        return $this->updateMappingSuplier($request);
     }
 }

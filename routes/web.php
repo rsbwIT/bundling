@@ -976,8 +976,14 @@ Route::get('/gizi/print-label', [GiziController::class, 'printLabel'])->name('gi
 
 // Laporan Pengeluaran Harian & Mapping
 Route::get('/laporan-pengeluaran-harian', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'index'])->name('laporan.pengeluaran-harian');
+Route::post('/laporan-pengeluaran-harian/update-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'updateKategoriDetail'])->name('laporan.pengeluaran-harian.update-kategori');
 Route::get('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'mapping'])->name('laporan.mapping-suplier');
 Route::post('/mapping-kategori', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'simpanMapping'])->name('laporan.mapping-suplier.simpan');
+Route::post('/mapping-kategori/kategori-store', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'storeMasterKategori'])->name('laporan.master-kategori.store');
+Route::post('/mapping-kategori/kategori-update/{id}', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'updateMasterKategori'])->name('laporan.master-kategori.update');
+Route::delete('/mapping-kategori/kategori-destroy/{id}', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'destroyMasterKategori'])->name('laporan.master-kategori.destroy');
+Route::post('/mapping-kategori/suplier-update', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'updateMappingSuplier'])->name('laporan.mapping-suplier.update');
+Route::delete('/mapping-kategori/suplier-destroy/{id}', [\App\Http\Controllers\Laporan\PengeluaranHarianController::class, 'destroyMappingSuplier'])->name('laporan.mapping-suplier.destroy');
 
 Route::get('/lab-pk', [\App\Http\Controllers\Laporan\LabPK::class, 'index'])->name('laporan.lab_pk');
 

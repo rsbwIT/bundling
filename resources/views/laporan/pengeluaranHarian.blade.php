@@ -173,13 +173,29 @@
                                     @forelse($dataDetail as $idx => $dt)
                                         @php $totalDetail += $dt->besar_bayar; @endphp
                                         <tr>
-                                            <td class="text-center">{{ $idx + 1 }}</td>
-                                            <td class="text-center">{{ $dt->tgl_bayar }}</td>
-                                            <td>{{ $dt->no_bukti }}</td>
-                                            <td>{{ $dt->nama_suplier }}</td>
-                                            <td class="text-center"><span class="badge bg-secondary rounded-pill px-3">{{ $dt->kategori }}</span></td>
-                                            <td class="small text-muted">{{ $dt->keterangan }}</td>
-                                            <td class="text-right fw-bold">Rp. {{ number_format($dt->besar_bayar, 0, ',', '.') }}</td>
+                                            <td class="text-center align-middle">{{ $idx + 1 }}</td>
+                                            <td class="text-center align-middle">{{ $dt->tgl_bayar }}</td>
+                                            <td class="align-middle">{{ $dt->no_bukti }}</td>
+                                            <td class="align-middle fw-semibold">{{ $dt->nama_suplier }}</td>
+                                            <td class="text-center align-middle" style="min-width: 220px;">
+                                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                                    <select class="form-select form-select-sm select-kategori-inline py-1 px-2 border-primary" 
+                                                            data-suplier="{{ $dt->nama_suplier }}" 
+                                                            style="font-size: 0.82rem; border-radius: 20px; font-weight: 600; cursor: pointer; max-width: 230px;">
+                                                        <option value="" class="text-muted" {{ empty($dt->kategori) || $dt->kategori == 'Belum Dipetakan' ? 'selected' : '' }}>
+                                                            -- Belum Dipetakan --
+                                                        </option>
+                                                        @foreach($masterKategori as $kat)
+                                                            <option value="{{ $kat->nama_kategori }}" {{ trim($dt->kategori) == trim($kat->nama_kategori) ? 'selected' : '' }}>
+                                                                {{ $kat->nama_kategori }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <span class="spinner-border spinner-border-sm text-primary d-none spin-kategori ms-1" role="status"></span>
+                                                </div>
+                                            </td>
+                                            <td class="small text-muted align-middle">{{ $dt->keterangan }}</td>
+                                            <td class="text-right fw-bold align-middle">Rp. {{ number_format($dt->besar_bayar, 0, ',', '.') }}</td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -240,11 +256,20 @@
                     let cells = row.querySelectorAll('th, td');
                     cells.forEach((cell, cIdx) => {
                         let text = cell.innerText.trim();
+                        // Jika kolom kategori (cIdx === 4), ambil nilai dari select jika ada
+                        let sel = cell.querySelector('select');
+                        if (sel) {
+                            text = sel.value || 'Belum Dipetakan';
+                            cell.innerText = text;
+                        }
+
                         // Bersihkan teks badge atau format span
                         if (cIdx === 1) { // Tanggal
                             cell.setAttribute('style', 'mso-number-format:"\\@"; text-align: center;');
                         } else if (cIdx === 2) { // No Bukti
                             cell.setAttribute('style', 'mso-number-format:"\\@"; text-align: left;');
+                        } else if (cIdx === 4) { // Kategori
+                            cell.setAttribute('style', 'text-align: center;');
                         } else if (cIdx === 6 || (row.parentElement.tagName === 'TFOOT' && cIdx === 1)) { // Besar Bayar
                             // Ambil angka murni
                             let num = text.replace(/[^0-9,-]/g, '').replace(/\./g, '');
@@ -502,6 +527,61 @@
         } else {
             document.getElementById('expensePieChart').parentElement.innerHTML = '<div class="text-muted text-center mt-5">Tidak ada data pengeluaran bulan ini.</div>';
         }
+
+        // Inline AJAX update Kategori di Modal Detail
+        document.querySelectorAll('.select-kategori-inline').forEach(function(selectEl) {
+            selectEl.addEventListener('change', function() {
+                var suplier = this.getAttribute('data-suplier');
+                var kategori = this.value;
+                var spin = this.parentElement.querySelector('.spin-kategori');
+                var currentSelect = this;
+
+                if (spin) spin.classList.remove('d-none');
+                currentSelect.disabled = true;
+
+                fetch("{{ route('laporan.pengeluaran-harian.update-kategori') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nama_suplier: suplier,
+                        kategori: kategori
+                    })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (spin) spin.classList.add('d-none');
+                    currentSelect.disabled = false;
+
+                    if (data.success) {
+                        // Sinkronkan semua baris supplier yang sama di tabel detail
+                        document.querySelectorAll('.select-kategori-inline[data-suplier="' + suplier + '"]').forEach(function(el) {
+                            el.value = kategori;
+                            el.classList.add('border-success');
+                            setTimeout(function() { el.classList.remove('border-success'); }, 1500);
+                        });
+
+                        // Tampilkan toast / pemberitahuan kecil
+                        var toast = document.createElement('div');
+                        toast.className = 'alert alert-success position-fixed top-0 end-0 m-3 shadow-lg py-2 px-3';
+                        toast.style.zIndex = 9999;
+                        toast.innerHTML = '<i class="fas fa-check-circle me-1"></i> ' + data.message;
+                        document.body.appendChild(toast);
+                        setTimeout(function() { toast.remove(); }, 2500);
+                    } else {
+                        alert(data.message || 'Gagal mengubah kategori.');
+                    }
+                })
+                .catch(function(err) {
+                    if (spin) spin.classList.add('d-none');
+                    currentSelect.disabled = false;
+                    alert('Terjadi kesalahan jaringan/server.');
+                });
+            });
+        });
     });
 </script>
 
