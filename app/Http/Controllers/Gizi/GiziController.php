@@ -100,26 +100,26 @@ class GiziController extends Controller
             $query->where('kamar.kd_bangsal', $filters['kd_bangsal']);
         }
 
-        // Pencarian bebas: bisa cari pasien, no rawat, no RM, diet, bangsal, kelas, kamar, shift
+        // Pencarian bebas: dicari utuh sebagai satu frasa (tidak dipecah per kata)
+        // agar "garuda 5" tidak ikut menampilkan "garuda 3".
         if ($filters['search']) {
-            $keywords = preg_split('/\s+/', trim($filters['search']));
-            foreach ($keywords as $kw) {
-                if ($kw === '') continue;
-                $query->where(function ($q) use ($table, $kw, $s) {
-                    $q->where("{$table}.no_rawat", 'like', "%{$kw}%")
-                      ->orWhere('pasien.nm_pasien', 'like', "%{$kw}%")
-                      ->orWhere('pasien.no_rkm_medis', 'like', "%{$kw}%")
-                      ->orWhere('bangsal.nm_bangsal', 'like', "%{$kw}%")
-                      ->orWhere('kamar.kd_kamar', 'like', "%{$kw}%")
-                      ->orWhere('kamar.kelas', 'like', "%{$kw}%");
-                    if ($s->hasKdDiet) {
-                        $q->orWhere('diet.nama_diet', 'like', "%{$kw}%");
-                    }
-                    if ($s->shiftCol) {
-                        $q->orWhere("{$table}.{$s->shiftCol}", 'like', "%{$kw}%");
-                    }
-                });
-            }
+            $kw = trim(preg_replace('/\s+/', ' ', $filters['search']));
+            $query->where(function ($q) use ($table, $kw, $s) {
+                $q->where("{$table}.no_rawat", 'like', "%{$kw}%")
+                  ->orWhere('pasien.nm_pasien', 'like', "%{$kw}%")
+                  ->orWhere('pasien.no_rkm_medis', 'like', "%{$kw}%")
+                  ->orWhere('bangsal.nm_bangsal', 'like', "%{$kw}%")
+                  ->orWhere('kamar.kd_kamar', 'like', "%{$kw}%")
+                  ->orWhere('kamar.kelas', 'like', "%{$kw}%")
+                  // gabungan ruangan + kelas + kamar, mis. "melati kelas 2"
+                  ->orWhereRaw("CONCAT_WS(' ', bangsal.nm_bangsal, kamar.kelas, kamar.kd_kamar) LIKE ?", ["%{$kw}%"]);
+                if ($s->hasKdDiet) {
+                    $q->orWhere('diet.nama_diet', 'like', "%{$kw}%");
+                }
+                if ($s->shiftCol) {
+                    $q->orWhere("{$table}.{$s->shiftCol}", 'like', "%{$kw}%");
+                }
+            });
         }
 
         return $query;
