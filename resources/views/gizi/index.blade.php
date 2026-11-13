@@ -40,13 +40,24 @@
                         @endif
                     </select>
                 </div>
-                <div class="form-group col-md-3 col-sm-12 mb-2">
-                    <label for="search" class="small text-muted font-weight-bold mb-1">Pencarian Pasien</label>
-                    <input type="text" class="form-control form-control-sm" id="search" name="search" placeholder="Cari No. Rawat / Nama Pasien..." value="{{ $search }}">
+                <div class="form-group col-md-3 col-sm-6 mb-2">
+                    <label for="kd_bangsal" class="small text-muted font-weight-bold mb-1">Ruangan / Bangsal</label>
+                    <select class="form-control form-control-sm" id="kd_bangsal" name="kd_bangsal">
+                        <option value="">-- Semua Ruangan --</option>
+                        @if(isset($listBangsal))
+                            @foreach($listBangsal as $b)
+                                <option value="{{ $b->kd_bangsal }}" {{ ($selectedKdBangsal ?? '') == $b->kd_bangsal ? 'selected' : '' }}>{{ $b->nm_bangsal }}</option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
             </div>
-            <div class="form-row justify-content-end">
-                <div class="form-group col-md-3 col-sm-6 mb-0 d-flex">
+            <div class="form-row align-items-end">
+                <div class="form-group col-md-9 col-sm-12 mb-2">
+                    <label for="search" class="small text-muted font-weight-bold mb-1">Pencarian Bebas</label>
+                    <input type="text" class="form-control form-control-sm" id="search" name="search" placeholder="Cari nama pasien / no. rawat / no. RM / ruangan / kelas / no. kamar / jenis diet / shift..." value="{{ $search }}">
+                </div>
+                <div class="form-group col-md-3 col-sm-12 mb-2 d-flex">
                     <button type="submit" class="btn btn-primary btn-sm mr-1 flex-fill font-weight-bold">Filter</button>
                     <a href="{{ url('/gizi') }}" class="btn btn-secondary btn-sm font-weight-bold">Reset</a>
                 </div>
@@ -62,7 +73,7 @@
             @if(isset($dataGizi) && method_exists($dataGizi, 'total'))
                 <span class="badge badge-light text-dark mr-2">Total: {{ $dataGizi->total() }} Data</span>
             @endif
-            <a href="{{ url('/gizi/print-label?all=1&tgl1=' . urlencode($tgl1) . '&tgl2=' . urlencode($tgl2) . '&waktu=' . urlencode($selectedWaktu) . '&kd_diet=' . urlencode($selectedKdDiet) . '&search=' . urlencode($search)) }}" 
+            <a href="{{ url('/gizi/print-label?all=1&tgl1=' . urlencode($tgl1) . '&tgl2=' . urlencode($tgl2) . '&waktu=' . urlencode($selectedWaktu) . '&kd_diet=' . urlencode($selectedKdDiet) . '&search=' . urlencode($search) . '&kd_bangsal=' . urlencode($selectedKdBangsal ?? '')) }}" 
                target="_blank" 
                class="btn btn-warning btn-sm font-weight-bold text-dark">
                 Cetak Semua Label
@@ -91,7 +102,12 @@
                             <td><span class="badge badge-info">{{ $item->no_rawat }}</span></td>
                             <td><span class="badge badge-light border">{{ $item->no_rkm_medis }}</span></td>
                             <td><strong>{{ $item->nm_pasien }}</strong></td>
-                            <td>{{ $item->nm_bangsal ?? '-' }}</td>
+                            <td>
+                                <div class="font-weight-bold">{{ $item->nm_bangsal ?? '-' }}</div>
+                                <small class="text-muted">
+                                    Kelas: {{ $item->kelas ?? '-' }} &middot; Kamar: {{ $item->kd_kamar ?? '-' }}
+                                </small>
+                            </td>
                             <td>
                                 <div>{{ date('d-m-Y', strtotime($item->tgl_diberi)) }}</div>
                                 @if(!empty($item->jam))
@@ -121,7 +137,7 @@
     </div>
     @if(isset($dataGizi) && method_exists($dataGizi, 'links') && $dataGizi->hasPages())
         <div class="card-footer py-2 bg-light">
-            {{ $dataGizi->appends(['tgl1' => $tgl1, 'tgl2' => $tgl2, 'search' => $search, 'kd_diet' => $selectedKdDiet, 'waktu' => $selectedWaktu])->links('pagination::bootstrap-4') }}
+            {{ $dataGizi->appends(['tgl1' => $tgl1, 'tgl2' => $tgl2, 'search' => $search, 'kd_diet' => $selectedKdDiet, 'waktu' => $selectedWaktu, 'kd_bangsal' => $selectedKdBangsal ?? ''])->links('pagination::bootstrap-4') }}
         </div>
     @endif
 </div>

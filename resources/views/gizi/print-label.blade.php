@@ -166,8 +166,13 @@
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">Ruangan / Kamar:</span>
+                    <span class="info-label">Ruangan:</span>
                     <span class="info-value">{{ $it->nm_bangsal ?? '-' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Kelas / No. Kamar:</span>
+                    <span class="info-value">{{ $it->kelas ?? '-' }} / {{ $it->kd_kamar ?? '-' }}</span>
                 </div>
 
                 <div class="info-row">

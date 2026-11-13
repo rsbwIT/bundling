@@ -8,107 +8,180 @@ use Illuminate\Support\Facades\DB;
 
 class GiziController extends Controller
 {
+    /**
+     * Deteksi tabel diet & kolom-kolom yang tersedia.
+     */
+    private function detectSchema()
+    {
+        $tablesToTry = ['detail_beri_diet', 'pasien_diet', 'pemberian_diet', 'diet_pasien'];
+        $table = null;
+
+        foreach ($tablesToTry as $t) {
+            if (DB::getSchemaBuilder()->hasTable($t)) {
+                $table = $t;
+                break;
+            }
+        }
+
+        if (!$table) {
+            return null;
+        }
+
+        $cols = DB::getSchemaBuilder()->getColumnListing($table);
+
+        return (object) [
+            'table'      => $table,
+            'hasKdKamar' => in_array('kd_kamar', $cols),
+            'hasKdDiet'  => in_array('kd_diet', $cols),
+            'dateCol'    => in_array('tgl_diberi', $cols) ? 'tgl_diberi' : (in_array('tanggal', $cols) ? 'tanggal' : 'tgl_diberi'),
+            'shiftCol'   => in_array('waktu', $cols) ? 'waktu' : (in_array('jam', $cols) ? 'jam' : null),
+        ];
+    }
+
+    /**
+     * Query dasar pemberian diet beserta info pasien, diet, bangsal, kelas & kamar.
+     */
+    private function baseQuery($s)
+    {
+        $table = $s->table;
+
+        $query = DB::table($table)
+            ->select(
+                "{$table}.no_rawat",
+                "{$table}.{$s->dateCol} as tgl_diberi",
+                $s->shiftCol ? "{$table}.{$s->shiftCol} as jam" : DB::raw("'' as jam"),
+                'pasien.nm_pasien',
+                'pasien.no_rkm_medis',
+                $s->hasKdDiet ? 'diet.nama_diet' : DB::raw("'' as nama_diet"),
+                DB::raw("COALESCE(bangsal.nm_bangsal, 'Rawat Inap') as nm_bangsal"),
+                'bangsal.kd_bangsal',
+                'kamar.kd_kamar',
+                'kamar.kelas'
+            )
+            ->leftJoin('reg_periksa', "{$table}.no_rawat", '=', 'reg_periksa.no_rawat')
+            ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis');
+
+        if ($s->hasKdDiet) {
+            $query->leftJoin('diet', "{$table}.kd_diet", '=', 'diet.kd_diet');
+        }
+
+        if ($s->hasKdKamar) {
+            $query->leftJoin('kamar', "{$table}.kd_kamar", '=', 'kamar.kd_kamar');
+        } else {
+            $query->leftJoin('kamar_inap', "{$table}.no_rawat", '=', 'kamar_inap.no_rawat')
+                  ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar');
+        }
+
+        $query->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal');
+
+        return $query;
+    }
+
+    /**
+     * Terapkan filter (tanggal, diet, shift, ruangan, pencarian bebas).
+     */
+    private function applyFilters($query, $s, $filters, $applyDateFilter = true)
+    {
+        $table = $s->table;
+
+        if ($applyDateFilter && $filters['tgl1'] && $filters['tgl2']) {
+            $query->whereBetween("{$table}.{$s->dateCol}", [$filters['tgl1'], $filters['tgl2']]);
+        }
+
+        if ($s->hasKdDiet && $filters['kd_diet']) {
+            $query->where("{$table}.kd_diet", $filters['kd_diet']);
+        }
+
+        if ($s->shiftCol && $filters['waktu']) {
+            $query->where("{$table}.{$s->shiftCol}", $filters['waktu']);
+        }
+
+        if ($filters['kd_bangsal']) {
+            $query->where('kamar.kd_bangsal', $filters['kd_bangsal']);
+        }
+
+        // Pencarian bebas: bisa cari pasien, no rawat, no RM, diet, bangsal, kelas, kamar, shift
+        if ($filters['search']) {
+            $keywords = preg_split('/\s+/', trim($filters['search']));
+            foreach ($keywords as $kw) {
+                if ($kw === '') continue;
+                $query->where(function ($q) use ($table, $kw, $s) {
+                    $q->where("{$table}.no_rawat", 'like', "%{$kw}%")
+                      ->orWhere('pasien.nm_pasien', 'like', "%{$kw}%")
+                      ->orWhere('pasien.no_rkm_medis', 'like', "%{$kw}%")
+                      ->orWhere('bangsal.nm_bangsal', 'like', "%{$kw}%")
+                      ->orWhere('kamar.kd_kamar', 'like', "%{$kw}%")
+                      ->orWhere('kamar.kelas', 'like', "%{$kw}%");
+                    if ($s->hasKdDiet) {
+                        $q->orWhere('diet.nama_diet', 'like', "%{$kw}%");
+                    }
+                    if ($s->shiftCol) {
+                        $q->orWhere("{$table}.{$s->shiftCol}", 'like', "%{$kw}%");
+                    }
+                });
+            }
+        }
+
+        return $query;
+    }
+
+    private function getFilters(Request $request)
+    {
+        return [
+            'tgl1'       => $request->input('tgl1', date('Y-m-01')),
+            'tgl2'       => $request->input('tgl2', date('Y-m-d')),
+            'search'     => $request->input('search', ''),
+            'kd_diet'    => $request->input('kd_diet', ''),
+            'waktu'      => $request->input('waktu', ''),
+            'kd_bangsal' => $request->input('kd_bangsal', ''),
+        ];
+    }
+
     public function index(Request $request)
     {
-        $tgl1 = $request->input('tgl1', date('Y-m-01'));
-        $tgl2 = $request->input('tgl2', date('Y-m-d'));
-        $search = $request->input('search', '');
-        $selectedKdDiet = $request->input('kd_diet', '');
-        $selectedWaktu = $request->input('waktu', '');
+        $filters = $this->getFilters($request);
+        $tgl1 = $filters['tgl1'];
+        $tgl2 = $filters['tgl2'];
 
         $dataGizi = collect();
         $listDiet = collect();
         $listWaktu = collect();
+        $listBangsal = collect();
 
         try {
-            $tablesToTry = ['detail_beri_diet', 'pasien_diet', 'pemberian_diet', 'diet_pasien'];
-            $table = null;
+            $s = $this->detectSchema();
 
-            foreach ($tablesToTry as $t) {
-                if (DB::getSchemaBuilder()->hasTable($t)) {
-                    $table = $t;
-                    break;
-                }
-            }
-
-            if ($table) {
-                $cols = DB::getSchemaBuilder()->getColumnListing($table);
-                $hasKdKamar = in_array('kd_kamar', $cols);
-                $hasWaktu = in_array('waktu', $cols);
-                $hasJam = in_array('jam', $cols);
-                $hasKdDiet = in_array('kd_diet', $cols);
-                $dateCol = in_array('tgl_diberi', $cols) ? 'tgl_diberi' : (in_array('tanggal', $cols) ? 'tanggal' : 'tgl_diberi');
-                $shiftCol = $hasWaktu ? 'waktu' : ($hasJam ? 'jam' : null);
-
-                // Fetch distinct shifts/waktu
-                if ($shiftCol) {
-                    $listWaktu = DB::table($table)->whereNotNull($shiftCol)->where($shiftCol, '!=', '')->select($shiftCol)->distinct()->pluck($shiftCol);
+            if ($s) {
+                if ($s->shiftCol) {
+                    $listWaktu = DB::table($s->table)->whereNotNull($s->shiftCol)->where($s->shiftCol, '!=', '')
+                        ->select($s->shiftCol)->distinct()->pluck($s->shiftCol);
                 }
 
-                // Fetch diet master list
                 if (DB::getSchemaBuilder()->hasTable('diet')) {
                     $listDiet = DB::table('diet')->select('kd_diet', 'nama_diet')->orderBy('nama_diet', 'asc')->get();
                 }
 
-                $buildQuery = function ($applyDateFilter = true) use ($table, $cols, $hasKdKamar, $shiftCol, $hasKdDiet, $dateCol, $tgl1, $tgl2, $search, $selectedKdDiet, $selectedWaktu) {
-                    $query = DB::table($table)
-                        ->select(
-                            "{$table}.no_rawat",
-                            "{$table}.{$dateCol} as tgl_diberi",
-                            $shiftCol ? "{$table}.{$shiftCol} as jam" : DB::raw("'' as jam"),
-                            'pasien.nm_pasien',
-                            'pasien.no_rkm_medis',
-                            $hasKdDiet ? 'diet.nama_diet' : DB::raw("'' as nama_diet"),
-                            DB::raw("COALESCE(bangsal.nm_bangsal, kamar.kd_kamar, 'Rawat Inap') as nm_bangsal")
-                        )
-                        ->leftJoin('reg_periksa', "{$table}.no_rawat", '=', 'reg_periksa.no_rawat')
-                        ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis');
+                // Daftar ruangan/bangsal yang memiliki kamar
+                $listBangsal = DB::table('bangsal')
+                    ->join('kamar', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal')
+                    ->select('bangsal.kd_bangsal', 'bangsal.nm_bangsal')
+                    ->distinct()
+                    ->orderBy('bangsal.nm_bangsal')
+                    ->get();
 
-                    if ($hasKdDiet) {
-                        $query->leftJoin('diet', "{$table}.kd_diet", '=', 'diet.kd_diet');
-                    }
-
-                    if ($hasKdKamar) {
-                        $query->leftJoin('kamar', "{$table}.kd_kamar", '=', 'kamar.kd_kamar')
-                              ->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal');
-                    } else {
-                        $query->leftJoin('kamar_inap', function($join) use ($table) {
-                            $join->on("{$table}.no_rawat", '=', 'kamar_inap.no_rawat');
-                        })
-                        ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-                        ->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal');
-                    }
-
-                    if ($applyDateFilter && $tgl1 && $tgl2) {
-                        $query->whereBetween("{$table}.{$dateCol}", [$tgl1, $tgl2]);
-                    }
-
-                    if ($hasKdDiet && $selectedKdDiet) {
-                        $query->where("{$table}.kd_diet", $selectedKdDiet);
-                    }
-
-                    if ($shiftCol && $selectedWaktu) {
-                        $query->where("{$table}.{$shiftCol}", $selectedWaktu);
-                    }
-
-                    if ($search) {
-                        $query->where(function($q) use ($table, $search, $hasKdDiet) {
-                            $q->where("{$table}.no_rawat", 'like', "%{$search}%")
-                              ->orWhere('pasien.nm_pasien', 'like', "%{$search}%")
-                              ->orWhere('pasien.no_rkm_medis', 'like', "{$search}%");
-                            if ($hasKdDiet) {
-                                $q->orWhere('diet.nama_diet', 'like', "%{$search}%");
-                            }
-                        });
-                    }
-
-                    return $query->orderBy("{$table}.{$dateCol}", 'desc')->distinct();
+                $buildQuery = function ($applyDateFilter = true) use ($s, $filters) {
+                    $query = $this->baseQuery($s);
+                    $this->applyFilters($query, $s, $filters, $applyDateFilter);
+                    return $query->orderBy("{$s->table}.{$s->dateCol}", 'desc')
+                                 ->orderBy('bangsal.nm_bangsal')
+                                 ->orderBy('kamar.kd_kamar')
+                                 ->distinct();
                 };
 
                 $result = $buildQuery(true)->paginate(25);
 
-                // Fallback: If 0 results returned for default date filter and no search input, load latest records automatically
-                if ($result->total() == 0 && !$request->has('tgl1') && !$search && !$selectedKdDiet && !$selectedWaktu) {
+                // Fallback: jika default tanggal kosong & tanpa filter, tampilkan data terbaru
+                if ($result->total() == 0 && !$request->has('tgl1') && !$filters['search'] && !$filters['kd_diet'] && !$filters['waktu'] && !$filters['kd_bangsal']) {
                     $result = $buildQuery(false)->paginate(25);
                     if ($result->count() > 0) {
                         $tgl2 = $result->first()->tgl_diberi ?? $tgl2;
@@ -123,14 +196,16 @@ class GiziController extends Controller
         }
 
         return view('gizi.index', [
-            'dataGizi' => $dataGizi,
-            'listDiet' => $listDiet,
-            'listWaktu' => $listWaktu,
-            'tgl1' => $tgl1,
-            'tgl2' => $tgl2,
-            'search' => $search,
-            'selectedKdDiet' => $selectedKdDiet,
-            'selectedWaktu' => $selectedWaktu,
+            'dataGizi'           => $dataGizi,
+            'listDiet'           => $listDiet,
+            'listWaktu'          => $listWaktu,
+            'listBangsal'        => $listBangsal,
+            'tgl1'               => $tgl1,
+            'tgl2'               => $tgl2,
+            'search'             => $filters['search'],
+            'selectedKdDiet'     => $filters['kd_diet'],
+            'selectedWaktu'      => $filters['waktu'],
+            'selectedKdBangsal'  => $filters['kd_bangsal'],
         ]);
     }
 
@@ -139,80 +214,33 @@ class GiziController extends Controller
         $no_rawat = $request->input('no_rawat');
         $tgl = $request->input('tgl');
         $waktu = $request->input('waktu');
-        $all = $request->input('all');
-        $tgl1 = $request->input('tgl1', date('Y-m-01'));
-        $tgl2 = $request->input('tgl2', date('Y-m-d'));
-        $search = $request->input('search', '');
-        $selectedKdDiet = $request->input('kd_diet', '');
+        $filters = $this->getFilters($request);
 
         $items = collect();
 
         try {
-            $table = DB::getSchemaBuilder()->hasTable('detail_beri_diet') ? 'detail_beri_diet' : 'pasien_diet';
-            $cols = DB::getSchemaBuilder()->getColumnListing($table);
-            $dateCol = in_array('tgl_diberi', $cols) ? 'tgl_diberi' : (in_array('tanggal', $cols) ? 'tanggal' : 'tgl_diberi');
-            $shiftCol = in_array('waktu', $cols) ? 'waktu' : (in_array('jam', $cols) ? 'jam' : null);
-            $hasKdDiet = in_array('kd_diet', $cols);
-            $hasKdKamar = in_array('kd_kamar', $cols);
+            $s = $this->detectSchema();
 
-            $query = DB::table($table)
-                ->select(
-                    "{$table}.no_rawat",
-                    "{$table}.{$dateCol} as tgl_diberi",
-                    $shiftCol ? "{$table}.{$shiftCol} as jam" : DB::raw("'' as jam"),
-                    'pasien.nm_pasien',
-                    'pasien.no_rkm_medis',
-                    $hasKdDiet ? 'diet.nama_diet' : DB::raw("'' as nama_diet"),
-                    DB::raw("COALESCE(bangsal.nm_bangsal, kamar.kd_kamar, 'Rawat Inap') as nm_bangsal")
-                )
-                ->leftJoin('reg_periksa', "{$table}.no_rawat", '=', 'reg_periksa.no_rawat')
-                ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis');
+            if ($s) {
+                $query = $this->baseQuery($s);
 
-            if ($hasKdDiet) {
-                $query->leftJoin('diet', "{$table}.kd_diet", '=', 'diet.kd_diet');
-            }
-
-            if ($hasKdKamar) {
-                $query->leftJoin('kamar', "{$table}.kd_kamar", '=', 'kamar.kd_kamar')
-                      ->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal');
-            } else {
-                $query->leftJoin('kamar_inap', function($join) use ($table) {
-                    $join->on("{$table}.no_rawat", '=', 'kamar_inap.no_rawat');
-                })
-                ->leftJoin('kamar', 'kamar_inap.kd_kamar', '=', 'kamar.kd_kamar')
-                ->leftJoin('bangsal', 'kamar.kd_bangsal', '=', 'bangsal.kd_bangsal');
-            }
-
-            if ($no_rawat) {
-                $query->where("{$table}.no_rawat", $no_rawat);
-                if ($tgl) {
-                    $query->where("{$table}.{$dateCol}", $tgl);
+                if ($no_rawat) {
+                    $query->where("{$s->table}.no_rawat", $no_rawat);
+                    if ($tgl) {
+                        $query->where("{$s->table}.{$s->dateCol}", $tgl);
+                    }
+                    if ($waktu && $s->shiftCol) {
+                        $query->where("{$s->table}.{$s->shiftCol}", $waktu);
+                    }
+                    $items = $query->take(1)->get();
+                } else {
+                    $this->applyFilters($query, $s, $filters, true);
+                    $items = $query->orderBy("{$s->table}.{$s->dateCol}", 'desc')
+                                   ->orderBy('bangsal.nm_bangsal')
+                                   ->orderBy('kamar.kd_kamar')
+                                   ->distinct()
+                                   ->get();
                 }
-                if ($waktu && $shiftCol) {
-                    $query->where("{$table}.{$shiftCol}", $waktu);
-                }
-                $items = $query->take(1)->get();
-            } else {
-                if ($tgl1 && $tgl2) {
-                    $query->whereBetween("{$table}.{$dateCol}", [$tgl1, $tgl2]);
-                }
-                if ($hasKdDiet && $selectedKdDiet) {
-                    $query->where("{$table}.kd_diet", $selectedKdDiet);
-                }
-                if ($shiftCol && $waktu) {
-                    $query->where("{$table}.{$shiftCol}", $waktu);
-                }
-                if ($search) {
-                    $query->where(function($q) use ($table, $search, $hasKdDiet) {
-                        $q->where("{$table}.no_rawat", 'like', "%{$search}%")
-                          ->orWhere('pasien.nm_pasien', 'like', "%{$search}%")
-                          ->orWhere('pasien.no_rkm_medis', 'like', "{$search}%");
-                        if ($hasKdDiet) {
-                            $q->orWhere('diet.nama_diet', 'like', "%{$search}%");
-                        }
-                    });
-                }
-                $items = $query->orderBy("{$table}.{$dateCol}", 'desc')->distinct()->get();
             }
         } catch (\Exception $e) {
             $items = collect();
@@ -221,4 +249,3 @@ class GiziController extends Controller
         return view('gizi.print-label', ['items' => $items]);
     }
 }
-
