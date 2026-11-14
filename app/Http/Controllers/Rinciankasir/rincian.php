@@ -44,6 +44,43 @@ class rincian extends Controller
         $obat = $this->getObatBHP($noRawat);
         $tambahanBiaya = $this->getTambahanBiaya($noRawat);
 
+        // Data Eklaim / SEP & Akun untuk Pembayaran COB
+        $sepInfo = DB::table('bridging_sep')->where('no_rawat', $noRawat)->first();
+        $eklaimTarif = 0;
+        $eklaimCbg = null;
+        $eklaimDesc = null;
+
+        if ($sepInfo && !empty($sepInfo->no_sep)) {
+            $tarifInacbgData = $this->getTarifEklaim($sepInfo->no_sep);
+            if ($tarifInacbgData['success']) {
+                $eklaimTarif = $tarifInacbgData['tarif'];
+                $eklaimCbg = $tarifInacbgData['cbg'];
+                $eklaimDesc = $tarifInacbgData['deskripsi'];
+            }
+        }
+
+        // Mapping Penjamin Kasir
+        $kdPjPasien = $header->kd_pj ?? null;
+        $mappingPenjamin = null;
+        if ($kdPjPasien) {
+            $mappingPenjamin = DB::table('bw_mapping_penjamin_kasir')
+                ->where('kd_pj', $kdPjPasien)
+                ->first();
+        }
+
+        // Akun Piutang & Bayar
+        $akunPiutangBpjs = DB::table('akun_piutang')->where('nama_bayar', 'like', '2. Piutang BPJS%')->first();
+        $akunPiutangCobList = DB::table('akun_piutang')
+            ->where('nama_bayar', 'not like', '2. Piutang BPJS%')
+            ->orderBy('nama_bayar', 'asc')
+            ->get();
+        $akunBayarList = DB::table('akun_bayar')->orderBy('nama_bayar', 'asc')->get();
+
+        // Data Piutang & Pembayaran Saat Ini
+        $currentPiutang = DB::table('piutang_pasien')->where('no_rawat', $noRawat)->first();
+        $currentDetailPiutang = DB::table('detail_piutang_pasien')->where('no_rawat', $noRawat)->get();
+        $currentBayar = DB::table('detail_nota_jalan')->where('no_rawat', $noRawat)->get();
+
         return view('rinciankasir.rincian', compact(
             'header',
             'kamar',
@@ -58,8 +95,203 @@ class rincian extends Controller
             'operasi',
             'obat',
             'tambahanBiaya',
-            'isRalan'
+            'isRalan',
+            'sepInfo',
+            'eklaimTarif',
+            'eklaimCbg',
+            'eklaimDesc',
+            'akunPiutangBpjs',
+            'akunPiutangCobList',
+            'akunBayarList',
+            'currentPiutang',
+            'currentDetailPiutang',
+            'currentBayar',
+            'mappingPenjamin'
         ));
+    }
+
+    /**
+     * Ambil tarif E-Klaim INACBG berdasarkan nomor SEP
+     */
+    public function getTarifEklaim($noSep)
+    {
+        try {
+            $bridging = new \App\Http\Controllers\Bpjs\bridginginacbg2();
+            $refMethod = new \ReflectionMethod($bridging, 'requestInacbg');
+            $refMethod->setAccessible(true);
+            $res = $refMethod->invoke($bridging, [
+                'metadata' => ['method' => 'get_claim_data'],
+                'data'     => ['nomor_sep' => $noSep]
+            ]);
+
+            if (isset($res['metadata']['code']) && $res['metadata']['code'] == 200 && isset($res['response']['data'])) {
+                $claimData = $res['response']['data'];
+                $tariff = 0;
+                $cbg = null;
+                $desc = null;
+
+                if (isset($claimData['grouper']['response_inacbg']['tariff'])) {
+                    $tariff = (float) $claimData['grouper']['response_inacbg']['tariff'];
+                    $cbg = $claimData['grouper']['response_inacbg']['cbg']['code'] ?? null;
+                    $desc = $claimData['grouper']['response_inacbg']['cbg']['description'] ?? null;
+                } elseif (isset($claimData['grouper']['response_idrg']['total_tarif'])) {
+                    $tariff = (float) $claimData['grouper']['response_idrg']['total_tarif'];
+                    $cbg = $claimData['grouper']['response_idrg']['drg_code'] ?? null;
+                    $desc = $claimData['grouper']['response_idrg']['drg_description'] ?? null;
+                }
+
+                return [
+                    'success'   => true,
+                    'tarif'     => $tariff,
+                    'cbg'       => $cbg,
+                    'deskripsi' => $desc,
+                    'data'      => $claimData
+                ];
+            }
+
+            return [
+                'success' => false,
+                'tarif'   => 0,
+                'message' => $res['metadata']['message'] ?? 'Data E-Klaim tidak ditemukan'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'tarif'   => 0,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * AJAX endpoint untuk cek / refresh tarif E-Klaim
+     */
+    public function cekEklaim($noRawat)
+    {
+        $noRawatDecoded = urldecode($noRawat);
+        $sep = DB::table('bridging_sep')->where('no_rawat', $noRawatDecoded)->first();
+
+        if (!$sep || empty($sep->no_sep)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nomor SEP untuk No. Rawat ini tidak ditemukan di bridging_sep'
+            ], 404);
+        }
+
+        $result = $this->getTarifEklaim($sep->no_sep);
+        $result['no_sep'] = $sep->no_sep;
+        return response()->json($result);
+    }
+
+    /**
+     * Simpan Pembayaran Kasir (Piutang BPJS / Piutang Asuransi / COB / Bayar Langsung)
+     */
+    public function simpanPembayaranCob(Request $request)
+    {
+        $noRawat = $request->input('no_rawat');
+        $totalTagihan = (float) $request->input('total_tagihan_real', $request->input('total_tagihan', 0));
+        
+        $pasien = DB::table('reg_periksa')->where('no_rawat', $noRawat)->first();
+        if (!$pasien) {
+            return redirect()->back()->with('error', 'Data registrasi tidak ditemukan');
+        }
+
+        $kdPj = $pasien->kd_pj;
+        $mapping = DB::table('bw_mapping_penjamin_kasir')->where('kd_pj', $kdPj)->first();
+        $kategoriMapping = $mapping ? $mapping->kategori : 'Asuransi';
+
+        $piutangBpjs = (float) $request->input('piutang_bpjs', 0);
+        $selisih = (float) $request->input('selisih_cob', 0);
+        $bayarLangsung = (float) $request->input('besar_bayar_langsung', 0);
+        $namaAkunBayar = $request->input('nama_akun_bayar');
+
+        $tglHariIni = date('Y-m-d');
+        $jatuhTempo = $request->input('jatuh_tempo', $tglHariIni);
+
+        DB::beginTransaction();
+        try {
+            // Bersihkan data piutang lama untuk no_rawat ini agar sinkron bersih
+            DB::table('detail_piutang_pasien')->where('no_rawat', $noRawat)->delete();
+
+            $totalPiutangDisimpan = 0;
+
+            // 1. Jika ada Piutang BPJS
+            if ($piutangBpjs > 0) {
+                $akunBpjs = DB::table('akun_piutang')->where('nama_bayar', 'like', '2. Piutang BPJS%')->first();
+                $namaBayarBpjs = $akunBpjs ? $akunBpjs->nama_bayar : '2. Piutang BPJS';
+                $kdPjBpjs = $akunBpjs ? $akunBpjs->kd_pj : 'BPJ';
+
+                DB::table('detail_piutang_pasien')->insert([
+                    'no_rawat'     => $noRawat,
+                    'nama_bayar'   => $namaBayarBpjs,
+                    'kd_pj'        => $kdPjBpjs,
+                    'totalpiutang' => $piutangBpjs,
+                    'sisapiutang'  => $piutangBpjs,
+                    'tgltempo'     => $jatuhTempo
+                ]);
+                $totalPiutangDisimpan += $piutangBpjs;
+            }
+
+            // 2. Jika ada Piutang Perusahaan / Asuransi (COB atau Asuransi Murni)
+            if ($selisih > 0) {
+                $inputNamaCob = $request->input('nama_bayar_cob');
+                if (empty($inputNamaCob) && $mapping && !empty($mapping->nama_akun_piutang)) {
+                    $inputNamaCob = $mapping->nama_akun_piutang;
+                }
+                $akunCob = DB::table('akun_piutang')->where('nama_bayar', $inputNamaCob)->first();
+                $namaBayarCob = $akunCob ? $akunCob->nama_bayar : $inputNamaCob;
+                $kdPjCob = $akunCob ? $akunCob->kd_pj : ($mapping->kd_pj ?? $kdPj);
+
+                DB::table('detail_piutang_pasien')->insert([
+                    'no_rawat'     => $noRawat,
+                    'nama_bayar'   => $namaBayarCob,
+                    'kd_pj'        => $kdPjCob,
+                    'totalpiutang' => $selisih,
+                    'sisapiutang'  => $selisih,
+                    'tgltempo'     => $jatuhTempo
+                ]);
+                $totalPiutangDisimpan += $selisih;
+            }
+
+            // 3. Update / Insert Master Piutang Pasien jika ada piutang
+            if ($totalPiutangDisimpan > 0) {
+                DB::table('piutang_pasien')->updateOrInsert(
+                    ['no_rawat' => $noRawat],
+                    [
+                        'tgl_piutang'  => $tglHariIni,
+                        'no_rkm_medis' => $pasien->no_rkm_medis,
+                        'status'       => 'Belum Lunas',
+                        'totalpiutang' => $totalPiutangDisimpan,
+                        'uangmuka'     => 0,
+                        'sisapiutang'  => $totalPiutangDisimpan,
+                        'tgltempo'     => $jatuhTempo
+                    ]
+                );
+            } else {
+                DB::table('piutang_pasien')->where('no_rawat', $noRawat)->delete();
+            }
+
+            // 4. Catat Pembayaran Langsung jika Ralan (detail_nota_jalan)
+            if ($pasien->status_lanjut === 'Ralan' && $bayarLangsung > 0 && !empty($namaAkunBayar)) {
+                DB::table('detail_nota_jalan')->where('no_rawat', $noRawat)->delete();
+                DB::table('detail_nota_jalan')->insert([
+                    'no_rawat'   => $noRawat,
+                    'nama_bayar' => $namaAkunBayar,
+                    'besar_ppn'  => 0,
+                    'besar_bayar'=> $bayarLangsung
+                ]);
+            }
+
+            // Pastikan status bayar di reg_periksa terupdate 'Sudah Bayar'
+            DB::table('reg_periksa')->where('no_rawat', $noRawat)->update(['status_bayar' => 'Sudah Bayar']);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Pembayaran kasir berhasil disimpan! Total Piutang: Rp ' . number_format($totalPiutangDisimpan, 0, ',', '.') . ($bayarLangsung > 0 ? ', Bayar Tunai: Rp ' . number_format($bayarLangsung, 0, ',', '.') : ''));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menyimpan pembayaran: ' . $e->getMessage());
+        }
     }
 
     // ============================================================================
@@ -117,7 +349,11 @@ class rincian extends Controller
 
         if (!empty($jenisBayar)) {
             if ($jenisBayar === 'BPJS') {
-                $query->where('penjab.png_jawab', 'like', '%BPJS%');
+                $query->where(function($q) {
+                    $q->where('penjab.png_jawab', 'like', '%BPJS%')
+                      ->orWhere('penjab.png_jawab', 'like', '%COB%')
+                      ->orWhereIn('penjab.kd_pj', ['BPJ', 'IAK', 'CKI']);
+                });
             } elseif ($jenisBayar === 'Umum') {
                 $query->where(function($q) {
                     $q->where('penjab.png_jawab', 'like', '%UMUM%')
@@ -126,9 +362,9 @@ class rincian extends Controller
                 });
             } elseif ($jenisBayar === 'Asuransi') {
                 $query->where('penjab.png_jawab', 'not like', '%BPJS%')
+                      ->where('penjab.png_jawab', 'not like', '%COB%')
                       ->where('penjab.png_jawab', 'not like', '%UMUM%')
-                      ->where('reg_periksa.kd_pj', '!=', '-')
-                      ->where('reg_periksa.kd_pj', '!=', 'UMU');
+                      ->whereNotIn('reg_periksa.kd_pj', ['-', 'UMU', 'BPJ', 'IAK', 'CKI']);
             }
         }
 
@@ -228,7 +464,9 @@ class rincian extends Controller
                 DB::raw("COALESCE(dokter.nm_dokter, '') as nm_dokter"),
                 'reg_periksa.biaya_reg',
                 DB::raw("0 as ttl_biaya"),
-                'penjab.png_jawab'
+                'reg_periksa.kd_pj',
+                'penjab.png_jawab',
+                'reg_periksa.status_bayar'
             )
             ->leftJoin('nota_jalan', 'reg_periksa.no_rawat', '=', 'nota_jalan.no_rawat')
             ->leftJoin('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
@@ -269,7 +507,9 @@ class rincian extends Controller
                 DB::raw("COALESCE(dokter.nm_dokter, '') as nm_dokter"),
                 'reg_periksa.biaya_reg',
                 'kamar_inap.ttl_biaya',
-                'penjab.png_jawab'
+                'reg_periksa.kd_pj',
+                'penjab.png_jawab',
+                'reg_periksa.status_bayar'
             )
             ->leftJoin('nota_inap', 'reg_periksa.no_rawat', '=', 'nota_inap.no_rawat')
             ->leftJoin('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')

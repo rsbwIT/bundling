@@ -176,6 +176,7 @@ use App\Http\Controllers\Bpjs\MJKNController1;
 use App\Http\Controllers\Surat\Listnama;
 use App\Http\Controllers\Rinciankasir\rincian;
 use App\Http\Controllers\Rinciankasir\listnamakasir;
+use App\Http\Controllers\Rinciankasir\MappingPenjaminKasirController;
 use App\Http\Controllers\Farmasi\waktutunggufarmasi;
 
 /*
@@ -895,7 +896,11 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/surat-keterangan-dokter', [Listnama::class, 'suratKeteranganDokter'])->name('surat.keterangan-dokter');
         Route::get('/surat-keterangan-vaksin', [Listnama::class, 'suratKeteranganVaksin'])->name('surat.keterangan-vaksin');
         Route::get('/rincian-kasir', [rincian::class, 'show'])->name('rincian.show');
+        Route::post('/rincian-kasir/simpan-pembayaran-cob', [rincian::class, 'simpanPembayaranCob'])->name('rincian.simpan-pembayaran-cob');
+        Route::get('/rincian-kasir/cek-eklaim/{no_rawat}', [rincian::class, 'cekEklaim'])->name('rincian.cek-eklaim');
         Route::get('/list-nama-kasir', [listnamakasir::class, 'index'])->name('rincian.listnama');
+        Route::get('/mapping-penjamin-kasir', [MappingPenjaminKasirController::class, 'index'])->name('rincian.mapping-penjamin');
+        Route::post('/mapping-penjamin-kasir/update', [MappingPenjaminKasirController::class, 'update'])->name('rincian.mapping-penjamin.update');
     });
     // diplay
     Route::get('/display', [AntrianPoli::class, 'display']);

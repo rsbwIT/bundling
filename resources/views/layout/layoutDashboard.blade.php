@@ -2206,6 +2206,12 @@
                                 <p>Rincian Kasir</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/mapping-penjamin-kasir') }}" class="nav-link">
+                                <i class="nav-icon fas fa-tasks"></i>
+                                <p>Mapping Penjamin Kasir</p>
+                            </a>
+                        </li>
 
                         {{-- MENU KEPEGAWAIAN --}}
                         <li class="nav-header user-panel"></li>

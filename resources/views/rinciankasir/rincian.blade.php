@@ -682,16 +682,441 @@
             </tbody>
         </table>
 
-        <!-- Ringkasan Total -->
-        <div class="summary-wrapper">
+        <!-- Ringkasan Total & Pembayaran COB (E-Klaim) -->
+        <div class="summary-wrapper" style="margin-top: 25px;">
             <div class="summary-card">
                 <div class="summary-row">
                     <span>TOTAL HARUS DIBAYAR</span>
-                    <span class="val">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
+                    <span class="val" id="textGrandTotalDisplay">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
                 </div>
+            </div>
+        </div>
+
+        @if(session('success'))
+            <div class="alert alert-success mt-3" style="background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 12px 16px; border-radius: 6px; font-weight: 500;">
+                <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger mt-3" style="background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; padding: 12px 16px; border-radius: 6px; font-weight: 500;">
+                <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
+            </div>
+        @endif
+
+        <!-- Card Pembayaran COB (Integrasi E-Klaim & SIMRS Khanza) -->
+        <div class="card mt-4" style="border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); overflow: hidden;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; padding: 12px 20px;">
+                <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-money-check-alt"></i> Pembayaran Kasir COB (Sesuai Format Piutang Khanza)
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @if($sepInfo && !empty($sepInfo->no_sep))
+                        <span class="badge bg-light text-dark px-2 py-1" style="font-size: 11px; border-radius: 4px;">
+                            SEP: <strong>{{ $sepInfo->no_sep }}</strong>
+                        </span>
+                        <button type="button" class="btn btn-sm btn-warning" id="btnRefreshEklaim" style="font-size: 11px; padding: 3px 10px; font-weight: 600;">
+                            <i class="fas fa-sync-alt" id="iconSyncEklaim"></i> Ambil Ulang Tarif E-Klaim
+                        </button>
+                    @else
+                        <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 11px;">
+                            <i class="fas fa-exclamation-triangle"></i> Data SEP Belum Terhubung
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card-body" style="padding: 20px; background: #fafafa;">
+                @php
+                    $penjaminKategori = $mappingPenjamin->kategori ?? null;
+                    if (!$penjaminKategori) {
+                        if (isset($header->png_jawab) && (stripos($header->png_jawab, 'COB') !== false || stripos($header->png_jawab, 'KAI') !== false)) {
+                            $penjaminKategori = 'BPJS COB';
+                        } elseif (isset($header->png_jawab) && stripos($header->png_jawab, 'BPJS') !== false) {
+                            $penjaminKategori = 'BPJS Murni';
+                        } elseif (isset($header->png_jawab) && stripos($header->png_jawab, 'UMUM') !== false) {
+                            $penjaminKategori = 'Umum';
+                        } else {
+                            $penjaminKategori = 'Asuransi';
+                        }
+                    }
+
+                    // Tentukan Akun Piutang Perusahaan/Asuransi default
+                    $selectedPerusahaanNama = $mappingPenjamin->nama_akun_piutang ?? '';
+                    $selectedPerusahaanKdPj = $mappingPenjamin->kd_pj ?? ($header->kd_pj ?? '');
+
+                    if (empty($selectedPerusahaanNama) && isset($akunPiutangCobList)) {
+                        foreach($akunPiutangCobList as $ap) {
+                            if (isset($header->png_jawab) && stripos($ap->nama_bayar, $header->png_jawab) !== false) {
+                                $selectedPerusahaanNama = $ap->nama_bayar;
+                                $selectedPerusahaanKdPj = $ap->kd_pj;
+                                break;
+                            }
+                        }
+                    }
+                    if (empty($selectedPerusahaanNama) && isset($akunPiutangCobList) && count($akunPiutangCobList) > 0) {
+                        $selectedPerusahaanNama = $akunPiutangCobList[0]->nama_bayar;
+                    }
+
+                    // Hitung default nominal berdasarkan Kategori Mapping
+                    if ($penjaminKategori === 'BPJS COB') {
+                        $defaultBpjsNominal = $eklaimTarif ?? 0;
+                        $defaultCobNominal = max(0, $grandTotal - ($eklaimTarif ?? 0));
+                    } elseif ($penjaminKategori === 'BPJS Murni') {
+                        $defaultBpjsNominal = $grandTotal;
+                        $defaultCobNominal = 0;
+                    } elseif ($penjaminKategori === 'Asuransi') {
+                        // Asuransi Murni (seperti IPC Terminal Petikemas): 100% masuk piutang asuransi terkait, BPJS = 0
+                        $defaultBpjsNominal = 0;
+                        $defaultCobNominal = $grandTotal;
+                    } else { // Umum
+                        $defaultBpjsNominal = 0;
+                        $defaultCobNominal = 0;
+                    }
+                @endphp
+                <form action="{{ route('rincian.simpan-pembayaran-cob') }}" method="POST" id="formPembayaranCob">
+                    @csrf
+                    <input type="hidden" name="no_rawat" value="{{ $header->no_rawat ?? request('no_rawat') }}">
+                    <input type="hidden" name="total_tagihan_real" id="inputTotalTagihanReal" value="{{ $grandTotal }}">
+                    <input type="hidden" name="tarif_inacbg" id="inputTarifInacbg" value="{{ $eklaimTarif ?? 0 }}">
+                    <input type="hidden" name="kategori_penjamin" id="inputKategoriPenjamin" value="{{ $penjaminKategori }}">
+
+                    <!-- Header Ringkasan Tagihan & Penjamin -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b;">Total Tagihan RS :</div>
+                                <div style="font-size: 20px; font-weight: 800; color: #0f172a; font-family: monospace;">
+                                    Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                    Penjamin: <strong>{{ $header->png_jawab ?? '-' }}</strong>
+                                    <span class="badge {{ $penjaminKategori === 'BPJS COB' ? 'bg-warning text-dark' : ($penjaminKategori === 'BPJS Murni' ? 'bg-success' : 'bg-primary') }}" style="font-size: 10px;">
+                                        {{ $penjaminKategori }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                                @if(in_array($penjaminKategori, ['BPJS COB', 'BPJS Murni']))
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #0284c7;">
+                                        Tarif E-Klaim INACBG: <span id="labelCbgCode" class="badge bg-info text-white">{{ $eklaimCbg ?? '-' }}</span>
+                                    </div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #0284c7; font-family: monospace;" id="displayTarifInacbgText">
+                                        Rp {{ number_format($eklaimTarif ?? 0, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted d-block" id="textEklaimDesc" style="font-size: 11px;">{{ $eklaimDesc ?? 'Tarif otomatis dari E-Klaim INACBG' }}</small>
+                                @else
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b;">
+                                        Akun Piutang Mapping:
+                                    </div>
+                                    <div style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-top: 4px;">
+                                        <i class="fas fa-file-invoice-dollar text-primary me-1"></i> {{ $selectedPerusahaanNama ?: 'Belum Dimapping' }}
+                                    </div>
+                                    <small class="text-muted d-block" style="font-size: 11px;">
+                                        Kode Akun: {{ $mappingPenjamin->kd_rek_piutang ?? '-' }}
+                                    </small>
+                                @endif
+                            </div>
+                            <div class="col-md-4">
+                                @if($penjaminKategori === 'BPJS COB')
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #d97706;">
+                                        Selisih Biaya (Masuk ke Perusahaan/COB):
+                                    </div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #d97706; font-family: monospace;" id="displaySelisihPerusahaanText">
+                                        Rp {{ number_format($defaultCobNominal, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted" style="font-size: 11px;">(Pasien COB: Tagihan RS - Tarif INACBG BPJS)</small>
+                                @elseif($penjaminKategori === 'BPJS Murni')
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #059669;">
+                                        Porsi Piutang BPJS (Murni):
+                                    </div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #059669; font-family: monospace;" id="displaySelisihPerusahaanText">
+                                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted" style="font-size: 11px;">(Pasien BPJS Murni: 100% Total Tagihan RS)</small>
+                                @elseif($penjaminKategori === 'Asuransi')
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #1e40af;">
+                                        Porsi Piutang Asuransi / Perusahaan:
+                                    </div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #1e40af; font-family: monospace;" id="displaySelisihPerusahaanText">
+                                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted" style="font-size: 11px;">(Pasien Asuransi Murni: 100% Masuk ke Akun Terkait)</small>
+                                @else
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #15803d;">
+                                        Pembayaran Langsung (Umum):
+                                    </div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #15803d; font-family: monospace;">
+                                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                    </div>
+                                    <small class="text-muted" style="font-size: 11px;">(Pasien Bayar Tunai / Mandiri)</small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABEL KOLOM BAYAR & PIUTANG PERSIS SEPERTI DI KHANZA -->
+                    <!-- 1. Bagian Uang Muka / Pembayaran Langsung -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size: 13px; font-weight: 700; color: #334155;">
+                                <i class="fas fa-hand-holding-usd text-success me-1"></i> Pembayaran Langsung / Kas:
+                            </span>
+                            <span style="font-size: 12px; font-weight: 600; color: #64748b;">
+                                Total Bayar: <strong id="textSummaryBayar">Rp 0</strong>
+                            </span>
+                        </div>
+                        <div class="table-responsive" style="border: 1px solid #cbd5e1; border-radius: 4px; background: #fff;">
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 12px;">
+                                <thead style="background: #f8fafc;">
+                                    <tr>
+                                        <th style="font-weight: 600;">Nama Akun Bayar</th>
+                                        <th style="width: 250px; font-weight: 600; text-align: right;">Bayar (Rp)</th>
+                                        <th style="width: 100px; font-weight: 600; text-align: center;">PPN (%)</th>
+                                        <th style="width: 150px; font-weight: 600; text-align: right;">PPN (Rp)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select form-select-sm" name="nama_akun_bayar" id="selectAkunBayar" style="font-size: 12px;">
+                                                <option value="">-- Tidak Ada Pembayaran Langsung (Rp 0) --</option>
+                                                @if(isset($akunBayarList))
+                                                    @foreach($akunBayarList as $ab)
+                                                        <option value="{{ $ab->nama_bayar }}">{{ $ab->nama_bayar }} ({{ $ab->kd_rek }})</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" class="form-control form-control-sm text-end font-monospace" name="besar_bayar_langsung" id="inputBesarBayarLangsung" value="0" style="font-weight: 700;" oninput="hitungOtomatisSemua()">
+                                        </td>
+                                        <td class="text-center align-middle">0%</td>
+                                        <td class="text-end align-middle font-monospace">Rp 0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2. Bagian Kolom Piutang (Sesuai Khanza: Piutang BPJS + Piutang COB) -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size: 13px; font-weight: 700; color: #1e3a8a;">
+                                <i class="fas fa-file-invoice-dollar text-primary me-1"></i> Piutang:
+                            </span>
+                            <span style="font-size: 12px; font-weight: 600; color: #1e3a8a;">
+                                Total Piutang: <strong id="textSummaryPiutang">Rp {{ number_format($grandTotal, 0, ',', '.') }}</strong>
+                            </span>
+                        </div>
+                        <div class="table-responsive" style="border: 1px solid #cbd5e1; border-radius: 4px; background: #fff;">
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 12px;">
+                                <thead style="background: #f8fafc;">
+                                    <tr>
+                                        <th style="font-weight: 600;">Nama Akun Piutang</th>
+                                        <th style="width: 250px; font-weight: 600; text-align: right;">Piutang (Rp)</th>
+                                        <th style="width: 150px; font-weight: 600; text-align: center;">Jatuh Tempo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris 1: Piutang BPJS (Tampil untuk BPJS COB & BPJS Murni) -->
+                                    <tr style="background: #f0fdf4; {{ in_array($penjaminKategori, ['Asuransi', 'Umum']) ? 'display: none;' : '' }}" id="rowPiutangBpjs">
+                                        <td class="align-middle">
+                                            <div style="font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fas fa-check-circle"></i> {{ $akunPiutangBpjs->nama_bayar ?? '2. Piutang BPJS' }}
+                                                @if($penjaminKategori === 'BPJS COB')
+                                                    <span class="badge bg-success" style="font-size: 10px; font-weight: 500;">Tarif INACBG Otomatis</span>
+                                                @else
+                                                    <span class="badge bg-success" style="font-size: 10px; font-weight: 500;">BPJS Murni (100% Tagihan RS)</span>
+                                                @endif
+                                            </div>
+                                            <input type="hidden" name="nama_bayar_bpjs" value="{{ $akunPiutangBpjs->nama_bayar ?? '2. Piutang BPJS' }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" class="form-control form-control-sm text-end font-monospace" name="piutang_bpjs" id="inputPiutangBpjs" value="{{ $defaultBpjsNominal }}" required style="font-weight: 700; color: #15803d; font-size: 13px;" oninput="hitungOtomatisManualBpjs()">
+                                        </td>
+                                        <td class="text-center align-middle font-monospace">{{ date('d/m/Y') }}</td>
+                                    </tr>
+
+                                    <!-- Baris 2: Piutang Perusahaan / Asuransi (Untuk COB & Asuransi Murni) -->
+                                    <tr style="background: #fffbeb; {{ $penjaminKategori === 'BPJS Murni' || $penjaminKategori === 'Umum' ? 'display: none;' : '' }}" id="rowPiutangPerusahaan">
+                                        <td class="align-middle">
+                                            <div style="font-weight: 700; color: #b45309; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fas fa-building"></i> {{ $selectedPerusahaanNama }}
+                                                @if($selectedPerusahaanKdPj)
+                                                    <span class="badge bg-warning text-dark" style="font-size: 10px; font-weight: 600;">{{ $selectedPerusahaanKdPj }}</span>
+                                                @endif
+                                                <span class="badge bg-secondary" style="font-size: 10px; font-weight: 500;">
+                                                    {{ $penjaminKategori === 'Asuransi' ? 'Akun Piutang Mapping' : 'Perusahaan COB' }} (Terkunci)
+                                                </span>
+                                            </div>
+                                            <input type="hidden" name="nama_bayar_cob" id="inputNamaBayarCob" value="{{ $selectedPerusahaanNama }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" class="form-control form-control-sm text-end font-monospace" name="selisih_cob" id="inputSelisihCob" value="{{ $defaultCobNominal }}" style="font-weight: 700; color: #b45309; font-size: 13px;" oninput="hitungOtomatisManualCob()">
+                                        </td>
+                                        <td class="text-center align-middle font-monospace">{{ date('d/m/Y') }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. Status Kekurangan / Sisa Tagihan (Target: Rp 0) -->
+                    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 18px;" class="d-flex justify-content-between align-items-center">
+                        <div style="font-weight: 700; font-size: 13px; color: #334155;">
+                            Kekurangan / Sisa Tagihan Kasir:
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="badgeStatusBalance" class="badge bg-success" style="font-size: 11px;">LUNAS (SEIMBANG)</span>
+                            <div style="font-size: 18px; font-weight: 800; font-family: monospace;" id="displayKekuranganAkhir">
+                                Rp 0
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="tipe_selisih" id="inputTipeSelisih" value="piutang_cob">
+
+                    <!-- Tombol Simpan atau Notifikasi Sudah Bayar -->
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-4 pt-3" style="border-top: 1px solid #e2e8f0;">
+                        @if(($header->status_bayar ?? '') === 'Sudah Bayar')
+                            <div class="alert alert-success d-flex align-items-center mb-0 px-3 py-2" style="font-size: 13px; font-weight: 600; border-radius: 6px;">
+                                <i class="fas fa-check-circle me-2 fs-5"></i>
+                                Status Pasien: Sudah Bayar (Pembayaran / Piutang Telah Tercatat)
+                            </div>
+                        @else
+                            <button type="submit" class="btn btn-primary px-4 py-2" id="btnSimpanCob" style="font-size: 13px; font-weight: 700; background: #1e3a8a;">
+                                <i class="fas fa-save me-1"></i> Simpan Pembayaran Kasir
+                            </button>
+                        @endif
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
 </div>
+
+<script>
+    function hitungOtomatisSemua() {
+        const totalTagihan = parseFloat(document.getElementById('inputTotalTagihanReal').value) || 0;
+        const tarifInacbg = parseFloat(document.getElementById('inputTarifInacbg').value) || 0;
+        const bayarLangsung = parseFloat(document.getElementById('inputBesarBayarLangsung').value) || 0;
+        const kategori = document.getElementById('inputKategoriPenjamin')?.value || 'Asuransi';
+
+        let porsiBpjs = 0;
+        let porsiPerusahaan = 0;
+
+        if (kategori === 'BPJS COB') {
+            // Pasien COB: Tarif INACBG masuk BPJS, sisanya ke Perusahaan
+            porsiBpjs = tarifInacbg;
+            porsiPerusahaan = totalTagihan - porsiBpjs - bayarLangsung;
+            if (porsiPerusahaan < 0) porsiPerusahaan = 0;
+        } else if (kategori === 'BPJS Murni') {
+            // Pasien BPJS Murni: 100% Total Tagihan RS masuk ke BPJS
+            porsiBpjs = totalTagihan - bayarLangsung;
+            if (porsiBpjs < 0) porsiBpjs = 0;
+            porsiPerusahaan = 0;
+        } else if (kategori === 'Asuransi') {
+            // Pasien Asuransi Murni: 100% masuk ke Akun Piutang Perusahaan/Asuransi Mapping
+            porsiBpjs = 0;
+            porsiPerusahaan = totalTagihan - bayarLangsung;
+            if (porsiPerusahaan < 0) porsiPerusahaan = 0;
+        } else {
+            // Pasien Umum: Bayar Tunai
+            porsiBpjs = 0;
+            porsiPerusahaan = 0;
+        }
+
+        document.getElementById('inputPiutangBpjs').value = porsiBpjs;
+        document.getElementById('inputSelisihCob').value = porsiPerusahaan;
+
+        updateTampilanKekurangan();
+    }
+
+    function hitungOtomatisManualBpjs() {
+        const totalTagihan = parseFloat(document.getElementById('inputTotalTagihanReal').value) || 0;
+        const piutangBpjs = parseFloat(document.getElementById('inputPiutangBpjs').value) || 0;
+        const bayarLangsung = parseFloat(document.getElementById('inputBesarBayarLangsung').value) || 0;
+
+        let porsiPerusahaan = totalTagihan - piutangBpjs - bayarLangsung;
+        if (porsiPerusahaan < 0) porsiPerusahaan = 0;
+
+        document.getElementById('inputSelisihCob').value = porsiPerusahaan;
+        updateTampilanKekurangan();
+    }
+
+    function hitungOtomatisManualCob() {
+        updateTampilanKekurangan();
+    }
+
+    function updateTampilanKekurangan() {
+        const totalTagihan = parseFloat(document.getElementById('inputTotalTagihanReal').value) || 0;
+        const tarifInacbg = parseFloat(document.getElementById('inputTarifInacbg').value) || 0;
+        const bayarLangsung = parseFloat(document.getElementById('inputBesarBayarLangsung').value) || 0;
+        const piutangBpjs = parseFloat(document.getElementById('inputPiutangBpjs').value) || 0;
+        const piutangCob = parseFloat(document.getElementById('inputSelisihCob').value) || 0;
+
+        const totalTerbayar = bayarLangsung + piutangBpjs + piutangCob;
+        const sisaKekurangan = totalTagihan - totalTerbayar;
+
+        // Update Text Ringkasan
+        document.getElementById('textSummaryBayar').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(bayarLangsung);
+        document.getElementById('textSummaryPiutang').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(piutangBpjs + piutangCob);
+        document.getElementById('displayKekuranganAkhir').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(sisaKekurangan);
+
+        let selisihPerusahaan = totalTagihan - tarifInacbg;
+        if (selisihPerusahaan < 0) selisihPerusahaan = 0;
+        if (document.getElementById('displaySelisihPerusahaanText')) {
+            document.getElementById('displaySelisihPerusahaanText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(selisihPerusahaan);
+        }
+
+        const badge = document.getElementById('badgeStatusBalance');
+        if (Math.abs(sisaKekurangan) < 1) {
+            badge.className = 'badge bg-success';
+            badge.innerText = 'LUNAS (SEIMBANG)';
+            document.getElementById('displayKekuranganAkhir').style.color = '#15803d';
+        } else {
+            badge.className = 'badge bg-danger';
+            badge.innerText = 'SELISIH / KURANG';
+            document.getElementById('displayKekuranganAkhir').style.color = '#dc2626';
+        }
+    }
+
+    // Refresh Tarif E-Klaim via AJAX
+    document.getElementById('btnRefreshEklaim')?.addEventListener('click', function() {
+        const noRawat = encodeURIComponent("{{ $header->no_rawat ?? request('no_rawat') }}");
+        const icon = document.getElementById('iconSyncEklaim');
+        if (icon) icon.classList.add('fa-spin');
+
+        fetch(`/rincian-kasir/cek-eklaim/${noRawat}`)
+            .then(res => res.json())
+            .then(res => {
+                if (icon) icon.classList.remove('fa-spin');
+                if (res.success) {
+                    document.getElementById('inputTarifInacbg').value = res.tarif;
+                    document.getElementById('displayTarifInacbgText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(res.tarif);
+                    if (document.getElementById('labelCbgCode')) {
+                        document.getElementById('labelCbgCode').innerText = res.cbg || '-';
+                    }
+                    if (document.getElementById('textEklaimDesc')) {
+                        document.getElementById('textEklaimDesc').innerText = res.deskripsi || 'Tarif berhasil diperbarui dari E-Klaim';
+                    }
+                    hitungOtomatisSemua();
+                    alert('Tarif E-Klaim berhasil diperbarui: Rp ' + new Intl.NumberFormat('id-ID').format(res.tarif));
+                } else {
+                    alert('Gagal mengambil tarif E-Klaim: ' + (res.message || 'Data tidak ditemukan'));
+                }
+            })
+            .catch(err => {
+                if (icon) icon.classList.remove('fa-spin');
+                console.error(err);
+                alert('Terjadi kesalahan saat memanggil E-Klaim.');
+            });
+    });
+
+    // Inisialisasi awal saat halaman termuat
+    document.addEventListener('DOMContentLoaded', function() {
+        hitungOtomatisSemua();
+    });
+</script>
 @endsection

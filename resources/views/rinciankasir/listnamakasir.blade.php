@@ -53,6 +53,18 @@
                 </div>
 
                 <div class="form-group mr-2">
+                    <label class="mr-2 text-muted small font-weight-bold">
+                        <i class="fas fa-money-bill-wave"></i> Jenis Bayar
+                    </label>
+                    <select name="jenis_bayar" id="jenis_bayar" class="form-control form-control-sm">
+                        <option value="" {{ ($jenisBayar ?? '') == '' ? 'selected' : '' }}>Semua Jenis Bayar</option>
+                        <option value="BPJS" {{ ($jenisBayar ?? '') == 'BPJS' ? 'selected' : '' }}>BPJS / COB (KAI COB, dll)</option>
+                        <option value="Umum" {{ ($jenisBayar ?? '') == 'Umum' ? 'selected' : '' }}>Umum / Mandiri</option>
+                        <option value="Asuransi" {{ ($jenisBayar ?? '') == 'Asuransi' ? 'selected' : '' }}>Asuransi Non-BPJS</option>
+                    </select>
+                </div>
+
+                <div class="form-group mr-2">
                     <div class="input-group input-group-sm" style="width:240px;">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
@@ -94,9 +106,11 @@
                             <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">No. Rawat</th>
                             <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Tgl. Registrasi</th>
                             <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Nama Pasien</th>
+                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Jenis Bayar</th>
                             <th style="position:sticky; top:0; z-index:2; background:#f8fafc;">Poliklinik</th>
                             <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Tgl. Masuk Kamar</th>
-                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status</th>
+                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status Bayar</th>
+                            <th style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Status Rawat</th>
                             <th class="text-center" style="position:sticky; top:0; z-index:2; background:#f8fafc; white-space:nowrap;">Aksi</th>
                         </tr>
                     </thead>
@@ -108,14 +122,29 @@
                             <td style="white-space:nowrap;">{{ \Carbon\Carbon::parse($row->tgl_registrasi)->format('d-m-Y') }}</td>
                             <td><strong class="text-dark">{{ $row->nm_pasien }}</strong></td>
                             <td>
+                                @php
+                                    $isCobOrBpjs = (stripos($row->png_jawab, 'COB') !== false || stripos($row->png_jawab, 'BPJS') !== false || in_array($row->png_jawab, ['ASR - PT KAI (COB SUB)', 'ASR - KAI (COB MAX)']));
+                                @endphp
+                                <span class="badge {{ $isCobOrBpjs ? 'badge-primary' : 'badge-light border' }}" style="font-size: 11px;">
+                                    {{ $row->png_jawab ?? '-' }}
+                                </span>
+                            </td>
+                            <td>
                                 <span class="badge badge-light border text-dark">
                                     {{ $row->nm_poli }}
                                 </span>
                             </td>
                             <td class="text-center">{{ $row->tgl_masuk ? \Carbon\Carbon::parse($row->tgl_masuk)->format('d-m-Y') : '-' }}</td>
                             <td class="text-center">
+                                @if(($row->status_bayar ?? '') === 'Sudah Bayar')
+                                    <span class="badge badge-success"><i class="fas fa-check-circle me-1"></i> Sudah Bayar</span>
+                                @else
+                                    <span class="badge badge-warning text-dark"><i class="fas fa-clock me-1"></i> Belum Bayar</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
                                 @if($row->status_lanjut === 'Ranap')
-                                    <span class="badge badge-success">Rawat Inap</span>
+                                    <span class="badge badge-secondary">Rawat Inap</span>
                                 @else
                                     <span class="badge badge-info">Rawat Jalan</span>
                                 @endif
@@ -130,7 +159,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="10" class="text-center py-5 text-muted">
                                 <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
                                 Tidak ada data pasien pada tanggal
                                 <strong>{{ \Carbon\Carbon::parse($tgl1)->format('d/m/Y') }} s.d {{ \Carbon\Carbon::parse($tgl2)->format('d/m/Y') }}</strong>
