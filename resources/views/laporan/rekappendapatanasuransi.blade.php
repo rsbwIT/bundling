@@ -273,6 +273,10 @@
                 </tfoot>
             </table>
         </div>
+
+        @if($dataRekap->isNotEmpty())
+            @include('laporan.partials.summary_table_asuransi')
+        @endif
     </div>
 
     {{-- Tab Rincian Bayar Piutang --}}
@@ -678,6 +682,12 @@ function exportSemuaExcel() {
     let rekapTable = document.getElementById('tableToCopy');
     if (rekapTable) {
         html += "<h2>Rekapan Pendapatan Asuransi</h2>" + tableToCleanHtml(rekapTable) + "<br><br>";
+    }
+    
+    // Tabel Rangkuman
+    let summaryTable = document.getElementById('tableSummaryAsuransi');
+    if (summaryTable) {
+        html += tableToCleanHtml(summaryTable) + "<br><br>";
     }
     
     // Tabel Rincian

@@ -255,6 +255,61 @@ class RekapPendapatanAsuransiController extends Controller
                 return [$item->status_lanjut . '|' . $item->tanggal => $item->total_bayar_piutang];
             });
 
+        // EKSES (diambil dari piutang_pasien.uangmuka sesuai laporan piutang harian)
+        $eksesQuery = DB::table('piutang_pasien as pp')
+            ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'pp.no_rawat');
+        $eksesPerTgl = $eksesQuery->select('ni.status_lanjut', 'ni.tanggal', DB::raw('SUM(pp.uangmuka) as total_ekses'))
+            ->groupBy('ni.status_lanjut', 'ni.tanggal')
+            ->get()->mapWithKeys(function ($item) {
+                return [$item->status_lanjut . '|' . $item->tanggal => $item->total_ekses];
+            });
+
+        // 13. COB, TAMBAHAN (+), dan POTONGAN (-) (diambil dari kolom Selisih di menu Pasien Piutang Harian)
+        // Selisih = Dibayar ASR (detail_lunas_cob.nominal_cob) - Penjamin Nominal (detail_piutang_pasien.totalpiutang)
+        $cobQuery = DB::table('detail_lunas_cob as dlc')
+            ->join(DB::raw("{$notaSource} as ni"), 'ni.no_rawat', '=', 'dlc.no_rawat')
+            ->leftJoinSub(
+                DB::table('detail_piutang_pasien')
+                    ->select('no_rawat', DB::raw('SUM(totalpiutang) as total_detail'))
+                    ->groupBy('no_rawat'),
+                'dpp',
+                'dpp.no_rawat',
+                '=',
+                'dlc.no_rawat'
+            )
+            ->select(
+                'ni.status_lanjut',
+                'ni.tanggal',
+                'dlc.no_rawat',
+                DB::raw('SUM(dlc.nominal_cob) as total_cob'),
+                DB::raw('COALESCE(MAX(dpp.total_detail), 0) as total_detail')
+            )
+            ->groupBy('ni.status_lanjut', 'ni.tanggal', 'dlc.no_rawat');
+
+        $cobData = $cobQuery->get();
+
+        $cobSummaryPerTgl = collect();
+        foreach ($cobData->groupBy(function($item) {
+            return $item->status_lanjut . '|' . $item->tanggal;
+        }) as $key => $items) {
+            $sumCob = $items->sum('total_cob');
+            $sumTmb = 0;
+            $sumPot = 0;
+            foreach ($items as $it) {
+                $selisih = (float)$it->total_cob - (float)$it->total_detail;
+                if ($selisih > 0) {
+                    $sumTmb += $selisih;
+                } elseif ($selisih < 0) {
+                    $sumPot += abs($selisih);
+                }
+            }
+            $cobSummaryPerTgl->put($key, (object)[
+                'cob' => $sumCob,
+                'tmb' => $sumTmb,
+                'pot' => $sumPot,
+            ]);
+        }
+
         // RINCIAN BAYAR PIUTANG (Detail Lengkap)
         $rincianBayarPiutang = DB::table('reg_periksa')
             ->select(
@@ -375,6 +430,8 @@ class RekapPendapatanAsuransiController extends Controller
             ->merge(array_keys($kmrPerTgl->toArray()))
             ->merge(array_keys($okPerTgl->toArray()))
             ->merge(array_keys($bayarPiutangPerTgl->toArray()))
+            ->merge(array_keys($eksesPerTgl->toArray()))
+            ->merge(array_keys($cobSummaryPerTgl->toArray()))
             ->filter()
             ->unique()
             ->sort() // sorts alphabetically e.g. "Ralan|2025-01-01", "Ranap|2025-01-01"
@@ -429,6 +486,14 @@ class RekapPendapatanAsuransiController extends Controller
             $okJsVal   = $okItem ? (float)$okItem->js : 0;
 
             $bayarPiutangVal = (float) $bayarPiutangPerTgl->get($keyStr, 0);
+            $eksesVal        = (float) $eksesPerTgl->get($keyStr, 0);
+
+            $cobItem     = $cobSummaryPerTgl->get($keyStr);
+            $cobVal      = $cobItem ? (float)$cobItem->cob : 0;
+            $tmbVal      = $cobItem ? (float)$cobItem->tmb : 0;
+            $potValBayar = $cobItem ? (float)$cobItem->pot : 0;
+
+            $grandTotalVal = $bayarPiutangVal + $cobVal + $tmbVal - $potValBayar;
 
             $rowTotal = $regVal + $jsVal + $bhpVal + $jmDrVal + $prVal + $ksoVal
                 + $obatVal + $returVal
@@ -466,14 +531,14 @@ class RekapPendapatanAsuransiController extends Controller
                 'ok_js'      => $okJsVal,
                 'total'      => $rowTotal,
                 'dp_ekses'   => 0,
-                'ekses'      => 0,
+                'ekses'      => $eksesVal,
                 'sudah_bayar'=> 0,
                 'bayar_piutang' => $bayarPiutangVal,
                 'piutang_obat'=> 0,
-                'cob'        => 0,
-                'tmb_bayar'  => 0,
-                'pot_bayar'  => 0,
-                'grand_total'=> $bayarPiutangVal // atau bagaimana perhitungannya? sementara bayar_piutangVal saja, atau grand total = total? 
+                'cob'        => $cobVal,
+                'tmb_bayar'  => $tmbVal,
+                'pot_bayar'  => $potValBayar,
+                'grand_total'=> $grandTotalVal
             ]);
         }
 
