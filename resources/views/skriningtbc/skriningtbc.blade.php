@@ -90,9 +90,14 @@ body{
         <h5 class="mb-0 font-weight-bold">
             <i class="fas fa-lungs mr-2"></i> Data Skrining TBC
         </h5>
-        <span class="badge badge-light text-success">
-            Total : {{ count($data) }}
-        </span>
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-sm btn-light font-weight-bold mr-2 text-dark shadow-sm" onclick="copyTableToClipboard('table-skrining-tbc')">
+                <i class="fas fa-copy text-success mr-1"></i> Copy Tabel
+            </button>
+            <span class="badge badge-light text-success font-weight-bold py-2 px-3">
+                Total : {{ count($data) }}
+            </span>
+        </div>
     </div>
 
     {{-- FILTER --}}
@@ -166,6 +171,10 @@ body{
                     </a>
                 @endif
 
+                <button type="button" class="btn btn-sm filter-btn btn-outline-success font-weight-bold" onclick="copyTableToClipboard('table-skrining-tbc')">
+                    <i class="fas fa-copy mr-1"></i> Copy Tabel
+                </button>
+
             </div>
         </form>
     </div>
@@ -173,7 +182,7 @@ body{
     {{-- TABLE --}}
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-sm mb-0">
+            <table class="table table-bordered table-hover table-sm mb-0" id="table-skrining-tbc">
                 <thead class="text-center">
                     <tr>
                         <th>No</th>
@@ -185,7 +194,7 @@ body{
                         <th>Tanggal</th>
                         <th>IMT</th>
                         <th>Kesimpulan</th>
-                        <th>Aksi</th>
+                        <th class="no-copy">Aksi</th>
                     </tr>
                 </thead>
 
@@ -219,7 +228,7 @@ body{
                             @endif
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-copy">
                             <button class="btn btn-sm btn-custom-green"
                                 data-toggle="modal"
                                 data-target="#modalDetail{{ $i }}">
@@ -326,6 +335,39 @@ body{
 document.addEventListener("DOMContentLoaded", function(){
     document.body.style.opacity = "1";
 });
+
+function copyTableToClipboard(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        alert("Tabel tidak ditemukan!");
+        return;
+    }
+
+    // Sembunyikan kolom no-copy (kolom Aksi / tombol modal) sementara agar hasil copy ke Excel bersih
+    const noCopyEls = table.querySelectorAll('.no-copy');
+    noCopyEls.forEach(el => el.style.display = 'none');
+
+    const range = document.createRange();
+    range.selectNode(table);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            alert("Data tabel Skrining TBC berhasil disalin ke clipboard! Silakan buka Excel dan paste (Ctrl+V).");
+        } else {
+            alert("Gagal menyalin tabel ke clipboard.");
+        }
+    } catch (err) {
+        console.error("Gagal menyalin tabel:", err);
+        alert("Gagal menyalin tabel: " + err);
+    } finally {
+        // Kembalikan tampilan kolom Aksi
+        noCopyEls.forEach(el => el.style.display = '');
+        window.getSelection().removeAllRanges();
+    }
+}
 </script>
 
 @endsection
