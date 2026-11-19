@@ -24,3 +24,4 @@ return new class extends Migration
         Schema::dropIfExists('bw_mapping_penjamin_kasir');
     }
 };
+

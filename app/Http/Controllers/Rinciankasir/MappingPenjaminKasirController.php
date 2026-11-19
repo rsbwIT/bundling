@@ -77,3 +77,4 @@ class MappingPenjaminKasirController extends Controller
         return redirect()->back()->with('success', 'Mapping penjamin berhasil diperbarui!');
     }
 }
+

@@ -89,6 +89,13 @@
                                 </button>
                             @endif
                             <button type="button"
+                                    class="btn btn-sm btn-primary btnSalinAkses"
+                                    data-id="{{ $item->username_asli }}"
+                                    data-nama="{{ $item->nama_petugas ?? $item->username_asli }}"
+                                    title="Salin / Copy Akses dari user ini ke user lain">
+                                <i class="fas fa-copy"></i> Salin Akses
+                            </button>
+                            <button type="button"
                                     class="btn btn-sm btn-warning lihatAkses"
                                     data-id="{{ $item->username_asli }}" title="Edit Akses">
                                 ⚙
@@ -178,15 +185,53 @@
     </div>
 </div>
 
+{{-- MODAL SALIN / COPY AKSES --}}
+<div class="modal fade" id="modalSalinAkses" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-copy me-2"></i>Salin Hak Akses User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="copy_from_user">
+                <div class="alert alert-info py-2">
+                    <strong>Sumber Hak Akses :</strong> <span id="label_from_user" class="fw-bold"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pilih Satu atau Beberapa User Tujuan :</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="cariUserTujuan" class="form-control" placeholder="Cari nama atau username user tujuan...">
+                        <button type="button" class="btn btn-outline-secondary" id="btnCheckAllTujuan">Pilih Semua</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnUncheckAllTujuan">Batal Semua</button>
+                    </div>
+                    <div id="listUserTujuan" class="border rounded p-2" style="max-height: 280px; overflow-y: auto; background: #fafafa;">
+                        <div class="text-center py-3 text-muted"><i class="fas fa-spinner fa-spin"></i> Memuat daftar user...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnProsesCopyAkses">
+                    <i class="fas fa-check-circle me-1"></i> Terapkan Salin Akses
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- SCRIPT --}}
 <script>
 let modalAkses;
 let modalTambahUser;
+let modalSalinAkses;
 
 $(function(){
 
     modalAkses = new bootstrap.Modal(document.getElementById('modalAkses'));
     modalTambahUser = new bootstrap.Modal(document.getElementById('modalTambahUser'));
+    modalSalinAkses = new bootstrap.Modal(document.getElementById('modalSalinAkses'));
 
 });
 
@@ -429,6 +474,120 @@ $(document).on('click', '.btnHapusUser', function(){
         },
         error: function(xhr){
             alert("ERROR:\n" + xhr.responseText);
+        }
+    });
+});
+
+// SALIN / COPY AKSES
+let cacheListUser = null;
+$(document).on('click', '.btnSalinAkses', function(){
+    let fromUser = $(this).data('id');
+    let fromNama = $(this).data('nama');
+
+    $('#copy_from_user').val(fromUser);
+    $('#label_from_user').html(fromNama + ' <span class="badge bg-secondary font-monospace">' + fromUser + '</span>');
+    $('#cariUserTujuan').val('');
+    $('#btnProsesCopyAkses').prop('disabled', false).html('<i class="fas fa-check-circle me-1"></i> Terapkan Salin Akses');
+
+    modalSalinAkses.show();
+
+    if(cacheListUser) {
+        renderListUserTujuan(fromUser);
+    } else {
+        $('#listUserTujuan').html('<div class="text-center py-3 text-muted"><i class="fas fa-spinner fa-spin"></i> Memuat daftar user...</div>');
+        $.get('/ai/user/list', function(res){
+            if(res.status && res.data){
+                cacheListUser = res.data;
+                renderListUserTujuan(fromUser);
+            } else {
+                $('#listUserTujuan').html('<div class="text-center py-3 text-danger">Gagal memuat daftar user</div>');
+            }
+        }).fail(function(){
+            $('#listUserTujuan').html('<div class="text-center py-3 text-danger">Koneksi gagal memuat user</div>');
+        });
+    }
+});
+
+function renderListUserTujuan(excludeUser){
+    let html = '';
+    let count = 0;
+    cacheListUser.forEach(function(u){
+        if(u.username_asli === excludeUser) return; // jangan tampilkan user sumber itu sendiri
+        count++;
+        html += `
+            <div class="form-check item-user-tujuan py-1 border-bottom">
+                <input class="form-check-input cb-user-tujuan" type="checkbox" value="${u.username_asli}" id="cb_user_${count}">
+                <label class="form-check-label w-100 cursor-pointer" for="cb_user_${count}">
+                    <strong>${u.nama_petugas ?? u.username_asli}</strong>
+                    <span class="text-muted small ms-1 font-monospace">(${u.username_asli})</span>
+                </label>
+            </div>
+        `;
+    });
+
+    if(count === 0){
+        html = '<div class="text-center py-3 text-muted">Tidak ada user tujuan lain yang tersedia.</div>';
+    }
+    $('#listUserTujuan').html(html);
+}
+
+// FILTER PENCARIAN USER TUJUAN
+$(document).on('keyup', '#cariUserTujuan', function(){
+    let k = $(this).val().toLowerCase();
+    $('.item-user-tujuan').each(function(){
+        let txt = $(this).text().toLowerCase();
+        $(this).toggle(txt.includes(k));
+    });
+});
+
+// CHECK / UNCHECK ALL TUJUAN
+$('#btnCheckAllTujuan').click(function(){
+    $('.item-user-tujuan:visible .cb-user-tujuan').prop('checked', true);
+});
+$('#btnUncheckAllTujuan').click(function(){
+    $('.item-user-tujuan:visible .cb-user-tujuan').prop('checked', false);
+});
+
+// PROSES SUBMIT COPY AKSES
+$('#btnProsesCopyAkses').click(function(){
+    let fromUser = $('#copy_from_user').val();
+    let toUsers = [];
+
+    $('.cb-user-tujuan:checked').each(function(){
+        toUsers.push($(this).val());
+    });
+
+    if(toUsers.length === 0){
+        alert('Silakan pilih minimal satu user tujuan yang ingin disalin hak aksesnya!');
+        return;
+    }
+
+    if(!confirm('Anda yakin ingin menyalin seluruh hak akses dari (' + fromUser + ') ke ' + toUsers.length + ' user yang dipilih? Hak akses user tujuan akan diperbarui sesuai user sumber ini.')){
+        return;
+    }
+
+    let btn = $(this);
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyalin Hak Akses...');
+
+    $.ajax({
+        url: '/ai/user/akses/copy',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            from_user: fromUser,
+            to_users: toUsers
+        },
+        success: function(res){
+            alert(res.message);
+            if(res.status){
+                modalSalinAkses.hide();
+            } else {
+                btn.prop('disabled', false).html('<i class="fas fa-check-circle me-1"></i> Terapkan Salin Akses');
+            }
+        },
+        error: function(xhr){
+            alert('Gagal menyalin hak akses: ' + xhr.responseText);
+            btn.prop('disabled', false).html('<i class="fas fa-check-circle me-1"></i> Terapkan Salin Akses');
         }
     });
 });

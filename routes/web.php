@@ -32,6 +32,7 @@ use App\Http\Controllers\Bpjs\CesmikController;
 use App\Http\Controllers\Bpjs\ListPasienRalan2;
 use App\Http\Controllers\Regperiksa\Listpasien;
 use App\Http\Controllers\Lab\BridgingalatlatLis;
+use App\Http\Controllers\Lab\MappingLisController;
 use App\Http\Controllers\AntrianPoli\AntrianPoli;
 use App\Http\Controllers\Farmasi\BundlingFarmasi;
 use App\Http\Controllers\Laporan\CobBayarPiutang;
@@ -887,6 +888,13 @@ Route::group(['middleware' => 'default'], function () {
 
         // LAB
         Route::get('/bridging-lis-lab', [BridgingalatlatLis::class, 'BridgingalatlatLis']);
+        Route::get('/mapping-lis', [MappingLisController::class, 'index'])->name('lab.mapping-lis');
+        Route::get('/mapping-lis/search-tindakan', [MappingLisController::class, 'searchTindakan'])->name('lab.mapping-lis.search-tindakan');
+        Route::get('/mapping-lis/search-template', [MappingLisController::class, 'searchTemplate'])->name('lab.mapping-lis.search-template');
+        Route::get('/mapping-lis/get-template', [MappingLisController::class, 'getTemplate'])->name('lab.mapping-lis.get-template');
+        Route::post('/mapping-lis/store', [MappingLisController::class, 'store'])->name('lab.mapping-lis.store');
+        Route::post('/mapping-lis/update', [MappingLisController::class, 'update'])->name('lab.mapping-lis.update');
+        Route::delete('/mapping-lis/{id}', [MappingLisController::class, 'destroy'])->name('lab.mapping-lis.destroy');
 
         // PKPA
         Route::get('/monitoring-pkpa', [MonitoringPkpaController::class, 'index'])->name('pkpa.monitoring');

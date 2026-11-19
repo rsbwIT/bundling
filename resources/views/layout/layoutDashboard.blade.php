@@ -839,6 +839,12 @@
                                 <p>Bridging LIS</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/mapping-lis') }}" class="nav-link">
+                                <i class="nav-icon fas fa-network-wired text-info"></i>
+                                <p>Mapping LIS</p>
+                            </a>
+                        </li>
                         
                         {{-- MENU PANTAU UGD --}}
                         <li class="nav-item">
