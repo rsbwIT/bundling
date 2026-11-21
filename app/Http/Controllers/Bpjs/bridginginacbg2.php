@@ -937,6 +937,11 @@ class bridginginacbg2 extends Controller
 
             //  SIMPAN LOG KIRIM INACBG
 
+            $namaCoder = DB::table('inacbg_coder_nik')
+                ->join('petugas', 'petugas.nip', '=', 'inacbg_coder_nik.nik')
+                ->where('inacbg_coder_nik.no_ik', $request->coder_nik)
+                ->value('petugas.nama');
+
             DB::table('bridging_inacbg_terkirim')->updateOrInsert(
                 [
                     'no_rawat' => $norawat
@@ -944,13 +949,56 @@ class bridginginacbg2 extends Controller
                 [
                     'no_sep'      => $request->nosep,
                     'nik_coder'   => $request->coder_nik,
-                    'nama_coder'  => DB::table('inacbg_coder_nik')
-                        ->join('petugas', 'petugas.nip', '=', 'inacbg_coder_nik.nik')
-                        ->where('inacbg_coder_nik.no_ik', $request->coder_nik)
-                        ->value('petugas.nama'),
+                    'nama_coder'  => $namaCoder,
                     'tgl_kirim'   => now()
                 ]
             );
+
+            // OTOMATIS CATAT REKAP KLAIM VALID LANGSUNG DARI GROUPER & E-KLAIM
+            try {
+                $cbgData = $resInacbg1['response']['cbg'] ?? ($resFinalInacbg['response']['cbg'] ?? []);
+                $cbgCode = $cbgData['code'] ?? null;
+                $cbgDesc = $cbgData['description'] ?? null;
+                $tarifCbg = (float) ($cbgData['tariff'] ?? ($resInacbg1['response']['cbg']['tariff'] ?? 0));
+                
+                // Ambil tarif rs dari parameter request jika ada
+                $tarifRsTotal = 0;
+                if (!empty($tarif)) {
+                    $tarifRsTotal = array_sum(array_map('floatval', (array)$tarif));
+                }
+
+                $reg = DB::table('reg_periksa')
+                    ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                    ->where('reg_periksa.no_rawat', $norawat)
+                    ->select('reg_periksa.no_rkm_medis', 'pasien.nm_pasien', 'reg_periksa.status_lanjut', 'reg_periksa.tgl_registrasi')
+                    ->first();
+
+                DB::table('bw_rekap_klaim_inacbg')->updateOrInsert(
+                    ['no_sep' => $request->nosep],
+                    [
+                        'no_rawat'              => $norawat,
+                        'no_rkm_medis'          => $reg ? $reg->no_rkm_medis : null,
+                        'nm_pasien'             => $reg ? $reg->nm_pasien : null,
+                        'status_lanjut'         => $reg ? $reg->status_lanjut : null,
+                        'tgl_registrasi'        => $reg ? $reg->tgl_registrasi : null,
+                        'tgl_kirim'             => now(),
+                        'coder_nik'             => $request->coder_nik,
+                        'coder_nm'              => $namaCoder,
+                        'cbg_code'              => $cbgCode,
+                        'cbg_desc'              => $cbgDesc,
+                        'tarif_inacbg'          => $tarifCbg,
+                        'tarif_rs'              => $tarifRsTotal,
+                        'kemenkes_dc_status'    => 'sent',
+                        'kemenkes_dc_sent_dttm' => now(),
+                        'bpjs_dc_status'        => 'sent',
+                        'bpjs_dc_sent_dttm'     => now(),
+                        'klaim_status_cd'       => 'final',
+                        'updated_at'            => now()
+                    ]
+                );
+            } catch (\Throwable $eRekap) {
+                Log::error('GAGAL AUTO SAVE REKAP KLAIM: ' . $eRekap->getMessage());
+            }
 
             // AUTO SIMPAN PDF E-KLAIM
             $this->autoSavePdf($request->nosep);

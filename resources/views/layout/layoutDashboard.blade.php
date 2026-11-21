@@ -1411,6 +1411,12 @@
                                     </a>
                                 </li>
                             <li class="nav-item">
+                                    <a href="{{ url('/bpjs/rekap-klaim-inacbg') }}" class="nav-link" target="_blank">
+                                        <i class="fas fa-file-invoice-dollar nav-icon text-success"></i>
+                                        <p>Rekap Klaim Terkirim</p>
+                                    </a>
+                                </li>
+                            <li class="nav-item">
                                     <a href="{{ url('/casemix-home') }}" class="nav-link" target="_blank">
                                         <i class="fas fa-file-archive nav-icon text-purple"></i>
                                         <p>Gabung Berkas</p>

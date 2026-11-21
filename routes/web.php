@@ -347,8 +347,10 @@ Route::group(['middleware' => 'default'], function () {
         Route::post('/laporan-klaim-individual/data', [LaporanKlaimIndividual::class, 'data']);
 
 
-        Route::get('/laporan/klaim', [LaporanKlaimIndividual::class, 'index'])->name('klaim.index');
-        Route::get('/laporan/klaim/data', [LaporanKlaimIndividual::class, 'data'])->name('klaim.data');
+        Route::get('/laporan/klaim', [\App\Http\Controllers\Bpjs\RekapKlaimInacbgController::class, 'index'])->name('klaim.index');
+        Route::get('/bpjs/rekap-klaim-inacbg', [\App\Http\Controllers\Bpjs\RekapKlaimInacbgController::class, 'index'])->name('bpjs.rekap-klaim-inacbg');
+        Route::post('/bpjs/rekap-klaim-inacbg/sync-single', [\App\Http\Controllers\Bpjs\RekapKlaimInacbgController::class, 'syncSingle'])->name('bpjs.rekap-klaim-inacbg.sync-single');
+        Route::post('/bpjs/rekap-klaim-inacbg/sync-batch', [\App\Http\Controllers\Bpjs\RekapKlaimInacbgController::class, 'syncBatch'])->name('bpjs.rekap-klaim-inacbg.sync-batch');
                   Route::get(
               '/bpjs/inacbg/{norawat}',
               [bridginginacbg2::class, 'index']
