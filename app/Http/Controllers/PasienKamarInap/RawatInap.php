@@ -95,8 +95,30 @@ class RawatInap extends Controller
             ->groupBy('reg_periksa.no_rawat');
 
         // Filter berdasarkan request
-        if ($request->has('kelas_filter')) {
+        if ($request->has('kelas_filter') && !empty($request->kelas_filter)) {
             $query->where('kamar.kelas', $request->kelas_filter);
+        }
+
+        // Pencarian Kamar
+        if ($request->filled('kd_kamar')) {
+            $query->where(function($q) use ($request) {
+                $q->where('kamar.kd_kamar', 'like', '%' . $request->kd_kamar . '%')
+                  ->orWhere('bangsal.nm_bangsal', 'like', '%' . $request->kd_kamar . '%');
+            });
+        }
+
+        // Pencarian Keyword (No Rawat, No RM, Nama Pasien, Dokter, Penanggung Jawab)
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $query->where(function($q) use ($keyword) {
+                $q->where('reg_periksa.no_rawat', 'like', "%{$keyword}%")
+                  ->orWhere('pasien.no_rkm_medis', 'like', "%{$keyword}%")
+                  ->orWhere('pasien.nm_pasien', 'like', "%{$keyword}%")
+                  ->orWhere('dokter.nm_dokter', 'like', "%{$keyword}%")
+                  ->orWhere('penjab.png_jawab', 'like', "%{$keyword}%")
+                  ->orWhere('kamar_inap.diagnosa_awal', 'like', "%{$keyword}%")
+                  ->orWhere('kamar_inap.diagnosa_akhir', 'like', "%{$keyword}%");
+            });
         }
 
         if (!$request->has('belum_pulang') && !$request->has('tgl_masuk') && !$request->has('tgl_pulang')) {

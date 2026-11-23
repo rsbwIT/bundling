@@ -26,18 +26,7 @@ class PiutangHarian extends Controller
 
 
         $akunBayar = DB::table('akun_bayar')
-
-            ->whereIn(
-                'kd_rek',
-                [
-                    '112010',
-                    '112030',
-                    '112011',
-                    '112110',
-                    '112090'
-                ]
-            )
-
+            ->orderBy('nama_bayar', 'asc')
             ->get();
 
 
@@ -125,6 +114,13 @@ class PiutangHarian extends Controller
                 'pp.no_rawat'
             )
 
+            ->join(
+                'penjab as pj',
+                'rp.kd_pj',
+                '=',
+                'pj.kd_pj'
+            )
+
             ->leftJoin(
                 'detail_nota_jalan as dnj',
                 'rp.no_rawat',
@@ -143,6 +139,7 @@ class PiutangHarian extends Controller
                 'dpp.no_rawat',
                 'p.nm_pasien',
                 'pol.nm_poli',
+                'pj.png_jawab',
                 'rp.kd_dokter',
                 'dok.nm_dokter',
                 'ab.nama_bayar',

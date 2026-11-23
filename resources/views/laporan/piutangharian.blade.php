@@ -355,6 +355,7 @@
                     <th>No Rawat</th>
                     <th>Nama Pasien</th>
                     <th>Nama Poli</th>
+                    <th>Penjamin</th>
                     <th>Kode Dokter</th>
                     <th>Nama Dokter</th>
                     <th>Input Nominal Piutang</th>
@@ -506,6 +507,7 @@
                     <td>{{ $item->no_rawat }}</td>
                     <td>{{ $item->nm_pasien }}</td>
                     <td>{{ $item->nm_poli }}</td>
+                    <td>{{ $item->png_jawab ?? '-' }}</td>
                     <td>{{ $item->kd_dokter }}</td>
                     <td>{{ $item->nm_dokter }}</td>
 
@@ -761,7 +763,7 @@
 
                 <tr>
 
-                    <td colspan="24" class="text-center">
+                    <td colspan="25" class="text-center">
                         Silahkan Cari Data
                     </td>
 
@@ -779,7 +781,7 @@
                     bottom:0;
                     z-index:10;">
 
-                    <td colspan="7" class="text-center">
+                    <td colspan="8" class="text-center">
                         TOTAL
                     </td>
 

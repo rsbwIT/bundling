@@ -29,6 +29,7 @@ class CobHarian extends Controller
                 'detail_piutang_pasien.no_rawat',
                 'pasien.nm_pasien',
                 'poliklinik.nm_poli',
+                'penjab.png_jawab',
                 'reg_periksa.kd_dokter',
                 'dokter.nm_dokter',
                 'piutang_pasien.uangmuka',
@@ -38,6 +39,7 @@ class CobHarian extends Controller
             )
             ->join('reg_periksa', 'detail_piutang_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('poliklinik', 'reg_periksa.kd_poli', '=', 'poliklinik.kd_poli')
+            ->join('penjab', 'reg_periksa.kd_pj', '=', 'penjab.kd_pj')
             ->join('dokter', 'reg_periksa.kd_dokter', '=', 'dokter.kd_dokter')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
             ->join('piutang_pasien', 'reg_periksa.no_rawat', '=', 'piutang_pasien.no_rawat')
@@ -171,16 +173,7 @@ class CobHarian extends Controller
 
         return view('laporan.cob-harian', [
             'getCobHarian' => $getCobHarian,
-            // 'akunBayar' => DB::table('akun_bayar')->get(),
-            'akunBayar' => DB::table('akun_bayar')
-                ->whereIn('kd_rek', [
-                    '112010',
-                    '112030',
-                    '112011',
-                    '112110',
-                    '112090'
-                ])
-                ->get(),
+            'akunBayar' => DB::table('akun_bayar')->orderBy('nama_bayar', 'asc')->get(),
             'penjab' => $penjab
         ]);
     }

@@ -396,6 +396,7 @@
                         <th>No Rawat</th>
                         <th>Nama Pasien</th>
                         <th>Nama Poli</th>
+                        <th>Penjamin</th>
                         <th>Kode Dokter</th>
                         <th>Nama Dokter</th>
                         <th>Input COB</th>
@@ -427,6 +428,7 @@
                         <td>{{ $item->no_rawat }}</td>
                         <td>{{ $item->nm_pasien }}</td>
                         <td>{{ $item->nm_poli }}</td>
+                        <td>{{ $item->png_jawab ?? '-' }}</td>
                         <td>{{ $item->kd_dokter }}</td>
                         <td>{{ $item->nm_dokter }}</td>
 
@@ -552,7 +554,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="20" class="text-center">
+                        <td colspan="21" class="text-center">
                             Silahkan Cari Data
                         </td>
                     </tr>
@@ -560,7 +562,7 @@
                 
                 <tfoot class="bg-light font-weight-bold">
                     <tr>
-                        <td colspan="7" class="text-right">Total Keseluruhan</td>
+                        <td colspan="8" class="text-right">Total Keseluruhan</td>
                         <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getRegistrasi->sum('totalbiaya')), 0, '.', ',') }}</td>
                         <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getObat->sum('totalbiaya')), 0, '.', ',') }}</td>
                         <td class="text-right kolom-nominal">{{ number_format($getCobHarian->sum(fn($i) => $i->getReturObat->sum('totalbiaya')), 0, '.', ',') }}</td>

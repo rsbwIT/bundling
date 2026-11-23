@@ -682,6 +682,16 @@ Route::group(['middleware' => 'default'], function () {
         Route::get('/pasien-lebih-dari-1', [PasienLebihDari1::class, 'index']);
         Route::get('/pasien-lebih-dari-1/detail', [PasienLebihDari1::class, 'detail']);
 
+        // Pengkajian Gangguan Emosional / Psikiatri Pasien Rawat Inap
+        Route::get('/pengkajian-gangguan-emosional/cetak/{no_rawat}', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'cetak'])
+            ->name('ranap.pengkajian-emosional.cetak')
+            ->where('no_rawat', '.*');
+        Route::get('/pengkajian-gangguan-emosional/{no_rawat}', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'form'])
+            ->name('ranap.pengkajian-emosional.form')
+            ->where('no_rawat', '.*');
+        Route::post('/pengkajian-gangguan-emosional/store', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'store'])
+            ->name('ranap.pengkajian-emosional.store');
+
         // BERKAS PEGAWAI
         Route::get('/berkas-pegawai', [BerkasPegawaiController::class, 'index'])->name('berkas.pegawai');
         Route::post('/berkas-pegawai/upload', [BerkasPegawaiController::class, 'upload'])->name('berkas.pegawai.upload');
@@ -1008,4 +1018,14 @@ Route::get('/lab/gambaran-darah-tepi/form/{noorder}', [\App\Http\Controllers\Lab
 Route::post('/lab/gambaran-darah-tepi/store/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'store'])->name('lab.darah-tepi.store');
 Route::delete('/lab/gambaran-darah-tepi/destroy/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'destroy'])->name('lab.darah-tepi.destroy');
 Route::get('/lab/gambaran-darah-tepi/cetak/{noorder}', [\App\Http\Controllers\Lab\GambaranDarahTepiController::class, 'cetak'])->name('lab.darah-tepi.cetak');
+
+// Pengkajian Gangguan Emosional / Psikiatri (Dapat diakses langsung tanpa login/auth guard)
+Route::get('/pengkajian-gangguan-emosional/cetak/{no_rawat}', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'cetak'])
+    ->name('ranap.pengkajian-emosional.cetak')
+    ->where('no_rawat', '.*');
+Route::get('/pengkajian-gangguan-emosional/{no_rawat}', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'form'])
+    ->name('ranap.pengkajian-emosional.form')
+    ->where('no_rawat', '.*');
+Route::post('/pengkajian-gangguan-emosional/store', [\App\Http\Controllers\PasienKamarInap\PengkajianGangguanEmosionalController::class, 'store'])
+    ->name('ranap.pengkajian-emosional.store');
 
