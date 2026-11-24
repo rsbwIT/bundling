@@ -4,23 +4,23 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>
-    /* DESAIN FORM MEDIS ELEGAN & PROFESIONAL */
+    /* DESAIN FORM MEDIS MENGIKUTI DEFAULT TEMA LAYOUT DASHBOARD */
     .med-card-header {
-        background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+        background: var(--theme-gradient, linear-gradient(135deg, #0284c7 0%, #0369a1 100%));
         color: #ffffff;
         border-radius: 10px 10px 0 0;
         padding: 16px 22px;
     }
 
     .patient-hero {
-        background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%);
-        border: 1px solid #ccfbf1;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
         border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.06);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .badge-no-rawat {
-        background-color: #0f766e;
+        background-color: var(--theme-primary, #0284c7);
         color: white;
         padding: 4px 8px;
         border-radius: 6px;
@@ -46,11 +46,11 @@
 
     .form-subsection-title {
         background-color: #f1f5f9;
-        color: #0f766e;
+        color: var(--theme-primary, #0284c7);
         padding: 6px 12px;
         font-weight: 700;
         font-size: 0.88rem;
-        border-left: 4px solid #0f766e;
+        border-left: 4px solid var(--theme-primary, #0284c7);
         border-radius: 0 4px 4px 0;
         margin-top: 14px;
         margin-bottom: 12px;
@@ -66,26 +66,71 @@
     .option-card {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 8px 12px;
+        border-radius: 8px;
+        padding: 10px 14px;
         transition: all 0.15s ease;
         height: 100%;
         display: flex;
         align-items: center;
+        gap: 10px;
+        cursor: pointer;
     }
     .option-card:hover {
-        background: #f0fdfa;
-        border-color: #99f6e4;
+        background: #f0f9ff;
+        border-color: #bae6fd;
+    }
+    .option-card.active,
+    .option-card:has(input:checked) {
+        background: #f0f9ff;
+        border-color: var(--theme-primary, #0284c7);
+        box-shadow: 0 0 0 1px var(--theme-primary, #0284c7);
     }
 
-    .form-check-input {
+    .option-card .form-check-input {
+        position: static !important;
+        margin-top: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
         cursor: pointer;
-        width: 1.1rem;
-        height: 1.1rem;
+        width: 1.15rem;
+        height: 1.15rem;
+        flex-shrink: 0;
+        vertical-align: middle;
+        accent-color: var(--theme-primary, #0284c7);
     }
-    .form-check-label {
+    .option-card .form-check-label {
         cursor: pointer;
-        margin-left: 4px;
+        margin-left: 0 !important;
+        margin-bottom: 0 !important;
+        user-select: none;
+        font-size: 0.88rem;
+        color: #1e293b;
+        line-height: 1.35;
+        flex-grow: 1;
+    }
+
+    .form-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding-left: 0 !important;
+        margin-right: 12px;
+        margin-bottom: 6px;
+    }
+    .form-check .form-check-input {
+        position: static !important;
+        margin-top: 0 !important;
+        margin-left: 0 !important;
+        cursor: pointer;
+        width: 1.05rem;
+        height: 1.05rem;
+        flex-shrink: 0;
+        accent-color: var(--theme-primary, #0284c7);
+    }
+    .form-check .form-check-label {
+        cursor: pointer;
+        margin-left: 0 !important;
+        margin-bottom: 0 !important;
         user-select: none;
         font-size: 0.88rem;
     }
@@ -97,24 +142,24 @@
         transition: all 0.2s ease;
     }
     .custom-input-med:focus {
-        border-color: #0f766e;
-        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        border-color: var(--theme-primary, #0284c7);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
     }
 
     .btn-simpan-utama {
-        background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+        background: var(--theme-gradient, linear-gradient(135deg, #0284c7 0%, #0369a1 100%));
         color: #ffffff;
         font-weight: 600;
         border: none;
         padding: 8px 24px;
         border-radius: 6px;
-        box-shadow: 0 2px 6px rgba(15, 118, 110, 0.3);
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
         transition: all 0.2s ease;
     }
     .btn-simpan-utama:hover {
-        background: linear-gradient(135deg, #115e59 0%, #134e4a 100%);
+        background: var(--theme-primary-hover, #0369a1);
         color: #ffffff;
-        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.4);
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
     }
 </style>
 @endpush
@@ -285,40 +330,40 @@
                     @endphp
                     <div class="row g-2">
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Aniaya Fisik" id="tr_fisik" {{ in_array('Aniaya Fisik', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_fisik">Aniaya Fisik</label>
-                            </div>
+                            <label class="option-card" for="tr_fisik">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Aniaya Fisik" id="tr_fisik" {{ in_array('Aniaya Fisik', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Aniaya Fisik</span>
+                            </label>
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Aniaya Seksual" id="tr_seksual" {{ in_array('Aniaya Seksual', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_seksual">Aniaya Seksual</label>
-                            </div>
+                            <label class="option-card" for="tr_seksual">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Aniaya Seksual" id="tr_seksual" {{ in_array('Aniaya Seksual', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Aniaya Seksual</span>
+                            </label>
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Penolakan" id="tr_tolak" {{ in_array('Penolakan', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_tolak">Penolakan</label>
-                            </div>
+                            <label class="option-card" for="tr_tolak">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Penolakan" id="tr_tolak" {{ in_array('Penolakan', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Penolakan</span>
+                            </label>
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Kekerasan dalam Rumah Tangga" id="tr_kdrt" {{ in_array('Kekerasan dalam Rumah Tangga', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_kdrt">Kekerasan dalam Rumah Tangga (KDRT)</label>
-                            </div>
+                            <label class="option-card" for="tr_kdrt">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Kekerasan dalam Rumah Tangga" id="tr_kdrt" {{ in_array('Kekerasan dalam Rumah Tangga', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Kekerasan dalam Rumah Tangga (KDRT)</span>
+                            </label>
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Tindakan Kriminal" id="tr_kriminal" {{ in_array('Tindakan Kriminal', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_kriminal">Tindakan Kriminal</label>
-                            </div>
+                            <label class="option-card" for="tr_kriminal">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Tindakan Kriminal" id="tr_kriminal" {{ in_array('Tindakan Kriminal', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Tindakan Kriminal</span>
+                            </label>
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Lain-lain" id="tr_lain" {{ in_array('Lain-lain', $traumaList) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="tr_lain">Lain-lain</label>
-                            </div>
+                            <label class="option-card" for="tr_lain">
+                                <input class="form-check-input" type="checkbox" name="predisposisi_trauma_masa_lalu[]" value="Lain-lain" id="tr_lain" {{ in_array('Lain-lain', $traumaList) ? 'checked' : '' }}>
+                                <span class="form-check-label">Lain-lain</span>
+                            </label>
                         </div>
                     </div>
                     <div class="mt-2">
@@ -519,10 +564,10 @@
                 <div class="row g-2 mb-3">
                     @foreach($masalahOpsi as $itemMasalah)
                         <div class="col-md-4 col-sm-6">
-                            <div class="option-card">
-                                <input class="form-check-input me-2" type="checkbox" name="masalah_keperawatan[]" value="{{ $itemMasalah }}" id="mk_{{ md5($itemMasalah) }}" {{ in_array($itemMasalah, $masalahList) ? 'checked' : '' }}>
-                                <label class="form-check-label font-weight-medium" for="mk_{{ md5($itemMasalah) }}">{{ $itemMasalah }}</label>
-                            </div>
+                            <label class="option-card" for="mk_{{ md5($itemMasalah) }}">
+                                <input class="form-check-input" type="checkbox" name="masalah_keperawatan[]" value="{{ $itemMasalah }}" id="mk_{{ md5($itemMasalah) }}" {{ in_array($itemMasalah, $masalahList) ? 'checked' : '' }}>
+                                <span class="form-check-label font-weight-medium">{{ $itemMasalah }}</span>
+                            </label>
                         </div>
                     @endforeach
                 </div>
