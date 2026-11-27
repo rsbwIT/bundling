@@ -15,7 +15,6 @@
             <div class="form-group">
                 <div class="input-group input-group-xs">
                     <select class="form-control" name="statusLunas" id="">
-                        <option value="Semua" {{ request('statusLunas') == 'Semua' ? 'selected' : '' }}>Semua (Lunas & Belum Lunas)</option>
                         <option value="Lunas" {{ request('statusLunas') == 'Lunas' ? 'selected' : '' }}>Lunas</option>
                         <option value="Belum Lunas" {{ request('statusLunas') == 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas</option>
                     </select>

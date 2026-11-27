@@ -25,7 +25,7 @@ class BayarPiutang extends Controller
         $tanggl2 = $request->tgl2 ?: date('Y-m-d');
         $statusLanjut = $request->status_lanjut;
 
-        $status = $request->statusLunas ?? 'Semua';
+        $status = ($request->statusLunas == null ? "Lunas" : $request->statusLunas);
         $kdPenjamin = ($request->input('kdPenjamin') == null) ? "" : explode(',', $request->input('kdPenjamin'));
 
         $bayarPiutang = DB::table('reg_periksa')
@@ -88,9 +88,6 @@ class BayarPiutang extends Controller
                 } elseif ($status == "Belum Lunas") {
                     $query->whereBetween('piutang_pasien.tgl_piutang', [$tanggl1, $tanggl2])
                         ->where('piutang_pasien.status', 'Belum Lunas');
-                } else {
-                    // Semua (Lunas & Belum Lunas)
-                    $query->whereBetween('bayar_piutang.tgl_bayar', [$tanggl1, $tanggl2]);
                 }
 
                 // ⭐ Filter Status Lanjut (Ralan / Ranap)
